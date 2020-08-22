@@ -1,0 +1,40 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  padding: 0;
+  background: lightgrey;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+
+.App {
+    display: flex;
+	text-align: center;
+}
+
+.center {
+	display: flex;
+	justify-content: center;
+}
+
+.Sidebar {
+    flex: 1;
+	height: 100%;
+	width: 30px;
+	padding-top: 20px;
+	position: fixed;
+	z-index: 1;
+}
+
+.Sidebar a {
+	display: block;
+	padding: 6px 8px 6px 16px;
+	text-decoration: none;
+	font-size: 25px;
+}
