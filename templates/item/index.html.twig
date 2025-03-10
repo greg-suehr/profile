@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}All Items{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    .hidden { display: none; }
+</style>
+
+<div class="example-wrapper">
+  <h1>All Items</h1>
+
+  <div class="example-wrapper" data-controller="toggle-form">
+    <a href="#" data-action="click->toggle-form#toggle">Add Item</a>
+    <div data-toggle-form-target="form" class="hidden">
+      {{ form(item_form) }}
+    </div>
+  </div>
+
+  <ul>
+    {% for item in items %}
+    <li><a href="{{ path('item', { id: item.id }) }}">{{ item }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
