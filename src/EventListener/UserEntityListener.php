@@ -8,7 +8,7 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 
 #[AsEntityListener(event: Events::prePersist, entity: User::class)]
 #[AsEntityListener(event: Events::preUpdate, entity: User::class)]
-class TimestampableListener
+class UserEntityListener
 {
   public function prePersist(LifecycleEventArgs $args): void
   {
