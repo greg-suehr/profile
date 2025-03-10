@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ItemRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ItemRepository::class)]
 class Item
@@ -14,16 +15,16 @@ class Item
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $item_id = null;
-
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $name = null;
 
     #[ORM\Column(length: 1000)]
+    #[Assert\NotBlank]  
     private ?string $description = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]  
     private ?string $category = null;
 
     #[ORM\Column]
@@ -37,16 +38,9 @@ class Item
         return $this->id;
     }
 
-    public function getItemId(): ?int
+    public function __toString(): string
     {
-        return $this->item_id;
-    }
-
-    public function setItemId(int $item_id): static
-    {
-        $this->item_id = $item_id;
-
-        return $this;
+      return $this->name;
     }
 
     public function getName(): ?string
