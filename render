@@ -1,0 +1,336 @@
+src//Repository/RecipeIngredientRepository.php:    //        return $this[01;31m[K-[m[K>createQueryBuilder('r')
+src//Repository/RecipeIngredientRepository.php:    //            [01;31m[K-[m[K>andWhere('r.exampleField = :val')
+src//Repository/RecipeIngredientRepository.php:    //            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/RecipeIngredientRepository.php:    //            [01;31m[K-[m[K>orderBy('r.id', 'ASC')
+src//Repository/RecipeIngredientRepository.php:    //            [01;31m[K-[m[K>setMaxResults(10)
+src//Repository/RecipeIngredientRepository.php:    //            [01;31m[K-[m[K>getQuery()
+src//Repository/RecipeIngredientRepository.php:    //            [01;31m[K-[m[K>getResult()
+src//Repository/RecipeIngredientRepository.php:    //        return $this[01;31m[K-[m[K>createQueryBuilder('r')
+src//Repository/RecipeIngredientRepository.php:    //            [01;31m[K-[m[K>andWhere('r.exampleField = :val')
+src//Repository/RecipeIngredientRepository.php:    //            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/RecipeIngredientRepository.php:    //            [01;31m[K-[m[K>getQuery()
+src//Repository/RecipeIngredientRepository.php:    //            [01;31m[K-[m[K>getOneOrNullResult()
+src//Repository/RecipeInstructionRepository.php:    //        return $this[01;31m[K-[m[K>createQueryBuilder('r')
+src//Repository/RecipeInstructionRepository.php:    //            [01;31m[K-[m[K>andWhere('r.exampleField = :val')
+src//Repository/RecipeInstructionRepository.php:    //            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/RecipeInstructionRepository.php:    //            [01;31m[K-[m[K>orderBy('r.id', 'ASC')
+src//Repository/RecipeInstructionRepository.php:    //            [01;31m[K-[m[K>setMaxResults(10)
+src//Repository/RecipeInstructionRepository.php:    //            [01;31m[K-[m[K>getQuery()
+src//Repository/RecipeInstructionRepository.php:    //            [01;31m[K-[m[K>getResult()
+src//Repository/RecipeInstructionRepository.php:    //        return $this[01;31m[K-[m[K>createQueryBuilder('r')
+src//Repository/RecipeInstructionRepository.php:    //            [01;31m[K-[m[K>andWhere('r.exampleField = :val')
+src//Repository/RecipeInstructionRepository.php:    //            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/RecipeInstructionRepository.php:    //            [01;31m[K-[m[K>getQuery()
+src//Repository/RecipeInstructionRepository.php:    //            [01;31m[K-[m[K>getOneOrNullResult()
+src//Repository/RecipientRepository.php:    //        return $this[01;31m[K-[m[K>createQueryBuilder('r')
+src//Repository/RecipientRepository.php:    //            [01;31m[K-[m[K>andWhere('r.exampleField = :val')
+src//Repository/RecipientRepository.php:    //            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/RecipientRepository.php:    //            [01;31m[K-[m[K>orderBy('r.id', 'ASC')
+src//Repository/RecipientRepository.php:    //            [01;31m[K-[m[K>setMaxResults(10)
+src//Repository/RecipientRepository.php:    //            [01;31m[K-[m[K>getQuery()
+src//Repository/RecipientRepository.php:    //            [01;31m[K-[m[K>getResult()
+src//Repository/RecipientRepository.php:    //        return $this[01;31m[K-[m[K>createQueryBuilder('r')
+src//Repository/RecipientRepository.php:    //            [01;31m[K-[m[K>andWhere('r.exampleField = :val')
+src//Repository/RecipientRepository.php:    //            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/RecipientRepository.php:    //            [01;31m[K-[m[K>getQuery()
+src//Repository/RecipientRepository.php:    //            [01;31m[K-[m[K>getOneOrNullResult()
+src//Repository/UnitRepository.php://        return $this[01;31m[K-[m[K>createQueryBuilder('u')
+src//Repository/UnitRepository.php://            [01;31m[K-[m[K>andWhere('u.exampleField = :val')
+src//Repository/UnitRepository.php://            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/UnitRepository.php://            [01;31m[K-[m[K>orderBy('u.id', 'ASC')
+src//Repository/UnitRepository.php://            [01;31m[K-[m[K>setMaxResults(10)
+src//Repository/UnitRepository.php://            [01;31m[K-[m[K>getQuery()
+src//Repository/UnitRepository.php://            [01;31m[K-[m[K>getResult()
+src//Repository/UnitRepository.php://        return $this[01;31m[K-[m[K>createQueryBuilder('u')
+src//Repository/UnitRepository.php://            [01;31m[K-[m[K>andWhere('u.exampleField = :val')
+src//Repository/UnitRepository.php://            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/UnitRepository.php://            [01;31m[K-[m[K>getQuery()
+src//Repository/UnitRepository.php://            [01;31m[K-[m[K>getOneOrNullResult()
+src//Repository/ItemRepository.php:    //        return $this[01;31m[K-[m[K>createQueryBuilder('i')
+src//Repository/ItemRepository.php:    //            [01;31m[K-[m[K>andWhere('i.exampleField = :val')
+src//Repository/ItemRepository.php:    //            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/ItemRepository.php:    //            [01;31m[K-[m[K>orderBy('i.id', 'ASC')
+src//Repository/ItemRepository.php:    //            [01;31m[K-[m[K>setMaxResults(10)
+src//Repository/ItemRepository.php:    //            [01;31m[K-[m[K>getQuery()
+src//Repository/ItemRepository.php:    //            [01;31m[K-[m[K>getResult()
+src//Repository/ItemRepository.php:    //        return $this[01;31m[K-[m[K>createQueryBuilder('i')
+src//Repository/ItemRepository.php:    //            [01;31m[K-[m[K>andWhere('i.exampleField = :val')
+src//Repository/ItemRepository.php:    //            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/ItemRepository.php:    //            [01;31m[K-[m[K>getQuery()
+src//Repository/ItemRepository.php:    //            [01;31m[K-[m[K>getOneOrNullResult()
+src//Repository/RecipeRepository.php:    //        return $this[01;31m[K-[m[K>createQueryBuilder('r')
+src//Repository/RecipeRepository.php:    //            [01;31m[K-[m[K>andWhere('r.exampleField = :val')
+src//Repository/RecipeRepository.php:    //            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/RecipeRepository.php:    //            [01;31m[K-[m[K>orderBy('r.id', 'ASC')
+src//Repository/RecipeRepository.php:    //            [01;31m[K-[m[K>setMaxResults(10)
+src//Repository/RecipeRepository.php:    //            [01;31m[K-[m[K>getQuery()
+src//Repository/RecipeRepository.php:    //            [01;31m[K-[m[K>getResult()
+src//Repository/RecipeRepository.php:    //        return $this[01;31m[K-[m[K>createQueryBuilder('r')
+src//Repository/RecipeRepository.php:    //            [01;31m[K-[m[K>andWhere('r.exampleField = :val')
+src//Repository/RecipeRepository.php:    //            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/RecipeRepository.php:    //            [01;31m[K-[m[K>getQuery()
+src//Repository/RecipeRepository.php:    //            [01;31m[K-[m[K>getOneOrNullResult()
+src//Repository/RecipientEventRepository.php:    //        return $this[01;31m[K-[m[K>createQueryBuilder('r')
+src//Repository/RecipientEventRepository.php:    //            [01;31m[K-[m[K>andWhere('r.exampleField = :val')
+src//Repository/RecipientEventRepository.php:    //            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/RecipientEventRepository.php:    //            [01;31m[K-[m[K>orderBy('r.id', 'ASC')
+src//Repository/RecipientEventRepository.php:    //            [01;31m[K-[m[K>setMaxResults(10)
+src//Repository/RecipientEventRepository.php:    //            [01;31m[K-[m[K>getQuery()
+src//Repository/RecipientEventRepository.php:    //            [01;31m[K-[m[K>getResult()
+src//Repository/RecipientEventRepository.php:    //        return $this[01;31m[K-[m[K>createQueryBuilder('r')
+src//Repository/RecipientEventRepository.php:    //            [01;31m[K-[m[K>andWhere('r.exampleField = :val')
+src//Repository/RecipientEventRepository.php:    //            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/RecipientEventRepository.php:    //            [01;31m[K-[m[K>getQuery()
+src//Repository/RecipientEventRepository.php:    //            [01;31m[K-[m[K>getOneOrNullResult()
+src//Repository/UserRepository.php://        return $this[01;31m[K-[m[K>createQueryBuilder('u')
+src//Repository/UserRepository.php://            [01;31m[K-[m[K>andWhere('u.exampleField = :val')
+src//Repository/UserRepository.php://            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/UserRepository.php://            [01;31m[K-[m[K>orderBy('u.id', 'ASC')
+src//Repository/UserRepository.php://            [01;31m[K-[m[K>setMaxResults(10)
+src//Repository/UserRepository.php://            [01;31m[K-[m[K>getQuery()
+src//Repository/UserRepository.php://            [01;31m[K-[m[K>getResult()
+src//Repository/UserRepository.php://        return $this[01;31m[K-[m[K>createQueryBuilder('u')
+src//Repository/UserRepository.php://            [01;31m[K-[m[K>andWhere('u.exampleField = :val')
+src//Repository/UserRepository.php://            [01;31m[K-[m[K>setParameter('val', $value)
+src//Repository/UserRepository.php://            [01;31m[K-[m[K>getQuery()
+src//Repository/UserRepository.php://            [01;31m[K-[m[K>getOneOrNullResult()
+src//Entity/Recipient.php:        $this[01;31m[K-[m[K>recipientEvents = new ArrayCollection();
+src//Entity/Recipient.php:    return $this[01;31m[K-[m[K>name;
+src//Entity/Recipient.php:        return $this[01;31m[K-[m[K>id;
+src//Entity/Recipient.php:        return $this[01;31m[K-[m[K>name;
+src//Entity/Recipient.php:        $this[01;31m[K-[m[K>name = $name;
+src//Entity/Recipient.php:        return $this[01;31m[K-[m[K>email;
+src//Entity/Recipient.php:        $this[01;31m[K-[m[K>email = $email;
+src//Entity/Recipient.php:        return $this[01;31m[K-[m[K>source;
+src//Entity/Recipient.php:        $this[01;31m[K-[m[K>source = $source;
+src//Entity/Recipient.php:        return $this[01;31m[K-[m[K>recipientEvents;
+src//Entity/Recipient.php:        if (!$this[01;31m[K-[m[K>recipientEvents[01;31m[K-[m[K>contains($recipientEvent)) {
+src//Entity/Recipient.php:            $this[01;31m[K-[m[K>recipientEvents[01;31m[K-[m[K>add($recipientEvent);
+src//Entity/Recipient.php:            $recipientEvent[01;31m[K-[m[K>setY($this);
+src//Entity/Recipient.php:        if ($this[01;31m[K-[m[K>recipientEvents[01;31m[K-[m[K>removeElement($recipientEvent)) {
+src//Entity/Recipient.php:            if ($recipientEvent[01;31m[K-[m[K>getY() === $this) {
+src//Entity/Recipient.php:                $recipientEvent[01;31m[K-[m[K>setY(null);
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>id;
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>recipe_id;
+src//Entity/Recipe.php~:        $this[01;31m[K-[m[K>recipe_id = $recipe_id;
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>author_id;
+src//Entity/Recipe.php~:        $this[01;31m[K-[m[K>author_id = $author_id;
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>title;
+src//Entity/Recipe.php~:        $this[01;31m[K-[m[K>title = $title;
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>summary;
+src//Entity/Recipe.php~:        $this[01;31m[K-[m[K>summary = $summary;
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>serving_min_qty;
+src//Entity/Recipe.php~:        $this[01;31m[K-[m[K>serving_min_qty = $serving_min_qty;
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>serving_max_qty;
+src//Entity/Recipe.php~:        $this[01;31m[K-[m[K>serving_max_qty = $serving_max_qty;
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>serving_unit;
+src//Entity/Recipe.php~:        $this[01;31m[K-[m[K>serving_unit = $serving_unit;
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>prep_time;
+src//Entity/Recipe.php~:        $this[01;31m[K-[m[K>prep_time = $prep_time;
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>cook_time;
+src//Entity/Recipe.php~:        $this[01;31m[K-[m[K>cook_time = $cook_time;
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>wait_time;
+src//Entity/Recipe.php~:        $this[01;31m[K-[m[K>wait_time = $wait_time;
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>created_at;
+src//Entity/Recipe.php~:        $this[01;31m[K-[m[K>created_at = $created_at;
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>updated_at;
+src//Entity/Recipe.php~:        $this[01;31m[K-[m[K>updated_at = $updated_at;
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>version;
+src//Entity/Recipe.php~:        $this[01;31m[K-[m[K>version = $version;
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>status;
+src//Entity/Recipe.php~:        $this[01;31m[K-[m[K>status = $status;
+src//Entity/Recipe.php~:        return $this[01;31m[K-[m[K>is_public;
+src//Entity/Recipe.php~:        $this[01;31m[K-[m[K>is_public = $is_public;
+src//Entity/RecipeIngredient.php:        return $this[01;31m[K-[m[K>id;
+src//Entity/RecipeIngredient.php:        return $this[01;31m[K-[m[K>ingredient_id;
+src//Entity/RecipeIngredient.php:        $this[01;31m[K-[m[K>ingredient_id = $ingredient_id;
+src//Entity/RecipeIngredient.php:        return $this[01;31m[K-[m[K>recipe_id;
+src//Entity/RecipeIngredient.php:        $this[01;31m[K-[m[K>recipe_id = $recipe_id;
+src//Entity/RecipeIngredient.php:        return $this[01;31m[K-[m[K>supply_type;
+src//Entity/RecipeIngredient.php:        $this[01;31m[K-[m[K>supply_type = $supply_type;
+src//Entity/RecipeIngredient.php:        return $this[01;31m[K-[m[K>supply_id;
+src//Entity/RecipeIngredient.php:        $this[01;31m[K-[m[K>supply_id = $supply_id;
+src//Entity/RecipeIngredient.php:        return $this[01;31m[K-[m[K>quantity;
+src//Entity/RecipeIngredient.php:        $this[01;31m[K-[m[K>quantity = $quantity;
+src//Entity/RecipeIngredient.php:        return $this[01;31m[K-[m[K>unit_id;
+src//Entity/RecipeIngredient.php:        $this[01;31m[K-[m[K>unit_id = $unit_id;
+src//Entity/RecipeIngredient.php:        return $this[01;31m[K-[m[K>note;
+src//Entity/RecipeIngredient.php:        $this[01;31m[K-[m[K>note = $note;
+src//Entity/RecipeInstruction.php:        return $this[01;31m[K-[m[K>id;
+src//Entity/RecipeInstruction.php:        return $this[01;31m[K-[m[K>instruction_id;
+src//Entity/RecipeInstruction.php:        $this[01;31m[K-[m[K>instruction_id = $instruction_id;
+src//Entity/RecipeInstruction.php:        return $this[01;31m[K-[m[K>recipe_id;
+src//Entity/RecipeInstruction.php:        $this[01;31m[K-[m[K>recipe_id = $recipe_id;
+src//Entity/RecipeInstruction.php:        return $this[01;31m[K-[m[K>section_number;
+src//Entity/RecipeInstruction.php:        $this[01;31m[K-[m[K>section_number = $section_number;
+src//Entity/RecipeInstruction.php:        return $this[01;31m[K-[m[K>step_number;
+src//Entity/RecipeInstruction.php:        $this[01;31m[K-[m[K>step_number = $step_number;
+src//Entity/RecipeInstruction.php:        return $this[01;31m[K-[m[K>description;
+src//Entity/RecipeInstruction.php:        $this[01;31m[K-[m[K>description = $description;
+src//Entity/RecipeInstruction.php:        return $this[01;31m[K-[m[K>prep_time;
+src//Entity/RecipeInstruction.php:        $this[01;31m[K-[m[K>prep_time = $prep_time;
+src//Entity/RecipeInstruction.php:        return $this[01;31m[K-[m[K>cook_time;
+src//Entity/RecipeInstruction.php:        $this[01;31m[K-[m[K>cook_time = $cook_time;
+src//Entity/RecipeInstruction.php:        return $this[01;31m[K-[m[K>wait_time;
+src//Entity/RecipeInstruction.php:        $this[01;31m[K-[m[K>wait_time = $wait_time;
+src//Entity/User.php:        return $this[01;31m[K-[m[K>id;
+src//Entity/User.php:        $this[01;31m[K-[m[K>createdAt = new \DateTimeImmutable();
+src//Entity/User.php:        return $this[01;31m[K-[m[K>user_id;
+src//Entity/User.php:        $this[01;31m[K-[m[K>user_id = $user_id;
+src//Entity/User.php:        return $this[01;31m[K-[m[K>username;
+src//Entity/User.php:        $this[01;31m[K-[m[K>username = $username;
+src//Entity/User.php:        return $this[01;31m[K-[m[K>name;
+src//Entity/User.php:        $this[01;31m[K-[m[K>name = $name;
+src//Entity/User.php:        return $this[01;31m[K-[m[K>email;
+src//Entity/User.php:        $this[01;31m[K-[m[K>email = $email;
+src//Entity/User.php:        return $this[01;31m[K-[m[K>is_verified;
+src//Entity/User.php:        $this[01;31m[K-[m[K>is_verified = $is_verified;
+src//Entity/User.php:        return $this[01;31m[K-[m[K>password_hash;
+src//Entity/User.php:        $this[01;31m[K-[m[K>password_hash = $password_hash;
+src//Entity/User.php:        return $this[01;31m[K-[m[K>role;
+src//Entity/User.php:        $this[01;31m[K-[m[K>role = $role;
+src//Entity/User.php:        return $this[01;31m[K-[m[K>created_at;
+src//Entity/User.php:        $this[01;31m[K-[m[K>created_at = $created_at;
+src//Entity/User.php:        return $this[01;31m[K-[m[K>updated_at;
+src//Entity/User.php:        $this[01;31m[K-[m[K>updated_at = $updated_at;
+src//Entity/User.php:        return $this[01;31m[K-[m[K>last_login;
+src//Entity/User.php:        $this[01;31m[K-[m[K>last_login = $last_login;
+src//Entity/Unit.php:        return $this[01;31m[K-[m[K>id;
+src//Entity/Unit.php:        return $this[01;31m[K-[m[K>unit_id;
+src//Entity/Unit.php:        $this[01;31m[K-[m[K>unit_id = $unit_id;
+src//Entity/Unit.php:        return $this[01;31m[K-[m[K>name;
+src//Entity/Unit.php:        $this[01;31m[K-[m[K>name = $name;
+src//Entity/Unit.php:        return $this[01;31m[K-[m[K>abbreviation;
+src//Entity/Unit.php:        $this[01;31m[K-[m[K>abbreviation = $abbreviation;
+src//Entity/Unit.php:        return $this[01;31m[K-[m[K>category;
+src//Entity/Unit.php:        $this[01;31m[K-[m[K>category = $category;
+src//Entity/Unit.php:        return $this[01;31m[K-[m[K>base_unit_id;
+src//Entity/Unit.php:        $this[01;31m[K-[m[K>base_unit_id = $base_unit_id;
+src//Entity/Unit.php:        return $this[01;31m[K-[m[K>conversion_factor;
+src//Entity/Unit.php:        $this[01;31m[K-[m[K>conversion_factor = $conversion_factor;
+src//Entity/RecipientEvent.php:        return $this[01;31m[K-[m[K>id;
+src//Entity/RecipientEvent.php:        return $this[01;31m[K-[m[K>title;
+src//Entity/RecipientEvent.php:        $this[01;31m[K-[m[K>title = $title;
+src//Entity/RecipientEvent.php:        return $this[01;31m[K-[m[K>event;
+src//Entity/RecipientEvent.php:        $this[01;31m[K-[m[K>event = $event;
+src//Entity/RecipientEvent.php:        return $this[01;31m[K-[m[K>createdAt;
+src//Entity/RecipientEvent.php:        $this[01;31m[K-[m[K>createdAt = $createdAt;
+src//Entity/RecipientEvent.php:        return $this[01;31m[K-[m[K>scheduledAt;
+src//Entity/RecipientEvent.php:        $this[01;31m[K-[m[K>scheduledAt = $scheduledAt;
+src//Entity/RecipientEvent.php:        return $this[01;31m[K-[m[K>y;
+src//Entity/RecipientEvent.php:        $this[01;31m[K-[m[K>y = $y;
+src//Entity/Item.php:        return $this[01;31m[K-[m[K>id;
+src//Entity/Item.php:        return $this[01;31m[K-[m[K>item_id;
+src//Entity/Item.php:        $this[01;31m[K-[m[K>item_id = $item_id;
+src//Entity/Item.php:        return $this[01;31m[K-[m[K>name;
+src//Entity/Item.php:        $this[01;31m[K-[m[K>name = $name;
+src//Entity/Item.php:        return $this[01;31m[K-[m[K>description;
+src//Entity/Item.php:        $this[01;31m[K-[m[K>description = $description;
+src//Entity/Item.php:        return $this[01;31m[K-[m[K>category;
+src//Entity/Item.php:        $this[01;31m[K-[m[K>category = $category;
+src//Entity/Item.php:        return $this[01;31m[K-[m[K>created_at;
+src//Entity/Item.php:        $this[01;31m[K-[m[K>created_at = $created_at;
+src//Entity/Item.php:        return $this[01;31m[K-[m[K>updated_at;
+src//Entity/Item.php:        $this[01;31m[K-[m[K>updated_at = $updated_at;
+src//Entity/User.php~:        return $this[01;31m[K-[m[K>id;
+src//Entity/User.php~:        $this[01;31m[K-[m[K>createdAt = new \DateTimeImmutable();
+src//Entity/User.php~:        return $this[01;31m[K-[m[K>user_id;
+src//Entity/User.php~:        $this[01;31m[K-[m[K>user_id = $user_id;
+src//Entity/User.php~:        return $this[01;31m[K-[m[K>username;
+src//Entity/User.php~:        $this[01;31m[K-[m[K>username = $username;
+src//Entity/User.php~:        return $this[01;31m[K-[m[K>name;
+src//Entity/User.php~:        $this[01;31m[K-[m[K>name = $name;
+src//Entity/User.php~:        return $this[01;31m[K-[m[K>email;
+src//Entity/User.php~:        $this[01;31m[K-[m[K>email = $email;
+src//Entity/User.php~:        return $this[01;31m[K-[m[K>is_verified;
+src//Entity/User.php~:        $this[01;31m[K-[m[K>is_verified = $is_verified;
+src//Entity/User.php~:        return $this[01;31m[K-[m[K>password_hash;
+src//Entity/User.php~:        $this[01;31m[K-[m[K>password_hash = $password_hash;
+src//Entity/User.php~:        return $this[01;31m[K-[m[K>role;
+src//Entity/User.php~:        $this[01;31m[K-[m[K>role = $role;
+src//Entity/User.php~:        return $this[01;31m[K-[m[K>created_at;
+src//Entity/User.php~:        $this[01;31m[K-[m[K>created_at = $created_at;
+src//Entity/User.php~:        return $this[01;31m[K-[m[K>updated_at;
+src//Entity/User.php~:        $this[01;31m[K-[m[K>updated_at = $updated_at;
+src//Entity/User.php~:        return $this[01;31m[K-[m[K>last_login;
+src//Entity/User.php~:        $this[01;31m[K-[m[K>last_login = $last_login;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>recipeIngredients = new ArrayCollection();
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>id;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>recipe_id;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>recipe_id = $recipe_id;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>author_id;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>author_id = $author_id;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>title;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>title = $title;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>summary;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>summary = $summary;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>serving_min_qty;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>serving_min_qty = $serving_min_qty;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>serving_max_qty;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>serving_max_qty = $serving_max_qty;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>serving_unit;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>serving_unit = $serving_unit;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>prep_time;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>prep_time = $prep_time;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>cook_time;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>cook_time = $cook_time;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>wait_time;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>wait_time = $wait_time;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>created_at;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>created_at = $created_at;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>updated_at;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>updated_at = $updated_at;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>version;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>version = $version;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>status;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>status = $status;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>is_public;
+src//Entity/Recipe.php:        $this[01;31m[K-[m[K>is_public = $is_public;
+src//Entity/Recipe.php:        return $this[01;31m[K-[m[K>recipeIngredients;
+src//Entity/Recipe.php:        if (!$this[01;31m[K-[m[K>recipeIngredients[01;31m[K-[m[K>contains($recipeIngredient)) {
+src//Entity/Recipe.php:            $this[01;31m[K-[m[K>recipeIngredients[01;31m[K-[m[K>add($recipeIngredient);
+src//Entity/Recipe.php:            $recipeIngredient[01;31m[K-[m[K>setRecipeId($this);
+src//Entity/Recipe.php:        if ($this[01;31m[K-[m[K>recipeIngredients[01;31m[K-[m[K>removeElement($recipeIngredient)) {
+src//Entity/Recipe.php:            if ($recipeIngredient[01;31m[K-[m[K>getRecipeId() === $this) {
+src//Entity/Recipe.php:                $recipeIngredient[01;31m[K-[m[K>setRecipeId(null);
+src//Entity/RecipeInstruction.php~:        return $this[01;31m[K-[m[K>id;
+src//Entity/RecipeInstruction.php~:        return $this[01;31m[K-[m[K>instruction_id;
+src//Entity/RecipeInstruction.php~:        $this[01;31m[K-[m[K>instruction_id = $instruction_id;
+src//Entity/RecipeInstruction.php~:        return $this[01;31m[K-[m[K>recipe_id;
+src//Entity/RecipeInstruction.php~:        $this[01;31m[K-[m[K>recipe_id = $recipe_id;
+src//Controller/NotifyListController.php~:        return $this[01;31m[K-[m[K>render('notify_list/index.html.twig', [
+src//Controller/UserController.php:        return $this[01;31m[K-[m[K>render('user/index.html.twig', [
+src//Controller/Admin/DashboardController.php:      $routeBuilder = $this[01;31m[K-[m[K>container[01;31m[K-[m[K>get(AdminUrlGenerator::class);
+src//Controller/Admin/DashboardController.php:      $url = $routeBuilder[01;31m[K-[m[K>setController(RecipientCrudController::class)[01;31m[K-[m[K>generateUrl();
+src//Controller/Admin/DashboardController.php:      return $this[01;31m[K-[m[K>redirect($url);
+src//Controller/Admin/DashboardController.php:      $routeBuilder = $this[01;31m[K-[m[K>container[01;31m[K-[m[K>get(AdminUrlGenerator::class);
+src//Controller/Admin/DashboardController.php:      $url = $routeBuilder[01;31m[K-[m[K>setController(UserCrudController::class)[01;31m[K-[m[K>generateUrl();
+src//Controller/Admin/DashboardController.php:      return $this[01;31m[K-[m[K>redirect($url);
+src//Controller/Admin/DashboardController.php:            [01;31m[K-[m[K>setTitle('Katzen');
+src//Controller/Admin/DashboardController.php:      //yield MenuItem::linkToDashboard('Dashboard', 'fa fa[01;31m[K-[m[Khome');
+src//Controller/Admin/DashboardController.php:      yield MenuItem::linktoRoute('Back to the waitlist', 'fas fa[01;31m[K-[m[Khome', 'app_notify_list');
+src//Controller/Admin/DashboardController.php:      yield MenuItem::linktoRoute('Recipients', 'fas fa[01;31m[K-[m[Krecipients', 'Recipient::class');
+src//Controller/Admin/DashboardController.php:      yield MenuItem::linktoRoute('Users', 'fas fa[01;31m[K-[m[Kusers', 'User::class');      
+src//Controller/Admin/DashboardController.php~:      $routeBuilder = $this[01;31m[K-[m[K>container[01;31m[K-[m[K>get(AdminUrlGenerator::class);
+src//Controller/Admin/DashboardController.php~:      $url = $routeBuilder[01;31m[K-[m[K>setController(RecipientCrudController::class)[01;31m[K-[m[K>generateUrl();
+src//Controller/Admin/DashboardController.php~:      return $this[01;31m[K-[m[K>redirect($url);
+src//Controller/Admin/DashboardController.php~:            [01;31m[K-[m[K>setTitle('Katzen');
+src//Controller/Admin/DashboardController.php~:      //yield MenuItem::linkToDashboard('Dashboard', 'fa fa[01;31m[K-[m[Khome');
+src//Controller/Admin/DashboardController.php~:      yield MenuItem::linktoRoute('Back to the website', 'fas fa[01;31m[K-[m[Khome', 'home');
+src//Controller/Admin/DashboardController.php~:      yield MenuItem::linktoRoute('Recipients', 'fas fa[01;31m[K-[m[Krecipients', 'Recipient::class');        
+src//Controller/NotifyListController.php:    return new Response($twig[01;31m[K-[m[K>render('notify_list/index.html.twig', [
+src//Controller/NotifyListController.php:      'recipients' => $recipientRepository[01;31m[K-[m[K>findAll(),
+src//Controller/RecipeController.php:        return $this[01;31m[K-[m[K>render('recipe/index.html.twig', [
+src//EventSubscriber/TwigEventSubscriber.php:        $this[01;31m[K-[m[K>twig = $twig;
+src//EventSubscriber/TwigEventSubscriber.php:        $this[01;31m[K-[m[K>userRepository = $userRepository;
+src//EventSubscriber/TwigEventSubscriber.php:      $this[01;31m[K-[m[K>twig[01;31m[K-[m[K>addGlobal('users', $this[01;31m[K-[m[K>userRepository[01;31m[K-[m[K>findAll());
+src//EventListener/TimestampableListener.php~:    $entity = $args[01;31m[K-[m[K>getEntity();
+src//EventListener/TimestampableListener.php~:    $entity[01;31m[K-[m[K>setCreatedAt($now);
+src//EventListener/TimestampableListener.php~:    $entity[01;31m[K-[m[K>setUpdatedAt($now);
+src//EventListener/TimestampableListener.php~:    $entity = $args[01;31m[K-[m[K>getEntity();
+src//EventListener/TimestampableListener.php~:    $entity[01;31m[K-[m[K>setUpdatedAt(new \DateTime());
+src//EventListener/TimestampableListener.php:    $entity = $args[01;31m[K-[m[K>getEntity();
+src//EventListener/TimestampableListener.php:    $entity[01;31m[K-[m[K>setCreatedAt($now);
+src//EventListener/TimestampableListener.php:    $entity[01;31m[K-[m[K>setUpdatedAt($now);
+src//EventListener/TimestampableListener.php:    $entity = $args[01;31m[K-[m[K>getEntity();
+src//EventListener/TimestampableListener.php:    $entity[01;31m[K-[m[K>setUpdatedAt(new \DateTime());
