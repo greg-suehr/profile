@@ -58,7 +58,7 @@ class User
     }
 
     #[ORM\PrePersist]
-    public function setCreatedAtValue():
+    public function setCreatedAtValue()
     {
         $this->createdAt = new \DateTimeImmutable();
     }
