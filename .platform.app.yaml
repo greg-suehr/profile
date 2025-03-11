@@ -31,6 +31,8 @@ web:
             root: "public"
             expires: 1h
             passthru: "/index.php"
+        "/build": { root: "public/build", expires: 365d }
+        "/assets/controllers": { root: "public/assets/controllers", expires: 365d }
 
 mounts:
     "/var/cache": { source: local, source_path: var/cache }
@@ -46,7 +48,9 @@ hooks:
         curl -fs https://get.symfony.com/cloud/configurator | bash
         # php-ext-install blackfire X.Y.Z
         
-        NODE_VERSION=22 symfony-build
+        NODE_VERSION=22 symfony-build	
+        npm install
+        npm run build
 
     deploy: |
         set -x -e
