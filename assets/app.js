@@ -8,3 +8,12 @@ import './bootstrap.js';
 import './styles/app.css';
 
 console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
+
+import { Application } from "@hotwired/stimulus";
+
+const app = Application.start();
+
+// Import all controllers from assets/controllers
+import ToggleFormController from "./controllers/toggle_form_controller";
+
+app.register("toggle-form", ToggleFormController);
