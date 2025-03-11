@@ -1,4 +1,4 @@
-import { startStimulusApp } from '@symfony/stimulus-bundle';
+import { startStimulusApp } from '@hotwired/stimulus';
 import './controllers';
 
 const app = startStimulusApp();
