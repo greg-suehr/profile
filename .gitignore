@@ -1,6 +1,7 @@
 *~
 data/*
 scripts/*
+public/images/*full.jpg
 
 ###> symfony/framework-bundle ###
 /.env.local

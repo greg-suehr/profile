@@ -11,7 +11,7 @@ use Twig\Environment;
 
 final class NotifyListController extends AbstractController
 {
-    #[Route('/', name: 'app_notify_list')]
+  #[Route('/notify', name: 'app_notify_list')]
   public function index(Environment $twig, RecipientRepository $recipientRepository): Response
   {
     return new Response($twig->render('notify_list/index.html.twig', [

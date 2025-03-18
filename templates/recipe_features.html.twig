@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recipe Feature{% endblock %}
+
+{% block body %}
+<div class="recipe-feature">
+  <div class="hero position-relative text-center">
+    <img src="{{ asset('images/recipe-feature_big.jpg') }}" alt="Recipe Image" class="splash-image">
+  </div>
+  <div class="position-absolute bottom-0 start-50 translate-middle-x container text-center mt-5">
+    <div class="row">
+      <div class="col-md-4">
+	<div class="feature p-3 border rounded bg-light">
+          <img src="{{ asset('images/recipe-feature.jpg') }}" alt="Recipe Image" class="splash-image">
+           <h4>Jimmy Dean's Sausage Quiche</h4>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature p-3 border rounded bg-light">
+          <img src="{{ asset('images/recipe-subfeature-1.jpg') }}" alt="Recipe Image"></img>
+          <h4>Kale Garden Breakfast Pile</h4>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature p-3 border rounded bg-light">
+          <img src="{{ asset('images/recipe-subfeature-2.jpg') }}" alt="Recipe Image"></img>       
+          <div class="feature p-3 border rounded bg-light">
+            <h4>Pesto Farfalle with Tomato</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
