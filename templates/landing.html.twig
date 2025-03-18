@@ -5,32 +5,32 @@
 {% block body %}
 <div class="landing-page">
     <div class="hero position-relative text-center">
-        <img src="{{ asset('images/landing-page.jpg') }}" alt="Hero Image" class="img-fluid w-100">
-        <div class="position-absolute top-50 start-50 translate-middle text-white">
+        <img src="{{ asset('images/landing-page.jpg') }}" alt="Hero Image" class="img-fluid w-100 h-auto">
+        <div class="hero d-flex flex-column justify-content-center align-items-center text-center">
             <h1>Konnichiwa! Katzen desu. :)</h1>
             <p>Keep your kitchen under control with Katzen.</p>
             <a href="{{ path('app_notify_list') }}" class="btn btn-primary">Try Katzen</a>
         </div>
+    </div>
         
-        <div class="position-absolute bottom-0 start-50 translate-middle-x container text-center mt-5">
-          <div class="row">
-            <div class="col-md-4">
-              <div class="feature p-3 border rounded bg-light">
-                <p>Track inventory, financials, and schedules with a simple, powerful, and <strong>affordable</strong> application.</p>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="feature p-3 border rounded bg-light">
-                <p>Gather insights from sales and purchasing histories to <strong>keep overstock costs down</strong> and keep your menu trendy and fresh.</p>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="feature p-3 border rounded bg-light">
-                <p>Choose a beautiful look for your menu from our <strong>template library</strong>, or <strong>create your own style</strong>.</p>
-              </div>
-            </div>
+    <div class="container text-center mt-5">
+      <div class="row">
+        <div class="col-md-4 col-12 mb-3">
+          <div class="feature p-3 border rounded bg-light">
+            <p>Track inventory, financials, and schedules with a simple, powerful, and <strong>affordable</strong> application.</p>
           </div>
         </div>
-    </div>    
+        <div class="col-md-4 col-12 mb-3">
+          <div class="feature p-3 border rounded bg-light">
+            <p>Gather insights from sales and purchasing histories to <strong>keep overstock costs down</strong> and keep your menu trendy and fresh.</p>
+          </div>
+        </div>
+        <div class="col-md-4 col-12 mb-3">
+          <div class="feature p-3 border rounded bg-light">
+            <p>Choose a beautiful look for your menu from our <strong>template library</strong>, or <strong>create your own style</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
 </div>
 {% endblock %}
