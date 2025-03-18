@@ -19,8 +19,7 @@ class Item
     #[Assert\NotBlank]
     private ?string $name = null;
 
-    #[ORM\Column(length: 1000)]
-    #[Assert\NotBlank]  
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
     #[ORM\Column(length: 255)]
@@ -32,6 +31,15 @@ class Item
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updated_at = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $fooddb_id = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $scientific_name = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $subcategory = null;
 
     public function getId(): ?int
     {
@@ -99,6 +107,42 @@ class Item
     public function setUpdatedAt(\DateTimeInterface $updated_at): static
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    public function getFooddbId(): ?string
+    {
+        return $this->fooddb_id;
+    }
+
+    public function setFooddbId(?string $fooddb_id): static
+    {
+        $this->fooddb_id = $fooddb_id;
+
+        return $this;
+    }
+
+    public function getScientificName(): ?string
+    {
+        return $this->scientific_name;
+    }
+
+    public function setScientificName(?string $scientific_name): static
+    {
+        $this->scientific_name = $scientific_name;
+
+        return $this;
+    }
+
+    public function getSubcategory(): ?string
+    {
+        return $this->subcategory;
+    }
+
+    public function setSubcategory(?string $subcategory): static
+    {
+        $this->subcategory = $subcategory;
 
         return $this;
     }
