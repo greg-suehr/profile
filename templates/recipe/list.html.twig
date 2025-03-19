@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}All Items{% endblock %}
+{% block title %}All Recipes{% endblock %}
 
 {% block body %}
 <style>
@@ -10,11 +10,11 @@
 </style>
 
 <div class="example-wrapper">
-  <h1>All Items</h1>
+  <h1>All Recipes</h1>
 
   <ul>
-    {% for item in items %}
-    <li><a href="{{ path('item', { id: item.id }) }}">{{ item }}</a></li>
+    {% for recipe in recipes %}
+    <li><a href="{{ path('app_recipe_show', { id: recipe.id }) }}">{{ recipe.title }}</a></li>
     {% endfor %}
   </ul>
 </div>

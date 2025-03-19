@@ -14,9 +14,6 @@ class Unit
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $unit_id = null;
-
     #[ORM\Column(length: 50)]
     private ?string $name = null;
 
@@ -35,18 +32,6 @@ class Unit
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getUnitId(): ?int
-    {
-        return $this->unit_id;
-    }
-
-    public function setUnitId(int $unit_id): static
-    {
-        $this->unit_id = $unit_id;
-
-        return $this;
     }
 
     public function getName(): ?string

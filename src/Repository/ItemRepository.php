@@ -30,7 +30,7 @@ class ItemRepository extends ServiceEntityRepository
     //            ->getResult()
     //        ;
     //    }
-
+  
     //    public function findOneBySomeField($value): ?Item
     //    {
     //        return $this->createQueryBuilder('i')
@@ -40,4 +40,13 @@ class ItemRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+  
+    public function findItemById(?int $id): ?Item
+    {
+        return $this->createQueryBuilder('me')
+          ->andWhere('me.id = :val')
+          ->setParameter('val', $id)
+          ->getQuery()
+          ->getOneOrNullResult();
+    }
 }

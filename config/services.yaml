@@ -20,5 +20,21 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    App\Service\RecipeImportService:
+        arguments:
+            $adapters: !tagged_iterator recipe.adapter
+
+    App\Adapter\JSONAdapter:
+        tags: ['recipe.adapter']
+
+    App\Adapter\CSVAdapter:
+        tags: ['recipe.adapter']
+
+    App\Adapter\PDFAdapter:
+        tags: ['recipe.adapter']
+
+    App\Adapter\OCRAdapter:
+        tags: ['recipe.adapter']
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

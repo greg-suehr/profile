@@ -14,12 +14,9 @@ class RecipeInstruction
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $instruction_id = null;
-
-    #[ORM\ManyToOne(cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(targetEntity: Recipe::class, inversedBy: 'recipeInstructions')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Recipe $recipe_id = null;
+    private ?Recipe $recipe = null;
 
     #[ORM\Column]
     private ?int $section_number = null;
@@ -44,26 +41,14 @@ class RecipeInstruction
         return $this->id;
     }
 
-    public function getInstructionId(): ?int
+    public function getRecipe(): ?Recipe
     {
-        return $this->instruction_id;
+        return $this->recipe;
     }
 
-    public function setInstructionId(int $instruction_id): static
+    public function setRecipe(?Recipe $recipe): static
     {
-        $this->instruction_id = $instruction_id;
-
-        return $this;
-    }
-
-    public function getRecipeId(): ?Recipe
-    {
-        return $this->recipe_id;
-    }
-
-    public function setRecipeId(Recipe $recipe_id): static
-    {
-        $this->recipe_id = $recipe_id;
+        $this->recipe = $recipe;
 
         return $this;
     }

@@ -16,11 +16,9 @@ class Recipe
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $recipe_id = null;
-
-    #[ORM\Column]
-    private ?int $author_id = null;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $author = null;
 
     #[ORM\Column(length: 255)]
     private ?string $title = null;
@@ -34,8 +32,9 @@ class Recipe
     #[ORM\Column(nullable: true)]
     private ?int $serving_max_qty = null;
 
-    #[ORM\Column]
-    private ?int $serving_unit = null;
+    #[ORM\ManyToOne(targetEntity: Unit::class)]
+    #[ORM\JoinColumn(nullable: false)]  
+    private ?Unit $serving_unit = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 6, scale: 2)]
     private ?string $prep_time = null;
@@ -64,8 +63,14 @@ class Recipe
     /**
      * @var Collection<int, RecipeIngredient>
      */
-    #[ORM\OneToMany(targetEntity: RecipeIngredient::class, mappedBy: 'recipe_id', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: RecipeIngredient::class, mappedBy: 'recipe', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $recipeIngredients;
+
+    /**
+     * @var Collection<int, RecipeInstruction>
+     */
+    #[ORM\OneToMany(targetEntity: RecipeInstruction::class, mappedBy: 'recipe', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $recipeInstructions;
 
     public function __construct()
     {
@@ -77,26 +82,14 @@ class Recipe
         return $this->id;
     }
 
-    public function getRecipeId(): ?int
+    public function getAuthor(): ?User
     {
-        return $this->recipe_id;
+        return $this->author;
     }
 
-    public function setRecipeId(int $recipe_id): static
+    public function setAuthor(?User $author): static
     {
-        $this->recipe_id = $recipe_id;
-
-        return $this;
-    }
-
-    public function getAuthorId(): ?int
-    {
-        return $this->author_id;
-    }
-
-    public function setAuthorId(int $author_id): static
-    {
-        $this->author_id = $author_id;
+        $this->author = $author;
 
         return $this;
     }
@@ -154,11 +147,10 @@ class Recipe
         return $this->serving_unit;
     }
 
-    public function setServingUnit(int $serving_unit): static
+    public function setServingUnit(Unit $serving_unit): static
     {
-        $this->serving_unit = $serving_unit;
-
-        return $this;
+      $this->serving_unit = $serving_unit;
+      return $this;
     }
 
     public function getPrepTime(): ?string
@@ -269,7 +261,7 @@ class Recipe
     {
         if (!$this->recipeIngredients->contains($recipeIngredient)) {
             $this->recipeIngredients->add($recipeIngredient);
-            $recipeIngredient->setRecipeId($this);
+            $recipeIngredient->setRecipe($this);
         }
 
         return $this;
@@ -279,11 +271,41 @@ class Recipe
     {
         if ($this->recipeIngredients->removeElement($recipeIngredient)) {
             // set the owning side to null (unless already changed)
-            if ($recipeIngredient->getRecipeId() === $this) {
-                $recipeIngredient->setRecipeId(null);
+            if ($recipeIngredient->getRecipe() === $this) {
+                $recipeIngredient->setRecipe(null);
             }
         }
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, RecipeInstruction>
+     */
+    public function getRecipeInstructions(): Collection
+    {
+        return $this->recipeInstructions;
+    }
+
+    public function addRecipeInstruction(RecipeInstruction $recipeInstruction): static
+    {
+        if (!$this->recipeInstructions->contains($recipeInstruction)) {
+            $this->recipeInstructions->add($recipeInstruction);
+            $recipeInstruction->setRecipe($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRecipeInstruction(RecipeInstruction $recipeInstruction): static
+    {
+        if ($this->recipeInstructions->removeElement($recipeInstruction)) {
+            // set the owning side to null (unless already changed)
+            if ($recipeInstruction->getRecipe() === $this) {
+                $recipeInstruction->setRecipe(null);
+            }
+        }
+
+        return $this;
+    }  
 }
