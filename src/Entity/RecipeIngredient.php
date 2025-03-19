@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Item;
 use App\Repository\RecipeIngredientRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -14,12 +15,9 @@ class RecipeIngredient
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $ingredient_id = null;
-
-    #[ORM\ManyToOne(inversedBy: 'recipeIngredients')]
+    #[ORM\ManyToOne(targetEntity: Recipe::class, inversedBy: 'recipeIngredients')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Recipe $recipe_id = null;
+    private ?Recipe $recipe = null;
 
     #[ORM\Column(length: 255)]
     private ?string $supply_type = null;
@@ -42,26 +40,14 @@ class RecipeIngredient
         return $this->id;
     }
 
-    public function getIngredientId(): ?int
+    public function getRecipe(): ?Recipe
     {
-        return $this->ingredient_id;
+        return $this->recipe;
     }
 
-    public function setIngredientId(int $ingredient_id): static
+    public function setRecipe(?Recipe $recipe): static
     {
-        $this->ingredient_id = $ingredient_id;
-
-        return $this;
-    }
-
-    public function getRecipeId(): ?Recipe
-    {
-        return $this->recipe_id;
-    }
-
-    public function setRecipeId(?Recipe $recipe_id): static
-    {
-        $this->recipe_id = $recipe_id;
+        $this->recipe = $recipe;
 
         return $this;
     }
