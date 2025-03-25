@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ItemRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -40,6 +42,17 @@ class Item
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $subcategory = null;
+
+    /**
+     * @var Collection<int, ItemVariant>
+     */
+    #[ORM\OneToMany(targetEntity: ItemVariant::class, mappedBy: 'item')]
+    private Collection $itemVariants;
+
+    public function __construct()
+    {
+        $this->itemVariants = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -143,6 +156,36 @@ class Item
     public function setSubcategory(?string $subcategory): static
     {
         $this->subcategory = $subcategory;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ItemVariant>
+     */
+    public function getItemVariants(): Collection
+    {
+        return $this->itemVariants;
+    }
+
+    public function addItemVariant(ItemVariant $itemVariant): static
+    {
+        if (!$this->itemVariants->contains($itemVariant)) {
+            $this->itemVariants->add($itemVariant);
+            $itemVariant->setItem($this);
+        }
+
+        return $this;
+    }
+
+    public function removeItemVariant(ItemVariant $itemVariant): static
+    {
+        if ($this->itemVariants->removeElement($itemVariant)) {
+            // set the owning side to null (unless already changed)
+            if ($itemVariant->getItem() === $this) {
+                $itemVariant->setItem(null);
+            }
+        }
 
         return $this;
     }
