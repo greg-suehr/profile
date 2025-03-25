@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Katzen Recipe Builder{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h2>Build Recipe</h2>
+    <p>Let's get started!</p>
+
+    <div class="example-wrapper">
+      {{ form_start(recipe_form) }}
+      {{ form_row(recipe_form.save) }}
+      {{ form_row(recipe_form.title) }}
+      {{ form_row(recipe_form.serving_min_qty) }}
+      {{ form_row(recipe_form.serving_max_qty) }}
+      {{ form_row(recipe_form.serving_unit) }}
+      {{ form_row(recipe_form.cook_time) }}
+      {{ form_row(recipe_form.summary) }}
+      {{ form_end(recipe_form) }}
+    </div>
+    <a href="{{ path('app_recipe') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+{% endblock %}

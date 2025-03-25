@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Recipe;
 use App\Form\ImportRecipeType;
+use App\Form\RecipeBuilderType;
 use App\Repository\ItemRepository;
 use App\Repository\RecipeRepository;
 use App\Service\RecipeImportService;
@@ -62,6 +63,18 @@ final class RecipeController extends AbstractController
         ]);
     }
 
+  #[Route('/recipe/build', name: 'app_recipe_build')]
+    public function build(Request $request, RecipeRepository $recipeRepo): Response
+    {
+
+    $recipe = new Recipe();
+    $form   = $this->createForm(RecipeBuilderType::class, $recipe);
+
+	return $this->render('recipe/build.html.twig', [
+          'controller_name' => 'RecipeController',
+          'recipe_form'     => $form,
+	]);
+    }
   
   #[Route('/recipe/import', name: 'app_recipe_import', methods: ['GET', 'POST'])]
     public function import(Request $request, RecipeImportService $recipeImportService): Response
