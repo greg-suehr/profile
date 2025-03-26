@@ -28,14 +28,6 @@ class RecipeBuilderType extends AbstractType
                 'choice_label' => 'name',
             ])
             ->add('cook_time')
-            ->add('version')
-            ->add('status')
-            ->add('is_public')
-            ->add('author', EntityType::class, [                
-              'class' => User::class,
-              'choice_label' => 'id',
-              'hidden'  => true
-            ])
         ;
     }
 

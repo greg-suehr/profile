@@ -11,13 +11,57 @@
       {{ form_start(recipe_form) }}
       {{ form_row(recipe_form.save) }}
       {{ form_row(recipe_form.title) }}
-      {{ form_row(recipe_form.serving_min_qty) }}
-      {{ form_row(recipe_form.serving_max_qty) }}
-      {{ form_row(recipe_form.serving_unit) }}
-      {{ form_row(recipe_form.cook_time) }}
+      <h4>How Many, How Long?</h4>
+      <div class="servings-selector" style="float:left">
+        {{ form_row(recipe_form.serving_min_qty) }}
+        {{ form_row(recipe_form.serving_max_qty) }}
+        {{ form_row(recipe_form.serving_unit) }}
+      </div>
+      <div class="cooktimes-selector">
+        {{ form_row(recipe_form.cook_time) }}
+      </div>
+      <h4>Paint a Picture</h4>
+      <p>Not a wordsmith? We can help fill this out later!</p>
       {{ form_row(recipe_form.summary) }}
+      
+      <h4>Add Incredients</h4>      
+      <div class="items-selector">
+        <label for="item-selector">Search for Item</label>
+        <input type="text" id="item-selector" class="form-control" placeholder="Start typing...">
+        <ul id="item-results" class="list-group mt-1"></ul>
+      </div>      
       {{ form_end(recipe_form) }}
     </div>
+    <br>
     <a href="{{ path('app_recipe') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('item-selector');
+  const results = document.getElementById('item-results');
+
+  input.addEventListener('input', async () => {
+    const q = input.value;
+    if (q.length < 2) return;
+
+    const response = await fetch(`/items/search?q=${encodeURIComponent(q)}`);
+    const items = await response.json();
+
+    results.innerHTML = '';
+    items.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'list-group-item';
+      li.textContent = item.name;
+      li.addEventListener('click', () => {
+        input.value = item.name;
+        results.innerHTML = '';
+        // TODO: Store selection somewhere
+      });
+      results.appendChild(li);
+    });
+  });
+});
+</script>
+
 {% endblock %}
