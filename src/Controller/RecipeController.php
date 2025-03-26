@@ -70,6 +70,20 @@ final class RecipeController extends AbstractController
     $recipe = new Recipe();
     $form   = $this->createForm(RecipeBuilderType::class, $recipe);
 
+    $form->handleRequest($request);
+    
+    if ($form->isSubmitted() && $form->isValid()) {
+        $recipe->setAuthor($this->getUser());
+        $recipe->setStatus('draft');
+        $recipe->setVersion(1); // TODO: getLatestVersion
+        $recipe->setCreatedAt(new \DateTimeImmutable());
+        $recipe->setUpdatedAt(new \DateTime());
+
+        $recipeRepo->save($recipe, true);
+
+        return $this->redirectToRoute('app_recipe_show', ['id' => $recipe->getId()]);
+    }
+    
 	return $this->render('recipe/build.html.twig', [
           'controller_name' => 'RecipeController',
           'recipe_form'     => $form,
