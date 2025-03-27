@@ -1,0 +1,27 @@
+{% extends 'profile_base.html.twig' %}
+
+{% block title %}Greg Suehr{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 text-content">
+                <h1>Say hi!</h1>
+                <div class="mx-auto">
+                  <p>People make the world better. I’d like to get to know you!</p>
+                  <p>If my work interests you, or if you think I’d be interested in your work (probably), let’s get in touch!</p>
+                  <p>Building a community of peers who have provided me support and critical feedback has enriched my life and kept me on the path through many creative droughts.  I am always happy to network with other creative professionals and make connections.</p>
+                  <p>If you are interested in hiring me or work, you can tell me more about your project here and view a list of services offer on these pages: technical and organizational consulting, creative collaborations.</p>
+                </div>
+            </div>
+            <div class="col-md-6 text-center">
+              <img src="{{ asset('images/pittsburgh-warm_jordan-faux-unsplash.jpg') }}" class="img-fluid hero-image">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="contact-section">
+</section>
+{% endblock %}

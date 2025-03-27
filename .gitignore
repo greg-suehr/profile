@@ -2,6 +2,7 @@
 data/*
 scripts/*
 public/images/*full.jpg
+*DS_Store
 
 ###> symfony/framework-bundle ###
 /.env.local

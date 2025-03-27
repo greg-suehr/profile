@@ -1,0 +1,116 @@
+{% extends 'profile_base.html.twig' %}
+
+{% block title %}Greg Suehr{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 text-content">
+                <h1>My Work</h1>
+                <p class="intro">Explore some things I've created and explore technical, creative, and professional services I offer,
+                  or get in touch so we can discuss how I can help take your project or organization to the next level.
+                <a href="{{ path('profile_contact') }}" class="btn btn-primary">Get In Touch</a>
+            </div>
+            <div class="col-md-6 text-center">
+                <img src="{{ asset('images/pittsburgh-warm_jordan-faux-unsplash.jpg') }}" class="img-fluid hero-image">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="summary-section">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <h5>Capable, Human Technology</h5>
+        <p>Let me help you build something great with hands on development, design services, and get connected to reliable, affordable systems that keep you in control of your technology.</p>
+        <h5>Engaging Plays and Verse</h5>
+        <p>Read from a selection of my plays and poetry, or check out my blog for translations and essays.</p>
+      </div>
+      <div class="col-md-6">
+	<h5>Impactful Consulting</h5>
+        <p>Whether you are an independent developer, a startup company creating a method for the madness, or an organization looking for an outside perspective to revitalize your development team, work with me to get actionable advice and material resources to support your projects for the long term.</p>
+        <h5>More!</h5>
+        <p>I have a several projects in development, including translations, books, and live events! Sign up for my not-a-newsletter mailing list to get notified when these projects become available!</p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="highlight-section">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-4 text-content">
+        <div class="col-md-4 text-left">
+          <h2 class="text-left">Katzen</h2>
+        </div>
+        <div>
+          <p class="text-left">Katzen is a friendly, capable set of tools designed to helps culinary professionals track inventory, manage recipes</p>
+        </div>
+        <div>
+          <a href="{{ path('app_recipe') }}" class="btn btn-primary">Try Katzen</a>
+          <a href="{{ path('app_landing') }}" class="btn btn-secondary">Learn More</a>
+      </div>
+      </div>
+    <div class="col-md-4">
+      <img src="{{ asset('images/katzen-feature-gritty_francisco-suarez-unsplash.jpg') }}" class="img-fluid">
+    </div>
+  </div>
+  <div class="row align-items-center">
+    <div class="col-md-4">
+      <img src="{{ asset('images/consulting_scott-graham-unsplash.jpg') }}" class="img-fluid">
+    </div>
+    <div class="col-md-4 text-content">
+      <div class="col-md-4 text-left">
+        <h2 class="text-left">Consulting</h2>
+      </div>
+      <div>
+        <p class="text-left">Development support, design services, process improvement, and other services.</p>
+      </div>
+      <div>
+        <a href="{{ path('profile_contact') }}" class="btn btn-primary">Get in Touch</a>
+        <a href="{{ path('profile_hire_me_consult') }}" class="btn btn-secondary">Explore Services</a>          
+      </div>
+    </div>
+  </div>
+  <div class="row align-items-center">
+    <div class="col-md-4 text-content">
+      <div class="col-md-4 text-left">
+        <h2 class="text-left">Playwriting</h2>
+      </div>
+      <div>
+        <p class="text-left">Read some of my short plays, purchase scripts, and preview projects in development.</p>
+      </div>
+      <div>
+        <a href="{{ path('profile_plays_purchase') }}" class="btn btn-primary">Buy A Script</a>
+        <a href="{{ path('profile_plays_read') }}" class="btn btn-secondary">Read A Play</a>          
+      </div>
+    </div>
+    <div class="col-md-4">
+      <img src="{{ asset('images/drama-feature-dark_engin-akyurt-unsplash.jpg') }}" class="img-fluid">
+    </div>
+  </div>
+  <div class="row align-items-center">
+    <div class="col-md-4">
+      <img src="{{ asset('images/writing-feature-sleek_kelly-sikkema-unsplash.jpg') }}" class="img-fluid">
+    </div>
+    <div class="col-md-4 text-content">
+      <div class="col-md-4 text-left">
+        <h2 class="text-left">Poetry</h2>
+      </div>
+      <div>
+        <p class="text-left">Read a selection of my poetry, purchase a chapbook or a sticker!</p>
+      </div>
+      <div>
+        <a href="{{ path('profile_poems_purchase') }}" class="btn btn-primary">Buy A Sticker</a>
+        <a href="{{ path('profile_poems_read') }}" class="btn btn-secondary">Read A Poem</a>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+{% endblock %}
