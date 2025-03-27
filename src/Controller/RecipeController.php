@@ -15,8 +15,16 @@ use Symfony\Component\Routing\Attribute\Route;
 final class RecipeController extends AbstractController
 {
   #[Route('/recipe', name: 'app_recipe')]
-    public function index(): Response
-    {
+  public function index(): Response
+  {
+        return $this->render('recipe/index.html.twig', [
+          'controller_name' => 'RecipeController',
+        ]);
+    }
+
+  #[Route('/katzen', name: 'app_landing')]
+  public function landing_page(): Response
+  {
         return $this->render('recipe/index.html.twig', [
           'controller_name' => 'RecipeController',
         ]);

@@ -1,0 +1,29 @@
+.site-map a {
+  text-decoration: none;
+  color: #007bff;
+}
+
+.site-map a:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+.site-map h5 {
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.nav-link {
+  font-size: 23px;
+  padding-top: 10px;
+  text-decoration: none;
+  display: flex;
+  justify-content: end;
+  display: inline;
+}
+
+#nav-bar {
+  position: fixed;
+  top: 0;
+  right: 0;
+}

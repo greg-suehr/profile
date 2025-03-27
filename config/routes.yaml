@@ -2,7 +2,7 @@ landing_page:
     path: /
     controller: Symfony\Bundle\FrameworkBundle\Controller\TemplateController::templateAction
     defaults:
-        template: 'landing.html.twig'
+        template: 'profile/landing.html.twig'
 features:
     path: /features
     controller: Symfony\Bundle\FrameworkBundle\Controller\TemplateController::templateAction
