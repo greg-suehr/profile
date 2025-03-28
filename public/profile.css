@@ -1,0 +1,84 @@
+:root {
+  --bs-primary: #1a73e8;
+  --bs-secondary: #ff5722;
+  --bs-success: #4caf50;
+  --bs-danger: #f44336;
+  --bs-info: #00bcd4;
+  --bs-warning: #ffeb3b;
+  --bs-light: #f1f1f1;
+  --bs-dark: #212121;
+}
+
+a {
+  color: #000000 !important;
+}
+
+footer {
+  background-color: #ffffff !important;
+}
+
+
+.btn-primary, .btn-primary:hover, .btn-primary:active, .btn-primary:visited {
+  background-color: #000000 !important;
+  border-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.btn-secondary, .btn-secondary:hover, .btn-secondary:active, .btn-secondary:visited {
+  background-color: #e2e2e2 !important;
+  border-color: #e2e2e2 !important;
+  color: #000000 !important;
+}
+
+.text-primary {
+  color: #000000 !important;
+}
+
+.text-secondary {
+  color: #777777 !important;
+}
+
+.text-secondary-dark {
+  color: #333333 !important;
+}
+
+.navbar-collapse {
+    float: left;
+    width: 100%;
+    clear: both;
+}
+
+@media (min-width: 768px) {
+    .navbar-right {
+        margin-top: -50px;
+    }
+}
+
+.nav-link {
+  display: flex;
+  justify-content: end;
+}
+
+#nav-bar {
+  padding: 3% 3%;
+  width: 100%;
+}
+
+.section {
+  padding: 3% 3%;
+}
+
+.site-map a {
+  text-decoration: none;
+  color: #007bff;
+}
+
+.site-map a:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+.site-map h5 {
+  font-weight: 600;
+  margin-bottom: 1rem;
+}

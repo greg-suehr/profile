@@ -4,45 +4,44 @@
     <meta charset="UTF-8">
     <title>{% block title %}Greg Suehr{% endblock %}</title>
     {% block stylesheets %}
-      <link href="profile.css" rel="stylesheet"/>
-      <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,500i,600,600i&display=swap" rel="stylesheet" />
-      {{ encore_entry_link_tags('app') }}
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,500i,600,600i&display=swap" rel="stylesheet" />
+    {{ encore_entry_link_tags('app') }}
+    <link href="profile.css" rel="stylesheet"/>
     {% endblock %}
 </head>
 <body>
-    <header>
-      <nav id='nav-bar' class='nav-link' style='display: flex; justify-content: end;'>
-        <div class='container'>
-          <div class='row'>
-            <div class='col-md-6'>
-              <h5>Greg's Site</h5>
-            </div>
-            <div class='col-md-1'>
-              <a href="{{ path('profile_landing') }}">Home</a>
-            </div>
-            <div class='col-md-1'>
-              <a href="{{ path('profile_overview') }}">About</a>
-            </div>
-            <div class='col-md-1'>
-              <a href="{{ path('profile_work') }}">Work</a>
-            </div>
-            <div class='col-md-1'>
-              <a href="{{ path('profile_blog') }}">Blog</a>
-            </div>
-            <div class='col-md-2'>
-              <a href="{{ path('profile_contact') }}">Get in Touch</a>
-            </div>
+  <header>
+    <nav id='nav-bar' class='nav-link'>
+      <div class='container-fluid'>
+        <div class='row'>
+          <div class='col-md-6'>
+            <h5>Greg's Site</h5>
+          </div>
+          <div class='col-md-1'>
+            <a href="{{ path('profile_landing') }}">Home</a>
+          </div>
+          <div class='col-md-1'>
+            <a href="{{ path('profile_overview') }}">About</a>
+          </div>
+          <div class='col-md-1'>            
+            <a href="{{ path('profile_work') }}">Work</a>
+          </div>
+          <div class='col-md-1'>            
+            <a href="{{ path('profile_blog') }}">Blog</a>
+          </div>
+          <div class='col-md-2'>            
+            <a href="{{ path('profile_contact') }}" class='btn btn-primary'>Get in Touch</a>
           </div>
         </div>
-      </nav>
-    </header>
+    </nav>
+  </header>
 
     <main>
-        {% block content %}{% endblock %}
+      {% block content %}{% endblock %}
     </main>
 
     <footer>
-      <div class="site-map" style="color: white">
+      <div class="site-map">
         <div class="container">
           <div class="row">
             <div class="col-md-6 mb-3">
@@ -51,27 +50,27 @@
               <p>Links!</p>
             </div>
             <div class="col-md-2 mb-3">
-              <p>Software Development</p>
+              <p class="text-primary">Software Development</p>
               <div class="container">
-                <a href="{{ path('app_recipe') }}">Katzen: Kitchen</a>
-                <a href="{{ path('profile_simulations') }}">Physics Simulations</a>
-                <a href="{{ path('profile_hire_me_tech') }}">Hire Me!</a>
+                <a href="{{ path('app_recipe') }}" class="text-secondary-dark">Katzen: Kitchen</a>
+                <a href="{{ path('profile_simulations') }}" class="text-secondary-dark">Physics Simulations</a>
+                <a href="{{ path('profile_hire_me_tech') }}" class="text-secondary-dark">Hire Me!</a>
               </div>
             </div>
             <div class="col-md-2 mb-3">
               <div class="container">
-                <p>Consulting Services</p>
-                <a href="{{ path('app_recipe') }}">Katzen: Kitchen</a>
-                <a href="{{ path('profile_simulations') }}">Physics Simulations</a>
-                <a href="{{ path('profile_hire_me_tech') }}">Hire Me!</a>
+                <p class="text-primary">Consulting Services</p>
+                <a href="{{ path('app_recipe') }}" class="text-secondary-dark">Design Services</a>
+                <a href="{{ path('profile_simulations') }}" class="text-secondary-dark">Process Improvement</a>
+                <a href="{{ path('profile_hire_me_tech') }}" class="text-secondary-dark">Growth Consulting</a>
               </div>
             </div>
             <div class="col-md-2 mb-3">
               <div class="container">
-                <p>Creative Professionals</p>
-                <a href="{{ path('app_recipe') }}">Katzen: Kitchen</a>
-                <a href="{{ path('profile_simulations') }}">Physics Simulations</a>
-                <a href="{{ path('profile_hire_me_tech') }}">Hire Me!</a>
+                <p class="text-primary">Creative Professionals</p>
+                <a href="{{ path('app_recipe') }}" class="text-secondary-dark">Plays</a><br>
+                <a href="{{ path('profile_simulations') }}" class="text-secondary-dark">Poems</a><br>
+                <a href="{{ path('profile_hire_me_tech') }}" class="text-secondary-dark">Work With Me</a>
               </div>
             </div>
           </div>
