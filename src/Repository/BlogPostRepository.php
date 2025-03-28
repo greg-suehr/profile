@@ -26,6 +26,16 @@ class BlogPostRepository extends ServiceEntityRepository
         ;
   }
 
+  public function getFeatures(?int $numResults): array
+  {
+      return $this->createQueryBuilder('me')
+        ->orderBy('me.id', 'DESC')
+        ->setMaxResults($numResults)
+        ->getQuery()
+        ->getResult()
+        ;
+  }
+
 
 //    /**
 //     * @return BlogPost[] Returns an array of BlogPost objects

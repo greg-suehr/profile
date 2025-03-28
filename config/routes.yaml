@@ -13,3 +13,11 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+uploads:
+    path: /uploads/{path}
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::urlRedirectAction
+    defaults:
+        path: '%kernel.project_dir%/public/uploads/{path}'
+    requirements:
+        path: .+
