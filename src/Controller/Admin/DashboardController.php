@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\BlogPost;
 use App\Entity\Recipient;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
@@ -41,7 +42,8 @@ class DashboardController extends AbstractDashboardController
     {
       //yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
       yield MenuItem::linktoRoute('Back to the waitlist', 'fas fa-home', 'app_notify_list');
-      yield MenuItem::linktoCrud('Recipients', 'fas fa-recipients', Recipient::class);
-      yield MenuItem::linktoCrud('Users', 'fas fa-users', User::class);      
+      yield MenuItem::linktoCrud('Posts', 'fas fa-pen-nib', BlogPost::class);      
+      yield MenuItem::linktoCrud('Recipients', 'fas fa-users', Recipient::class);
+      yield MenuItem::linktoCrud('Users', 'fas fa-circle-user', User::class);      
     }
 }
