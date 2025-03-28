@@ -3,20 +3,17 @@
 {% block title %}Greg Suehr{% endblock %}
 
 {% block content %}
-<section class="hero-section">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-6 text-content">
-                <h1>My Work</h1>
-                <p class="intro">Explore some things I've created and explore technical, creative, and professional services I offer,
-                  or get in touch so we can discuss how I can help take your project or organization to the next level.
-                <a href="{{ path('profile_contact') }}" class="btn btn-primary">Get In Touch</a>
-            </div>
-            <div class="col-md-6 text-center">
-                <img src="{{ asset('images/pittsburgh-warm_jordan-faux-unsplash.jpg') }}" class="img-fluid hero-image">
-            </div>
-        </div>
+<section class="section hero-section">
+  <div class="card">
+    <img src="{{ asset('images/pittsburgh-warm_small_jordan-faux-unsplash.jpg') }}" class="card-img img-fluid hero-image">
+    <div class="card-img-overlay text-center text-white align-self-center">
+      <h1><strong>My Work</strong></h1>
+      <p class="intro">Explore some things I've created and explore technical, creative, and professional services I offer,
+        or get in touch so we can discuss how I can help take your project or organization to the next level.</p>
+      <br>
+        <a href="{{ path('profile_contact') }}" class="btn btn-primary">Get In Touch</a>
     </div>
+  </div>
 </section>
 
 <section class="summary-section">
@@ -43,33 +40,29 @@
 
 <section class="highlight-section">
   <div class="container">
-    <div class="row align-items-center">
-      <div class="col-md-4 text-content">
-        <div class="col-md-4 text-left">
-          <h2 class="text-left">Katzen</h2>
-        </div>
+    <div class="row section align-items-center">
+      <div class="col-md-6 text-content">
+        <h2 class="text-left">Katzen</h2>
         <div>
-          <p class="text-left">Katzen is a friendly, capable set of tools designed to helps culinary professionals track inventory, manage recipes</p>
+          <p class="text-left" style="width: 80%;">Katzen is a friendly, capable set of tools designed to helps culinary professionals track inventory, manage recipes</p>
         </div>
         <div>
           <a href="{{ path('app_recipe') }}" class="btn btn-primary">Try Katzen</a>
           <a href="{{ path('app_landing') }}" class="btn btn-secondary">Learn More</a>
       </div>
       </div>
-    <div class="col-md-4">
-      <img src="{{ asset('images/katzen-feature-gritty_francisco-suarez-unsplash.jpg') }}" class="img-fluid">
+    <div class="col-md-6">
+      <img src="{{ asset('images/katzen-feature-gritty_small_francisco-suarez-unsplash.jpg') }}" class="img-fluid">
     </div>
   </div>
-  <div class="row align-items-center">
-    <div class="col-md-4">
-      <img src="{{ asset('images/consulting_scott-graham-unsplash.jpg') }}" class="img-fluid">
+  <div class="row section align-items-center">
+    <div class="col-md-6">
+      <img src="{{ asset('images/consulting_short_scott-graham-unsplash.jpg') }}" class="img-fluid">
     </div>
-    <div class="col-md-4 text-content">
-      <div class="col-md-4 text-left">
-        <h2 class="text-left">Consulting</h2>
-      </div>
+    <div class="col-md-6 text-content">
+      <h2 class="text-left">Consulting</h2>
       <div>
-        <p class="text-left">Development support, design services, process improvement, and other services.</p>
+        <p class="text-left" style="width: 80%;">Development support, design services, process improvement, and other services.</p>
       </div>
       <div>
         <a href="{{ path('profile_contact') }}" class="btn btn-primary">Get in Touch</a>
@@ -77,33 +70,29 @@
       </div>
     </div>
   </div>
-  <div class="row align-items-center">
-    <div class="col-md-4 text-content">
-      <div class="col-md-4 text-left">
-        <h2 class="text-left">Playwriting</h2>
-      </div>
+  <div class="row section align-items-center">
+    <div class="col-md-6 text-content">
+      <h2 class="text-left">Playwriting</h2>
       <div>
-        <p class="text-left">Read some of my short plays, purchase scripts, and preview projects in development.</p>
+        <p class="text-left" style="width: 80%;">Read some of my short plays, purchase scripts, and preview projects in development.</p>
       </div>
       <div>
         <a href="{{ path('profile_plays_purchase') }}" class="btn btn-primary">Buy A Script</a>
         <a href="{{ path('profile_plays_read') }}" class="btn btn-secondary">Read A Play</a>          
       </div>
     </div>
-    <div class="col-md-4">
-      <img src="{{ asset('images/drama-feature-dark_engin-akyurt-unsplash.jpg') }}" class="img-fluid">
+    <div class="col-md-6">
+      <img src="{{ asset('images/drama-feature-dark_small_engin-akyurt-unsplash.jpg') }}" class="img-fluid">
     </div>
   </div>
-  <div class="row align-items-center">
-    <div class="col-md-4">
-      <img src="{{ asset('images/writing-feature-sleek_kelly-sikkema-unsplash.jpg') }}" class="img-fluid">
+  <div class="row section align-items-center">
+    <div class="col-md-6">
+      <img src="{{ asset('images/writing-feature-sleek_small_kelly-sikkema-unsplash.jpg') }}" class="img-fluid">
     </div>
-    <div class="col-md-4 text-content">
-      <div class="col-md-4 text-left">
-        <h2 class="text-left">Poetry</h2>
-      </div>
+    <div class="col-md-6 text-content">
+      <h2 class="text-left">Poetry</h2>
       <div>
-        <p class="text-left">Read a selection of my poetry, purchase a chapbook or a sticker!</p>
+        <p class="text-left" style="width: 80%;">Read a selection of my poetry, purchase a chapbook or a sticker!</p>
       </div>
       <div>
         <a href="{{ path('profile_poems_purchase') }}" class="btn btn-primary">Buy A Sticker</a>
