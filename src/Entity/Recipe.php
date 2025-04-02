@@ -142,7 +142,7 @@ class Recipe
         return $this;
     }
 
-    public function getServingUnit(): ?int
+    public function getServingUnit(): ?Unit
     {
         return $this->serving_unit;
     }
