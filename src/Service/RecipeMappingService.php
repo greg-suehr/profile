@@ -12,10 +12,34 @@ use Doctrine\ORM\EntityManagerInterface;
 class RecipeMappingService
 {
     private EntityManagerInterface $entityManager;
-
+  
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
+    }
+
+    private function mapAndStoreOneIngredient(array $ingredientData, ?Recipe $recipe) {
+        if (empty($ingredientData['name'])) {
+          throw new \Exception("Ingredient name cannot be empty." . "\n" . $ingredientData);
+        }
+        
+        $ingredient = new RecipeIngredient();
+        $ingredient->setRecipe($recipe);
+        $ingredient->setSupplyType('item');
+        $item = $this->entityManager->getRepository(Item::class)->findOneBy(['name' => $ingredientData['name']]);
+        if (!$item) {
+          throw new \Exception("Ingredient '{$ingredientData['name']}' not found in database.");
+        }
+        $ingredient->setSupplyId($item->getId()); // TODO: clean up relations like this
+        $ingredient->setQuantity($ingredientData['quantity']);
+        $unit = $this->entityManager->getRepository(Unit::class)->findOneBy(['name' => $ingredientData['unit']]);
+        if (!$unit) {
+          throw new \Exception("Unit '{$ingredientData['unit']}' not found in database.");
+        }
+        $ingredient->setUnit($unit);
+        $ingredient->setNote($ingredientData['note'] ?? '');
+        
+        $this->entityManager->persist($ingredient);
     }
 
     public function mapAndStore(array $data)
@@ -56,27 +80,14 @@ class RecipeMappingService
         $this->entityManager->flush(); // generates the recipe_id
         
         foreach ($data['ingredients'] as $ingredientData) {
-            if (empty($ingredientData['name'])) {
-                throw new \Exception("Ingredient name cannot be empty.");
+          if ( array_key_exists('section', $ingredientData) ) {
+            foreach ($ingredientData['items'] as $nestedIngredientData) {
+              $this->mapAndStoreOneIngredient($nestedIngredientData, $recipe);
             }
-
-            $ingredient = new RecipeIngredient();
-            $ingredient->setRecipe($recipe);
-            $ingredient->setSupplyType('item');
-            $item = $this->entityManager->getRepository(Item::class)->findOneBy(['name' => $ingredientData['name']]);
-            if (!$item) {
-                throw new \Exception("Ingredient '{$ingredientData['item']}' not found in database.");
-            }
-            $ingredient->setSupplyId($item->getId()); // TODO: clean up relations like this
-            $ingredient->setQuantity($ingredientData['quantity']);
-            $unit = $this->entityManager->getRepository(Unit::class)->findOneBy(['name' => $ingredientData['unit']]);
-            if (!$unit) {
-                throw new \Exception("Unit '{$ingredientData['unit']}' not found in database.");
-            }
-            $ingredient->setUnitId($unit);
-            $ingredient->setNote($ingredientData['note'] ?? '');
-            
-            $this->entityManager->persist($ingredient);
+          }
+          else {
+            $this->mapAndStoreOneIngredient($ingredientData, $recipe);
+          }
         }
 
         foreach ($data['instructions'] as $instructionData) {
