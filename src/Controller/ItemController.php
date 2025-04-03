@@ -45,4 +45,16 @@ final class ItemController extends AbstractController
           'item' => $item,
         ]);
   }
+
+  #[Route('/items/search', name: 'item_search')]
+  public function search(Request $request, ItemRepository $itemRepo): JsonResponse
+  {
+    $query = $request->query->get('q', '');
+    $items = $itemRepo->searchByName($query);
+    
+    return $this->json(array_map(fn($item) => [
+      'id' => $item->getId(),
+      'name' => $item->getName(),
+    ], $items));
+}
 }

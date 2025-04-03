@@ -3,7 +3,9 @@
 namespace App\Entity;
 
 use App\Entity\Item;
+use App\Entity\Recipe;
 use App\Repository\RecipeIngredientRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -30,8 +32,8 @@ class RecipeIngredient
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Unit $unit_id = null;
-
+    private ?Unit $unit = null;
+  
     #[ORM\Column(length: 1000, nullable: true)]
     private ?string $note = null;
 
@@ -63,7 +65,7 @@ class RecipeIngredient
 
         return $this;
     }
-
+  
     public function getSupplyId(): ?int
     {
         return $this->supply_id;
@@ -76,6 +78,46 @@ class RecipeIngredient
         return $this;
     }
 
+  // TODO: is this cool?
+    private ?object $supplyObject = null;
+
+  // Handles the polymorphic association between items, recipes, etc
+    public function getSupply(?EntityManagerInterface $em = null): ?object
+    {
+        if ($this->supplyObject !== null) {
+            return $this->supplyObject;
+        }
+
+        if (!$em) {
+            throw new \LogicException('EntityManager is required to resolve supply.');
+        }
+
+        if ($this->supplyType === 'item') {
+          $this->supplyObject = $em->getRepository(Item::class)->find($this->supplyId);
+        } elseif ($this->supplyType === 'recipe') {
+          $this->supplyObject = $em->getRepository(Recipe::class)->find($this->supplyId);
+        } else {
+          throw new \UnexpectedValueException("Unknown supply_type: {$this->supplyType}");
+        }
+        
+        return $this->supplyObject;
+    }
+
+    public function setSupply(object $supply): void
+    {
+        if ($supply instanceof Item) {
+          $this->supplyType = 'item';
+          $this->supplyId = $supply->getId();
+        } elseif ($supply instanceof Recipe) {
+          $this->supplyType = 'recipe';
+          $this->supplyId = $supply->getId();
+        } else {
+          throw new \InvalidArgumentException('Unsupported supply type.');
+        }
+        
+        $this->supplyObject = $supply;
+    }
+  
     public function getQuantity(): ?string
     {
         return $this->quantity;
@@ -88,14 +130,14 @@ class RecipeIngredient
         return $this;
     }
 
-    public function getUnitId(): ?Unit
+    public function getUnit(): ?Unit
     {
-        return $this->unit_id;
+        return $this->unit;
     }
 
-    public function setUnitId(?Unit $unit_id): static
+    public function setUnit(?Unit $unit): static
     {
-        $this->unit_id = $unit_id;
+        $this->unit = $unit;
 
         return $this;
     }
