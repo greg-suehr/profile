@@ -13,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Seld\JsonLint\JsonParser;
 
 final class RecipeController extends AbstractController
 {
@@ -130,26 +131,34 @@ final class RecipeController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $file = $form->get('file')->getData();
             $jsonText = $form->get('json_text')->getData();
-
             try {
               if ($file) {
                 $recipeImportService->importFile($file);
                 $this->addFlash('success', 'Recipe imported successfully from file!');
-              } elseif ($jsonText) {
+                
+                return $this->redirectToRoute('app_recipe');                
+              }
+              elseif ($jsonText) {
                 $jsonData = json_decode($jsonText, true);
                 if (!$jsonData) {
-                  throw new \Exception("Invalid JSON format.");
+                  // Slower, but useful JSON parsing via Seld\JsonLint
+                  $parser = new JsonParser();
+                  $parsingException = $parser->lint($jsonText);
+                  throw new \Exception($parsingException->getMessage());
                 }
                 $recipeImportService->importData($jsonData);
                 $this->addFlash('success', 'Recipe imported successfully from pasted JSON!');
-              } else {
+                
+                return $this->redirectToRoute('app_recipe');
+              }
+              else {
                 throw new \Exception("Please upload a file or paste JSON.");
               }
             } catch (\Exception $e) {
+              // TODO: better error messages for formatting vs content errors
               $this->addFlash('error', 'Error importing recipe: ' . $e->getMessage());
             }
-
-            return $this->redirectToRoute('app_recipe');
+            // Don't redirect on import errors
         }
 
         return $this->render('recipe/import.html.twig', [

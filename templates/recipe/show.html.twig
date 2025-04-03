@@ -9,7 +9,7 @@
     Ingredients:
     <ul>
       {% for ingredient in recipe_ingredients %}
-      <li>{{ ingredient.supplyLabel }}</li>
+      <li>{{ ingredient.supplyLabel }} - {{ ingredient.getQuantity | mixed_fraction }} {{ ingredient.getUnit }}</li>
       {% endfor %}
     </ul>
     
