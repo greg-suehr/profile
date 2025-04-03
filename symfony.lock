@@ -11,6 +11,9 @@
             ".blackfire.yaml"
         ]
     },
+    "craue/formflow-bundle": {
+        "version": "3.7.0"
+    },
     "doctrine/doctrine-bundle": {
         "version": "2.13",
         "recipe": {

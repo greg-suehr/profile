@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Recipe;
 use App\Form\ImportRecipeType;
+use App\Form\RecipeBuilderType;
+use App\Form\CreateRecipeFlow;
 use App\Repository\ItemRepository;
 use App\Repository\RecipeRepository;
 use App\Service\RecipeImportService;
@@ -62,6 +64,62 @@ final class RecipeController extends AbstractController
         ]);
     }
 
+  #[Route('/recipe/build', name: 'app_recipe_build')]
+    public function build(Request $request, RecipeRepository $recipeRepo): Response
+    {
+
+    $recipe = new Recipe();
+    $form   = $this->createForm(RecipeBuilderType::class, $recipe);
+
+    $form->handleRequest($request);
+    
+    if ($form->isSubmitted() && $form->isValid()) {
+        $recipe->setAuthor($this->getUser());
+        $recipe->setStatus('draft');
+        $recipe->setVersion(1); // TODO: getLatestVersion
+        $recipe->setCreatedAt(new \DateTimeImmutable());
+        $recipe->setUpdatedAt(new \DateTime());
+
+        $recipeRepo->save($recipe, true);
+
+        return $this->redirectToRoute('app_recipe_show', ['id' => $recipe->getId()]);
+    }
+    
+	return $this->render('recipe/build.html.twig', [
+          'controller_name' => 'RecipeController',
+          'recipe_form'     => $form,
+	]);
+    }
+
+   #[Route('/recipe/create', name: 'app_recipe_create')]
+  public function create(Request $request, RecipeRepository $recipeRepo, CreateRecipeFlow $flow): Response
+  {
+    $recipe = new Recipe();
+
+	$flow->bind($recipe);    
+	$form = $flow->createForm();
+
+	if ($flow->isValid($form)) {
+      $flow->saveCurrentStepData($form);
+      
+      if ($flow->nextStep()) {
+        //        dd($flow->getCurrentStepNumber());
+        $form = $flow->createForm();
+      } else {
+        // flow finished
+        $recipeRepo->save($recipe);
+        
+        $flow->reset(); // remove step data from the session
+        
+        return $this->redirectToRoute('recipe'); // redirect when done
+      }
+	}
+
+  return $this->render('recipe/create_recipe_flow.html.twig', [
+		'form' => $form->createView(),
+		'flow' => $flow,
+	]);
+}
   
   #[Route('/recipe/import', name: 'app_recipe_import', methods: ['GET', 'POST'])]
     public function import(Request $request, RecipeImportService $recipeImportService): Response

@@ -49,4 +49,18 @@ class ItemRepository extends ServiceEntityRepository
           ->getQuery()
           ->getOneOrNullResult();
     }
+
+    /**
+     * @return Item[]
+     */
+    public function searchByName(string $name): array
+    {
+      return $this->createQueryBuilder('i')
+        ->where('LOWER(i.name) LIKE LOWER(:val)')
+        ->setParameter('val', '%' . $name . '%')
+        ->orderBy('i.name', 'ASC')
+        ->setMaxResults(10)
+        ->getQuery()
+        ->getResult();
+    }
 }
