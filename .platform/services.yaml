@@ -1,6 +1,7 @@
 
 database:
     type: postgresql:16
+    size: XS
     disk: 1024
 
 
