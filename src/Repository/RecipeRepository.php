@@ -11,15 +11,43 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class RecipeRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+  public function __construct(ManagerRegistry $registry)
+  {
         parent::__construct($registry, Recipe::class);
     }
 
-    public function save(Recipe $recipe): void
-    {
+  public function save(Recipe $recipe): void
+  {
         $this->getEntityManager()->persist($recipe);
         $this->getEntityManager()->flush();
+    }
+
+  public function search(array $filters): array
+  {
+     $qb = $this->createQueryBuilder('r');
+     
+     if (!empty($filters['ingredientIds'])) {
+        $qb->join('r.recipe_ingredient', 'ri')
+           ->join('ri.supply', 's')
+           ->andWhere($qb->expr()->in('s.id', ':ingredientIds'))
+           ->setParameter('ingredientIds', $filters['ingredientIds']);
+    }
+
+    if (!empty($filters['tagSlugs'])) {
+        $qb->join('r.tags', 't')
+           ->andWhere($qb->expr()->in('t.slug', ':tagSlugs'))
+           ->setParameter('tagSlugs', $filters['tagSlugs']);
+    }
+
+    if (!empty($filters['cuisine'])) {
+        $qb->join('r.tags', 'cuisine_tag')
+           ->andWhere('cuisine_tag.type = :cuisineType')
+           ->andWhere('cuisine_tag.slug = :cuisineSlug')
+           ->setParameter('cuisineType', 'cuisine')
+           ->setParameter('cuisineSlug', $filters['cuisine']);
+    }
+
+    return $qb->getQuery()->getResult();
     }
 
     //    /**

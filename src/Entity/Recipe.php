@@ -72,9 +72,23 @@ class Recipe
     #[ORM\OneToMany(targetEntity: RecipeInstruction::class, mappedBy: 'recipe', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $recipeInstructions;
 
+    /**
+     * @var Collection<int, RecipeTag>
+     */
+    #[ORM\ManyToMany(targetEntity: RecipeTag::class, mappedBy: 'recipe')]
+    private Collection $recipeTags;
+
+    /**
+     * @var Collection<int, PostImage>
+     */
+    #[ORM\OneToMany(targetEntity: PostImage::class, mappedBy: 'recipe')]
+    private Collection $image;
+
     public function __construct()
     {
         $this->recipeIngredients = new ArrayCollection();
+        $this->recipeTags = new ArrayCollection();
+        $this->image = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -303,6 +317,63 @@ class Recipe
             // set the owning side to null (unless already changed)
             if ($recipeInstruction->getRecipe() === $this) {
                 $recipeInstruction->setRecipe(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, RecipeTag>
+     */
+    public function getRecipeTags(): Collection
+    {
+        return $this->recipeTags;
+    }
+
+    public function addRecipeTag(RecipeTag $recipeTag): static
+    {
+        if (!$this->recipeTags->contains($recipeTag)) {
+            $this->recipeTags->add($recipeTag);
+            $recipeTag->addRecipe($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRecipeTag(RecipeTag $recipeTag): static
+    {
+        if ($this->recipeTags->removeElement($recipeTag)) {
+            $recipeTag->removeRecipe($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PostImage>
+     */
+    public function getImage(): Collection
+    {
+        return $this->image;
+    }
+
+    public function addImage(PostImage $image): static
+    {
+        if (!$this->image->contains($image)) {
+            $this->image->add($image);
+            $image->setRecipe($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(PostImage $image): static
+    {
+        if ($this->image->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getRecipe() === $this) {
+                $image->setRecipe(null);
             }
         }
 

@@ -3,11 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Recipe;
+use App\Form\CreateRecipeFlow;
 use App\Form\ImportRecipeType;
 use App\Form\RecipeBuilderType;
-use App\Form\CreateRecipeFlow;
+use App\Form\RecipeSearchType;
 use App\Repository\ItemRepository;
 use App\Repository\RecipeRepository;
+use App\Repository\RecipeTagRepository;
 use App\Service\RecipeImportService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,6 +44,31 @@ final class RecipeController extends AbstractController
           'recipes'         => $recipeRepo->findAll(),
         ]);
     }
+
+  #[Route('/recipes/search', name: 'app_recipe_search', methods: ['GET'])]
+  public function search(Request $request, RecipeRepository $recipeRepo, RecipeTagRepository $tagRepo, ItemRepository $itemRepo): Response
+    {
+
+        $form = $this->createForm(RecipeSearchType::class, null, [
+          'cuisines' => $tagRepo->getCuisineTags(),
+          'ingredients' => $itemRepo->getIngredientChoices(),
+          'tags' => $tagRepo->getGeneralTags(),
+        ]);
+        
+        $form->handleRequest($request);
+        $form_data = $form->getData();
+        if (!$form_data) {
+          $form_data = array();
+        }
+        dump($form_data);
+        $recipes = $recipeRepo->search($form_data);
+        
+        return $this->render('recipe/search.html.twig', [
+          'form' => $form->createView(),
+          'recipes' => $recipes,
+        ]);
+    }
+
 
   #[Route('/recipe/show/{id}', name: 'app_recipe_show')]
   public function show(Request $request, Recipe $recipe, ItemRepository $itemRepo): Response

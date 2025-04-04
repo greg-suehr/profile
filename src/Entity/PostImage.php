@@ -27,6 +27,9 @@ class PostImage
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
 
+    #[ORM\ManyToOne(inversedBy: 'image')]
+    private ?Recipe $recipe = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -76,6 +79,18 @@ class PostImage
     public function setCreatedAt(\DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getRecipe(): ?Recipe
+    {
+        return $this->recipe;
+    }
+
+    public function setRecipe(?Recipe $recipe): static
+    {
+        $this->recipe = $recipe;
 
         return $this;
     }

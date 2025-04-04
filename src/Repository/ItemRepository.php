@@ -63,4 +63,16 @@ class ItemRepository extends ServiceEntityRepository
         ->getQuery()
         ->getResult();
     }
+
+    /**
+     * @return Item[]
+     */
+    public function getIngredientChoices(): array
+    {
+      return $this->createQueryBuilder('i')
+        ->orderBy('i.name', 'ASC')
+        ->setMaxResults(10)        
+        ->getQuery()
+        ->getResult();
+    }
 }
