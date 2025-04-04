@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <button class="btn btn-outline-secondary" data-bs-toggle="offcanvas" data-bs-target="#filterSidebar">
+        <i class="bi bi-sliders"></i> Filters
+      </button>
+      {# TODO: display selected, fill space with suggested filter badge(r) #}
+      <span class="badge bg-light text-dark">Under 1 hour</span>
+      <span class="badge bg-light text-dark">Vegetarian</span>
+    </div>
+
+
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <p class="mb-0"><strong>{{ recipes|length }}</strong> Results</p>
+    <div class="dropdown">
+      <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        Sort by Relevance
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#">Relevance</a></li>
+        <li><a class="dropdown-item" href="#">Newest</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    {% for recipe in recipes %}
+      <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="card h-100 shadow-sm">
+          <img src="recipe.image" class="card-img-top" alt="{{ recipe.title }}">
+          <div class="card-body">
+            <h5 class="card-title">{{ recipe.title }}</h5>
+            <p class="card-text text-muted">Recipe • {{ recipe.cookTime }} min</p>
+          </div>
+          <div class="card-footer d-flex justify-content-between align-items-center">
+            <small class="text-muted">★ {{ 4 }}</small>
+            <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-bookmark"></i></button>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Offcanvas Filters Panel -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="filterSidebar">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title">Filters</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    {{ form_start(form) }}
+      <h6 class="text-uppercase">Cuisine</h6>
+      {{ form_widget(form.cuisine, {'attr': {'class': 'form-select mb-3'}}) }}
+
+      <h6 class="text-uppercase">Ingredients</h6>
+      <div class="mb-3">
+        {{ form_widget(form.ingredients) }}
+      </div>
+
+      <h6 class="text-uppercase">Tags</h6>
+      <div class="mb-3">
+        {{ form_widget(form.tags) }}
+      </div>
+
+      <h6 class="text-uppercase">Author</h6>
+      {{ form_widget(form.author, {'attr': {'class': 'form-control mb-3'}}) }}
+
+      <button type="submit" class="btn btn-danger w-100">View Results</button>
+    {{ form_end(form) }}
+  </div>
+</div>
+{% endblock %}
