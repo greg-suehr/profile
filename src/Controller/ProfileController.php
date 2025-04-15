@@ -8,8 +8,14 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class ProfileController extends AbstractController
 {
-    #[Route('/', name: 'profile_landing')]
+    #[Route('/', name: 'profile_landing')]                                                                                                                                    
     public function landing(): Response
+    {
+        return $this->render('profile/dark.html.twig');
+    } 
+
+    #[Route('/launch', name: 'profile_landing_bright')]
+    public function launch(): Response
     {
         return $this->render('profile/landing.html.twig');
     }
@@ -97,5 +103,4 @@ final class ProfileController extends AbstractController
     {
         return $this->render('profile/poems-read.html.twig');
     }
-  
 }
