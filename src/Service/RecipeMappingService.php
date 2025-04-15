@@ -86,7 +86,6 @@ class RecipeMappingService
           $this->entityManager->persist($recipe);
           $this->entityManager->flush(); // generates the recipe_id
 
-        foreach ($data['instructions'] as $instructionData) {
           $ingredientValidator = new IngredientValidator($this->entityManager);
           // Validate ingredient list prior to import
           $ingredientNames = array_map(fn($i) => $i['name'], $data['ingredients']);
