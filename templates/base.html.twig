@@ -28,6 +28,7 @@
                         <span class="navbar-toggler-icon"></span>
                     </button>
 
+                    {% if is_granted('ROLE_ADMIN') %}
                     <div class="collapse navbar-collapse" id="header-menu">
                         <ul class="navbar-nav ms-auto">
                             <li class="nav-item me-3">
@@ -37,6 +38,7 @@
                             </li>
                         </ul>
                     </div>
+                    {% endif %}
                 </div>
             </nav>
 

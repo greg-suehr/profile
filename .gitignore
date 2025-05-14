@@ -1,4 +1,5 @@
 *~
+*.backup
 data/*
 scripts/*
 public/images/*full.jpg
