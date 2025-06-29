@@ -1,18 +1,13 @@
-{% extends 'profile_base.html.twig' %}
-
-{% block title %}Greg Suehr{% endblock %}
+{% block title %}Greg Suehr | Projects{% endblock %}
 
 {% block content %}
 <section class="section hero-section">
   <div class="card">
     <img src="{{ asset('images/pittsburgh-warm_small_jordan-faux-unsplash.jpg') }}" class="card-img img-fluid hero-image">
     <div class="card-img-overlay text-center text-white align-self-center">
-      <h1><strong>My Work</strong></h1>
-      <p class="intro">Explore some things I've created and explore technical, creative, and professional services I offer,
-        or get in touch so we can discuss how I can help take your project or organization to the next level.</p>
-      <br>
-        <a href="{{ path('profile_contact') }}" class="btn btn-primary">Get In Touch</a>
-    </div>
+      <h1><strong>Projects</strong></h1>
+      <p class="intro">Some areas of interest and active projects.
+      </o>
   </div>
 </section>
 
@@ -20,86 +15,15 @@
   <div class="container">
     <div class="row">
       <div class="col-md-6">
-        <h5>Capable, Human Technology</h5>
-        <p>Let me help you build something great with hands on development, design services, and get connected to reliable, affordable systems that keep you in control of your technology.</p>
-        <h5>Engaging Plays and Verse</h5>
-        <p>Read from a selection of my plays and poetry, or check out my blog for translations and essays.</p>
-      </div>
-      <div class="col-md-6">
-	<h5>Impactful Consulting</h5>
-        <p>Whether you are an independent developer, a startup company creating a method for the madness, or an organization looking for an outside perspective to revitalize your development team, work with me to get actionable advice and material resources to support your projects for the long term.</p>
-        <h5>More!</h5>
-        <p>I have a several projects in development, including translations, books, and live events! Sign up for my not-a-newsletter mailing list to get notified when these projects become available!</p>
-      </div>
+        <h5>Writing</h5>
+        <p>I write <a>poems</a>, <a>plays</a>, and occassionally <a>hot takes</a> on aesthetics, land ethics, techonology an other topics of interest.</p>
+        <h5>Translation</h5>
+        <p>I occassionaly produce translations of German and French work.</p>
+        <p>My current focus is producing translations of <a>Aesop's Fables</a> (mostly as a reason to explore more of the collection). I am also compiling works of <a>Rilke</a> and <a>Günter Anders</a>.</p>
+        <h5>Technology</h5>
+        <a>I build and maintain websites for artists and creative organizations.        
     </div>
-    <div class="col-md-6">
-      </div>
-    </div>
-  </div>
-</section>
 
-<section class="highlight-section">
-  <div class="container">
-    <div class="row section align-items-center">
-      <div class="col-md-6 text-content">
-        <h2 class="text-left">Katzen</h2>
-        <div>
-          <p class="text-left" style="width: 80%;">Katzen is a friendly, capable set of tools designed to helps culinary professionals track inventory, manage recipes</p>
-        </div>
-        <div>
-          <a href="{{ path('app_recipe') }}" class="btn btn-primary">Try Katzen</a>
-          <a href="{{ path('app_landing') }}" class="btn btn-secondary">Learn More</a>
-      </div>
-      </div>
-    <div class="col-md-6">
-      <img src="{{ asset('images/katzen-feature-gritty_small_francisco-suarez-unsplash.jpg') }}" class="img-fluid">
-    </div>
   </div>
-  <div class="row section align-items-center">
-    <div class="col-md-6">
-      <img src="{{ asset('images/consulting_short_scott-graham-unsplash.jpg') }}" class="img-fluid">
-    </div>
-    <div class="col-md-6 text-content">
-      <h2 class="text-left">Consulting</h2>
-      <div>
-        <p class="text-left" style="width: 80%;">Development support, design services, process improvement, and other services.</p>
-      </div>
-      <div>
-        <a href="{{ path('profile_contact') }}" class="btn btn-primary">Get in Touch</a>
-        <a href="{{ path('profile_hire_me_consult') }}" class="btn btn-secondary">Explore Services</a>          
-      </div>
-    </div>
-  </div>
-  <div class="row section align-items-center">
-    <div class="col-md-6 text-content">
-      <h2 class="text-left">Playwriting</h2>
-      <div>
-        <p class="text-left" style="width: 80%;">Read some of my short plays, purchase scripts, and preview projects in development.</p>
-      </div>
-      <div>
-        <a href="{{ path('profile_plays_purchase') }}" class="btn btn-primary">Buy A Script</a>
-        <a href="{{ path('profile_plays_read') }}" class="btn btn-secondary">Read A Play</a>          
-      </div>
-    </div>
-    <div class="col-md-6">
-      <img src="{{ asset('images/drama-feature-dark_small_engin-akyurt-unsplash.jpg') }}" class="img-fluid">
-    </div>
-  </div>
-  <div class="row section align-items-center">
-    <div class="col-md-6">
-      <img src="{{ asset('images/writing-feature-sleek_small_kelly-sikkema-unsplash.jpg') }}" class="img-fluid">
-    </div>
-    <div class="col-md-6 text-content">
-      <h2 class="text-left">Poetry</h2>
-      <div>
-        <p class="text-left" style="width: 80%;">Read a selection of my poetry, purchase a chapbook or a sticker!</p>
-      </div>
-      <div>
-        <a href="{{ path('profile_poems_purchase') }}" class="btn btn-primary">Buy A Sticker</a>
-        <a href="{{ path('profile_poems_read') }}" class="btn btn-secondary">Read A Poem</a>
-      </div>
-    </div>
-  </div>
-</div>
 </section>
 {% endblock %}
