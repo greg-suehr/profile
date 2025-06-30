@@ -1,0 +1,9 @@
+tenant_pages:
+    host: "{siteDomain}.localhost"
+    path: /{slug}    
+    controller: App\Controller\Tenant\PageController::show
+    requirements:
+        siteDomain: "[a-z0-9]+"
+        slug: "[a-z0-9]+"
+    defaults:
+        siteDomain: null

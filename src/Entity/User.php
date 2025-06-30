@@ -59,9 +59,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: BlogPost::class, mappedBy: 'author')]
     private Collection $blogPosts;
 
+    /**
+     * @var Collection<int, Site>
+     */
+    #[ORM\ManyToMany(targetEntity: Site::class, inversedBy: 'users')]
+    private Collection $site;
+
     public function __construct()
     {
         $this->blogPosts = new ArrayCollection();
+        $this->site = new ArrayCollection();
     }
 
     public function __toString()
@@ -74,7 +81,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
-    #[ORM\PrePersist]
     public function setCreatedAtValue()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -229,11 +235,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeBlogPost(BlogPost $blogPost): static
     {
         if ($this->blogPosts->removeElement($blogPost)) {
-            // set the owning side to null (unless already changed)
-            if ($blogPost->getAuthor() === $this) {
+          if ($blogPost->getAuthor() === $this) {
                 $blogPost->setAuthor(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Site>
+     */
+    public function getSite(): Collection
+    {
+        return $this->site;
+    }
+
+    public function addSite(Site $site): static
+    {
+        if (!$this->site->contains($site)) {
+            $this->site->add($site);
+        }
+
+        return $this;
+    }
+
+    public function removeSite(Site $site): static
+    {
+        $this->site->removeElement($site);
 
         return $this;
     }

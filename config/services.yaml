@@ -20,6 +20,15 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    App\EventListener\TenantSchemaListener:    
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest, priority: 100 }
+
+    App\Middleware\TenantSchemaMiddleware:
+        arguments:
+            $siteContext: '@App\Service\SiteContext'
+            $enabled: false
+
     App\Service\RecipeImportService:
         arguments:
             $adapters: !tagged_iterator recipe.adapter

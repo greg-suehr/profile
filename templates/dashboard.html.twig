@@ -1,0 +1,18 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Profiler Admin{% endblock %}
+
+{% block content %}
+ <p>Dashboard for {{ app.user.username }} / Site {{ site_name }}</p>
+
+  <div class="category-buttons">
+    {% for category in categories %}
+      <a href="{{ path('content_new', { category: category.id }) }}"
+         class="btn btn-primary m-1">
+        + New {{ category.name }}
+      </a>
+    {% else %}
+      <p>No categories defined yet. <a href="{{ path('category_new') }}">Create one</a>.</p>
+    {% endfor %}
+  </div>
+{% endblock %}
