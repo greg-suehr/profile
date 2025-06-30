@@ -60,6 +60,11 @@ class Site
         return $this;
     }
 
+    public function __toString()
+    {
+        return $this->domain;
+    }
+
     public function getDomain(): ?string
     {
         return $this->domain;

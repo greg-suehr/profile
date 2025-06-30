@@ -3,8 +3,10 @@
 namespace App\Controller\Tenant;
 
 use App\Entity\Page;
+use App\Entity\Site;
 use App\Service\SiteContext;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,21 +17,28 @@ class PageController extends AbstractController
 {
     private SiteContext $siteContext;
     private EntityManagerInterface $em;
+    private LoggerInterface $logger;
 
-    public function __construct(SiteContext $siteContext, EntityManagerInterface $em)
+    public function __construct(SiteContext $siteContext, EntityManagerInterface $em,
+                                LoggerInterface $logger
+    )
     {
         $this->siteContext = $siteContext;
         $this->em          = $em;
+        $this->logger      = $logger;
     }
 
-    #[Route("/{slug}", name: "tenant_page_show", requirements: ["siteDomain"=>"[a-z0-9\-]+","slug"=>".+"])]
-    public function show(Request $request, string $siteDomain): Response
+    #[Route("/p/{slug}", name: "tenant_page_show", requirements: ["slug"=>".+"])]
+    public function show(Request $request): Response
     {
-        $slug = ltrim($request->getPathInfo(), '/'); // slug from URL
+        $host = $request->getHost();               
+        $slug = ltrim($request->getPathInfo(), '/p/');
 
         $site = $this->siteContext->getCurrentSite();
         if (!$site) {
-            throw $this->createNotFoundException('Unknown site.');
+          //            throw $this->createNotFoundException('Unknown site.');
+          // use 'public' schema
+          return $this->render("profile/\"$slug\"/html.twig");
         }
 
         $page = $this->em
@@ -40,6 +49,7 @@ class PageController extends AbstractController
                      ]);
 
         if (!$page) {
+          $this->logger->info("Failed search for slug \"$slug\" on search_path for site \"$site\"");
             throw new NotFoundHttpException();
         }
 
