@@ -1,7 +1,17 @@
-tenant_pages:
-    path: /p/{slug}    
+tenant_pages_index:
+    path: /p/{siteDomain}
     controller: App\Controller\Tenant\PageController::show
-    requirements:
-        slug: "[a-z0-9]+"
     defaults:
-        slug: ""
+        slug: ''
+    requirements:
+        siteDomain: '[a-z0-9\-]+'
+
+# All other pages: "/p/inseam/about-us"
+tenant_pages_show:
+    path: /p/{siteDomain}/{slug}
+    controller: App\Controller\Tenant\PageController::show
+    defaults:
+        slug: ''
+    requirements:
+        siteDomain: '[a-z0-9\-]+'
+        slug:       '[a-z0-9\-]+'

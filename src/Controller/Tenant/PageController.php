@@ -28,17 +28,17 @@ class PageController extends AbstractController
         $this->logger      = $logger;
     }
 
-    #[Route("/p/{slug}", name: "tenant_page_show", requirements: ["slug"=>".+"])]
-    public function show(Request $request): Response
+    //#[Route("/p/{slug}", name: "tenant_page_show", requirements: ["slug"=>".+"])] 
+    #[Route("/p/{siteDomain}/{slug}", name: "tenant_page_show", requirements: ["siteDomain" => ".+", "slug"=>".+"])]
+    public function show(Request $request, string $siteDomain, string $slug): Response
     {
-        $host = $request->getHost();               
-        $slug = ltrim($request->getPathInfo(), '/p/');
-
-        $site = $this->siteContext->getCurrentSite();
+          $site = $this->em
+                     ->getRepository(Site::class)
+                     ->findOneBy([
+                       'domain' => $siteDomain
+                     ]);
         if (!$site) {
-          //            throw $this->createNotFoundException('Unknown site.');
-          // use 'public' schema
-          return $this->render("profile/\"$slug\"/html.twig");
+          return $this->render("profile/$slug.html.twig");
         }
 
         $page = $this->em
