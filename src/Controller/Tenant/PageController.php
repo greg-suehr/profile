@@ -32,16 +32,26 @@ class PageController extends AbstractController
     #[Route("/p/{siteDomain}/{slug}", name: "tenant_page_show", requirements: ["siteDomain" => ".+", "slug"=>".+"])]
     public function show(Request $request, string $siteDomain, string $slug): Response
     {
+          $current = $this->em->getConnection()->fetchOne('SELECT current_schema()');
+          $this->logger->info('Before query in controller, current_schema = '.$current);
+
           $site = $this->em
                      ->getRepository(Site::class)
                      ->findOneBy([
                        'domain' => $siteDomain
                      ]);
-        if (!$site) {
-          return $this->render("profile/$slug.html.twig");
-        }
 
-        $page = $this->em
+          $this->logger->warning("Site is \"$site\"");
+          if (!$site) {          
+            return $this->render("profile/$slug.html.twig");
+          }
+          else {
+            $schema = 'site_' . $site->getId();
+            $this->em->getConnection()->executeStatement("SET search_path TO \"$schema\", public");
+            $this->logger->warning("Controller enforced tenant scoping on site = \"$site\"");
+          }
+
+          $page = $this->em
                      ->getRepository(Page::class)
                      ->findOneBy([
                          'slug'         => $slug,

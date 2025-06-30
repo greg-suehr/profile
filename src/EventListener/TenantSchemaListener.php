@@ -55,5 +55,8 @@ class TenantSchemaListener implements EventSubscriberInterface
         $this->logger->info("Setting search_path to \"$schema\", public");
         $conn   = $this->em->getConnection();
         $conn->executeStatement("SET search_path TO \"$schema\", public");
+        
+        $current = $this->em->getConnection()->fetchOne('SELECT current_schema()');
+        $this->logger->info('After SET in listener, current_schema = '.$current, ['expected' => 'site_'.$site->getId()]);
     }
 }
