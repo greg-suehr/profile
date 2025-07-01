@@ -22,12 +22,14 @@
 
     const FRAME_WIDTH = 64;
     const FRAME_HEIGHT = 64;
+    const CHAR_WIDTH = FRAME_WIDTH * 2;
+    const CHAR_HEIGHT = FRAME_HEIGHT * 2;
     const NUM_FRAMES = 9;
     const WALK_ROW = 9;
 
     let frameIndex = 0;
     let posX = canvas.width;
-    let posY = canvas.height / 2 - FRAME_HEIGHT / 2;
+    let posY = canvas.height / 2 - CHAR_HEIGHT / 2;
 
     const frameDuration = 100;
     let lastFrameTime = 0;
@@ -44,13 +46,13 @@
       if (!lastFrameTime) lastFrameTime = timestamp;
       
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       ctx.drawImage(
         gregSprite,
         frameIndex * FRAME_WIDTH, WALK_ROW * FRAME_HEIGHT,
         FRAME_WIDTH, FRAME_HEIGHT,
         posX, posY,
-        FRAME_WIDTH, FRAME_HEIGHT
+        CHAR_WIDTH, CHAR_HEIGHT
       );
       
       if (timestamp - lastFrameTime > frameDuration) {
@@ -60,7 +62,7 @@
       
       posX -= moveSpeed;
       
-      if (animationActive && posX <= canvas.width / 2 - FRAME_WIDTH / 2) {
+      if (animationActive && posX <= canvas.width / 2 - CHAR_WIDTH / 2) {
         animationActive = false;
         triggerDialogueEvent();
       } else if (animationActive) {
@@ -101,7 +103,7 @@
             frames[i].col * FRAME_WIDTH, frames[i].row * FRAME_HEIGHT,
             FRAME_WIDTH, FRAME_HEIGHT,
             posX, posY,
-            FRAME_WIDTH, FRAME_HEIGHT
+            CHAR_WIDTH, CHAR_HEIGHT
           );
           i++;
           setTimeout(nextFrame, duration);

@@ -3,10 +3,13 @@
 {% block content %}
 <div class="scene" id="prologue10">
   <div class="dialogue">
-    <p class="dialogue">Call me Link.</p>
+    <p class="dialogue">I... I connect things. That's what I do.</p>
+    <p class="dialogue">I don't know which rift they took him through, but I can get us inside. One of them leads to him.</p>
+    <p class="dialogue warning">But once we choose... there's no going back.</p>
   </div>
-  <div class="choices" id="choices">
-    <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'prologue12' }) }}">Okay Link, how are we going to get there?</a>
+  <div class="choices" id="final-choices">
+    <a class="choice blue-rift" href="{{ path('hyperlink_jump', { nextNodeKey: 'hollow1' }) }}">Let's go! (Choose the Blue Rift)</a>
+    <a class="choice orange-rift" href="{{ path('hyperlink_jump', { nextNodeKey: 'pantheon1' }) }}">Let's go! (Choose the Orange Rift)</a>
   </div>
 </div>
 

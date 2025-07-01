@@ -83,10 +83,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const FRAME_WIDTH = 64;
     const FRAME_HEIGHT = 64;
+    const CHAR_WIDTH = FRAME_WIDTH * 2;
+    const CHAR_HEIGHT = FRAME_HEIGHT * 2;
     const POSITION_ROW = 2;
     
-    let posX = canvas.width / 2 - FRAME_WIDTH / 2;
-    let posY = canvas.height / 2 - FRAME_HEIGHT / 2;
+    let posX = canvas.width / 2 - CHAR_WIDTH / 2;
+    let posY = canvas.height / 2 - CHAR_HEIGHT / 2;
     
     let glitchIntensity = 0;
     let rifts = [];
@@ -164,13 +166,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Color separation effect
             ctx.globalCompositeOperation = 'screen';
             ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
-            ctx.fillRect(posX - 2, posY, FRAME_WIDTH, FRAME_HEIGHT);
+            ctx.fillRect(posX - 2, posY, CHAR_WIDTH, CHAR_HEIGHT);
             
             ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
-            ctx.fillRect(posX + 1, posY, FRAME_WIDTH, FRAME_HEIGHT);
+            ctx.fillRect(posX + 1, posY, CHAR_WIDTH, CHAR_HEIGHT);
             
             ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
-            ctx.fillRect(posX, posY + 1, FRAME_WIDTH, FRAME_HEIGHT);
+            ctx.fillRect(posX, posY + 1, CHAR_WIDTH, CHAR_HEIGHT);
             
             ctx.globalCompositeOperation = 'source-over';
         }
@@ -186,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
             0, POSITION_ROW * FRAME_HEIGHT,
             FRAME_WIDTH, FRAME_HEIGHT,
             posX, posY,
-            FRAME_WIDTH, FRAME_HEIGHT
+            CHAR_WIDTH, CHAR_HEIGHT
         );
         
         ctx.restore();

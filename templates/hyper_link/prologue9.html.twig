@@ -52,13 +52,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const FRAME_WIDTH = 64;
     const FRAME_HEIGHT = 64;
+    const CHAR_WIDTH = FRAME_WIDTH * 2;
+    const CHAR_HEIGHT = FRAME_HEIGHT * 2;
     const MATERIALIZE_FRAMES = [0, 1, 2, 1, 0];
+
     const MATERIALIZE_ROW = 6;  
     const FLOAT_FRAMES = [0, 0, 0, 0];
     const FLOAT_ROW = 6;
 
-    let hyperlinkX = canvas.width / 2 - FRAME_WIDTH / 2;
-    let hyperlinkY = canvas.height / 2 - FRAME_HEIGHT / 2;
+    let hyperlinkX = canvas.width / 2 - CHAR_WIDTH / 2;
+    let hyperlinkY = canvas.height / 2 - CHAR_HEIGHT / 2;
     let materializing = true;
     let materializeIndex = 0;
     let floatIndex = 0;
@@ -122,16 +125,16 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.save();
             ctx.globalAlpha = opacity;
             ctx.filter = `blur(${blur}px)`;
-            ctx.translate(hyperlinkX + FRAME_WIDTH/2, hyperlinkY + FRAME_HEIGHT/2);
+            ctx.translate(hyperlinkX + CHAR_WIDTH/2, hyperlinkY + CHAR_HEIGHT/2);
             ctx.scale(scale, scale);
-            ctx.translate(-FRAME_WIDTH/2, -FRAME_HEIGHT/2);
+            ctx.translate(-CHAR_WIDTH/2, -CHAR_HEIGHT/2);
 
             ctx.drawImage(
                 hyperlinkSprite,
                 col * FRAME_WIDTH, MATERIALIZE_ROW * FRAME_HEIGHT,
                 FRAME_WIDTH, FRAME_HEIGHT,
                 0, 0,
-                FRAME_WIDTH, FRAME_HEIGHT
+                CHAR_WIDTH, CHAR_HEIGHT
             );
 
             ctx.restore();
@@ -161,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 col * FRAME_WIDTH, FLOAT_ROW * FRAME_HEIGHT,
                 FRAME_WIDTH, FRAME_HEIGHT,
                 0, 0,
-                FRAME_WIDTH, FRAME_HEIGHT
+                CHAR_WIDTH, CHAR_HEIGHT
             );
             ctx.restore();
         }

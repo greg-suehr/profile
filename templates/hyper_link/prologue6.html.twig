@@ -22,11 +22,13 @@
 
     const FRAME_WIDTH = 64;
     const FRAME_HEIGHT = 64;
+    const CHAR_WIDTH = FRAME_WIDTH * 2;
+    const CHAR_HEIGHT = FRAME_HEIGHT * 2;
     const POSITION_ROW = 2;
 
     let frameIndex = 0;
-    let posX = canvas.width / 2 - FRAME_WIDTH / 2;
-    let posY = canvas.height / 2 - FRAME_HEIGHT / 2;
+    let posX = canvas.width / 2 - CHAR_WIDTH / 2;
+    let posY = canvas.height / 2 - CHAR_HEIGHT / 2;
 
     const frameDuration = 100;
     let lastFrameTime = 0;
@@ -49,7 +51,7 @@
             frameIndex * FRAME_WIDTH, POSITION_ROW * FRAME_HEIGHT,
             FRAME_WIDTH, FRAME_HEIGHT,
             posX, posY,
-            FRAME_WIDTH, FRAME_HEIGHT
+            CHAR_WIDTH, CHAR_HEIGHT
         );
     }
    
