@@ -28,6 +28,10 @@
     },
     "dependencies": {
         "@hotwired/stimulus": "^3.2.2",
-        "ckeditor4": "^4.25.1"
+        "@pixi/filter-glitch": "^5.1.1",
+        "ckeditor4": "^4.25.1",
+        "gsap": "^3.13.0",
+        "howler": "^2.2.4",
+        "pixi.js": "^8.10.2"
     }
 }

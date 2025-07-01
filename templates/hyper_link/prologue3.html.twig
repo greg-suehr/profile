@@ -9,47 +9,5 @@
     <p>Just stop. <a href="{{ path('hyperlink_jump', { nextNodeKey: 'prologue4' }) }}">Okay?</span></p>
   </div>
 </div>
-
-<script>
-    const canvas = document.getElementById('screen');
-    const ctx = canvas.getContext('2d');
-
-    const gregSprite = new Image();
-    gregSprite.src = '{{ asset("assets/hyper_link/spritesheet_greg.png") }}';
-
-    const FRAME_WIDTH = 64;
-    const FRAME_HEIGHT = 64;
-    const NUM_FRAMES = 9;
-    const WALK_ROW = 9
-
-    let frameIndex = 0;
-    let posX = canvas.width;
-    let posY = canvas.height / 2 - FRAME_HEIGHT / 2;
-
-    gregSprite.onload = () => {
-        requestAnimationFrame(update);
-    };
-
-    function update() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        ctx.drawImage(
-            gregSprite,
-            frameIndex * FRAME_WIDTH, WALK_ROW * FRAME_HEIGHT,
-            FRAME_WIDTH, FRAME_HEIGHT,
-            posX, posY,
-          FRAME_WIDTH, FRAME_HEIGHT
-        );
-
-        posX -= 2; // adjust speed
-
-        frameIndex = (frameIndex + 1) % NUM_FRAMES;
-
-        if (posX > canvas.width / 2 - FRAME_WIDTH / 2) {
-            requestAnimationFrame(update);
-        } else {            
-        }
-    }
-</script>
 {% endblock %}
 

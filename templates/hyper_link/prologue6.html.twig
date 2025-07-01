@@ -1,19 +1,19 @@
 {% extends 'hyper_link/base.html.twig' %}
 
 {% block content %}
-<div class="scene" id="prologue5">
+<div class="scene" id="prologue6">
   <div class="dialogue">
-    <p class="character-dialogue">G: Sorry about the state of things. I never really got around to finishing the thing.</p>
-    <p class="character-dialogue">G: I've been working on it forever though. Can't even remember where I put...</p>
-    <p class="character-dialogue">G: Well, never mind about that. I hope your experience with the site hasn't been too bad.</p>
+    <p class="character-dialogue">G: Yeah, he can be like that!</p>
+    <p class="character-dialogue">...</p>
+    <p class="character-dialogue">G: Sorry, did you come here for anything in particular?</p>    
   </div>
   <div class="choices">
-    <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'prologue6' }) }}">It's fine. He seems... sad more than anything.</a>
-    <a class="choice" href="{{ path('hyperlink_clear') }}">I've actually been having a terrible time.</a>
+    <a class="choice" href="{{ path('hyperlink_jump', { nextNodeKey: 'sitemap' }) }}">Yes, actually.</a>    
+    <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'prologue7' }) }}">Not really...</a>
   </div>
 </div>
 
- <script>
+<script>
     const canvas = document.getElementById('screen');
     const ctx = canvas.getContext('2d');
 
