@@ -5,7 +5,7 @@
   <p class="dialogue">I'm Greg's website.</p>
   <p class="dialogue hidden">We have to go after him.</p>
   <div class="choices hidden" id="question-choices">
-    <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'prologue10b' }) }}">You're a website?</a>
+    <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'prologue11' }) }}">You're a website?</a>
     <a class="choice" href="{{ path('hyperlink_jump', { nextNodeKey: 'prologue10c' }) }}">Okay... Um. Who are "they"?</a>
   </div>
 </div>
@@ -14,28 +14,6 @@
 @keyframes hyperlink-float {
   0%, 100% { transform: translateY(0px) scale(1); }
   50% { transform: translateY(-10px) scale(1.1); }
-}
-
-@keyframes hyperlink-materialize {
-  0% { 
-    opacity: 0; 
-    transform: scale(0.1); 
-    filter: blur(10px);
-  }
-  50% { 
-    opacity: 0.5; 
-    transform: scale(0.8); 
-    filter: blur(5px);
-  }
-  100% { 
-    opacity: 1; 
-    transform: scale(1); 
-    filter: blur(0px);
-  }
-}
-
-.materializing {
-  animation: hyperlink-materialize 2s ease-out;
 }
 </style>
 
@@ -51,23 +29,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const FRAME_WIDTH = 64;
     const FRAME_HEIGHT = 64;
-    const MATERIALIZE_FRAMES = [0, 1, 2, 1, 0];
-    const MATERIALIZE_ROW = 6;  
     const FLOAT_FRAMES = [0, 0, 0, 0];
     const FLOAT_ROW = 6;
 
     let hyperlinkX = canvas.width / 2 - FRAME_WIDTH / 2;
     let hyperlinkY = canvas.height / 2 - FRAME_HEIGHT / 2;
-    let materializing = true;
-    let materializeIndex = 0;
     let floatIndex = 0;
 
-    let materializeProgress = 0;
     let floatOffset = 0;
 
-    const materializeFrameDuration = 200;
     const floatFrameDuration = 300;
-    let lastMaterializeTime = 0;
     let lastFloatTime = 0;
 
     hyperlinkSprite.onload = () => {
@@ -102,68 +73,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function drawHyperlink(timestamp) {
-        if (materializing) {
-            if (!lastMaterializeTime) lastMaterializeTime = timestamp;
+      if (!lastFloatTime) lastFloatTime = timestamp;
 
-            if (timestamp - lastMaterializeTime > materializeFrameDuration) {
-                materializeIndex++;
-                lastMaterializeTime = timestamp;
-            }
-
-            materializeProgress = materializeIndex / MATERIALIZE_FRAMES.length;
-            
-            const scale = 0.3 + materializeProgress * 0.7;
-            const opacity = materializeProgress;
-            const blur = 10 * (1 - materializeProgress);
-
-            const col = MATERIALIZE_FRAMES[Math.min(materializeIndex, MATERIALIZE_FRAMES.length - 1)];
-
-            ctx.save();
-            ctx.globalAlpha = opacity;
-            ctx.filter = `blur(${blur}px)`;
-            ctx.translate(hyperlinkX + FRAME_WIDTH/2, hyperlinkY + FRAME_HEIGHT/2);
-            ctx.scale(scale, scale);
-            ctx.translate(-FRAME_WIDTH/2, -FRAME_HEIGHT/2);
-
-            ctx.drawImage(
-                hyperlinkSprite,
-                col * FRAME_WIDTH, MATERIALIZE_ROW * FRAME_HEIGHT,
-                FRAME_WIDTH, FRAME_HEIGHT,
-                0, 0,
-                FRAME_WIDTH, FRAME_HEIGHT
-            );
-
-            ctx.restore();
-
-            if (materializeIndex >= MATERIALIZE_FRAMES.length) {
-                materializing = false;
-                materializeIndex = 0;
-            }
-
-        } else {
-            if (!lastFloatTime) lastFloatTime = timestamp;
-
-            if (timestamp - lastFloatTime > floatFrameDuration) {
-                floatIndex = (floatIndex + 1) % FLOAT_FRAMES.length;
-                lastFloatTime = timestamp;
-            }
-
-            floatOffset += 0.05;
-            const floatY = hyperlinkY + Math.sin(floatOffset) * 5;
-
-            const col = FLOAT_FRAMES[floatIndex];
-
-            ctx.save();
-            ctx.translate(hyperlinkX, floatY);
-            ctx.drawImage(
-                hyperlinkSprite,
-                col * FRAME_WIDTH, FLOAT_ROW * FRAME_HEIGHT,
-                FRAME_WIDTH, FRAME_HEIGHT,
-                0, 0,
-                FRAME_WIDTH, FRAME_HEIGHT
-            );
-            ctx.restore();
-        }
+      if (timestamp - lastFloatTime > floatFrameDuration) {
+        floatIndex = (floatIndex + 1) % FLOAT_FRAMES.length;
+        lastFloatTime = timestamp;
+      }
+      
+      floatOffset += 0.05;
+      const floatY = hyperlinkY + Math.sin(floatOffset) * 5;
+      
+      const col = FLOAT_FRAMES[floatIndex];
+      
+      ctx.save();
+      ctx.translate(hyperlinkX, floatY);
+      ctx.drawImage(
+        hyperlinkSprite,
+        col * FRAME_WIDTH, FLOAT_ROW * FRAME_HEIGHT,
+        FRAME_WIDTH, FRAME_HEIGHT,
+        0, 0,
+        FRAME_WIDTH, FRAME_HEIGHT
+      );
+      ctx.restore();
     }
 
     function animate(timestamp) {
