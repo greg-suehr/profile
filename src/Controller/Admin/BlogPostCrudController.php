@@ -26,11 +26,13 @@ class BlogPostCrudController extends AbstractCrudController
         return [            
             TextField::new('title'),
             TextField::new('subtitle'),
+            /*
             ImageField::new('featuredImage')
                 ->setBasePath('/uploads/blog')          // Path for displaying images
                 ->setUploadDir('public/uploads/blog')   // Directory for uploaded files
                 ->setUploadedFileNamePattern('[randomhash].[extension]') // Prevent name collisions
                 ->setRequired(false),
+            */
             TextEditorField::new('summary'),
             TextEditorField::new('content'),
             // ->setFormType(CKEditorType::class),
