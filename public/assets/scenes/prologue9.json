@@ -1,0 +1,42 @@
+{
+  "sceneId": "prologue9",
+  "canvasId": "screen",
+  "spriteAnimators": [
+    {
+      "name": "hyperlinkMaterialize",
+      "sheetUrl": "/assets/hyper_link/spritesheet_link.png",
+      "frameDefs": [
+        { "x": 0, "y": 6, "width": 64, "height": 64, "duration": 200 },
+        { "x": 1, "y": 6, "width": 64, "height": 64, "duration": 200 },
+        { "x": 2, "y": 6, "width": 64, "height": 64, "duration": 200 },
+        { "x": 1, "y": 6, "width": 64, "height": 64, "duration": 200 },
+        { "x": 0, "y": 6, "width": 64, "height": 64, "duration": 200 }
+      ],
+      "options": { "loop": false, "scale": 2, "anchor": { "x": 0.5, "y": 0.5 } }
+    },
+    {
+      "name": "hyperlinkFloat",
+      "sheetUrl": "/assets/hyper_link/spritesheet_link.png",
+      "frameDefs": [
+        { "x": 0, "y": 6, "width": 64, "height": 64, "duration": 300 },
+        { "x": 0, "y": 6, "width": 64, "height": 64, "duration": 300 },
+        { "x": 0, "y": 6, "width": 64, "height": 64, "duration": 300 },
+        { "x": 0, "y": 6, "width": 64, "height": 64, "duration": 300 }
+      ],
+      "options": { "loop": true, "scale": 2, "anchor": { "x": 0.5, "y": 0.5 } }
+    }
+  ],
+  "sceneEffects": [
+    {
+      "type": "Transition",
+      "start": 0,
+      "duration": 50,
+      "params": { "style": "fadeIn", "color": "black" }
+    }
+  ],
+  "dialogueTimeline": [
+    { "after": 3000, "selector": ".dialogue:nth-of-type(1)", "action": "show" },
+    { "after": 5000, "selector": ".dialogue:nth-of-type(2)", "action": "show" },
+    { "after": 7000, "selector": "#question-choices", "action": "show" }
+  ]
+}
