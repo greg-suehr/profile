@@ -33,7 +33,17 @@ final class HyperLinkController extends AbstractController
           'showCanvas'     => !array_key_exists($storyNodeKey, $noCanvasMap),
         ]);
     }
+  
+    #[Route('/alt/{storyNodeKey}', name: 'hyperlink_alt')]
+    public function alt(string $storyNodeKey, SessionInterface $session): Response
+    {
+        return $this->render('hyper_link/story.html.twig', [        
+          'storyNodeKey' => $storyNodeKey,
+          'showCanvas'   => true,
+        ]);
+    }
 
+  
     #[Route('/hyperlink/jump/{nextNodeKey}', name: 'hyperlink_jump')]
     public function jump(string $nextNodeKey, SessionInterface $session): Response
     {
