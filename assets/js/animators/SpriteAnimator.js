@@ -12,13 +12,25 @@ export class SpriteAnimator {
     this.elapsedTime = 0;
     this.isPlaying = false;
     this.lastFrameTime = 0;
+    console.log(options);
     
-    // Configuration options
+    function resolveConfig(val, dim) {
+      if (typeof val === 'string' && val.endsWith('%')) {
+        return (parseFloat(val) / 100) * canvas[dim];
+      }
+      return val;
+    }
+    
+    // Configuration options    
     this.loop = options.loop !== undefined ? options.loop : true;
     this.playbackSpeed = options.playbackSpeed || 1.0;
     this.scale = options.scale || 1.0;
     this.anchor = options.anchor || { x: 0, y: 0 };
-    this.position = options.position || { x: 0, y: 0 };
+    const _x = resolveConfig(options.position.x, 'width') || 0;
+    const _y = resolveConfig(options.position.y, 'height') || 0;
+    this.position = { x: _x, y: _y };
+    this.visible = options.visible !== false;
+    this.persistOnStop = options.persistOnStop !== true;
     
     // Animation state
     this.animationId = null;
@@ -33,7 +45,7 @@ export class SpriteAnimator {
    * Load sprite sheet and frame definitions
    * @param {string} sheetUrl - URL to sprite sheet image
    * @param {Array} frameDefs - Array of frame definitions
-   * @returns {Promise<void>}
+
    */
   async load(sheetUrl, frameDefs) {
     return new Promise((resolve, reject) => {
@@ -86,11 +98,27 @@ export class SpriteAnimator {
     this.isPlaying = false;
     this.currentFrameIndex = 0;
     this.elapsedTime = 0;
-    
-    if (this.animationId) {
-      cancelAnimationFrame(this.animationId);
-      this.animationId = null;
+
+    if (!this.persistOnStop) {
+      if (this.animationId) {
+        cancelAnimationFrame(this.animationId);
+        this.animationId = null;
+      }
     }
+  }
+
+  /**
+   * Hide the animator (stop rendering completely)
+   */
+  hide() {
+    this.visible = false;
+  }
+
+  /**
+   * Show the animator (resume rendering)
+   */
+  show() {
+    this.visible = true;
   }
 
   /**
@@ -146,7 +174,7 @@ export class SpriteAnimator {
   setScale(scale) {
     this.scale = Math.max(0.1, scale);
   }
-
+  
   /**
    * Set anchor point for drawing
    * @param {number} x - X anchor (0-1 for percentage, >1 for pixels)
@@ -170,44 +198,45 @@ export class SpriteAnimator {
    * @param {number} currentTime - Current timestamp from requestAnimationFrame
    */
   tick(currentTime) {
-    if (!this.isPlaying) {
-      this.animationId = requestAnimationFrame(this.tick);
-      return;
+    if (this.visible) {
+      this.renderFrame();
     }
 
-    const deltaTime = currentTime - this.lastFrameTime;
-    this.lastFrameTime = currentTime;
-
-    this.elapsedTime += deltaTime;
-    
-    const currentFrame = this.frameDefs[this.currentFrameIndex];
-    const frameDuration = currentFrame.duration / this.playbackSpeed;
-
-    if (this.elapsedTime >= frameDuration) {
-      this.elapsedTime = 0;
-      this.currentFrameIndex++;
-
-      // Trigger frame change callback
-      if (this.onFrameChange) {
-        this.onFrameChange(this.currentFrameIndex);
-      }
-
-      // Handle end of animation
-      if (this.currentFrameIndex >= this.frameDefs.length) {
-        if (this.loop) {
-          this.currentFrameIndex = 0;
-        } else {
-          this.currentFrameIndex = this.frameDefs.length - 1;
-          this.isPlaying = false;
-          
-          if (this.onComplete) {
-            this.onComplete();
+    if (this.isPlaying) {
+      const deltaTime = currentTime - this.lastFrameTime;
+      this.lastFrameTime = currentTime;
+      
+      this.elapsedTime += deltaTime;
+      
+      const currentFrame = this.frameDefs[this.currentFrameIndex];
+      const frameDuration = currentFrame.duration / this.playbackSpeed;
+      
+      if (this.elapsedTime >= frameDuration) {
+        this.elapsedTime = 0;
+        this.currentFrameIndex++;
+        
+        // Trigger frame change callback
+        if (this.onFrameChange) {
+          this.onFrameChange(this.currentFrameIndex);
+        }
+        
+        // Handle end of animation
+        if (this.currentFrameIndex >= this.frameDefs.length) {
+          if (this.loop) {
+            this.currentFrameIndex = 0;
+          } else {
+            this.currentFrameIndex = this.frameDefs.length - 1;
+            this.isPlaying = false;
+            
+            if (this.onComplete) {
+              this.onComplete();
+            }
           }
         }
       }
     }
 
-    this.renderFrame();
+    // Continue the animation loop
     this.animationId = requestAnimationFrame(this.tick);
   }
 
@@ -215,9 +244,10 @@ export class SpriteAnimator {
    * Render the current frame to canvas
    */
   renderFrame() {
-    if (!this.spriteSheet || !this.frameDefs[this.currentFrameIndex]) {
+    if (!this.visible || !this.spriteSheet || !this.frameDefs[this.currentFrameIndex]) {     
       return;
     }
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     const frame = this.frameDefs[this.currentFrameIndex];
     const scaledWidth = frame.width * this.scale;
@@ -257,7 +287,8 @@ export class SpriteAnimator {
       totalFrames: this.frameDefs.length,
       elapsedTime: this.elapsedTime,
       playbackSpeed: this.playbackSpeed,
-      loop: this.loop
+      loop: this.loop,
+      visible: this.visible
     };
   }
 
@@ -265,7 +296,12 @@ export class SpriteAnimator {
    * Destroy the animator and clean up resources
    */
   destroy() {
-    this.stop();
+    this.visible = false;
+    this.isPlaying = false;
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }    
     this.spriteSheet = null;
     this.frameDefs = [];
     this.onComplete = null;

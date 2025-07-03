@@ -3,7 +3,7 @@
 {% block content %}
 {% if showCanvas %}
 <canvas id="screen" data-scene-id="{{ storyNodeKey }}" width="800" height="400" style="background: #000; width: 100%; max-width: 800px; height: auto; display: block;"></canvas>
+{{ encore_entry_script_tags('scene') }}
 {% endif %}
 {% include 'hyper_link/' ~ storyNodeKey ~ '.html.twig' %}
-<script type="module" src="{{ asset('build/scene-bootstrap.js') }}"></script>
 {% endblock %}

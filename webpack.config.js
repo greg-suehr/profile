@@ -56,7 +56,12 @@ Encore
     })
 
     // enables Sass/SCSS support
-    .enableSassLoader()
+    .enableSassLoader(options => {
+      options.sassOptions = {
+        // suppress deprecation warnings from (e.g. bootstrap)
+        quietDeps: true
+      }}
+    )
 
     // uncomment if you use TypeScript
     //.enableTypeScriptLoader()

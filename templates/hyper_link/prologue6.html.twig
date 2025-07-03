@@ -3,58 +3,14 @@
 {% block content %}
 <div class="scene" id="prologue6">
   <div class="dialogue">
-    <p class="character-dialogue">G: Yeah, he can be like that!</p>
-    <p class="character-dialogue">...</p>
-    <p class="character-dialogue">G: Sorry, did you come here for anything in particular?</p>    
+    <p class="character-dialogue" id="dialogue1">G: Yeah, he can be like that!</p>
+    <p class="character-dialogue hidden" id="dialogue2">...</p>
+    <p class="character-dialogue hidden" id="dialogue3">G: Sorry, did you come here for anything in particular?</p>    
   </div>
-  <div class="choices">
+  <div class="choices hidden">
     <a class="choice" href="{{ path('hyperlink_jump', { nextNodeKey: 'sitemap' }) }}">Yes, actually.</a>    
     <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'prologue7' }) }}">Not really...</a>
   </div>
 </div>
-
-<script>
-    const canvas = document.getElementById('screen');
-    const ctx = canvas.getContext('2d');
-
-    const gregSprite = new Image();
-    gregSprite.src = '{{ asset("assets/hyper_link/spritesheet_greg.png") }}';
-
-    const FRAME_WIDTH = 64;
-    const FRAME_HEIGHT = 64;
-    const CHAR_WIDTH = FRAME_WIDTH * 2;
-    const CHAR_HEIGHT = FRAME_HEIGHT * 2;
-    const POSITION_ROW = 2;
-
-    let frameIndex = 0;
-    let posX = canvas.width / 2 - CHAR_WIDTH / 2;
-    let posY = canvas.height / 2 - CHAR_HEIGHT / 2;
-
-    const frameDuration = 100;
-    let lastFrameTime = 0;
-
-    const moveSpeed = 2;
-
-    let animationActive = true;
-
-    gregSprite.onload = () => {
-        requestAnimationFrame(update);
-    };
-
-    function update(timestamp) {
-        if (!lastFrameTime) lastFrameTime = timestamp;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        ctx.drawImage(
-            gregSprite,
-            frameIndex * FRAME_WIDTH, POSITION_ROW * FRAME_HEIGHT,
-            FRAME_WIDTH, FRAME_HEIGHT,
-            posX, posY,
-            CHAR_WIDTH, CHAR_HEIGHT
-        );
-    }
-   
-</script>
 {% endblock %}
 

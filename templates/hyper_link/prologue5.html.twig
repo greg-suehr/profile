@@ -3,58 +3,14 @@
 {% block content %}
 <div class="scene" id="prologue5">
   <div class="dialogue">
-    <p class="character-dialogue">G: Sorry about the state of things. I never really got around to finishing the thing.</p>
-    <p class="character-dialogue">G: I've been working on it forever though. Can't even remember where I put...</p>
-    <p class="character-dialogue">G: Well, never mind about that. I hope your experience with the site hasn't been too bad.</p>
+    <p class="character-dialogue" id="dialogue1">G: Sorry about the state of things. I never really got around to finishing it.</p>
+    <p class="character-dialogue hidden" id="dialogue2">G: I've been working on it forever though. Can't even remember where I put...</p>
+    <p class="character-dialogue hidden" id="dialogue3">G: Well, never mind about that. I hope your experience with the site hasn't been too bad.</p>
   </div>
-  <div class="choices">
+  <div class="choices hidden">
     <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'prologue6' }) }}">It's fine. He seems... touchy.</a>
     <a class="choice" href="{{ path('hyperlink_clear') }}">I've actually been having a terrible time.</a>
   </div>
 </div>
-
- <script>
-    const canvas = document.getElementById('screen');
-    const ctx = canvas.getContext('2d');
-
-    const gregSprite = new Image();
-    gregSprite.src = '{{ asset("assets/hyper_link/spritesheet_greg.png") }}';
-
-    const FRAME_WIDTH = 64;
-    const FRAME_HEIGHT = 64;
-    const CHAR_WIDTH = FRAME_WIDTH * 2;
-    const CHAR_HEIGHT = FRAME_HEIGHT * 2;
-    const POSITION_ROW = 2;
-
-    let frameIndex = 0;
-    let posX = canvas.width / 2 - CHAR_WIDTH / 2;
-    let posY = canvas.height / 2 - CHAR_HEIGHT / 2;
-
-    const frameDuration = 100;
-    let lastFrameTime = 0;
-
-    const moveSpeed = 2;
-
-    let animationActive = true;
-
-    gregSprite.onload = () => {
-        requestAnimationFrame(update);
-    };
-
-    function update(timestamp) {
-        if (!lastFrameTime) lastFrameTime = timestamp;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        ctx.drawImage(
-            gregSprite,
-            frameIndex * FRAME_WIDTH, POSITION_ROW * FRAME_HEIGHT,
-            FRAME_WIDTH, FRAME_HEIGHT,
-            posX, posY,
-            CHAR_WIDTH,CHAR_HEIGHT
-        );
-    }
-   
-</script>
 {% endblock %}
 

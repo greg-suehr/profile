@@ -1,0 +1,69 @@
+{
+  "sceneId": "prlogue4",
+  "canvasId": "screen",
+  "spriteAnimators": [
+    {
+      "name": "gregWalk",
+      "sheetUrl": "/assets/hyper_link/spritesheet_greg.png",
+      "frameDefs": [
+        { "x": 0, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 1, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 2, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 3, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 4, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 5, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 6, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 7, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 8, "y": 9, "width": 64, "height": 64, "duration": 100 }
+      ],      
+      "options": { 
+        "loop": true, 
+        "scale": 2,
+        "position": { "x": "100%", "y": "50%" },
+        "anchor": { "x": 0.5, "y": 0.5 },
+        "autoPlay": true
+      }
+    },
+    {
+      "name": "gregReaction",
+      "sheetUrl": "/assets/hyper_link/spritesheet_greg.png",
+      "frameDefs": [
+        { "x": 0, "y": 2, "width": 64, "height": 64, "duration": 200 },
+        { "x": 1, "y": 2, "width": 64, "height": 64, "duration": 200 },
+        { "x": 2, "y": 2, "width": 64, "height": 64, "duration": 200 },
+        { "x": 1, "y": 2, "width": 64, "height": 64, "duration": 200 },
+        { "x": 0, "y": 2, "width": 64, "height": 64, "duration": 200 }
+      ],
+      "options": { 
+        "loop": false,
+        "scale": 2,
+        "position": { "x": "50%", "y": "50%" },
+        "anchor": { "x": 0.5, "y": 0.5 },
+        "autoPlay": false
+      }
+    }
+  ],
+  "sceneEffects": [
+    {
+      "type": "Transition",
+      "start": 0,
+      "duration": 50,
+      "params": { "style": "fadeIn", "color": "black" }
+    }
+  ],
+  "dialogueTimeline": [
+    { "after": 3000, "selector": "#dialogue2", "action": "show" },
+    { "after": 4000, "selector": "#dialogue3", "action": "show" },
+    { "after": 5000, "selector": ".choices", "action": "show" }
+  ],
+  "autoSequences": ["walkToCenter"],
+  "sequences": {
+    "walkToCenter": {
+      "steps": [
+        { "type": "animatePosition", "animator": "gregWalk", "from": { "x": 800, "y": "50%" }, "to": { "x": 400, "y": "50%" }, "duration": 3000, "delay": 0 },
+        { "type": "stopAnimator", "animator": "gregWalk", "delay": 3000 },
+        { "type": "playAnimator", "animator": "gregReaction", "delay": 3100 }
+      ]
+    }
+  }
+}

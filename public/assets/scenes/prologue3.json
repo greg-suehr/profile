@@ -1,0 +1,14 @@
+{
+  "sceneId": "prologue3",
+  "canvasId": "screen",
+  "spriteAnimators": [
+  ],
+  "sceneEffects": [],
+  "dialogueTimeline": [
+    { "after": 2000, "selector": "#dialogue2", "action": "show" },
+    { "after": 4000, "selector": "#dialogue3", "action": "show" },
+    { "after": 6000, "selector": ".choices", "action": "show" }
+  ],
+  "autoSequences": [],
+  "sequences": {}
+}

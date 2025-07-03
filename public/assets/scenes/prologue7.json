@@ -1,0 +1,64 @@
+{
+  "sceneId": "prologue7",
+  "canvasId": "screen",
+  "spriteAnimators": [
+    {
+      "name": "gregGlitch",
+      "sheetUrl": "/assets/hyper_link/spritesheet_greg.png",
+      "frameDefs": [
+        { "x": 0, "y": 2, "width": 64, "height": 64, "duration": 100 }
+      ],
+      "options": {
+        "loop": true,
+        "scale": 2,
+        "position": { "x": "50%", "y": "50%" },
+        "anchor": { "x": 0.5, "y": 0.5 },
+        "autoPlay": true
+      }
+    }
+  ],
+  "sceneEffects": [
+    {
+      "type": "CanvasShake",
+      "start": 1000,
+      "duration": 6000,
+      "params": { "intensity": "medium" }
+    },
+    {
+      "type": "GlitchOverlay",
+      "start": 1000,
+      "duration": 7000,
+      "params": { "maxIntensity": 8 }
+    },
+    { "type": "Rift", "start": 2000, "duration": 5000, "params": { "x": 100, "y": 200, "width": 120, "height": 30 } },
+    { "type": "Rift", "start": 2000, "duration": 5000, "params": { "x": 600, "y": 150 } },
+    { "type": "Rift", "start": 6000, "duration": 5000, "params": { "x": 400, "y": 340 } },
+    {
+      "type": "WrenchDrop",
+      "start": 6500,
+      "duration": 500
+    }
+  ],
+  "dialogueTimeline": [
+    { "after": 2500, "selector": ".glitch-text", "action": "show" },
+    { "after": 3000, "selector": "#dialogue2", "action": "show" },
+    { "after": 3800, "selector": "#dialogue3", "action": "show" },
+    { "after": 4600, "selector": "#dialogue4", "action": "show" },
+    { "after": 9000, "selector": "#next-choices", "action": "show" }
+  ],
+  "autoSequences": ["glitchSequence"],
+  "sequences": {
+    "glitchSequence": {
+      "steps": [
+        { "type": "playAnimator", "animator": "gregGlitch", "delay": 0 },
+        { "type": "addEffect", "effect": "CanvasShake", "delay": 2500 },
+        { "type": "addEffect", "effect": "GlitchOverlay", "delay": 2500 },
+        { "type": "addEffect", "effect": "Rift", "delay": 3000, "params": { "x": 100, "y": 200 } },
+        { "type": "addEffect", "effect": "Rift", "delay": 3500, "params": { "x": 600, "y": 150 } },
+        { "type": "addEffect", "effect": "Rift", "delay": 3800, "params": { "x": 400, "y": 340 } },
+        { "type": "addEffect", "effect": "WrenchDrop", "delay": 6500 },
+        { "type": "stopAnimator", "animator": "gregGlitch", "delay": 7000 }
+      ]
+    }
+  }
+}
