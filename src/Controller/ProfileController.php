@@ -8,10 +8,16 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class ProfileController extends AbstractController
 {
-    #[Route('/', name: 'profile_landing')]                                                                                                                                    
-    public function landing(): Response
-    {
-        return $this->render('profile/dark.html.twig');
+    #[Route('/', name: 'profile_landing')]
+  public function landing(): Response
+  {
+    $host = $request->getHost();
+    
+    if ($host === 'gregsuehr.com') {
+      return $this->render('hyper_link/story.html.twig');
+    }
+    
+    return $this->render('profile/dark.html.twig');
     } 
 
     #[Route('/launch', name: 'profile_landing_bright')]
