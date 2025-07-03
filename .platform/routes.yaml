@@ -6,5 +6,3 @@
     upstream: "app:http"    
 "https://{all}/": { type: upstream, upstream: "app:http" }
 "http://{all}/": { type: redirect, to: "https://{all}/" }
-"https://inseam.{all}/": { type: upstream, upstream: "app:http" }
-"http://inseam.{all}/": { type: redirect, to: "https://{all}/" }
