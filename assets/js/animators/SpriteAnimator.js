@@ -10,7 +10,9 @@ export class SpriteAnimator {
     this.frameDefs = [];
     this.currentFrameIndex = 0;
     this.elapsedTime = 0;
+    this.startTime = 0;
     this.isPlaying = false;
+    this.hasPlayed = false;
     this.lastFrameTime = 0;
     console.log(options);
     
@@ -26,8 +28,8 @@ export class SpriteAnimator {
     this.playbackSpeed = options.playbackSpeed || 1.0;
     this.scale = options.scale || 1.0;
     this.anchor = options.anchor || { x: 0, y: 0 };
-    const _x = resolveConfig(options.position.x, 'width') || 0;
-    const _y = resolveConfig(options.position.y, 'height') || 0;
+    const _x = resolveConfig(options.position?.x, 'width') || 0;
+    const _y = resolveConfig(options.position?.y, 'height') || 0;
     this.position = { x: _x, y: _y };
     this.visible = options.visible !== false;
     this.persistOnStop = options.persistOnStop !== true;
@@ -35,10 +37,7 @@ export class SpriteAnimator {
     // Animation state
     this.animationId = null;
     this.onComplete = options.onComplete || null;
-    this.onFrameChange = options.onFrameChange || null;
-    
-    // Bind methods
-    this.tick = this.tick.bind(this);
+    this.onFrameChange = options.onFrameChange || null;   
   }
 
   /**
@@ -77,11 +76,7 @@ export class SpriteAnimator {
     }
     
     this.isPlaying = true;
-    this.lastFrameTime = performance.now();
-    
-    if (!this.animationId) {
-      this.animationId = requestAnimationFrame(this.tick);
-    }
+    this.lastFrameTime = performance.now();   
   }
 
   /**
@@ -96,6 +91,7 @@ export class SpriteAnimator {
    */
   stop() {
     this.isPlaying = false;
+    this.hasPlayed = true;
     this.currentFrameIndex = 0;
     this.elapsedTime = 0;
 
@@ -194,50 +190,43 @@ export class SpriteAnimator {
   }
 
   /**
-   * Main animation tick
+   * Update for animation tick run my SceneManager via a SceneEffect
    * @param {number} currentTime - Current timestamp from requestAnimationFrame
    */
-  tick(currentTime) {
-    if (this.visible) {
-      this.renderFrame();
-    }
-
-    if (this.isPlaying) {
-      const deltaTime = currentTime - this.lastFrameTime;
-      this.lastFrameTime = currentTime;
+  update(currentTime) {
+    if (!this.isPlaying) return;
+  
+    const deltaTime = currentTime - this.lastFrameTime;
+    this.lastFrameTime = currentTime;
       
-      this.elapsedTime += deltaTime;
+    this.elapsedTime += deltaTime;
       
-      const currentFrame = this.frameDefs[this.currentFrameIndex];
-      const frameDuration = currentFrame.duration / this.playbackSpeed;
+    const currentFrame = this.frameDefs[this.currentFrameIndex];
+    const frameDuration = currentFrame.duration / this.playbackSpeed;
       
-      if (this.elapsedTime >= frameDuration) {
-        this.elapsedTime = 0;
-        this.currentFrameIndex++;
+    if (this.elapsedTime >= frameDuration) {
+      this.elapsedTime = 0;
+      this.currentFrameIndex++;
+      
+      // Trigger frame change callback
+      if (this.onFrameChange) {
+        this.onFrameChange(this.currentFrameIndex);
+      }
         
-        // Trigger frame change callback
-        if (this.onFrameChange) {
-          this.onFrameChange(this.currentFrameIndex);
-        }
-        
-        // Handle end of animation
-        if (this.currentFrameIndex >= this.frameDefs.length) {
-          if (this.loop) {
-            this.currentFrameIndex = 0;
-          } else {
-            this.currentFrameIndex = this.frameDefs.length - 1;
-            this.isPlaying = false;
-            
-            if (this.onComplete) {
-              this.onComplete();
-            }
+      // Handle end of animation
+      if (this.currentFrameIndex >= this.frameDefs.length) {
+        if (this.loop) {
+          this.currentFrameIndex = 0;
+        } else {
+          this.currentFrameIndex = this.frameDefs.length - 1;
+          this.isPlaying = false;
+          
+          if (this.onComplete) {
+            this.onComplete();
           }
         }
       }
     }
-
-    // Continue the animation loop
-    this.animationId = requestAnimationFrame(this.tick);
   }
 
   /**
@@ -247,7 +236,6 @@ export class SpriteAnimator {
     if (!this.visible || !this.spriteSheet || !this.frameDefs[this.currentFrameIndex]) {     
       return;
     }
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     const frame = this.frameDefs[this.currentFrameIndex];
     const scaledWidth = frame.width * this.scale;

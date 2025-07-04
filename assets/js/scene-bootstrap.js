@@ -205,7 +205,6 @@ class SceneBootstrap {
     
     // Execute sequence steps
     for (const step of sequenceConfig.steps || []) {
-      console.log(`Step! "${step} run.`);
       setTimeout(() => {
         this.executeSequenceStep(step);
       }, step.delay || 0);
@@ -248,6 +247,7 @@ class SceneBootstrap {
         this.effectManager.addEffect({          
           'type': step.effect,
           'start': step.delay || step.start || 0,
+          'duration': step.duration || 0,
           'params' : step.params || {}
         });
         }

@@ -1,0 +1,113 @@
+{
+  "sceneId": "prlogue4",
+  "canvasId": "screen",
+  "spriteAnimators": [
+    {
+      "name": "gregWalk",
+      "sheetUrl": "/assets/hyper_link/spritesheet_greg.png",
+      "frameDefs": [
+        { "x": 0, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 1, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 2, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 3, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 4, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 5, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 6, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 7, "y": 9, "width": 64, "height": 64, "duration": 100 },
+        { "x": 8, "y": 9, "width": 64, "height": 64, "duration": 100 }
+      ],      
+      "options": { 
+        "loop": true, 
+        "scale": 2,
+        "position": { "x": "100%", "y": "50%" },
+        "anchor": { "x": 0.5, "y": 0.5 },
+        "autoPlay": true
+      }
+    },
+    {
+      "name": "gregReaction",
+      "sheetUrl": "/assets/hyper_link/spritesheet_greg.png",
+      "frameDefs": [
+        { "x": 0, "y": 2, "width": 64, "height": 64, "duration": 200 },
+        { "x": 1, "y": 2, "width": 64, "height": 64, "duration": 200 },
+        { "x": 2, "y": 2, "width": 64, "height": 64, "duration": 200 },
+        { "x": 1, "y": 2, "width": 64, "height": 64, "duration": 200 },
+        { "x": 0, "y": 2, "width": 64, "height": 64, "duration": 200 }
+      ],
+      "options": {
+        "loop": false,
+        "scale": 2,
+        "position": { "x": "50%", "y": "50%" },
+        "anchor": { "x": 0.5, "y": 0.5 },
+        "autoPlay": false
+      }
+    }
+  ],
+  "sceneEffects": [
+    {
+      "type": "ParallaxLayer",
+      "start": 0,
+      "duration": 999999,
+      "params": {
+        "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-bg.png",
+        "speed": 0.1,
+        "direction": "horizontal"
+      }
+    },
+    {
+      "type": "ParallaxLayer",
+      "start": 0,
+      "duration": 999999,
+      "params": {
+        "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-montain-far.png",
+        "speed": 0.2,
+        "direction": "horizontal"
+      }
+    },
+    {
+      "type": "ParallaxLayer",
+      "start": 0,
+      "duration": 999999,
+      "params": {
+        "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-mountains.png",
+        "speed": 0.4,
+        "direction": "horizontal"
+      }
+    },
+    {
+      "type": "ParallaxLayer",
+      "start": 0,
+      "duration": 999999,
+      "params": {
+        "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-trees.png",
+        "speed": 0.6,
+        "direction": "horizontal"
+      }
+    },
+    {
+      "type": "ParallaxLayer",
+      "start": 0,
+      "duration": 999999,
+      "params": {
+        "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-foreground-trees.png",
+        "speed": 0.8,
+        "direction": "horizontal"
+      }
+    }
+  ],
+  "dialogueTimeline": [
+    { "after": 3000, "selector": "#dialogue2", "action": "show" },
+    { "after": 4000, "selector": "#dialogue3", "action": "show" },
+    { "after": 5000, "selector": ".choices", "action": "show" }
+  ],
+  "autoSequences": ["walkToCenter"],
+  "sequences": {
+    "walkToCenter": {
+      "steps": [
+        { "type": "animatePosition", "animator": "gregWalk", "from": { "x": 800, "y": "50%" }, "to": { "x": 400, "y": "50%" }, "duration": 3000, "delay": 0 },
+        { "type": "stopAnimator", "animator": "gregWalk", "delay": 3000 },
+        { "type": "playAnimator", "animator": "gregReaction", "delay": 3100 }
+      ]
+    }
+  }
+}

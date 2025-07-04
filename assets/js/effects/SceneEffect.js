@@ -160,9 +160,12 @@ export class SceneEffect {
         effect.update(this.currentTime);
       }
       
-      // Update sprite animators (they handle their own rendering)
+      // Update active sprite animators
       for (const animator of this.animators) {
-        // Animators manage themselves, but we can coordinate if needed
+        if (animator.isPlaying || (animator.persistOnStop && animator.hasPlayed)) {
+          animator.update(timestamp);
+          animator.renderFrame();
+        }
       }
     }
     
@@ -292,12 +295,13 @@ class ParallaxLayerEffect extends EffectInstance {
     if (!this.params.imageUrl) return;
     
     this.image = new Image();
+    // DEBUG: this.image.onload = () => { console.log("Parallax image loaded:", this.image.src); };
     this.image.src = this.params.imageUrl;
   }
 
   render(relativeTime) {
     if (!this.image || !this.image.complete) return;
-    
+
     // Calculate parallax offset
     this.offset = (relativeTime * this.speed * 0.1) % this.image.width;
     
@@ -554,10 +558,9 @@ class oldRiftEffect extends EffectInstance {
   }
 
   render(relativeTime) {
-    console.log("rendering");
     this.pulse += 0.1;
     const alpha = 0.3 + Math.sin(this.pulse) * 0.2;
-    console.log("Rift coordinates:", alpha, "@", this.x, this.y, this.width, this.height);
+
     this.context.save();
     this.context.globalAlpha = alpha;
 
