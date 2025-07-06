@@ -1,0 +1,18 @@
+podcast:
+    path: /show
+    controller: Symfony\Bundle\FrameworkBundle\Controller\TemplateController::templateAction
+    defaults:
+        template: 'podcast/home.html.twig'
+controllers:
+    resource:
+        path: ../../src/Podcast/Controller/
+        namespace: App\Podcast\Controller
+    type: attribute
+
+uploads:
+    path: /uploads/{path}
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::urlRedirectAction
+    defaults:
+        path: '%kernel.project_dir%/public/uploads/{path}'
+    requirements:
+        path: .+
