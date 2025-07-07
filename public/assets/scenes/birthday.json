@@ -19,8 +19,8 @@
       "options": { 
         "loop": true, 
         "scale": 2,
-        "position": { "x": "100%", "y": "50%" },
-        "anchor": { "x": 0.5, "y": 0.5 },
+        "position": { "x": "100%", "y": "5%" },
+        "anchor": { "x": 0.05, "y": 0.05 },
         "autoPlay": true
       }
     },
@@ -37,9 +37,10 @@
       "options": {
         "loop": false,
         "scale": 2,
-        "position": { "x": "50%", "y": "50%" },
-        "anchor": { "x": 0.5, "y": 0.5 },
-        "autoPlay": false
+        "position": { "x": "50%", "y": "5%" },
+        "anchor": { "x": 0.5, "y": 0.05 },
+        "autoPlay": false,
+        "persistOnStop": true
       }
     }
   ],
@@ -50,7 +51,7 @@
       "duration": 999999,
       "params": {
         "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-bg.png",
-        "speed": 0.1,
+        "speed": 0.01,
         "direction": "horizontal"
       }
     },
@@ -60,7 +61,7 @@
       "duration": 999999,
       "params": {
         "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-montain-far.png",
-        "speed": 0.2,
+        "speed": 0.02,
         "direction": "horizontal"
       }
     },
@@ -70,7 +71,7 @@
       "duration": 999999,
       "params": {
         "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-mountains.png",
-        "speed": 0.4,
+        "speed": 0.04,
         "direction": "horizontal"
       }
     },
@@ -80,7 +81,7 @@
       "duration": 999999,
       "params": {
         "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-trees.png",
-        "speed": 0.6,
+        "speed": 0.06,
         "direction": "horizontal"
       }
     },
@@ -90,7 +91,7 @@
       "duration": 999999,
       "params": {
         "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-foreground-trees.png",
-        "speed": 0.8,
+        "speed": 0.08,
         "direction": "horizontal"
       }
     }
@@ -104,7 +105,7 @@
   "sequences": {
     "walkToCenter": {
       "steps": [
-        { "type": "animatePosition", "animator": "gregWalk", "from": { "x": 800, "y": "50%" }, "to": { "x": 400, "y": "50%" }, "duration": 3000, "delay": 0 },
+        { "type": "animatePosition", "animator": "gregWalk", "from": { "x": 800, "y": "5%" }, "to": { "x": 400, "y": "5%" }, "duration": 3000, "delay": 0 },
         { "type": "stopAnimator", "animator": "gregWalk", "delay": 3000 },
         { "type": "playAnimator", "animator": "gregReaction", "delay": 3100 }
       ]

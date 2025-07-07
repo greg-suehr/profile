@@ -154,6 +154,7 @@ export class SceneEffect {
       
       // Clear canvas for this frame
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      console.log("SceneEffect tick - cleared canvas, rendering", this.effects.length, "effects and", this.animators.length, "animators");
       
       // Update and render all effects
       for (const effect of this.effects) {
@@ -302,18 +303,44 @@ class ParallaxLayerEffect extends EffectInstance {
   render(relativeTime) {
     if (!this.image || !this.image.complete) return;
 
-    // Calculate parallax offset
-    this.offset = (relativeTime * this.speed * 0.1) % this.image.width;
+    /* DEBUG:
+    console.log("Parallax render:", {
+        imageSize: `${this.image.width}x${this.image.height}`,
+        canvasSize: `${this.canvas.width}x${this.canvas.height}`,
+        relativeTime,
+        speed: this.speed,
+        direction: this.direction
+        });
+    */
+    
+    const scaleY = this.canvas.height / this.image.height;
+    const scaledWidth = this.image.width * scaleY;
+    const scaledHeight = this.canvas.height;
     
     if (this.direction === 'horizontal') {
-      // Draw image twice for seamless scrolling
-      this.context.drawImage(this.image, -this.offset, 0);
-      this.context.drawImage(this.image, this.image.width - this.offset, 0);
-    } else {
-      // Vertical parallax
+      // Calculate parallax offset
+      this.offset = (relativeTime * this.speed * 0.1) % this.image.width;
+
+      // Draw tiles to fill canvas width plus one for seamless scrolling
+      const tilesX = Math.ceil(this.canvas.width / scaledWidth) + 1;
+      
+      for (let i = 0; i < tilesX; i++) {
+        const x = (i * scaledWidth) - this.offset;
+        this.context.drawImage(this.image, x, 0, scaledWidth, scaledHeight);
+      }
+    }
+    else {
       const yOffset = (relativeTime * this.speed * 0.1) % this.image.height;
-      this.context.drawImage(this.image, 0, -yOffset);
-      this.context.drawImage(this.image, 0, this.image.height - yOffset);
+
+      const scaleX = this.canvas.width / this.image.width;
+      const verticalScaledHeight = this.image.height * scaleX;
+      const verticalScaledWidth = this.canvas.width;
+
+      const tilesY = Math.ceil(this.canvas.height / verticalScaledHeight) + 1;
+      for (let i = 0; i < tilesY; i++) {
+        const y = (i * this.image.height) - yOffset;
+        this.context.drawImage(this.image, 0, y, verticalScaledWidth, verticalScaledHeight);
+      }
     }
   }
 }

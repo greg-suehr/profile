@@ -14,7 +14,7 @@ export class SpriteAnimator {
     this.isPlaying = false;
     this.hasPlayed = false;
     this.lastFrameTime = 0;
-    console.log(options);
+    // DEBUG: console.log(options);
     
     function resolveConfig(val, dim) {
       if (typeof val === 'string' && val.endsWith('%')) {
@@ -32,7 +32,7 @@ export class SpriteAnimator {
     const _y = resolveConfig(options.position?.y, 'height') || 0;
     this.position = { x: _x, y: _y };
     this.visible = options.visible !== false;
-    this.persistOnStop = options.persistOnStop !== true;
+    this.persistOnStop = options.persistOnStop === true;
     
     // Animation state
     this.animationId = null;
@@ -92,8 +92,11 @@ export class SpriteAnimator {
   stop() {
     this.isPlaying = false;
     this.hasPlayed = true;
-    this.currentFrameIndex = 0;
-    this.elapsedTime = 0;
+
+    if (!this.persistOnStop) {
+        this.currentFrameIndex = 0;
+        this.elapsedTime = 0;
+    }
 
     if (!this.persistOnStop) {
       if (this.animationId) {
@@ -220,6 +223,7 @@ export class SpriteAnimator {
         } else {
           this.currentFrameIndex = this.frameDefs.length - 1;
           this.isPlaying = false;
+          this.hasPlayed = true;
           
           if (this.onComplete) {
             this.onComplete();
@@ -233,9 +237,21 @@ export class SpriteAnimator {
    * Render the current frame to canvas
    */
   renderFrame() {
+    /* DEBUG
+    console.log("SpriteAnimator renderFrame:", {
+        visible: this.visible,
+        hasSprite: !!this.spriteSheet,
+        currentFrame: this.currentFrameIndex,
+        totalFrames: this.frameDefs.length,
+        isPlaying: this.isPlaying,
+        hasPlayed: this.hasPlayed,
+        persistOnStop: this.persistOnStop
+        });
+    */
+    
     if (!this.visible || !this.spriteSheet || !this.frameDefs[this.currentFrameIndex]) {     
       return;
-    }
+    }    
 
     const frame = this.frameDefs[this.currentFrameIndex];
     const scaledWidth = frame.width * this.scale;

@@ -47,7 +47,7 @@ class SceneBootstrap {
       // Start the scene
       this.startScene();
 
-      console.log(`Scene "${this.sceneId}" loaded successfully`);
+      // DEBUG: console.log(`Scene "${this.sceneId}" loaded successfully`);
     } catch (error) {
       console.error('Failed to initialize scene:', error);
       this.showError(error.message);
@@ -102,7 +102,7 @@ class SceneBootstrap {
         // Add to effect manager for coordinated rendering
         this.effectManager.addAnimator(animator);
         
-        console.log(`Loaded sprite animator: ${config.name}`);
+        // DEBUG: console.log(`Loaded sprite animator: ${config.name}`);
       } catch (error) {
         console.error(`Failed to load sprite animator "${config.name}":`, error);
       }
