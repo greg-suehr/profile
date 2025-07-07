@@ -1,116 +1,16 @@
 {% extends 'hyper_link/base.html.twig' %}
 
 {% block content %}
-    <div class="scene" id="scene-1iv">
+    <div class="scene" id="prologue4">
         <div class="dialogue">
-            <p class="character-dialogue">G: Hmmm… need to…</p>
-            <p class="character-dialogue hidden">…!</p>
-            <p class="character-dialogue hidden">G: Oh! Hi there. Are you on my website?</p>
+            <p class="character-dialogue" id="dialogue1">G: Hmmm… need to…</p>
+            <p class="character-dialogue hidden" id="dialogue2">...!</p>
+            <p class="character-dialogue hidden" id="dialogue3">G: Oh! Hi there. Are you on my website?</p>
         </div>
         <div class="choices hidden">
             <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'prologue5' }) }}">Yes?</a>
             <a class="choice" href="{{ path('hyperlink_clear') }}">No.</a>
         </div>
     </div>
-
-    <script>
-    const canvas = document.getElementById('screen');
-    const ctx = canvas.getContext('2d');
-
-    const gregSprite = new Image();
-    gregSprite.src = '{{ asset("assets/hyper_link/spritesheet_greg.png") }}'; 
-
-    const FRAME_WIDTH = 64;
-    const FRAME_HEIGHT = 64;
-    const CHAR_WIDTH = FRAME_WIDTH * 2;
-    const CHAR_HEIGHT = FRAME_HEIGHT * 2;
-    const NUM_FRAMES = 9;
-    const WALK_ROW = 9;
-
-    let frameIndex = 0;
-    let posX = canvas.width;
-    let posY = canvas.height / 2 - CHAR_HEIGHT / 2;
-
-    const frameDuration = 100;
-    let lastFrameTime = 0;
-
-    const moveSpeed = 2; 
-
-    let animationActive = true;
-
-    gregSprite.onload = () => {
-        requestAnimationFrame(update);
-    };
-
-    function update(timestamp) {
-      if (!lastFrameTime) lastFrameTime = timestamp;
-      
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      ctx.drawImage(
-        gregSprite,
-        frameIndex * FRAME_WIDTH, WALK_ROW * FRAME_HEIGHT,
-        FRAME_WIDTH, FRAME_HEIGHT,
-        posX, posY,
-        CHAR_WIDTH, CHAR_HEIGHT
-      );
-      
-      if (timestamp - lastFrameTime > frameDuration) {
-        frameIndex = (frameIndex + 1) % NUM_FRAMES;
-        lastFrameTime = timestamp;
-      }
-      
-      posX -= moveSpeed;
-      
-      if (animationActive && posX <= canvas.width / 2 - CHAR_WIDTH / 2) {
-        animationActive = false;
-        triggerDialogueEvent();
-      } else if (animationActive) {
-        requestAnimationFrame(update);
-      }          
-      
-      function triggerDialogueEvent() {
-        document.querySelectorAll('.character-dialogue')[1].classList.remove('hidden');
-
-        setTimeout(() => {
-          document.querySelectorAll('.character-dialogue')[2].classList.remove('hidden');
-        }, 2000);
-        
-        playSequence([
-          {row: 2, col: 0},
-          {row: 2, col: 1},
-          {row: 2, col: 2},
-          {row: 2, col: 1},
-          {row: 2, col: 0}
-        ], 200
-        );
-
-        setTimeout(() => {
-          document.querySelectorAll('.choices')[0].classList.remove('hidden');
-        }, 2000);
-      }
-      
-      function playSequence(frames, duration, onComplete) {
-        let i = 0;
-        function nextFrame() {
-          if (i >= frames.length) {
-            if (onComplete) onComplete();
-            return;
-          }
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(
-            gregSprite,
-            frames[i].col * FRAME_WIDTH, frames[i].row * FRAME_HEIGHT,
-            FRAME_WIDTH, FRAME_HEIGHT,
-            posX, posY,
-            CHAR_WIDTH, CHAR_HEIGHT
-          );
-          i++;
-          setTimeout(nextFrame, duration);
-        }
-        nextFrame();
-      }      
-    }      
-</script>
 {% endblock %}
 

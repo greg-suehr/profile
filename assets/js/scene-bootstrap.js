@@ -13,6 +13,7 @@ class SceneBootstrap {
     this.effectManager = null;
     this.spriteAnimators = new Map();
     this.dialogueTimeouts = [];
+    this.activeAnimations = new Map(); // Track active position animations
   }
 
   /**
@@ -46,7 +47,7 @@ class SceneBootstrap {
       // Start the scene
       this.startScene();
 
-      console.log(`Scene "${this.sceneId}" loaded successfully`);
+      // DEBUG: console.log(`Scene "${this.sceneId}" loaded successfully`);
     } catch (error) {
       console.error('Failed to initialize scene:', error);
       this.showError(error.message);
@@ -101,7 +102,7 @@ class SceneBootstrap {
         // Add to effect manager for coordinated rendering
         this.effectManager.addAnimator(animator);
         
-        console.log(`Loaded sprite animator: ${config.name}`);
+        // DEBUG: console.log(`Loaded sprite animator: ${config.name}`);
       } catch (error) {
         console.error(`Failed to load sprite animator "${config.name}":`, error);
       }
@@ -172,6 +173,12 @@ class SceneBootstrap {
         animator.play();
       }
     }
+
+   // Trigger auto sequences
+    const autoSequences = this.config.autoSequences || [];
+    for (const sequenceName of autoSequences) {
+      this.triggerSequence(sequenceName);
+    }
   }
 
   /**
@@ -230,15 +237,157 @@ class SceneBootstrap {
           posAnimator.setPosition(step.position.x, step.position.y);
         }
         break;
+
+      case 'animatePosition':
+        this.animateAnimatorPosition(step);
+        break;
         
       case 'addEffect':
-        if (step.effect) {
-          this.effectManager.addEffect(step.effect);
+      if (step.effect) {
+        this.effectManager.addEffect({          
+          'type': step.effect,
+          'start': step.delay || step.start || 0,
+          'duration': step.duration || 0,
+          'params' : step.params || {}
+        });
         }
         break;
         
       default:
         console.warn(`Unknown sequence step type: ${step.type}`);
+    }
+  }
+
+  /**
+   * Animate an animator's position over time
+   * @param {Object} step - Animation step configuration
+   */
+  animateAnimatorPosition(step) {
+    const animator = this.getAnimator(step.animator);
+    if (!animator) {
+      console.warn(`Animator "${step.animator}" not found for position animation`);
+      return;
+    }
+
+    const animationId = `${step.animator}_position_${Date.now()}`;
+    const startTime = performance.now();
+    const duration = step.duration || 1000;
+
+    function resolveConfig(val, dim) {
+      if (typeof val === 'string' && val.endsWith('%')) {
+        return (parseFloat(val) / 100) * animator.canvas[dim];
+      }
+      return val;
+    }
+
+    const fromPosX = resolveConfig(step.from.x) || animator.position.x;
+    const fromPosY = resolveConfig(step.from.y) || animator.position.y;
+    const fromPos = { x: fromPosX, y: fromPosY };
+    
+    const toPosX = resolveConfig(step.to.x) || fromPos.x;
+    const toPosY = resolveConfig(step.to.y) || fromPos.y;
+    const toPos = { x: toPosX, y: toPosY };
+    
+    const easing = step.easing || 'linear';
+
+    // Store animation reference for cleanup
+    const animation = {
+      id: animationId,
+      animator: step.animator,
+      startTime,
+      duration,
+      fromPos,
+      toPos,
+      easing,
+      onComplete: step.onComplete
+    };
+
+    this.activeAnimations.set(animationId, animation);
+
+    const animate = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Apply easing function
+      const easedProgress = this.applyEasing(progress, easing);
+
+      // Calculate current position
+      const currentX = fromPos.x + (toPos.x - fromPos.x) * easedProgress;
+      const currentY = fromPos.y + (toPos.y - fromPos.y) * easedProgress;
+
+      // Update animator position
+      animator.setPosition(currentX, currentY);
+
+      if (progress < 1) {
+        // Continue animation
+        requestAnimationFrame(animate);
+      } else {
+        // Animation complete
+        this.activeAnimations.delete(animationId);
+        
+        // Trigger completion callback or sequence
+        if (animation.onComplete) {
+          if (typeof animation.onComplete === 'string') {
+            // Trigger another sequence
+            this.triggerSequence(animation.onComplete);
+          } else if (typeof animation.onComplete === 'function') {
+            // Execute callback function
+            animation.onComplete();
+          }
+        }
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }
+
+  /**
+   * Apply easing function to progress value
+   * @param {number} progress - Linear progress (0-1)
+   * @param {string} easing - Easing function name
+   * @returns {number} Eased progress value
+   */
+  applyEasing(progress, easing) {
+    switch (easing) {
+      case 'easeIn':
+        return progress * progress;
+      case 'easeOut':
+        return 1 - Math.pow(1 - progress, 2);
+      case 'easeInOut':
+        return progress < 0.5 
+          ? 2 * progress * progress 
+          : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+      case 'bounce':
+        if (progress < 1/2.75) {
+          return 7.5625 * progress * progress;
+        } else if (progress < 2/2.75) {
+          return 7.5625 * (progress -= 1.5/2.75) * progress + 0.75;
+        } else if (progress < 2.5/2.75) {
+          return 7.5625 * (progress -= 2.25/2.75) * progress + 0.9375;
+        } else {
+          return 7.5625 * (progress -= 2.625/2.75) * progress + 0.984375;
+        }
+      case 'elastic':
+        if (progress === 0) return 0;
+        if (progress === 1) return 1;
+        return -Math.pow(2, 10 * (progress - 1)) * Math.sin((progress - 1.1) * 5 * Math.PI);
+      case 'linear':
+      default:
+        return progress;
+    }
+  }
+
+  /**
+   * Stop a specific position animation
+   * @param {string} animatorName - Name of the animator
+   */
+  stopPositionAnimation(animatorName) {
+    for (const [id, animation] of this.activeAnimations) {
+      if (animation.animator === animatorName) {
+        this.activeAnimations.delete(id);
+        console.log(`Stopped position animation for animator: ${animatorName}`);
+        break;
+      }
     }
   }
 
@@ -250,6 +399,8 @@ class SceneBootstrap {
     for (const animator of this.spriteAnimators.values()) {
       animator.pause();
     }
+    // Note: Position animations continue running during pause
+    // You could extend this to pause position animations too if needed
   }
 
   /**
@@ -271,6 +422,9 @@ class SceneBootstrap {
       clearTimeout(timeout);
     }
     this.dialogueTimeouts = [];
+    
+    // Stop all position animations
+    this.activeAnimations.clear();
     
     // Stop and destroy scene effects
     if (this.effectManager) {

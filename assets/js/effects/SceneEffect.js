@@ -81,9 +81,13 @@ export class SceneEffect {
       'ParallaxLayer': ParallaxLayerEffect,
       'ParticleEmitter': ParticleEmitterEffect,
       'Transition': TransitionEffect,
-      'BackgroundGradient': BackgroundGradientEffect
+      'BackgroundGradient': BackgroundGradientEffect,
+      'CanvasShake': CanvasShakeEffect,
+      'GlitchOverlay': GlitchOverlayEffect,
+      'Rift': RiftEffect,
+      'WrenchDrop': WrenchDropEffect
     };
-    
+
     return effectTypes[type] || null;
   }
 
@@ -150,15 +154,19 @@ export class SceneEffect {
       
       // Clear canvas for this frame
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      console.log("SceneEffect tick - cleared canvas, rendering", this.effects.length, "effects and", this.animators.length, "animators");
       
       // Update and render all effects
       for (const effect of this.effects) {
         effect.update(this.currentTime);
       }
       
-      // Update sprite animators (they handle their own rendering)
+      // Update active sprite animators
       for (const animator of this.animators) {
-        // Animators manage themselves, but we can coordinate if needed
+        if (animator.isPlaying || (animator.persistOnStop && animator.hasPlayed)) {
+          animator.update(timestamp);
+          animator.renderFrame();
+        }
       }
     }
     
@@ -288,24 +296,51 @@ class ParallaxLayerEffect extends EffectInstance {
     if (!this.params.imageUrl) return;
     
     this.image = new Image();
+    // DEBUG: this.image.onload = () => { console.log("Parallax image loaded:", this.image.src); };
     this.image.src = this.params.imageUrl;
   }
 
   render(relativeTime) {
     if (!this.image || !this.image.complete) return;
+
+    /* DEBUG:
+    console.log("Parallax render:", {
+        imageSize: `${this.image.width}x${this.image.height}`,
+        canvasSize: `${this.canvas.width}x${this.canvas.height}`,
+        relativeTime,
+        speed: this.speed,
+        direction: this.direction
+        });
+    */
     
-    // Calculate parallax offset
-    this.offset = (relativeTime * this.speed * 0.1) % this.image.width;
+    const scaleY = this.canvas.height / this.image.height;
+    const scaledWidth = this.image.width * scaleY;
+    const scaledHeight = this.canvas.height;
     
     if (this.direction === 'horizontal') {
-      // Draw image twice for seamless scrolling
-      this.context.drawImage(this.image, -this.offset, 0);
-      this.context.drawImage(this.image, this.image.width - this.offset, 0);
-    } else {
-      // Vertical parallax
+      // Calculate parallax offset
+      this.offset = (relativeTime * this.speed * 0.1) % this.image.width;
+
+      // Draw tiles to fill canvas width plus one for seamless scrolling
+      const tilesX = Math.ceil(this.canvas.width / scaledWidth) + 1;
+      
+      for (let i = 0; i < tilesX; i++) {
+        const x = (i * scaledWidth) - this.offset;
+        this.context.drawImage(this.image, x, 0, scaledWidth, scaledHeight);
+      }
+    }
+    else {
       const yOffset = (relativeTime * this.speed * 0.1) % this.image.height;
-      this.context.drawImage(this.image, 0, -yOffset);
-      this.context.drawImage(this.image, 0, this.image.height - yOffset);
+
+      const scaleX = this.canvas.width / this.image.width;
+      const verticalScaledHeight = this.image.height * scaleX;
+      const verticalScaledWidth = this.canvas.width;
+
+      const tilesY = Math.ceil(this.canvas.height / verticalScaledHeight) + 1;
+      for (let i = 0; i < tilesY; i++) {
+        const y = (i * this.image.height) - yOffset;
+        this.context.drawImage(this.image, 0, y, verticalScaledWidth, verticalScaledHeight);
+      }
     }
   }
 }
@@ -453,3 +488,136 @@ class BackgroundGradientEffect extends EffectInstance {
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 }
+
+/**
+ * Canvas shake effect
+ */
+class CanvasShakeEffect extends EffectInstance {
+  render(relativeTime) {
+    const intensity = this.params.intensity === 'medium' ? 2 : 4;
+    const dx = (Math.random() - 0.5) * intensity;
+    const dy = (Math.random() - 0.5) * intensity;
+    this.context.translate(dx, dy);
+  }
+}
+
+/**
+ * Glitch Overlay Effect
+ */
+class GlitchOverlayEffect extends EffectInstance {
+  render(relativeTime) {
+    const alpha = Math.random() * 0.2 + 0.1;
+    this.context.save();
+    this.context.globalAlpha = alpha;
+    this.context.fillStyle = 'rgba(255, 0, 0, 0.1)';
+    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.context.restore();
+  }
+}
+
+
+/**
+ * Rift effect
+ */
+class RiftEffect extends EffectInstance {
+  resolveCoord(value, dimension) {
+    if (typeof value === 'string' && value.includes('%')) {
+      const [percent, offset] = value.split('+').map(v => v.trim());
+      let base = parseFloat(percent) / 100 * dimension;
+      let off = offset ? parseFloat(offset) : 0;
+      return base + off;
+    }
+    return value;
+  }
+
+  start() {
+    this.x = this.resolveCoord(this.params.x, this.canvas.width);
+    this.y = this.resolveCoord(this.params.y, this.canvas.height);
+    this.width = this.params.width || 100;
+    this.height = this.params.height || 20;
+    this.pulse = 0;
+  }
+
+  render(relativeTime) {
+    this.pulse += 0.05; // Smooth pulse
+
+    const alpha = 0.5 + Math.sin(this.pulse) * 0.3;
+    const jitterX = (Math.random() - 0.5) * 4;
+    const jitterY = (Math.random() - 0.5) * 4;
+
+    this.context.save();
+    this.context.globalAlpha = alpha;
+
+    // Outer glow
+    this.context.fillStyle = '#ff0066';
+    this.context.fillRect(this.x + jitterX, this.y + jitterY, this.width, this.height);
+
+    // Inner core
+    this.context.fillStyle = '#0066ff';
+    this.context.fillRect(
+      this.x + jitterX + 4,
+      this.y + jitterY + 4,
+      this.width - 8,
+      this.height - 8
+    );
+
+    this.context.restore();
+  }
+}
+
+class oldRiftEffect extends EffectInstance {
+  resolveCoord(value, dimension) {
+    if (typeof value === 'string' && value.includes('%')) {
+      const [percent, offset] = value.split('+').map(v => v.trim());
+      let base = parseFloat(percent) / 100 * dimension;
+      let off = offset ? parseFloat(offset) : 0;
+      return base + off;
+    }
+    return value;
+  }
+  
+  start() {
+    this.pulse = Math.random() * Math.PI * 2;
+    this.x = this.resolveCoord(this.params.x, this.canvas.width);
+    this.y = this.resolveCoord(this.params.y, this.canvas.height);
+    this.width = this.params.width || 100;
+    this.height = this.params.height || 20;
+  }
+
+  render(relativeTime) {
+    this.pulse += 0.1;
+    const alpha = 0.3 + Math.sin(this.pulse) * 0.2;
+
+    this.context.save();
+    this.context.globalAlpha = alpha;
+
+    this.context.strokeStyle = 'yellow';
+    this.context.strokeRect(this.x, this.y, this.width, this.height);
+
+    this.context.fillStyle = '#ff0066';
+    this.context.fillRect(this.x, this.y, this.width, this.height);
+
+    this.context.fillStyle = '#0066ff';
+    this.context.fillRect(this.x + 20, this.y + 20, this.width - 40, this.height - 40);
+
+    this.context.restore();
+  }
+}
+
+/**
+ * Wrench drop effect
+ */
+class WrenchDropEffect extends EffectInstance {
+  start() {
+    this.y = this.canvas.height / 2 + 55;
+    this.x = this.canvas.width / 2 + 30;
+  }
+
+  render(relativeTime) {
+    this.y += 0.5; // slow fall
+    this.context.fillStyle = '#888';
+    this.context.fillRect(this.x, this.y, 8, 3);
+    this.context.fillRect(this.x + 2, this.y - 3, 4, 9);
+  }
+}
+

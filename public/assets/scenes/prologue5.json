@@ -1,0 +1,28 @@
+{
+  "sceneId": "prologue5",
+  "canvasId": "screen",
+  "spriteAnimators": [
+    {
+      "name": "gregIdle",
+      "sheetUrl": "/assets/hyper_link/spritesheet_greg.png",
+      "frameDefs": [
+        { "x": 0, "y": 2, "width": 64, "height": 64, "duration": 3000 }
+      ],
+      "options": {
+        "loop": true,
+        "scale": 2,
+        "position": { "x": "50%", "y": "50%" },
+        "anchor": { "x": 0.5, "y": 0.5 },
+        "autoPlay": true
+      }
+    }
+  ],
+  "sceneEffects": [],
+  "dialogueTimeline": [
+    { "after": 2000, "selector": "#dialogue2", "action": "show" },
+    { "after": 4000, "selector": "#dialogue3", "action": "show" },
+    { "after": 6000, "selector": ".choices", "action": "show" }
+  ],
+  "autoSequences": [],
+  "sequences": {}
+}

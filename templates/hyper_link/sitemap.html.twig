@@ -1,0 +1,60 @@
+{% extends 'hyper_link/base.html.twig' %}
+
+{% block content %}
+<div class="scene" id="prologue6">
+  <div class="dialogue">
+    <p class="character-dialogue">G: Oh! Great!</p>
+    <p class="character-dialogue">G: So what did you come here for?</p>
+  </div>
+  <div class="choices">
+    <a class="choice" href="{{ path('hyperlink_jump', { nextNodeKey: 'sitemapAbout' }) }}">Who are you again?</a>
+    <a class="choice" href="{{ path('hyperlink_jump', { nextNodeKey: 'sitemapWork' }) }}">What do you do?</a>
+    <a class="choice" href="{{ path('hyperlink_jump', { nextNodeKey: 'sitemapAbout' }) }}">Who are you again?</a>    
+  </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('screen');
+    const ctx = canvas.getContext('2d');
+
+    const gregSprite = new Image();
+    gregSprite.src = '{{ asset("assets/hyper_link/spritesheet_greg.png") }}';
+
+    const FRAME_WIDTH = 64;
+    const FRAME_HEIGHT = 64;
+    const CHAR_WIDTH = FRAME_WIDTH * 2;
+    const CHAR_HEIGHT = FRAME_HEIGHT * 2;
+    const POSITION_ROW = 2;
+
+    let frameIndex = 0;
+    let posX = canvas.width / 2 - CHAR_WIDTH / 2;
+    let posY = canvas.height / 2 - CHAR_HEIGHT / 2;
+
+    const frameDuration = 100;
+    let lastFrameTime = 0;
+
+    const moveSpeed = 2;
+
+    let animationActive = true;
+
+    gregSprite.onload = () => {
+        requestAnimationFrame(update);
+    };
+
+    function update(timestamp) {
+        if (!lastFrameTime) lastFrameTime = timestamp;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.drawImage(
+            gregSprite,
+            frameIndex * FRAME_WIDTH, POSITION_ROW * FRAME_HEIGHT,
+            FRAME_WIDTH, FRAME_HEIGHT,
+            posX, posY,
+            CHAR_WIDTH, CHAR_HEIGHT
+        );
+    }
+   
+</script>
+{% endblock %}
+
