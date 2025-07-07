@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Podcast\Controller;
+namespace App\Podcast;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
