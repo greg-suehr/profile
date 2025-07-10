@@ -3,11 +3,12 @@
 {% block content %}
     <div class="scene" id="birthdayWhere">
         <div class="dialogue">
-            <p class="character-dialogue" id="dialogue1">Probably somewhere nearby!</p>
+          <p class="character-dialogue" id="dialogue1">None other than Pittsburgh's finest cocktail bar!</p>
+          <p class="character-dialogue" id="dialogue2">We'll be hanging out at <strong>Acacia</strong></p>
         </div>
         <div class="choices hidden">
-            <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'birthdayConfirm' }) }}">Okay?</a>
-            <a class="choice" href="{{ path('hyperlink_jump', { nextNodeKey: 'birthdayWhen' }) }}">When it it?</a>       
+            <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'birthdayConfirm' }) }}">Nice!</a>
+            <a class="choice" href="{{ path('hyperlink_jump', { nextNodeKey: 'birthdayWhen' }) }}">When it it?</a>    
         </div>
     </div>
 {% endblock %}

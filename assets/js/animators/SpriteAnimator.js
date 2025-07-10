@@ -18,8 +18,9 @@ export class SpriteAnimator {
     
     function resolveConfig(val, dim) {
       if (typeof val === 'string' && val.endsWith('%')) {
+        console.log("parsed value [" + val + "] against [" + canvas[dim] + "]");
         return (parseFloat(val) / 100) * canvas[dim];
-      }
+      }      
       return val;
     }
     
@@ -37,7 +38,8 @@ export class SpriteAnimator {
     // Animation state
     this.animationId = null;
     this.onComplete = options.onComplete || null;
-    this.onFrameChange = options.onFrameChange || null;   
+    this.onFrameChange = options.onFrameChange || null;
+    console.log(this);
   }
 
   /**

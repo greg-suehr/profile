@@ -3,7 +3,9 @@
 {% block content %}
     <div class="scene" id="birthdayWhen">
         <div class="dialogue">
-            <p class="character-dialogue" id="dialogue1">Probably soon.</p>
+          <p class="character-dialogue" id="dialogue1">Great question!</p>
+          <p class="character-dialogue" id="dialogue2">The party is <strong>Saturday, July 20th</strong></p>
+          <p class="character-dialogue" id="dialogue3">Come anytime from <strong>5 - 10 PM</strong>.</p>
         </div>
         <div class="choices hidden">
             <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'birthdayConfirm' }) }}">Okay?</a>

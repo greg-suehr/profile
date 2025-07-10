@@ -1,45 +1,21 @@
 {
-  "sceneId": "prlogue4",
+  "sceneId": "birthdayYes",
   "canvasId": "screen",
   "spriteAnimators": [
     {
-      "name": "gregWalk",
-      "sheetUrl": "/assets/hyper_link/spritesheet_greg.png",
-      "frameDefs": [
-        { "x": 0, "y": 9, "width": 64, "height": 64, "duration": 100 },
-        { "x": 1, "y": 9, "width": 64, "height": 64, "duration": 100 },
-        { "x": 2, "y": 9, "width": 64, "height": 64, "duration": 100 },
-        { "x": 3, "y": 9, "width": 64, "height": 64, "duration": 100 },
-        { "x": 4, "y": 9, "width": 64, "height": 64, "duration": 100 },
-        { "x": 5, "y": 9, "width": 64, "height": 64, "duration": 100 },
-        { "x": 6, "y": 9, "width": 64, "height": 64, "duration": 100 },
-        { "x": 7, "y": 9, "width": 64, "height": 64, "duration": 100 },
-        { "x": 8, "y": 9, "width": 64, "height": 64, "duration": 100 }
-      ],      
-      "options": { 
-        "loop": true, 
-        "scale": 2,
-        "anchor": { "x": 0.5, "y": 1.0 },        
-        "position": { "x": "100%", "y": "95%" },
-        "autoPlay": true
-      }
-    },
-    {
-      "name": "gregReaction",
-      "sheetUrl": "/assets/hyper_link/spritesheet_greg.png",
+      "name": "gregIdle",
+      "sheetUrl": "/assets/hyper_link/happy_greg_idle.png",
       "frameDefs": [
         { "x": 0, "y": 2, "width": 64, "height": 64, "duration": 200 },
-        { "x": 1, "y": 2, "width": 64, "height": 64, "duration": 200 },
-        { "x": 2, "y": 2, "width": 64, "height": 64, "duration": 200 },
-        { "x": 1, "y": 2, "width": 64, "height": 64, "duration": 200 },
-        { "x": 0, "y": 2, "width": 64, "height": 64, "duration": 200 }
+        { "x": 0, "y": 2, "width": 64, "height": 64, "duration": 200 },
+        { "x": 1, "y": 2, "width": 64, "height": 64, "duration": 200 }
       ],
       "options": {
-        "loop": false,
+        "loop": true,
         "scale": 2,
         "anchor": { "x": 0.5, "y": 1.0 },
         "position": { "x": "50%", "y": "95%" },
-        "autoPlay": false,
+        "autoPlay": true,
         "persistOnStop": true
       }
     }
@@ -105,10 +81,7 @@
   "sequences": {
     "walkToCenter": {
       "steps": [
-        { "type": "animatePosition", "animator": "gregWalk", "from": { "x": 800, "y": 400 }, "to": { "x": 400, "y": 400 }, "duration": 3000, "delay": 0 },
-        { "type": "stopAnimator", "animator": "gregWalk", "delay": 3000 },
-        { "type": "animatePosition", "animator": "gregReaction", "from": { "x": 400, "y": 400 }, "to": { "x": 400, "y": 400 }, "duration": 99999, "delay": 0 },
-        { "type": "playAnimator", "animator": "gregReaction", "delay": 3000 }
+        { "type": "animatePosition", "animator": "gregIdle", "from": { "x": 400, "y": 400 }, "to": { "x": 400, "y": 400 }, "duration": 999990, "delay": 0 }
       ]
     }
   }
