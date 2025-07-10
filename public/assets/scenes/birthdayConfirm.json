@@ -1,0 +1,88 @@
+{
+  "sceneId": "birthdayWhen",
+  "canvasId": "screen",
+  "spriteAnimators": [
+    {
+      "name": "gregIdle",
+      "sheetUrl": "/assets/hyper_link/happy_greg_idle.png",
+      "frameDefs": [
+        { "x": 0, "y": 2, "width": 64, "height": 64, "duration": 200 },
+        { "x": 0, "y": 2, "width": 64, "height": 64, "duration": 200 },
+        { "x": 1, "y": 2, "width": 64, "height": 64, "duration": 200 }
+      ],
+      "options": {
+        "loop": true,
+        "scale": 2,
+        "anchor": { "x": 0.5, "y": 1.0 },
+        "position": { "x": "50%", "y": "95%" },
+        "autoPlay": true,
+        "persistOnStop": true
+      }
+    }
+  ],
+  "sceneEffects": [
+    {
+      "type": "ParallaxLayer",
+      "start": 0,
+      "duration": 999999,
+      "params": {
+        "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-bg.png",
+        "speed": 0.01,
+        "direction": "horizontal"
+      }
+    },
+    {
+      "type": "ParallaxLayer",
+      "start": 0,
+      "duration": 999999,
+      "params": {
+        "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-montain-far.png",
+        "speed": 0.02,
+        "direction": "horizontal"
+      }
+    },
+    {
+      "type": "ParallaxLayer",
+      "start": 0,
+      "duration": 999999,
+      "params": {
+        "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-mountains.png",
+        "speed": 0.04,
+        "direction": "horizontal"
+      }
+    },
+    {
+      "type": "ParallaxLayer",
+      "start": 0,
+      "duration": 999999,
+      "params": {
+        "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-trees.png",
+        "speed": 0.06,
+        "direction": "horizontal"
+      }
+    },
+    {
+      "type": "ParallaxLayer",
+      "start": 0,
+      "duration": 999999,
+      "params": {
+        "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-foreground-trees.png",
+        "speed": 0.08,
+        "direction": "horizontal"
+      }
+    }
+  ],
+  "dialogueTimeline": [
+    { "after": 3000, "selector": "#dialogue2", "action": "show" },
+    { "after": 4000, "selector": "#dialogue3", "action": "show" },
+    { "after": 5000, "selector": ".choices", "action": "show" }
+  ],
+  "autoSequences": ["gregIdle"],
+  "sequences": {
+    "gregIdle": {
+      "steps": [
+        { "type": "animatePosition", "animator": "gregIdle", "from": { "x": 400, "y": 400 }, "to": { "x": 400, "y": 400 }, "duration": 999990, "delay": 0 }
+      ]
+    }
+  }
+}

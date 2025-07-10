@@ -43,6 +43,22 @@ final class HyperLinkController extends AbstractController
         ]);
     }
 
+  #[Route('/rsvp/{code?}', name: 'hyperlink_rsvp')]
+  public function rsvp(?string $code = null, SessionInterface $session): Response
+  {
+    if ($code) {
+      $session->set('inviteCode', $code);
+    }
+    else {
+      $session->set('inviteCode', "unknown");
+    }
+
+     return $this->render('hyper_link/story.html.twig', [
+       'storyNodeKey' => 'birthday',
+       'showCanvas'   => true,
+     ]);
+
+    }
   
     #[Route('/hyperlink/jump/{nextNodeKey}', name: 'hyperlink_jump')]
     public function jump(string $nextNodeKey, SessionInterface $session): Response
