@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\InviteLog;
+use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -9,11 +12,43 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class HyperLinkController extends AbstractController
 {
-    #[Route('/story', name: 'hyperlink_index')]
-    public function index(SessionInterface $session): Response
-    {
-        $storyNodeKey = $session->get('story.currentNode', 'birthday');
+  private EntityManagerInterface $em;
 
+  public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
+
+  private function eventForNode(string $node): ?string
+  {
+        return [
+          'birthday'     => 'Viewed invite',
+          'birthdayYes'  => 'Said yes',
+          'birthdayNo'   => 'Said no',
+        ][$node] ?? null;
+    }
+
+  private function logEvent(SessionInterface $session, string $node): void
+  {
+        if (!$event = $this->eventForNode($node)) {
+          return;
+        }
+        
+        $log = (new InviteLog())
+            ->setCode($session->get('inviteCode', '??????'))
+            ->setEvent($event)
+            ->setTimestamp(new DateTime());
+        
+        $this->em->persist($log);
+        $this->em->flush();
+    }
+  
+  
+  #[Route('/story', name: 'hyperlink_index')]
+  public function index(SessionInterface $session): Response
+  {
+        $storyNodeKey = $session->get('story.currentNode', 'birthday');
+        
         $noCanvasMap = array(
           'prologue1' => 1,
           'prologue2' => 1,
@@ -26,6 +61,10 @@ final class HyperLinkController extends AbstractController
 
         if ( array_key_exists($storyNodeKey, $unimplementedMap) ) {
           $storyNodeKey = 'birthday';
+        }
+
+        if ($storyNodeKey === 'birthday') {
+          $this->logEvent($session, $storyNodeKey);
         }
         
         return $this->render('hyper_link/story.html.twig', [        
@@ -44,26 +83,29 @@ final class HyperLinkController extends AbstractController
     }
 
   #[Route('/rsvp/{code?}', name: 'hyperlink_rsvp')]
-  public function rsvp(?string $code = null, SessionInterface $session): Response
+  public function rsvp(SessionInterface $session, ?string $code = null): Response
   {
-    if ($code) {
-      $session->set('inviteCode', $code);
+    if ( $code && strlen($code) > 6 ) {
+      $code = substr($code,0,6);
     }
-    else {
-      $session->set('inviteCode', "unknown");
-    }
+    
+    $session->set('inviteCode', $code ?: '??????');
 
-     return $this->render('hyper_link/story.html.twig', [
-       'storyNodeKey' => 'birthday',
-       'showCanvas'   => true,
-     ]);
+    $this->logEvent($session, 'birthday');
 
+    return $this->render('hyper_link/story.html.twig', [
+      'storyNodeKey' => 'birthday',
+      'showCanvas'   => true,
+    ]);
+    
     }
   
     #[Route('/hyperlink/jump/{nextNodeKey}', name: 'hyperlink_jump')]
     public function jump(string $nextNodeKey, SessionInterface $session): Response
     {
         $session->set('story.currentNode', $nextNodeKey);
+
+        $this->logEvent($session, $nextNodeKey);
 
         return $this->redirectToRoute('hyperlink_index');
     }
