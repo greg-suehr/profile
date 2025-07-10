@@ -3,12 +3,14 @@
 {% block content %}
     <div class="scene" id="birthdayWhere">
         <div class="dialogue">
-          <p class="character-dialogue" id="dialogue1">None other than Pittsburgh's finest cocktail bar!</p>
-          <p class="character-dialogue" id="dialogue2">We'll be hanging out at <strong>Acacia</strong></p>
+          <p class="character-dialogue" id="dialogue1">Pittsburgh's finest cocktail bar is graciously hosting!</p>
+          <p class="character-dialogue hidden" id="dialogue2">Please join us at <strong>Acacia</strong> in the Southside (2108 E Carson St).</p>
+          <p class="character-dialogue hidden" id="dialogue3">We will have a <strong>charcuterie board</strong> (and other snacks), <strong>board games</strong>, and a menu of some of my favorite cocktails.</p>
+          <p class="character-dialogue hidden" id="dialogue4"></p>
         </div>
         <div class="choices hidden">
-            <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'birthdayConfirm' }) }}">Nice!</a>
-            <a class="choice" href="{{ path('hyperlink_jump', { nextNodeKey: 'birthdayWhen' }) }}">When it it?</a>    
+            <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'birthdayConfirm' }) }}">Sounds fun!</a>
+            <a class="choice" href="{{ path('hyperlink_jump', { nextNodeKey: 'birthdayWhen' }) }}">When it it?</a>
         </div>
     </div>
 {% endblock %}

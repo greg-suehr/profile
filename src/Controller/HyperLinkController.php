@@ -12,7 +12,7 @@ final class HyperLinkController extends AbstractController
     #[Route('/story', name: 'hyperlink_index')]
     public function index(SessionInterface $session): Response
     {
-        $storyNodeKey = $session->get('story.currentNode', 'prologue1');
+        $storyNodeKey = $session->get('story.currentNode', 'birthday');
 
         $noCanvasMap = array(
           'prologue1' => 1,
@@ -25,7 +25,7 @@ final class HyperLinkController extends AbstractController
         );
 
         if ( array_key_exists($storyNodeKey, $unimplementedMap) ) {
-          $storyNodeKey = 'prologue1';
+          $storyNodeKey = 'birthday';
         }
         
         return $this->render('hyper_link/story.html.twig', [        

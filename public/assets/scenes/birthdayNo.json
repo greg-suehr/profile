@@ -1,0 +1,135 @@
+{
+  "sceneId": "birthdayYes",
+  "canvasId": "screen",
+  "spriteAnimators": [
+    {
+      "name": "gregHurt",
+      "sheetUrl": "/assets/hyper_link/greg_hurt.png",
+      "frameDefs": [
+        { "x": 0, "y": 0, "width": 64, "height": 64, "duration": 1000 },
+        { "x": 1, "y": 0, "width": 64, "height": 64, "duration": 200 },
+        { "x": 2, "y": 0, "width": 64, "height": 64, "duration": 200 },
+        { "x": 3, "y": 0, "width": 64, "height": 64, "duration": 200 },
+        { "x": 4, "y": 0, "width": 64, "height": 64, "duration": 200 },
+        { "x": 5, "y": 0, "width": 64, "height": 64, "duration": 6200 }
+      ],
+      "options": {
+        "loop": false,
+        "scale": 2,
+        "anchor": { "x": 0.5, "y": 1.0 },
+        "position": { "x": "50%", "y": "95%" },
+        "autoPlay": true,
+        "persistOnStop": false
+      }
+    },
+    {
+      "name": "gregUp",
+      "sheetUrl": "/assets/hyper_link/greg_hurt.png",
+      "frameDefs": [
+        { "x": 5, "y": 2, "width": 64, "height": 64, "duration": 300 },
+        { "x": 4, "y": 2, "width": 64, "height": 64, "duration": 300 },
+        { "x": 3, "y": 2, "width": 64, "height": 64, "duration": 400 }
+      ],
+      "options": {
+        "loop": false,
+        "scale": 2,
+        "anchor": { "x": 0.5, "y": 1.0 },
+        "position": { "x": "50%", "y": "95%" },
+        "autoPlay": true,
+        "persistOnStop": false
+      }
+    },
+    {
+      "name": "gregSit",
+      "sheetUrl": "/assets/hyper_link/happy_greg_sit.png",
+      "frameDefs": [
+        { "x": 0, "y": 2, "width": 64, "height": 64, "duration": 10000 },
+        { "x": 0, "y": 2, "width": 64, "height": 64, "duration": 10000 },
+        { "x": 1, "y": 2, "width": 64, "height": 64, "duration": 10000 }
+      ],
+      "options": {
+        "loop": true,
+        "scale": 2,
+        "anchor": { "x": 0.5, "y": 1.0 },
+        "position": { "x": "50%", "y": "95%" },
+        "autoPlay": false,
+        "persistOnStop": true
+      }
+    }      
+ 
+  ],
+  "sceneEffects": [
+    {
+      "type": "ParallaxLayer",
+      "start": 0,
+      "duration": 999999,
+      "params": {
+        "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-bg.png",
+        "speed": 0.01,
+        "direction": "horizontal"
+      }
+    },
+    {
+      "type": "ParallaxLayer",
+      "start": 0,
+      "duration": 999999,
+      "params": {
+        "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-montain-far.png",
+        "speed": 0.02,
+        "direction": "horizontal"
+      }
+    },
+    {
+      "type": "ParallaxLayer",
+      "start": 0,
+      "duration": 999999,
+      "params": {
+        "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-mountains.png",
+        "speed": 0.04,
+        "direction": "horizontal"
+      }
+    },
+    {
+      "type": "ParallaxLayer",
+      "start": 0,
+      "duration": 999999,
+      "params": {
+        "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-trees.png",
+        "speed": 0.06,
+        "direction": "horizontal"
+      }
+    },
+    {
+      "type": "ParallaxLayer",
+      "start": 0,
+      "duration": 999999,
+      "params": {
+        "imageUrl": "/assets/parallax_mountain_pack/layers/parallax-mountain-foreground-trees.png",
+        "speed": 0.08,
+        "direction": "horizontal"
+      }
+    }
+  ],
+  "dialogueTimeline": [
+    { "after": 3000, "selector": "#beat", "action": "show" },
+    { "after": 7000, "selector": "#dialogue2", "action": "show" },
+    { "after": 9000, "selector": "#dialogue3", "action": "show" },
+    { "after": 10000, "selector": ".choices", "action": "show" }
+  ],
+  "autoSequences": ["lieDown", "sitUp"],
+  "sequences": {
+    "lieDown": {
+      "steps": [
+        { "type": "animatePosition", "animator": "gregHurt", "from": { "x": 400, "y": 400 }, "to": { "x": 400, "y": 400 }, "duration": 7000, "delay": 0 },
+        { "type": "stopAnimator", "animator": "gregHurt", "delay": 7000 }
+      ]
+    },
+    "sitUp": {
+      "steps": [
+        { "type": "animatePosition", "animator": "gregSit", "from": { "x": 400, "y": 400 }, "to": { "x": 400, "y": 400 }, "duration": 30000, "delay": 0 },
+        { "type": "playAnimator", "animator": "gregSit", "delay": 7000 }
+      ]
+    }    
+    
+  }
+}

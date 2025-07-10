@@ -1,5 +1,5 @@
 {
-  "sceneId": "birthdayYes",
+  "sceneId": "birthdayWhere",
   "canvasId": "screen",
   "spriteAnimators": [
     {
@@ -73,14 +73,11 @@
     }
   ],
   "dialogueTimeline": [
-    { "after": 2000, "selector": "#dialogue2", "action": "show" },
-    { "after": 4000, "selector": "#dialogue3", "action": "show" },
-    { "after": 5000, "selector": ".invitation-card", "action": "show" },    
-    { "after": 5000, "selector": ".choices", "action": "show" }
+    { "after": 3000, "selector": ".choices", "action": "show" }
   ],
-  "autoSequences": ["walkToCenter"],
+  "autoSequences": ["gregIdle"],
   "sequences": {
-    "walkToCenter": {
+    "gregIdle": {
       "steps": [
         { "type": "animatePosition", "animator": "gregIdle", "from": { "x": 400, "y": 400 }, "to": { "x": 400, "y": 400 }, "duration": 999990, "delay": 0 }
       ]

@@ -4,12 +4,12 @@
     <div class="scene" id="birthdayWhen">
         <div class="dialogue">
           <p class="character-dialogue" id="dialogue1">Great question!</p>
-          <p class="character-dialogue" id="dialogue2">The party is <strong>Saturday, July 20th</strong></p>
-          <p class="character-dialogue" id="dialogue3">Come anytime from <strong>5 - 10 PM</strong>.</p>
+          <p class="character-dialogue hidden" id="dialogue2">The party is <strong>Sunday, July 20th</strong> from <strong>5:00 - 11:00 PM</strong>.</p>
+          <p class="character-dialogue hidden" id="dialogue3">Stop by any time. I would love to see you!</p>
         </div>
         <div class="choices hidden">
-            <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'birthdayConfirm' }) }}">Okay?</a>
-            <a class="choice" href="{{ path('hyperlink_jump', { nextNodeKey: 'birthdayWhere' }) }}">Where it it?</a>       
+            <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'birthdayWhere' }) }}">Great! Where is it?</a>
+            <a class="choice" href="{{ path('hyperlink_jump', { nextNodeKey: 'birthdayNo' }) }}">I am busy that day.</a>
         </div>
     </div>
 {% endblock %}

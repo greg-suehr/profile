@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Resquest;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class ProfileController extends AbstractController
@@ -12,12 +13,20 @@ final class ProfileController extends AbstractController
   public function landing(): Response
   {
     $host = $request->getHost();
-    
+
+    $storyNodeKey = $session->get('story.currentNode', 'birthday');
+        
     if ($host === 'gregsuehr.com') {
-      return $this->render('hyper_link/story.html.twig');
+      return $this->render('hyper_link/story.html.twig', [
+        'storyNodeKey' => $storyNodeKey,
+        'showCanvas'     => !array_key_exists($storyNodeKey, $noCanvasMap),
+      ]);
     }
-    
-    return $this->render('profile/dark.html.twig');
+
+    return $this->render('hyper_link/story.html.twig', [
+      'storyNodeKey' => $storyNodeKey,
+      'showCanvas'     => !array_key_exists($storyNodeKey, $noCanvasMap),
+    ]);
     } 
 
     #[Route('/launch', name: 'profile_landing_bright')]
