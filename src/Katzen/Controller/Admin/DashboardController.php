@@ -2,9 +2,7 @@
 
 namespace App\Katzen\Controller\Admin;
 
-use App\Katzen\Entity\BlogPost;
-use App\Katzen\Entity\Recipient;
-use App\Katzen\Entity\User;
+use App\Katzen\Entity\KatzenUser;
 use App\Katzen\Entity\Item;
 use App\Katzen\Entity\Unit;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
@@ -26,14 +24,6 @@ class DashboardController extends AbstractDashboardController
       return $this->redirect($url);
     }
 
-    #[Route('/users', name:'user')]
-    public function users(): Response
-    {
-      $routeBuilder = $this->container->get(AdminUrlGenerator::class);
-      $url = $routeBuilder->setController(UserCrudController::class)->generateUrl();
-      return $this->redirect($url);
-    }
-  
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
@@ -44,9 +34,6 @@ class DashboardController extends AbstractDashboardController
     {
       //yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
       yield MenuItem::linktoRoute('Back to the waitlist', 'fas fa-home', 'app_notify_list');
-      yield MenuItem::linktoCrud('Posts', 'fas fa-pen-nib', BlogPost::class);      
-      yield MenuItem::linktoCrud('Recipients', 'fas fa-users', Recipient::class);
-      yield MenuItem::linktoCrud('Users', 'fas fa-circle-user', User::class);
       yield MenuItem::linktoCrud('Items', 'fas fa-carrot', Item::class);
       yield MenuItem::linktoCrud('Units', 'fas fa-scale-balanced', Unit::class);
     }

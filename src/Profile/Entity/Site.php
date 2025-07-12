@@ -33,9 +33,9 @@ class Site
     private ?\DateTimeImmutable $created_at = null;
 
     /**
-     * @var Collection<int, User>
+     * @var Collection<int, ProfileUser>
      */
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'site')]
+    #[ORM\ManyToMany(targetEntity: ProfileUser::class, mappedBy: 'site')]
     private Collection $users;
 
     public function __construct()
@@ -122,12 +122,12 @@ class Site
     /**
      * @return Collection<int, User>
      */
-    public function getUsers(): Collection
+    public function getProfileUsers(): Collection
     {
         return $this->users;
     }
 
-    public function addUser(User $user): static
+    public function addProfileUser(User $user): static
     {
         if (!$this->users->contains($user)) {
             $this->users->add($user);
@@ -137,7 +137,7 @@ class Site
         return $this;
     }
 
-    public function removeUser(User $user): static
+    public function removeProfileUser(User $user): static
     {
         if ($this->users->removeElement($user)) {
             $user->removeSite($this);

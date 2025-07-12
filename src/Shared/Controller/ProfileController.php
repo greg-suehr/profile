@@ -3,13 +3,14 @@
 namespace App\Shared\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class ProfileController extends AbstractController
 {
     #[Route('/', name: 'profile_landing')]
-  public function landing(): Response
+  public function landing(Request $request): Response
   {
     $host = $request->getHost();
     

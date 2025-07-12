@@ -2,6 +2,8 @@
 
 namespace App\Shared\Entity;
 
+use App\Katzen\Entity\KatzenUser;
+use App\Profile\Entity\ProfileUser;
 use App\Shared\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -15,8 +17,15 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: '`user`')]
-#[UniqueEntity('username')]
-#[UniqueEntity('email')]
+#[ORM\UniqueEntity('username')]
+#[ORM\UniqueEntity('email')]
+#[ORM\InheritanceType('JOINED')]
+#[ORM\DiscriminatorColumn(name: 'dtype', type: 'string')]
+#[ORM\DiscriminatorMap([
+  'user' => User::class,
+  'profile_user' => ProfileUser::class,
+  'katzen_user' => KatzenUser::class
+])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -59,16 +68,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: BlogPost::class, mappedBy: 'author')]
     private Collection $blogPosts;
 
-    /**
-     * @var Collection<int, Site>
-     */
-    #[ORM\ManyToMany(targetEntity: Site::class, inversedBy: 'users')]
-    private Collection $site;
-
     public function __construct()
     {
         $this->blogPosts = new ArrayCollection();
-        $this->site = new ArrayCollection();
     }
 
     public function __toString()
@@ -239,30 +241,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $blogPost->setAuthor(null);
             }
         }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Site>
-     */
-    public function getSite(): Collection
-    {
-        return $this->site;
-    }
-
-    public function addSite(Site $site): static
-    {
-        if (!$this->site->contains($site)) {
-            $this->site->add($site);
-        }
-
-        return $this;
-    }
-
-    public function removeSite(Site $site): static
-    {
-        $this->site->removeElement($site);
 
         return $this;
     }

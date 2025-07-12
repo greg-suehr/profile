@@ -16,9 +16,9 @@ class Recipe
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: KatzenUser::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $author = null;
+    private ?KatzenUser $author = null;
 
     #[ORM\Column(length: 255)]
     private ?string $title = null;
@@ -82,12 +82,12 @@ class Recipe
         return $this->id;
     }
 
-    public function getAuthor(): ?User
+    public function getAuthor(): ?KatzenUser
     {
         return $this->author;
     }
 
-    public function setAuthor(?User $author): static
+    public function setAuthor(?KatzenUser $author): static
     {
         $this->author = $author;
 

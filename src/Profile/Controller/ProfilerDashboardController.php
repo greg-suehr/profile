@@ -7,7 +7,7 @@ use App\Profile\Entity\Category;
 use App\Profile\Entity\Content;
 use App\Profile\Entity\Page;
 use App\Profile\Entity\Site;
-use App\Profile\Entity\User;
+use App\Profile\Entity\ProfileUser;
 use App\Profile\Repository\CategoryRepository;
 use App\Profile\Service\SiteContext;
 
@@ -39,17 +39,17 @@ class ProfilerDashboardController extends AbstractDashboardController
         $sites = $this->getUser()->getSite();
         $session = $this->requestStack->getCurrentRequest()->getSession();        
 
-        if (count($sites) === 0) {
+        if ($sites === null) {
             $routeBuilder = $this->container->get(AdminUrlGenerator::class);
             $url = $routeBuilder->setController(SiteCrudController::class)->generateUrl();
             return $this->redirect($url);
         }
 
-        if (count($sites) === 1 && !$session->has('current_site_id')) {
-            $session->set('current_site_id', $sites[0]->getId());
+        if (!$session->has('current_site_id')) {
+            $session->set('current_site_id', $sites->getId());
         }
 
-        if (count($sites) > 1 && !$session->has('current_site_id')) {
+        if (!$session->has('current_site_id')) {
             return $this->redirectToRoute('select_site');
         }
 
@@ -85,6 +85,5 @@ class ProfilerDashboardController extends AbstractDashboardController
         }
 
         yield MenuItem::linkToCrud('Pages', 'fa fa-file', Page::class);
-        yield MenuItem::linkToCrud('Users', 'fa fa-user', User::class);
     }
 }

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Form;
+namespace App\Katzen\Form;
 
-use App\Entity\RecipeIngredient;
-use App\Entity\Recipe;
-use App\Entity\Unit;
-use App\Entity\Item;
-use App\Form\RecipeIngredientType;
+use App\Katzen\Entity\RecipeIngredient;
+use App\Katzen\Entity\Recipe;
+use App\Katzen\Entity\Unit;
+use App\Katzen\Entity\Item;
+use App\Katzen\Form\RecipeIngredientType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;

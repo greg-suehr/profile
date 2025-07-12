@@ -31,7 +31,7 @@ class SiteContext
             ->getMainRequest()
                  ->getHost();
 
-          [$subdomain] = explode('.', $host, 2);  // -> "foo"
+          [$subdomain] = explode('.', $host, 2);
           return $this->em
             ->getRepository(Site::class)
                 ->findOneBy(['domain' => $subdomain]);

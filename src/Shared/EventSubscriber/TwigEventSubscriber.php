@@ -20,7 +20,7 @@ class TwigEventSubscriber implements EventSubscriberInterface
 
     public function onControllerEvent(ControllerEvent $event): void
     {
-      $this->twig->addGlobal('users', $this->userRepository->findAll());
+      $this->twig->addGlobal('profile_users', $this->userRepository->findAll());
     }
 
     public static function getSubscribedEvents(): array

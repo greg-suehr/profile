@@ -6,7 +6,7 @@ use App\Katzen\Entity\RecipeIngredient;
 use App\Katzen\Entity\RecipeInstruction;
 use App\Katzen\Entity\Item;
 use App\Katzen\Entity\Unit;
-use App\Katzen\Entity\User;
+use App\Katzen\Entity\KatzenUser;
 use App\Katzen\Service\IngredientValidator;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -73,13 +73,13 @@ class RecipeMappingService
           
           
           if (isset($data['author'])) {
-            $author = $this->entityManager->getRepository(User::class)->findOneBy(['username' => $data['author']]);
+            $author = $this->entityManager->getRepository(KatzenUser::class)->findOneBy(['username' => $data['author']]);
             if (!$author) {
               throw new \Exception("Author '{$data['author']}' not found in database.");
             }
             $recipe->setAuthor($author);
           } else {
-            $author = $this->entityManager->getRepository(User::class)->findOneBy(['username' => 'greg']);
+            $author = $this->entityManager->getRepository(KatzenUser::class)->findOneBy(['username' => 'greg']);
             $recipe->setAuthor($author);   
           }
           

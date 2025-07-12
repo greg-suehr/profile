@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Profile\Controller\Admin;
 
 use App\Profile\Entity\Category;
 use App\Profile\Form\FieldDefinitionType;

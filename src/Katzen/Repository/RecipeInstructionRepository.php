@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace App\Katzen\Repository;
 
-use App\Entity\RecipeInstruction;
+use App\Katzen\Entity\RecipeInstruction;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
