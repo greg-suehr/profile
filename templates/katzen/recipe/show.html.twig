@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ recipe.title }}{% endblock %}
+
+{% block body %}
+    <h1>{{ recipe.title }}</h1>
+    <p>{{ recipe.summary }}</p>
+
+    Ingredients:
+    <ul>
+      {% for ingredient in recipe_ingredients %}
+      <li>{{ ingredient.supplyLabel }} - {{ ingredient.getQuantity | mixed_fraction }} {{ ingredient.getUnit }}</li>
+      {% endfor %}
+    </ul>
+    
+    Instructions:
+    <ol>
+      {% for instruction in recipe.getRecipeInstructions() %}
+      <li>{{ instruction.description }}</li>
+      {% endfor %}      
+    </ol>
+{% endblock %}

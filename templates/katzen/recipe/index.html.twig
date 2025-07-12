@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recipe Dashboard{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div class="example-wrapper">
+    <h1>Recipe Dashboard</h1>
+
+    This is the prototype dashboard for the Katzen Recipe Manager. Over time, features will be added to this list:
+    <ul>
+      <li><a href="{{ path('app_recipe_build') }}">Build Recipe</a></li>      
+      <li><a href="{{ path('app_recipe_import') }}">Import Recipe</a></li>
+      <li><a href="{{ path('app_recipe_list') }}">View Recipes</a></li>
+      <li><a href="{{ path('app_item') }}">View Item Catalog</a></li>
+    </ul>
+</div>
+{% endblock %}

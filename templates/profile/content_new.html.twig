@@ -1,0 +1,12 @@
+{# templates/profiler/content_new.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+  <h1>New {{ category.name }} Content</h1>
+
+  {{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button class="btn btn-primary">Save</button>
+    <a href="{{ path('profiler_dashboard') }}" class="btn btn-secondary">Cancel</a>
+  {{ form_end(form) }}
+{% endblock %}

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Greg Suehr{% endblock %}</title>
+    {% block stylesheets %}
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,500i,600,600i&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {{ encore_entry_link_tags('app') }}
+    <link href="profile.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ asset('profile.css') }}">
+    {% endblock %}
+</head>
+<body>
+  <header>
+    <nav id='nav-bar' class='nav-link'>
+      <div class='container-fluid'>
+        <div class='row'>
+          <div class='col-md-6'>
+            <h5>Greg's Site</h5>
+          </div>
+          <div class='col-md-1'>
+            <a href="{{ path('profile_landing') }}">Home</a>
+          </div>
+          <div class='col-md-1'>
+            <a href="{{ path('profile_overview') }}">About</a>
+          </div>
+          <div class='col-md-1'>            
+            <a href="{{ path('profile_work') }}">Work</a>
+          </div>
+          <div class='col-md-1'>            
+            <a href="{{ path('profile_blog') }}">Blog</a>
+          </div>
+          <div class='col-md-2'>            
+            <a href="{{ path('profile_contact') }}" class='btn btn-primary'>Get in Touch</a>
+          </div>
+        </div>
+    </nav>
+  </header>
+
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+      <div class="site-map">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <h5>Greg's Site</h5>
+              <br>
+              <p>Links!</p>
+            </div>
+            <div class="col-md-2 mb-3">
+              <p class="text-primary">Software Development</p>
+              <div class="container">
+                <a href="{{ path('app_recipe') }}" class="text-secondary-dark">Katzen: Kitchen</a>
+                <a href="{{ path('profile_simulations') }}" class="text-secondary-dark">Physics Simulations</a>
+                <a href="{{ path('profile_hire_me_tech') }}" class="text-secondary-dark">Hire Me!</a>
+              </div>
+            </div>
+            <div class="col-md-2 mb-3">
+              <div class="container">
+                <p class="text-primary">Consulting Services</p>
+                <a href="{{ path('app_recipe') }}" class="text-secondary-dark">Design Services</a>
+                <a href="{{ path('profile_simulations') }}" class="text-secondary-dark">Process Improvement</a>
+                <a href="{{ path('profile_hire_me_tech') }}" class="text-secondary-dark">Growth Consulting</a>
+              </div>
+            </div>
+            <div class="col-md-2 mb-3">
+              <div class="container">
+                <p class="text-primary">Creative Professionals</p>
+                <a href="{{ path('app_recipe') }}" class="text-secondary-dark">Plays</a><br>
+                <a href="{{ path('profile_simulations') }}" class="text-secondary-dark">Poems</a><br>
+                <a href="{{ path('profile_hire_me_tech') }}" class="text-secondary-dark">Work With Me</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+</body>
+</html>

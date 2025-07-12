@@ -1,0 +1,7 @@
+{% block title %}{{ page.title }} — {{ site.domain }}{% endblock %}
+
+{% block body %}
+  <article class="tenant-page">
+    {{ page.htmlContent|raw }}
+  </article>
+{% endblock %}

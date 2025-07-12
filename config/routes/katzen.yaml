@@ -1,0 +1,3 @@
+katzen_controllers:
+    resource: ../../src/Katzen/Controller/
+    type: attribute

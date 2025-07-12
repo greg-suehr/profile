@@ -1,0 +1,99 @@
+{% extends 'hyper_link/base.html.twig' %}
+
+{% block content %}
+<div class="scene" id="prologue8">
+  <div>
+    <p class="dialogue hidden">...</p>
+    <p class="dialogue hidden">Are you still there?</p>
+  </div>
+  <div class="choices hidden" id="response-choices">
+    <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'prologue9' }) }}">Yes. What was that?</a>
+    <a class="choice" href="{{ path('hyperlink_jump', { nextNodeKey: 'prologue9alt' }) }}">Greg?!</a>
+  </div>
+</div>
+
+<style>
+.stillness {
+  animation: subtle-flicker 3s ease-in-out infinite;
+}
+
+@keyframes mysterious-glow {
+  from { 
+    color: #87ceeb; 
+    text-shadow: 0 0 5px #87ceeb; 
+  }
+  to { 
+    color: #add8e6; 
+    text-shadow: 0 0 15px #87ceeb, 0 0 25px #4169e1; 
+  }
+}
+
+@keyframes subtle-flicker {
+  0%, 90%, 100% { opacity: 1; }
+  95% { opacity: 0.8; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('screen');
+    const ctx = canvas.getContext('2d');
+    
+    if (!canvas) return;
+    
+    // Draw the post-glitch scene
+    function drawStillScene() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Background cracks (permanent now)
+        ctx.strokeStyle = 'rgba(255, 0, 102, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        
+        // Fixed crack pattern
+        ctx.moveTo(50, 100);
+        ctx.lineTo(200, 250);
+        ctx.moveTo(300, 50);
+        ctx.lineTo(450, 180);
+        ctx.moveTo(500, 300);
+        ctx.lineTo(700, 150);
+        ctx.moveTo(150, 350);
+        ctx.lineTo(600, 80);
+        
+        ctx.stroke();
+        
+        // Flickering wrench
+        if (Math.random() > 0.1) { // Flicker effect
+            const wrenchX = canvas.width / 2 + 30;
+            const wrenchY = canvas.height / 2 + 55;
+            
+            ctx.fillStyle = Math.random() > 0.8 ? '#aaa' : '#888';
+            ctx.fillRect(wrenchX, wrenchY, 8, 3);
+            ctx.fillRect(wrenchX + 2, wrenchY - 3, 4, 9);
+        }
+    }
+    
+    function animate() {
+        drawStillScene();
+        requestAnimationFrame(animate);
+    }
+    
+    // Start the scene
+    canvas.classList.add('stillness');
+    animate();
+    
+    // Timed dialogue sequence
+    setTimeout(() => {
+        document.querySelectorAll('.dialogue')[0].classList.remove('hidden');
+    }, 3000);
+    
+    setTimeout(() => {
+        document.querySelectorAll('.dialogue')[1].classList.remove('hidden');
+    }, 5000);
+    
+    setTimeout(() => {
+        document.getElementById('response-choices').classList.remove('hidden');
+    }, 7000);
+});
+</script>
+{% endblock %}

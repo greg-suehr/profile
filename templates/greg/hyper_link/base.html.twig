@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greg Is Here</title>
+    <style>
+        body {
+          /*
+            margin: 0;
+            padding: 0;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+         */
+        }
+
+        .hidden {
+          display: none;
+        }
+        
+        .scene {
+            display: block;
+            text-align: center;
+            max-width: 800px;
+            padding: 20px;
+            animation: fadeIn 0.8s ease-in;
+        }
+                
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .scene-image {
+            width: 100%;
+            max-width: 600px;
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+            margin: 0 auto 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            transition: all 0.5s ease;
+        }
+        
+        .pittsburgh {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .pittsburgh-distorted {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            filter: hue-rotate(180deg) saturate(2) contrast(1.5);
+            transform: skew(-2deg);
+        }
+        
+        .greg-sprite {
+            background: #2d5a27;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+        
+        .dialogue {
+            font-size: 18px;
+            line-height: 1.6;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .dialogue p {
+            margin: 10px 0;
+        }
+        
+        .character-dialogue {
+        }
+        
+        .choices {
+            margin: 30px 0;
+        }
+        
+        .choice {
+            display: block;
+            background: #333;
+            color: #e0e0e0;
+            text-decoration: none;
+            padding: 12px 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 2px solid #555;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .choice:hover {
+            background: #555;
+            border-color: #87ceeb;
+            color: #fff;
+        }
+        
+        .choice.canonical {
+            border-color: #ffd700;
+            background: #2a2a00;
+        }
+        
+        .choice.canonical:hover {
+            background: #4a4a00;
+            border-color: #ffed4e;
+        }
+        
+        .hidden-link {
+            color: #87ceeb;
+            text-decoration: underline;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .hidden-link:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+   {% block content %}{% endblock %}
+    <script>
+        function goToScene(sceneId) {
+            // Hide all scenes
+            const scenes = document.querySelectorAll('.scene');
+            scenes.forEach(scene => scene.classList.remove('active'));
+            
+            // Show target scene
+            const targetScene = document.getElementById(sceneId);
+            if (targetScene) {
+                targetScene.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>

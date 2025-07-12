@@ -1,0 +1,222 @@
+{% extends 'hyper_link/base.html.twig' %}
+
+{% block content %}
+<div class="scene" id="prologue10">
+  <div class="dialogue">
+    <p class="dialogue">I... I connect things. That's what I do.</p>
+    <p class="dialogue">I don't know which rift they took him through, but I can get us inside. One of them leads to him.</p>
+    <p class="dialogue warning">But once we choose... there's no going back.</p>
+  </div>
+  <div class="choices" id="final-choices">
+    <a class="choice blue-rift" href="{{ path('hyperlink_jump', { nextNodeKey: 'hollow1' }) }}">Let's go! (Choose the Blue Rift)</a>
+    <a class="choice orange-rift" href="{{ path('hyperlink_jump', { nextNodeKey: 'pantheon1' }) }}">Let's go! (Choose the Orange Rift)</a>
+  </div>
+</div>
+
+<style>
+.warning {
+  animation: warning-pulse 2s ease-in-out infinite;
+}
+
+.blue-rift {
+  background: linear-gradient(135deg, #001f3f, #0074d9);
+  border-color: #0074d9;
+  box-shadow: 0 0 15px rgba(0, 116, 217, 0.5);
+  animation: rift-throb-blue 2s ease-in-out infinite;
+}
+
+.orange-rift {
+  background: linear-gradient(135deg, #3d1a00, #ff851b);
+  border-color: #ff851b;
+  box-shadow: 0 0 15px rgba(255, 133, 27, 0.5);
+  animation: rift-throb-orange 2s ease-in-out infinite;
+}
+
+.blue-rift:hover {
+  background: linear-gradient(135deg, #002966, #0099ff);
+  transform: scale(1.05);
+}
+
+.orange-rift:hover {
+  background: linear-gradient(135deg, #4d2200, #ffaa44);
+  transform: scale(1.05);
+}
+
+@keyframes warning-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes rift-throb-blue {
+  0%, 100% { 
+    box-shadow: 0 0 15px rgba(0, 116, 217, 0.5);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 25px rgba(0, 116, 217, 0.8);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes rift-throb-orange {
+  0%, 100% { 
+    box-shadow: 0 0 15px rgba(255, 133, 27, 0.5);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 25px rgba(255, 133, 27, 0.8);
+    transform: scale(1.02);
+  }
+}
+
+.rift-visual {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(2px);
+  animation: rift-energy 3s ease-in-out infinite;
+}
+
+@keyframes rift-energy {
+  0%, 100% { opacity: 0.3; transform: rotate(0deg) scale(1); }
+  50% { opacity: 0.7; transform: rotate(180deg) scale(1.1); }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('screen');
+    const ctx = canvas.getContext('2d');
+
+    if (!canvas) return;
+
+    const hyperlinkSprite = new Image();
+    hyperlinkSprite.src = '{{ asset("assets/hyper_link/spritesheet_link.png") }}';
+
+    const FRAME_WIDTH = 64;
+    const FRAME_HEIGHT = 64;
+    const CHAR_WIDTH = FRAME_WIDTH * 2;
+    const CHAR_HEIGHT = FRAME_HEIGHT * 2;
+    const FLOAT_FRAMES = [0]
+    const ROW = 6;
+
+    let hyperlinkX = canvas.width / 2 - CHAR_WIDTH / 2;
+    let hyperlinkY = canvas.height / 2 - CHAR_HEIGHT / 2;
+    let floatIndex = 0;
+    let floatOffset = 0;
+    let lastFloatTime = 0;
+    const floatFrameDuration = 300;
+
+    // Rift positions
+    const blueRift = { x: canvas.width * 0.3, y: canvas.height * 0.6, pulse: 0 };
+    const orangeRift = { x: canvas.width * 0.7, y: canvas.height * 0.4, pulse: Math.PI };
+
+    hyperlinkSprite.onload = () => {
+        requestAnimationFrame(animate);
+    };
+
+    function drawStillScene() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Background cracks
+        ctx.strokeStyle = 'rgba(255, 0, 102, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(50, 100);
+        ctx.lineTo(200, 250);
+        ctx.moveTo(300, 50);
+        ctx.lineTo(450, 180);
+        ctx.moveTo(500, 300);
+        ctx.lineTo(700, 150);
+        ctx.moveTo(150, 350);
+        ctx.lineTo(600, 80);
+        ctx.stroke();
+
+        // Flickering wrench
+        if (Math.random() > 0.1) {
+            const wrenchX = canvas.width / 2 + 30;
+            const wrenchY = canvas.height / 2 + 55;
+            ctx.fillStyle = Math.random() > 0.8 ? '#aaa' : '#888';
+            ctx.fillRect(wrenchX, wrenchY, 8, 3);
+            ctx.fillRect(wrenchX + 2, wrenchY - 3, 4, 9);
+        }
+    }
+
+    function drawRift(rift, color1, color2) {
+        rift.pulse += 0.03;
+        const intensity = 0.4 + Math.sin(rift.pulse) * 0.3;
+        const size = 60 + Math.sin(rift.pulse) * 10;
+
+        ctx.save();
+        ctx.translate(rift.x, rift.y);
+
+        // Outer energy field
+        ctx.globalAlpha = intensity * 0.3;
+        const outerGradient = ctx.createRadialGradient(0, 0, 10, 0, 0, size);
+        outerGradient.addColorStop(0, color1);
+        outerGradient.addColorStop(0.5, color2);
+        outerGradient.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = outerGradient;
+        ctx.beginPath();
+        ctx.arc(0, 0, size, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Inner rift
+        ctx.globalAlpha = intensity;
+        const innerGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 25);
+        innerGradient.addColorStop(0, color1);
+        innerGradient.addColorStop(0.8, color2);
+        innerGradient.addColorStop(1, 'rgba(0,0,0,0.8)');
+        ctx.fillStyle = innerGradient;
+        ctx.beginPath();
+        ctx.arc(0, 0, 25, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rift aperture
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = '#000000';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 15, 3, Math.sin(rift.pulse) * 0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    function drawHyperlink(timestamp) {
+        if (!lastFloatTime) lastFloatTime = timestamp;
+
+        if (timestamp - lastFloatTime > floatFrameDuration) {
+            floatIndex = (floatIndex + 1) % FLOAT_FRAMES.length;
+            lastFloatTime = timestamp;
+        }
+
+        floatOffset += 0.05;
+        const floatY = hyperlinkY + Math.sin(floatOffset) * 5;
+
+        const col = FLOAT_FRAMES[floatIndex];
+
+        ctx.save();
+        ctx.translate(hyperlinkX, floatY);
+        ctx.drawImage(
+            hyperlinkSprite,
+            col * FRAME_WIDTH, ROW * FRAME_HEIGHT,
+            FRAME_WIDTH, FRAME_HEIGHT,
+            0, 0,
+            CHAR_WIDTH, CHAR_HEIGHT
+        );
+        ctx.restore();
+    }
+
+    function animate(timestamp) {
+        drawStillScene();
+
+        drawRift(blueRift, '#0074d9', '#001f3f');
+        drawRift(orangeRift, '#ff851b', '#3d1a00');
+
+        drawHyperlink(timestamp);
+
+        requestAnimationFrame(animate);
+    }
+
+});
+</script>
+{% endblock %}

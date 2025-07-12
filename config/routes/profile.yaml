@@ -1,0 +1,3 @@
+profile_controllers:
+    resource: ../../src/Profile/Controller/
+    type: attribute

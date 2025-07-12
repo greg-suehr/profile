@@ -1,0 +1,120 @@
+{% extends 'hyper_link/base.html.twig' %}
+
+{% block content %}
+<div class="scene" id="prologue9">
+  <p class="dialogue">I'm Greg's website.</p>
+  <p class="dialogue hidden">We have to go after him.</p>
+  <div class="choices hidden" id="question-choices">
+    <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'prologue11' }) }}">You're a website?</a>
+    <a class="choice" href="{{ path('hyperlink_jump', { nextNodeKey: 'prologue10c' }) }}">Okay... Um. Who are "they"?</a>
+  </div>
+</div>
+
+<style>
+@keyframes hyperlink-float {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-10px) scale(1.1); }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('screen');
+    const ctx = canvas.getContext('2d');
+
+    if (!canvas) return;
+
+    const hyperlinkSprite = new Image();
+    hyperlinkSprite.src = '{{ asset("assets/hyper_link/spritesheet_link.png") }}';
+
+    const FRAME_WIDTH = 64;
+    const FRAME_HEIGHT = 64;
+    const CHAR_WIDTH = FRAME_WIDTH * 2;
+    const CHAR_HEIGHT = FRAME_HEIGHT * 2;
+    const FLOAT_FRAMES = [0, 0, 0, 0];
+    const FLOAT_ROW = 6;
+
+    let hyperlinkX = canvas.width / 2 - CHAR_WIDTH / 2;
+    let hyperlinkY = canvas.height / 2 - CHAR_HEIGHT / 2;
+    let floatIndex = 0;
+
+    let floatOffset = 0;
+
+    const floatFrameDuration = 300;
+    let lastFloatTime = 0;
+
+    hyperlinkSprite.onload = () => {
+        requestAnimationFrame(animate);
+    };
+
+    function drawStillScene() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Background cracks
+        ctx.strokeStyle = 'rgba(255, 0, 102, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(50, 100);
+        ctx.lineTo(200, 250);
+        ctx.moveTo(300, 50);
+        ctx.lineTo(450, 180);
+        ctx.moveTo(500, 300);
+        ctx.lineTo(700, 150);
+        ctx.moveTo(150, 350);
+        ctx.lineTo(600, 80);
+        ctx.stroke();
+
+        // Flickering wrench
+        if (Math.random() > 0.1) {
+            const wrenchX = canvas.width / 2 + 30;
+            const wrenchY = canvas.height / 2 + 55;
+            ctx.fillStyle = Math.random() > 0.8 ? '#aaa' : '#888';
+            ctx.fillRect(wrenchX, wrenchY, 8, 3);
+            ctx.fillRect(wrenchX + 2, wrenchY - 3, 4, 9);
+        }
+    }
+
+    function drawHyperlink(timestamp) {
+      if (!lastFloatTime) lastFloatTime = timestamp;
+
+      if (timestamp - lastFloatTime > floatFrameDuration) {
+        floatIndex = (floatIndex + 1) % FLOAT_FRAMES.length;
+        lastFloatTime = timestamp;
+      }
+      
+      floatOffset += 0.05;
+      const floatY = hyperlinkY + Math.sin(floatOffset) * 5;
+      
+      const col = FLOAT_FRAMES[floatIndex];
+      
+      ctx.save();
+      ctx.translate(hyperlinkX, floatY);
+      ctx.drawImage(
+        hyperlinkSprite,
+        col * FRAME_WIDTH, FLOAT_ROW * FRAME_HEIGHT,
+        FRAME_WIDTH, FRAME_HEIGHT,
+        0, 0,
+        CHAR_WIDTH, CHAR_HEIGHT
+      );
+      ctx.restore();
+    }
+
+    function animate(timestamp) {
+        drawStillScene();
+        drawHyperlink(timestamp);
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    // Dialogue triggers
+    setTimeout(() => {
+        document.querySelectorAll('.dialogue')[1].classList.remove('hidden');
+    }, 3000);
+
+    setTimeout(() => {
+        document.getElementById('question-choices').classList.remove('hidden');
+    }, 7000);
+});
+</script>
+{% endblock %}

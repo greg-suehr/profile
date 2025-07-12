@@ -1,0 +1,15 @@
+{% extends 'hyper_link/base.html.twig' %}
+
+{% block content %}
+<div class="scene" id="prologue7">
+  <div class="dialogue">
+    <p class="character-dialogue" id="dialogue1">G: Well, I'm happy to have you here regardless!</p>
+    <p class="character-dialogue hidden glitch-text" id="dialogue2">G: !</p>
+    <p class="character-dialogue hidden" id="dialogue3">G: Oh no. No, no, no.</p>
+    <p class="character-dialogue hidden" id="dialogue4">G: I didn't think they could...</p>
+  </div>
+  <div class="choices hidden" id="next-choices">
+    <a class="choice canonical" href="{{ path('hyperlink_jump', { nextNodeKey: 'prologue8' }) }}">Continue...</a>
+  </div>
+</div>
+{% endblock %}
