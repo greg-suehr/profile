@@ -3,19 +3,67 @@
 {% block title %}All Items{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-    .hidden { display: none; }
-</style>
+<div class="container my-4">
 
-<div class="example-wrapper">
-  <h1>All Items</h1>
-
-  <ul>
-    {% for item in items %}
-    <li><a href="{{ path('item', { id: item.id }) }}">{{ item }}</a></li>
+  {# — Category selector nav — #}
+  <ul class="nav nav-pills mb-4">
+    <li class="nav-item">
+      <a 
+        class="nav-link {% if not selectedCategory %}active{% endif %}" 
+        href="{{ path('app_item') }}">
+        All</a>
+    </li>
+    {% for cat in categories %}
+      <li class="nav-item">
+        <a
+          class="nav-link {% if selectedCategory == cat %}active{% endif %}"
+          href="{{ path('app_item', { category: cat }) }}">
+          {{ cat }}
+        </a>
+      </li>
     {% endfor %}
   </ul>
+
+  {# — Items table — #}
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Subcategory</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+          <tr>
+            <td>
+              <a href="#" class="text-decoration-none">{{ item.name }}</a>
+            </td>
+            <td>{{ item.category }}</td>
+            <td>{{ item.subcategory ?: '—' }}</td>
+            <td class="text-end">
+              <div class="btn-group btn-group-sm">
+                <a href="#" class="btn btn-outline-secondary" title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </a>
+                <a href="#" class="btn btn-outline-danger" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="4" class="text-center py-4">
+              No items found.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
 </div>
 {% endblock %}

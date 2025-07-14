@@ -20,7 +20,7 @@ final class RecipeController extends AbstractController
   #[Route('/recipe', name: 'app_recipe')]
   public function index(): Response
   {
-        return $this->render('recipe/index.html.twig', [
+        return $this->render('katzen/recipe/index.html.twig', [
           'controller_name' => 'RecipeController',
         ]);
     }
@@ -28,7 +28,7 @@ final class RecipeController extends AbstractController
   #[Route('/katzen', name: 'app_landing')]
   public function landing_page(): Response
   {
-        return $this->render('recipe/index.html.twig', [
+        return $this->render('katzen/recipe/index.html.twig', [
           'controller_name' => 'RecipeController',
         ]);
     }
@@ -37,7 +37,7 @@ final class RecipeController extends AbstractController
     public function list(Request $request, RecipeRepository $recipeRepo): Response
     {
         
-        return $this->render('recipe/list.html.twig', [
+        return $this->render('katzen/recipe/list.html.twig', [
           'controller_name' => 'RecipeController',
           'recipes'         => $recipeRepo->findAll(),
         ]);
@@ -58,7 +58,7 @@ final class RecipeController extends AbstractController
           array_push($recipe_ingredients, $ingredient);
         }
           
-        return $this->render('recipe/show.html.twig', [
+        return $this->render('katzen/recipe/show.html.twig', [
           'controller_name' => 'RecipeController',
           'recipe' => $recipe,
           'recipe_ingredients' => $recipe_ingredients,
@@ -86,7 +86,7 @@ final class RecipeController extends AbstractController
         return $this->redirectToRoute('app_recipe_show', ['id' => $recipe->getId()]);
     }
     
-	return $this->render('recipe/build.html.twig', [
+	return $this->render('katzen/recipe/build.html.twig', [
           'controller_name' => 'RecipeController',
           'recipe_form'     => $form,
 	]);
@@ -116,7 +116,7 @@ final class RecipeController extends AbstractController
       }
 	}
 
-  return $this->render('recipe/create_recipe_flow.html.twig', [
+  return $this->render('katzen/recipe/create_recipe_flow.html.twig', [
 		'form' => $form->createView(),
 		'flow' => $flow,
 	]);
@@ -161,7 +161,7 @@ final class RecipeController extends AbstractController
             // Don't redirect on import errors
         }
 
-        return $this->render('recipe/import.html.twig', [
+        return $this->render('katzen/recipe/import.html.twig', [
             'form' => $form->createView(),
         ]);
     }

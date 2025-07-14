@@ -10,9 +10,9 @@
     {{ encore_entry_link_tags('app') }}
     {% endblock %}
 </head>
-<body class="bg-light">
-    <aside class="sidebar d-flex flex-column flex-shrink-0 border-end border-secondary bg-secondary" style="width: 16rem;">
-        <div class="p-3 border-bottom border-secondary">
+<body class="d-flex h-100 bg-light">
+    <aside class="d-flex flex-column flex-shrink-0 border-end bg-white" style="width: 16rem;">
+        <div class="p-3 border-bottom">
             <h1 class="h4 mb-0 text-primary">Katzen</h1>
         </div>
         {% include 'katzen/partials/_profile_block.html.twig' %}
@@ -20,12 +20,12 @@
             <ul class="nav nav-pills flex-column mb-auto">
                 <li class="nav-item">
                     <a href="#" class="nav-link {{ activeItem == 'dashboard' ? 'active' : 'text-secondary' }}" data-item="dashboard">
-                        <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        <i class="bi bi-columns-gap me-2"></i>Dashboard
                     </a>
                 </li>
                 <li>
-                    <a href="#menuSub" data-bs-toggle="collapse" class="nav-link d-flex justify-content-between align-items-center {{ activeMenu ? 'active' : 'text-secondary' }}">
-                        <span><i class="bi bi-egg-fried me-2"></i>Menu</span>
+                    <a href="#menuSub" data-bs-toggle="collapse" data-item="menu-container" class="nav-link d-flex justify-content-between align-items-center {{ activeMenu ? 'active' : 'text-secondary' }}">
+                        <span><i class="bi bi-fork-knife me-2"></i>Menu</span>
                         <i class="bi bi-chevron-{{ activeMenu ? 'down' : 'right' }}"></i>
                     </a>
                     <div class="collapse {{ activeMenu ? 'show' : '' }}" id="menuSub">
@@ -37,12 +37,12 @@
                 </li>
                 <li>
                     <a href="#" class="nav-link {{ activeItem == 'orders' ? 'active' : 'text-secondary' }}" data-item="orders">
-                        <i class="bi bi-cart-fill me-2"></i>Orders
+                        <i class="bi bi-cart me-2"></i>Orders
                     </a>
                 </li>
                 <li>
                     <a href="#" class="nav-link {{ activeItem == 'schedule' ? 'active' : 'text-secondary' }}" data-item="schedule">
-                        <i class="bi bi-calendar3 me-2"></i>Schedule
+                        <i class="bi bi-calendar4 me-2"></i>Schedule
                     </a>
                 </li>
                 <li>
@@ -53,25 +53,52 @@
             </ul>
         </nav>
     </aside>
-
-    <div class="main-content">
-        <header class="header">
-            {% include 'katzen/partials/_header.html.twig' %}
-        </header>
-        <main class="main-area p-4">
-            {% block content %}{% endblock %}
-        </main>
+    
+    <div class="d-flex flex-column flex-grow-1">
+      {% include 'katzen/partials/_header.html.twig' %}
+      <main class="flex-grow-1 overflow-auto p-4">
+        {% block content %}{% endblock %}
+      </main>
     </div>
-
-    {# Bootstrap JS & dependencies #}
+    
     <script src="{{ asset('build/bootstrap.bundle.js') }}"></script>
     <script>
-        document.querySelectorAll('a[data-item]').forEach(el => {
-            el.addEventListener('click', () => {
-                document.querySelectorAll('a[data-item]').forEach(i => i.classList.remove('active', 'text-secondary'));
-                el.classList.add('active');
-            });
+      document.querySelectorAll('a[data-item]').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          
+          document.querySelectorAll('a[data-item]').forEach(item => {
+            item.classList.remove('active');
+            item.classList.add('text-secondary');
+          });
+          
+          el.classList.remove('text-secondary');
+          el.classList.add('active');
+          
+          const menuToggle = document.querySelector('a[href="#menuSub"]');
+          if (el.dataset.item === 'menu-create' || el.dataset.item === 'menu-past') {
+            // If clicking a submenu item, ensure parent menu is expanded
+            menuToggle.classList.remove('text-secondary');
+            menuToggle.classList.add('active');
+            document.getElementById('menuSub').classList.add('show');
+            menuToggle.querySelector('i.bi-chevron-right, i.bi-chevron-down').className = 'bi bi-chevron-down';
+          }
         });
+      });
+
+      document.querySelector('a[href="#menuSub"]').addEventListener('click', (e) => {
+        e.preventDefault();
+        const submenu = document.getElementById('menuSub');
+        const chevron = e.target.querySelector('i.bi-chevron-right, i.bi-chevron-down');
+        
+        if (submenu.classList.contains('show')) {
+          submenu.classList.remove('show');
+          chevron.className = 'bi bi-chevron-right';
+        } else {
+          submenu.classList.add('show');
+          chevron.className = 'bi bi-chevron-down';
+        }
+      });
     </script>
 </body>
 </html>

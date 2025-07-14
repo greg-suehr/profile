@@ -1,0 +1,180 @@
+{% extends 'katzen/base.html.twig' %}
+
+{% block title %}Restaurant Manager{% endblock %}
+
+{% block body %}
+<aside class="w-64 min-h-screen bg-[#FDFCF9] border-r border-[#D9D5CC] flex flex-col">
+  <div class="p-4 border-b border-[#D9D5CC]">
+    <h1 class="text-2xl font-bold text-[#E8B44B]">Katzen</h1>
+  </div>
+  {% include 'katzen/manager/_profile_block.html.twig' %}
+  <nav class="flex-1 p-4">
+    <ul class="space-y-2">
+      <li>
+        <a href="#" class="flex items-center p-2 rounded-md {{ activeItem == 'dashboard' ? 'bg-[#F6D58A] text-[#5A4436]' : 'text-[#726D5F] hover:bg-[#F6F1EB]' }}" data-item="dashboard">
+          <i class="bi bi-column-gaps w-5 h-5 mr-3"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <div class="flex flex-col">
+          <button class="flex items-center justify-between p-2 rounded-md w-full text-left {{ activeMenu ? 'bg-[#F6D58A] text-[#5A4436]' : 'text-[#726D5F] hover:bg-[#F6F1EB]' }}" id="menu-toggle">
+            <div class="flex items-center">
+              <i class="lucide-utensils w-5 h-5 mr-3"></i>
+              <span>Menu</span>
+            </div>
+            <i class="lucide-{{ activeMenu ? 'chevron-down' : 'chevron-right' }} w-4 h-4"></i>
+          </button>
+          {% if activeMenu %}
+          <ul class="pl-10 mt-1 space-y-1">
+            <li>
+              <a href="#" class="block p-2 rounded-md {{ activeItem == 'menu-create' ? 'bg-[#F6D58A] text-[#5A4436]' : 'text-[#726D5F] hover:bg-[#F6F1EB]' }}" data-item="menu-create">Create A Menu</a>
+            </li>
+            <li>
+              <a href="#" class="block p-2 rounded-md {{ activeItem == 'menu-past' ? 'bg-[#F6D58A] text-[#5A4436]' : 'text-[#726D5F] hover:bg-[#F6F1EB]' }}" data-item="menu-past">View Past Menus</a>
+            </li>
+          </ul>
+          {% endif %}
+        </div>
+      </li>
+      <li>
+        <a href="#" class="flex items-center p-2 rounded-md {{ activeItem == 'orders' ? 'bg-[#F6D58A] text-[#5A4436]' : 'text-[#726D5F] hover:bg-[#F6F1EB]' }}" data-item="orders">
+          <i class="lucide-shopping-cart w-5 h-5 mr-3"></i>
+          <span>Orders</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="flex items-center p-2 rounded-md {{ activeItem == 'schedule' ? 'bg-[#F6D58A] text-[#5A4436]' : 'text-[#726D5F] hover:bg-[#F6F1EB]' }}" data-item="schedule">
+          <i class="lucide-calendar w-5 h-5 mr-3"></i>
+                        <span>Schedule</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="flex items-center p-2 rounded-md {{ activeItem == 'stock' ? 'bg-[#F6D58A] text-[#5A4436]' : 'text-[#726D5F] hover:bg-[#F6F1EB]' }}" data-item="stock">
+          <i class="lucide-package-open w-5 h-5 mr-3"></i>
+          <span>Stock</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</aside>
+<div class="container-fluid">
+  <div class="row">
+    
+    {# Sidebar #}
+    <nav id="sidebar" class="col-md-2 bg-secondary vh-100 p-3">
+      <div class="text-center mb-4">
+        {# Replace with your actual avatar path #}
+        <img src="{{ asset('images/avatar-placeholder.png') }}"
+             class="img-fluid rounded-circle"
+             alt="Profile">
+      </div>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link {% if active=='home' %}active{% endif %}"
+             href="{{ path('dashboard_home') }}">
+            Home
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if active=='menu' %}active{% endif %}"
+             href="{{ path('menu_index') }}">
+            Menu
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if active=='stock' %}active{% endif %}"
+             href="{{ path('stock_index') }}">
+            Stock
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if active=='schedule' %}active{% endif %}"
+             href="{{ path('schedule_index') }}">
+            Schedule
+          </a>
+        </li>
+      </ul>
+    </nav>
+    
+    {# Main content #}
+    <main class="col-md-10 ms-sm-auto px-4 py-4">           
+      
+      {# Greeting + Notifications #}
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+          Good morning, {{ user.firstName }} <span class="fs-4">😊</span>
+        </h2>
+        <a href="{{ path('notifications') }}"
+           class="btn btn-outline-warning position-relative">
+          <i class="bi-exclamation-triangle-fill fs-3"></i>
+          {% if notifications|length > 0 %}
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-error">
+            {{ notifications|length }}
+          </span>
+          {% endif %}
+        </a>
+      </div>
+      
+      {% if active == 'coming_soon' %}
+      <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-center">
+              <h5 class="card-title text-center">Coming Soon!</h5>
+              <p class="card-text display-6 text-center">{{ description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      
+      {# Dashboard widgets grid #}
+      <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+        {% for widget in widgets %}
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-center">
+              <h5 class="card-title text-center">{{ widget.title }}</h5>
+              <p class="card-text display-6 text-center">{{ widget.value }}</p>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="col">
+          <p class="text-muted">No data to display.</p>
+        </div>
+        {% endfor %}
+      </div>
+      
+      {# “Manage Historical + Future Menus” section #}
+      <section class="mb-5">
+        <h3>Manage Historical + Future Menus</h3>
+        <ul class="list-unstyled ps-3">
+          <li>• Apply templates to create ready-mix print &amp; digital menus</li>
+          <li>• Use insights to keep menus fresh, plus…</li>
+          <li>• Sync sales data to identify favorites &amp; trends</li>
+        </ul>
+      </section>
+      
+      {# Menu flow diagram #}
+      <section>
+        <h4>Menu Workflow</h4>
+        <div class="d-flex align-items-center flex-wrap gap-3">
+          <a href="{{ path('menu_index') }}" class="btn btn-outline-primary">Menu</a>
+          <i class="bi-chevron-right fs-4"></i>
+          <a href="{{ path('menu_index') }}" class="btn btn-outline-primary">Menu List / Search</a>
+          <i class="bi-chevron-right fs-4"></i>
+          <a href="{{ path('menu_index', { id: 1 }) }}" class="btn btn-outline-primary">Menu Show</a>
+          <i class="bi-chevron-right fs-4"></i>
+          <a href="{{ path('menu_index') }}" class="btn btn-outline-primary">Menu Build</a>
+        </div>
+        <small class="text-muted">(*opens Recipe Selector*)</small>
+      </section>
+      
+      {% endif %}
+      
+    </main>
+  </div>
+</div>
+{% endblock %}

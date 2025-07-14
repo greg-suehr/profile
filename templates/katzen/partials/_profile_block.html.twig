@@ -1,0 +1,14 @@
+<div class="d-flex align-items-center p-3 border-bottom">
+    <div class="me-3">
+        <img src={{ user.profileImage }}
+             alt="User avatar"
+             class="rounded-circle" width="40" height="40">
+    </div>
+    <div class="flex-grow-1">
+        <h3 class="h6 mb-0 text-dark">{{ user.firstName }} {{ user.lastName }}</h3>
+        <small class="text-muted">{{ user.role }}</small>
+    </div>
+    <button type="button" class="btn btn-link text-muted p-0">
+        <i class="bi bi-gear-fill"></i>
+    </button>
+</div>

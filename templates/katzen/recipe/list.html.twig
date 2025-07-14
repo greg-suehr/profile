@@ -3,19 +3,53 @@
 {% block title %}All Recipes{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-    .hidden { display: none; }
-</style>
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">All Recipes</h1>
+    <a href="#" class="btn btn-primary btn-sm">Add Recipe</a>
+  </div>
 
-<div class="example-wrapper">
-  <h1>All Recipes</h1>
-
-  <ul>
-    {% for recipe in recipes %}
-    <li><a href="{{ path('app_recipe_show', { id: recipe.id }) }}">{{ recipe.title }}</a></li>
-    {% endfor %}
-  </ul>
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Title</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for recipe in recipes %}
+          <tr>
+            <td>
+              <a href="{{ path('app_recipe_show', { id: recipe.id }) }}"
+                 class="text-decoration-none">
+                {{ recipe.title }}
+              </a>
+            </td>
+            <td class="text-end">
+              <div class="btn-group btn-group-sm" role="group">
+                <a href="#"
+                   class="btn btn-outline-secondary"
+                   title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </a>
+                <a href="#"
+                   class="btn btn-outline-danger"
+                   title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="2" class="text-center py-4">
+              No recipes found.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

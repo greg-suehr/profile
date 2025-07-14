@@ -1,0 +1,159 @@
+// ================================
+// FONTS and ICONS
+// ================================
+$font-family-title: Georgia, Times, 'New Roman', serif;
+
+$bootstrap-icons-font-dir: "fonts";
+
+// ================================
+// COLORS
+// ================================
+$color-primary:        #E8B44B; // Amber Honey
+$color-primary-light:  #F6D58A; // Lightened, for hover/backgrounds
+$color-primary-dark:   #A0731E; // Rich ochre-gold
+
+$color-secondary:       #A7A17E; // Dried Thyme
+$color-secondary-light: #D1CEB2; // Light herbal mist
+$color-secondary-dark:  #6C684D; // Deep olive-thyme
+
+$color-accent:          #845D7E; // Plum Scarf
+$color-accent-light:    #B89DB5; // Mauve-tinted soft variant
+$color-accent-dark:     #5A3D57; // Rich fig-plum
+
+$color-text:            #5A4436; // Walnut
+$color-text-muted:      #726D5F; // Warm Slate
+$color-light:           #FDFCF9; // Ivory
+$color-dark:            #2E241B; // Deep roast brown
+
+$color-border:          #D9D5CC; // Warm paper-gray
+$color-surface:         #F6F1EB; // Flour Dust
+$color-surface-light:   #FFFFFF; // Clean white highlights
+$color-surface-dark:    #E5DED1; // Linen, grounding
+
+// ================================
+// BOOTSTRAP THEME OVERRIDES
+// ================================
+
+$primary: $color-primary;
+$secondary: $color-secondary;
+$success: #7bb373; 
+$info: $color-accent;
+$warning: #e6bb8f; 
+$danger: #c97a7a;
+$light: $color-surface;
+$dark: $color-text;
+
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark
+);
+
+// ================================
+// KITCHEN THE CAT COLORS
+// ================================
+
+// Cat mascot palette (for illustrations & UI elements)
+$cat-cream: #f5f1ea;
+$cat-amber: #d4a574;
+$cat-sage: #9aac8e;
+$cat-dusty-gray: #a8a5a0;
+
+// Cat accessory colors
+$cat-apron: $color-surface;
+$cat-scarf: $color-secondary;
+$cat-paws: $color-text-muted;
+
+// ================================
+// FUNCTIONAL COLORS
+// ================================
+
+// Form states
+$form-valid: #7bb373;
+$form-invalid: #c97a7a;
+$form-focus: $color-accent;
+
+// Interactive states
+$hover-overlay: rgba(139, 115, 85, 0.1);
+$active-overlay: rgba(139, 115, 85, 0.2);
+$focus-ring: rgba(212, 165, 116, 0.3);
+
+// ================================
+// BOOTSTRAP COMPONENT OVERRIDES
+// ================================
+
+// Card styling
+$card-bg: $color-surface;
+$card-border-color: $color-border;
+$card-border-radius: 12px;
+$card-box-shadow: 0 4px 15px rgba(90, 74, 58, 0.1);
+
+// Button styling
+$btn-border-radius: 8px;
+$btn-box-shadow: 0 2px 8px rgba(90, 74, 58, 0.15);
+$btn-focus-box-shadow: 0 0 0 0.2rem $focus-ring;
+
+// Form styling
+$input-bg: $color-surface;
+$input-border-color: $color-border;
+$input-focus-border-color: $color-accent;
+$input-focus-box-shadow: 0 0 0 0.2rem $focus-ring;
+$input-border-radius: 6px;
+
+// ================================
+// UTILITY CLASSES
+// ================================
+
+// Custom utility color classes you can use
+$utilities: (
+  "color": (
+    property: color,
+    class: text,
+    values: (
+      "warm": $color-text,
+      "sage": $color-primary,
+      "honey": $color-accent,
+      "muted": $color-text-muted,
+      "cat-cream": $cat-cream,
+    )
+  ),
+  "background-color": (
+    property: background-color,
+    class: bg,
+    values: (
+      "warm": $color-surface,
+      "sage": $color-primary,
+      "honey": $color-accent,
+      "cat-cream": $cat-cream,
+    )
+  ),
+);
+
+// ================================
+// GRADIENT DEFINITIONS
+// ================================
+
+// Subtle gradients for backgrounds
+$gradient-warm: linear-gradient(135deg, #{$color-surface} 0%, #{$color-surface-dark} 100%);
+$gradient-sage: linear-gradient(135deg, #{$color-primary-light} 0%, #{$color-primary} 100%);
+$gradient-honey: linear-gradient(135deg, #{$color-accent-light} 0%, #{$color-accent} 100%);
+
+// ================================
+// EXPORT BOOTSTRAP CUSTOMS
+// ================================
+@use "~bootstrap/scss/bootstrap" with (
+  $primary: $primary,
+  $secondary: $secondary,
+  $theme-colors: $theme-colors,
+  $body-bg: $color-surface,
+  $body-color: $color-text
+);
+
+@forward "~bootstrap/scss/bootstrap";
+
+@import "bootstrap-icons/font/bootstrap-icons";

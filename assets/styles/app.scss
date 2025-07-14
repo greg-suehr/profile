@@ -1,10 +1,39 @@
-@import '~bootstrap/scss/bootstrap';
-@import './variables';
+@use './theme';
+@use './root-vars';
 
-body {
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 16rem;
+    z-index: 1000;
+}
+
+.main-content {
+    margin-left: 16rem;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+}
+
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    background-color: white;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.main-area {
+    flex: 1;
+    overflow-y: auto;
 }
 
 a {
@@ -16,21 +45,12 @@ main {
 }
 
 .navbar-brand {
-    font-family: $font-family-title;
-    font-weight: $font-weight-normal;
+    font-family: theme.$font-family-title;
     font-size: 1.8rem;
 }
 
 .navbar-brand, .nav-link {
     transition: all .15s;
-}
-
-.nav-conference {
-    display: inline-block;
-    padding: 5px 10px;
-    color: #666;
-    text-transform: uppercase;
-    font-size: 0.8rem;
 }
 
 .lift {
@@ -42,21 +62,69 @@ main {
     }
 }
 
-.comment-img {
-    width: 250px;
-    height: 150px;
-
-    img {
-        max-width: 250px;
-        max-height: 150px;
-    }
-}
-
-.comment-text {
-    font-size: 12px;
-    line-height: 15px;
-}
-
 footer {
     background: #18171b;
 }
+
+.item-catalog {
+  background-color: theme.$color-surface;
+  color: theme.$color-text;
+}
+
+/* Header */
+.catalog-header h1 {
+  color: theme.$color-accent;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+/* Table */
+.catalog-table thead {
+  background-color: theme.$color-primary;
+  color: #fff;
+  border-bottom: none;
+}
+
+.catalog-table tbody tr:hover {
+  background-color: theme.$color-secondary;
+  color: #fff;
+}
+
+.catalog-table a {
+  color: theme.$color-accent;
+  text-decoration: none;
+}
+.catalog-table a:hover {
+  text-decoration: underline;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: theme.$color-primary;
+  border-color: theme.$color-border;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(theme.$color-accent);
+  border-color: var(theme.$color-border);
+}
+
+.btn-success {
+  background-color: theme.$success;
+  border-color: theme.$color-border;
+}
+.btn-success:hover,
+.btn-success:focus {
+  background-color: darken(theme.$success, 10%);
+}
+
+/* Search input */
+.input-group .form-control {
+  border-color: theme.$color-border;
+}
+.input-group .btn {
+  background-color: theme.$color-accent;
+  color: #fff;
+  border-color: theme.$color-border;
+}
+

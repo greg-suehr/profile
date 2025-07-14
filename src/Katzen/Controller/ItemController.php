@@ -7,6 +7,7 @@ use App\Katzen\Form\ItemType;
 use App\Katzen\Repository\ItemRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse; 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -31,9 +32,25 @@ final class ItemController extends AbstractController
           return $this->redirectToRoute('app_item');
         }
 
-        return $this->render('item/index.html.twig', [
-          'controller_name' => 'ItemController',
-          'items'           => $itemRepository->findAll(),
+        $categories = $itemRepository->createQueryBuilder('i')
+            ->select('DISTINCT i.category')
+            ->orderBy('i.category', 'ASC')
+            ->getQuery()
+            ->getScalarResult();
+
+        $categories = array_map(fn($c) => $c['category'], $categories);
+        $selected = $request->query->get('category');
+
+        if ($selected) {
+            $items = $itemRepository->findBy(['category' => $selected], ['name' => 'ASC']);
+        } else {
+            $items = $itemRepository->findBy([], ['category' => 'ASC', 'name' => 'ASC']);
+        }
+
+        return $this->render('katzen/item/index.html.twig', [
+          'items'           => $items,
+          'categories'      => $categories,
+          'selectedCategory'=> $selected,
           'item_form'       => $form
         ]);
     }
@@ -41,7 +58,7 @@ final class ItemController extends AbstractController
   #[Route('/item/{id}', name: 'item')]
   public function show(Request $request, Item $item, ItemRepository $itemRepository): Response
   {
-        return $this->render('item/show.html.twig', [
+        return $this->render('katzen/item/show.html.twig', [
           'item' => $item,
         ]);
   }
