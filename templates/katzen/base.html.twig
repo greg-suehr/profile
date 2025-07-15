@@ -30,8 +30,8 @@
                     </a>
                     <div class="collapse {{ activeMenu ? 'show' : '' }}" id="menuSub">
                         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                            <li><a href="#" class="nav-link ps-4 {{ activeItem == 'menu-create' ? 'active' : 'text-secondary' }}" data-item="menu-create">Create A Menu</a></li>
-                            <li><a href="#" class="nav-link ps-4 {{ activeItem == 'menu-past' ? 'active' : 'text-secondary' }}" data-item="menu-past">View Past Menus</a></li>
+                            <li><a href="{{ path('menu_create_form') }}" class="nav-link ps-4 {{ activeItem == 'menu-create' ? 'active' : 'text-secondary' }}" data-item="menu-create">Create A Menu</a></li>
+                            <li><a href="{{ path('menu_index') }}" class="nav-link ps-4 {{ activeItem == 'menu-past' ? 'active' : 'text-secondary' }}" data-item="menu-past">View Past Menus</a></li>
                         </ul>
                     </div>
                 </li>
@@ -41,12 +41,12 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="nav-link {{ activeItem == 'schedule' ? 'active' : 'text-secondary' }}" data-item="schedule">
+                    <a href="{{ path('schedule_index') }} " class="nav-link {{ activeItem == 'schedule' ? 'active' : 'text-secondary' }}" data-item="schedule">
                         <i class="bi bi-calendar4 me-2"></i>Schedule
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="nav-link {{ activeItem == 'stock' ? 'active' : 'text-secondary' }}" data-item="stock">
+                    <a href="{{ path('stock_index') }}" class="nav-link {{ activeItem == 'stock' ? 'active' : 'text-secondary' }}" data-item="stock">
                         <i class="bi bi-box-seam me-2"></i>Stock
                     </a>
                 </li>
@@ -56,49 +56,245 @@
     
     <div class="d-flex flex-column flex-grow-1">
       {% include 'katzen/partials/_header.html.twig' %}
-      <main class="flex-grow-1 overflow-auto p-4">
-        {% block content %}{% endblock %}
+      <main class="flex-grow-1 overflow-auto p-4" id="main-content">
+        {% block main_content %}
+        <div>Loading...</div>
+        {% endblock %}
       </main>
     </div>
     
-    <script src="{{ asset('build/bootstrap.bundle.js') }}"></script>
     <script>
-      document.querySelectorAll('a[data-item]').forEach(el => {
-        el.addEventListener('click', (e) => {
-          e.preventDefault();
-          
+      document.addEventListener('DOMContentLoaded', function() {
+        window.initializePageSpecificJS = initializePageSpecificJS;
+        initializePageSpecificJS();
+        function updateActiveStates(activeElement) {
           document.querySelectorAll('a[data-item]').forEach(item => {
             item.classList.remove('active');
             item.classList.add('text-secondary');
           });
-          
-          el.classList.remove('text-secondary');
-          el.classList.add('active');
-          
+
+          activeElement.classList.remove('text-secondary');
+          activeElement.classList.add('active');
+
           const menuToggle = document.querySelector('a[href="#menuSub"]');
-          if (el.dataset.item === 'menu-create' || el.dataset.item === 'menu-past') {
+          const item = activeElement.dataset.item;
+          
+          if (item === 'menu-create' || item === 'menu-past') {
             // If clicking a submenu item, ensure parent menu is expanded
             menuToggle.classList.remove('text-secondary');
             menuToggle.classList.add('active');
             document.getElementById('menuSub').classList.add('show');
             menuToggle.querySelector('i.bi-chevron-right, i.bi-chevron-down').className = 'bi bi-chevron-down';
           }
-        });
-      });
-
-      document.querySelector('a[href="#menuSub"]').addEventListener('click', (e) => {
-        e.preventDefault();
-        const submenu = document.getElementById('menuSub');
-        const chevron = e.target.querySelector('i.bi-chevron-right, i.bi-chevron-down');
-        
-        if (submenu.classList.contains('show')) {
-          submenu.classList.remove('show');
-          chevron.className = 'bi bi-chevron-right';
-        } else {
-          submenu.classList.add('show');
-          chevron.className = 'bi bi-chevron-down';
         }
+
+        function showLoading() {
+          const mainContent = document.getElementById('main-content');
+          mainContent.innerHTML = '<div class="d-flex justify-content-center align-items-center" style="min-height: 200px;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden>Loading...</span></div></div>'
+        }
+        
+        function hideLoading() {
+          const spinner = document.querySelector('.spinner-border');
+          if (spinner) {
+            spinner.remove();
+          }
+        }
+        
+        // Main navigation handler
+        document.querySelectorAll('a[data-item]').forEach(el => {
+          el.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            const item = el.dataset.item;
+            const href = el.getAttribute('href');
+           
+            // Skip if no href or just a hash
+            if (!href || href === '#') {
+              return;
+            }
+            
+            updateActiveStates(el);
+            
+            try {
+              showLoading();
+              
+              const response = await fetch(href, {
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest',
+                  'Accept': 'text/html'
+                }
+              });
+              
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+              }
+              
+              const html = await response.text();              
+              document.getElementById('main-content').innerHTML = html;
+              
+              // Update URL without reload
+              history.pushState({ item }, '', href);
+
+              // Initialize any JavaScript that might be needed for the new content
+              if (window.initializePageSpecificJS) {
+                window.initializePageSpecificJS();
+              }
+              
+            } catch (error) {
+              console.error('Navigation failed:', error);
+              hideLoading();
+              
+              // Fallback to full page load
+              window.location.href = href;
+            }
+          });
+        });
+        
+
+        document.querySelector('a[href="#menuSub"]').addEventListener('click', (e) => {
+          e.preventDefault();
+          const submenu = document.getElementById('menuSub');
+          const chevron = e.target.closest('a').querySelector('i.bi-chevron-right, i.bi-chevron-down');
+          
+          if (submenu.classList.contains('show')) {
+            submenu.classList.remove('show');
+            chevron.className = 'bi bi-chevron-right';
+          } else {
+            submenu.classList.add('show');
+            chevron.className = 'bi bi-chevron-down';
+          }
+        });
+        
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function(event) {
+          if (event.state && event.state.item) {
+            // Find the corresponding navigation item and trigger a click
+            const navItem = document.querySelector(`a[data-item="${event.state.item}"]`);
+            if (navItem) {
+              navItem.click();
+            }
+          } else {
+            window.location.reload();
+          }
+        });
+        
+        function initializePageSpecificJS() {
+          const modals = document.querySelectorAll('.modal');
+          modals.forEach(modalEl => {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+              new bootstrap.Modal(modalEl);
+            }
+          });
+          
+          /* TODO: Better componentize Katzen dashboard state JS */
+          
+          /* Recipe search initialization */
+
+          const recipeModal = document.getElementById('recipe-modal');
+          if (recipeModal && window.bootstrap) {
+            const modal = new bootstrap.Modal(recipeModal);
+            document.querySelectorAll('[data-action="open-recipe-modal"]')
+              .forEach(btn =>
+                btn.addEventListener('click', () => modal.show())
+              );
+          }
+
+          const modalSearch = document.querySelector('[data-action="modal-search"]');
+          const recipeList = document.getElementById('recipe-list');
+          const selectedList = document.getElementById('selected-list');
+
+          if (modalSearch && recipeList) {
+            let timeout = null;            
+            
+            modalSearch.addEventListener('input', (e) => {
+              const q = e.target.value.trim();
+              clearTimeout(timeout);
+              
+              if (q.length < 2) {
+                recipeList.innerHTML = '';
+                return;
+              }
+
+              // debounce so we don’t hammer the server
+              timeout = setTimeout(async () => {
+                try {
+                  const res = await fetch(`/api/recipes/search?q=${encodeURIComponent(q)}`, {
+                    headers: { 'Accept': 'application/json' },
+                  });
+                  if (!res.ok) throw new Error(res.statusText);
+                  
+                  const items = await res.json();
+                  console.log('Got items:', items);
+                  recipeList.innerHTML = items
+                    .map(r => `<li class="list-group-item" data-id="${r.id}">${r.title}</li>`)
+                    .join('');
+                  
+                  recipeList.querySelectorAll('li').forEach(li => {
+                    li.addEventListener('click', () => {
+                      // avoid duplicates
+                      if (!selected.querySelector(`[data-id="${li.dataset.id}"]`)) {
+                        const copy = li.cloneNode(true);
+                        selectedList.appendChild(copy);
+                      }
+                    });
+                  });
+                } catch (err) {
+                  console.error('Recipe search failed', err);
+                }
+              }, 300);
+            });
+            
+            const selectedList = document.getElementById('selected-recipes');
+            if (recipeList && selectedList) {
+              
+              recipeList.addEventListener('click', e => {
+                const li = e.target.closest('li[data-id]');
+                if (!li) return;
+                
+                const id = li.dataset.id;
+                // avoid duplicates
+                if (selectedList.querySelector(`li[data-id="${id}"]`)) return;
+                
+                // clone the item
+                const copy = li.cloneNode(true);
+                
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn-close ms-auto';
+                btn.setAttribute('aria-label', 'Remove');
+                copy.appendChild(btn);
+                
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'menu[recipes][]';
+                hidden.value = id;
+                copy.appendChild(hidden);
+                
+                selectedList.appendChild(copy);
+              });
+            }      
+
+            selectedList.addEventListener('click', e => {
+              if (e.target.classList.contains('btn-close')) {
+                const item = e.target.closest('li[data-id]');
+                if (item) item.remove();
+              }
+            });
+          }
+
+          recipeModalEl.addEventListener('hidden.bs.modal', () => {
+            document.body.classList.remove('modal-open');
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            document.getElementById('main-content').focus();
+          });
+          /* END MENU CREATE FORM PAGE SPECIFIC JS */
+        }
+        initializePageSpecificJS();
+        window.initializePageSpecificJS = initializePageSpecificJS;
       });
     </script>
+    {% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+    {% endblock %}    
 </body>
 </html>

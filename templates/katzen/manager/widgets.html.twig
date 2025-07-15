@@ -1,0 +1,17 @@
+{# Dashboard widgets grid #}
+      <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+        {% for widget in widgets %}
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-center">
+              <h5 class="card-title text-center">{{ widget.title }}</h5>
+              <p class="card-text display-6 text-center">{{ widget.value }}</p>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="col">
+          <p class="text-muted">No data to display.</p>
+        </div>
+        {% endfor %}
+      </div>

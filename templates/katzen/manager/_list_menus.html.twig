@@ -1,0 +1,11 @@
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h2 class="card-title mb-4">Menus</h2>
+
+    <div class="row g-3 mb-4">
+      {% for menu in menus %}
+      <div class="col-md-6">{{ menu.name }}</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
