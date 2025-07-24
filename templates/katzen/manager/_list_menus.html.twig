@@ -2,10 +2,60 @@
   <div class="card-body">
     <h2 class="card-title mb-4">Menus</h2>
 
-    <div class="row g-3 mb-4">
-      {% for menu in menus %}
-      <div class="col-md-6">{{ menu.name }}</div>
-      {% endfor %}
-    </div>
+    {# Filters #}
+    <form method="get" class="row mb-4 g-2 align-items-end">
+      <div class="col-auto">
+        <select name="status" class="form-select">
+          <option value="active">Active</option>
+          <option value="archived">Archived</option>
+          <option value="draft">Draft</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <input name="meal_type" class="form-control" placeholder="Meal Type (e.g. breakfast)" />
+      </div>
+      <div class="col-auto">
+        <input name="search" class="form-control" placeholder="Search by name..." />
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-primary">Apply</button>
+      </div>
+    </form>
+
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Meal Type</th>
+          <th>Last Used</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for menu in menus %}
+        {% set tags = tagMap[menu.id]|default({}) %}
+        <tr>
+          <td><a href="{{ path('menu_view', { id: menu.id }) }}">{{ menu.name }}</a></td>
+          <td>{{ tags.status|default('-') }}</td>
+          <td>{{ tags.meal_type|default('all day') }}</td>
+          <td>{{ menu.updatedAt ? menu.updatedAt|date('Y-m-d') : 'never' }}</td>
+          <td>
+            {% if tags.status in ['active', 'current', 'draft'] %}
+              <a href="{{ path('menu_edit_form', { id: menu.id }) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+              <a href="{{ path('menu_edit_form', { id: menu.id }) }}" class="btn btn-sm btn-outline-warning">Archive</a>
+            {% elseif tags.status == 'archived' %}
+              <a href="{{ path('menu_edit_form', { id: menu.id }) }}" class="btn btn-sm btn-outline-success">Restore</a>
+              <a href="{{ path('menu_edit_form', { id: menu.id }) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" class="text-center text-muted">No menus found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>

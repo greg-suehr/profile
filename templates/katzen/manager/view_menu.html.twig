@@ -1,0 +1,19 @@
+{% extends 'katzen/base.html.twig' %}
+{% block main_content %}
+<div class="card">
+  <div class="card-body">
+    <h2 class="card-title mb-3">{{ menu.name }}</h2>
+    <p class="text-muted">Last updated: {{ menu.updatedAt|date('Y-m-d H:i') }}</p>
+    <hr>
+    <h4>Recipes</h4>
+    <ul class="list-group">
+      {% for recipe in items %}
+        <li class="list-group-item">{{ recipe.title }}</li>
+      {% else %}
+        <li class="list-group-item text-muted">No recipes on this menu.</li>
+      {% endfor %}
+    </ul>
+    <a href="{{ path('menu_index') }}" class="btn btn-secondary mt-3">Back to Menus</a>
+  </div>
+</div>
+{% endblock %}

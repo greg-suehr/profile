@@ -27,7 +27,7 @@ class RecipeList
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updated_at = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $archived_at = null;
 
     /**
@@ -120,4 +120,18 @@ class RecipeList
 
         return $this;
     }
+
+  # Virtual tag attributes
+  private ?string $meal_type = null;
+  private ?string $status = null;
+  private bool $current = false;
+  
+  public function getMealType(): ?string { return $this->meal_type; }
+  public function setMealType(?string $meal_type): void { $this->meal_type = $meal_type; }
+  
+  public function getStatus(): ?string { return $this->status; }
+  public function setStatus(?string $status): void { $this->status = $status; }
+  
+  public function isCurrent(): bool { return $this->current; }
+  public function setCurrent(bool $current): void { $this->current = $current; }
 }

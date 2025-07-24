@@ -29,6 +29,9 @@ class Tag
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updated_at = null;
 
+    #[ORM\Column]
+    private ?int $obj_id = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,6 +93,18 @@ class Tag
     public function setUpdatedAt(): static
     {
         $this->updated_at = new \DateTime;
+
+        return $this;
+    }
+
+    public function getObjId(): ?int
+    {
+        return $this->obj_id;
+    }
+
+    public function setObjId(int $obj_id): static
+    {
+        $this->obj_id = $obj_id;
 
         return $this;
     }

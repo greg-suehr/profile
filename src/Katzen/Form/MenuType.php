@@ -22,33 +22,33 @@ class MenuType extends AbstractType
             ->add('name', TextType::class, [
                 'label' => 'Menu Name',
             ])
-            ->add('mealType', ChoiceType::class, [
+            ->add('meal_type', ChoiceType::class, [
               'label'   => 'Meal Type',
-              'mapped'  => false,
+              'mapped'  => true,
               'choices' => [
-                'All Day'    => 'All Day',
-                'Breakfast'  => 'Breakfast',
-                'Brunch'     => 'Brunch',
-                'Lunch'      => 'Lunch',
-                'Dinner'     => 'Dinner',
-                'Late Night' => 'Late Night',
+                'All Day'    => 'all_day',
+                'Breakfast'  => 'breakfast',
+                'Brunch'     => 'brunch',
+                'Lunch'      => 'lunch',
+                'Dinner'     => 'dinner',
+                'Late Night' => 'late_night',
               ],
               'placeholder' => '— Select Meal Type —',
             ])
-            ->add('statusTag', ChoiceType::class, [
+            ->add('status', ChoiceType::class, [
               'label'   => 'Status',
-              'mapped'  => false,
+              'mapped'  => true,
               'choices' => [
-                'Active'   => 'Active',
-                'Archived' => 'Archived',                
-                'Draft'    => 'Draft',
-                'Seasonal' => 'Seasonal',
+                'Active'   => 'active',
+                'Archived' => 'archived',                
+                'Draft'    => 'draft',
+                'Seasonal' => 'seasonal',
               ],
               'data' => 'Draft',
             ])
             ->add('current', CheckboxType::class, [
               'label'    => 'Publish',
-              'mapped'   => false,
+              'mapped'   => true,
               'required' => false,
             ])
             ->add('recipes', EntityType::class, [
