@@ -11,6 +11,7 @@ use App\Katzen\Repository\ItemRepository;
 use App\Katzen\Repository\RecipeRepository;
 use App\Katzen\Repository\RecipeListRepository;
 use App\Katzen\Repository\TagRepository;
+use App\Katzen\Service\DashboardContextService;
 use App\Katzen\Service\RecipeImportService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Form;
@@ -22,26 +23,18 @@ use Seld\JsonLint\JsonParser;
 
 final class ManagerController extends AbstractController
 {
+  public function __construct(private DashboardContextService $dashboardContext) {}
+  
   #[Route('/dashboard', name: 'dashboard_home')]
   public function index(): Response
   {
 
-        return $this->render('katzen/base.html.twig', [
+        return $this->render('katzen/base.html.twig', $this->dashboardContext->with([
           'active'     => 'home',
           'activeItem' => 'home',                    
           'activeMenu' => 'home',
-          'user' => array('firstName' => 'Greg', 'lastName' => 'Suehr', 'role' => 'Captain',
-                          'profileImage' => 'https://cdn.freecodecamp.org/curriculum/cat-photo-app/relaxing-cat.jpg'
-          ),
-          'encouragement' => array(
-            'header_message' => 'Ready to crush it?',
-          ),
-          'alerts' => array(
-            'alert_text' => 'You have 2 orders waiting for approval and 3 items low in stock.',
-          ),
-          'notifications' => [0, 1, 2],
           'widgets' => [array('title' => 'KPI', 'value' => '100%')],
-        ]);
+        ]));
     }
 
   // TODO: port tag logic to a shared TagManager service
@@ -105,23 +98,13 @@ final class ManagerController extends AbstractController
       ]);
     }
     
-    return $this->render('katzen/manager/menu_form.html.twig', [
+    return $this->render('katzen/manager/menu_form.html.twig', $this->dashboardContext->with([
         'active'     => 'menu-create',      
         'activeItem' => 'menu-create',
         'activeMenu' => 'menu',
-        'user' => array('firstName' => 'Greg', 'lastName' => 'Suehr', 'role' => 'Captain',
-                        'profileImage' => 'https://cdn.freecodecamp.org/curriculum/cat-photo-app/relaxing-cat.jpg'
-        ),
-        'encouragement' => array(
-          'header_message' => 'Ready to crush it?',
-        ),
-        'alerts' => array(
-          'alert_text' => 'You have 2 orders waiting for approval and 3 items low in stock.',
-        ),
-        'notifications' => [0, 1, 2],
         'form'         => $form->createView(),
         'recipes'    => $recipes,        
-    ]);
+    ]));
   }
 
   #[Route('/menus', name: 'menu_index')]
@@ -170,23 +153,13 @@ final class ManagerController extends AbstractController
          $tagMap[$tag->getObjId()][$tag->getType()] = $tag->getValue();
        } 
 
-       return $this->render('katzen/manager/list_menus.html.twig', [
+       return $this->render('katzen/manager/list_menus.html.twig',  $this->dashboardContext->with([
          'active'     => 'menu-create',
          'activeItem' => 'menu-create',
          'activeMenu' => 'menu',
-         'user' => array('firstName' => 'Greg', 'lastName' => 'Suehr', 'role' => 'Captain',
-                         'profileImage' => 'https://cdn.freecodecamp.org/curriculum/cat-photo-app/relaxing-cat.jpg'
-         ),
-         'encouragement' => array(
-           'header_message' => 'Ready to crush it?',
-         ),
-         'alerts' => array(
-           'alert_text' => 'You have 2 orders waiting for approval and 3 items low in stock.',
-         ),
-         'notifications' => [0, 1, 2],
          'menus'  => $menus,
          'tagMap' => $tagMap
-       ]);       
+       ]));
     }
 
   #[Route('/menus/edit/{id}', name: 'menu_edit_form')]
@@ -233,46 +206,26 @@ final class ManagerController extends AbstractController
         ]);
     }
 
-    return $this->render('katzen/manager/menu_form.html.twig', [
+    return $this->render('katzen/manager/menu_form.html.twig', $this->dashboardContext->with([
       'active'     => 'menu-edit',
       'activeItem' => 'menu-create',
       'activeMenu' => null,
-      'user' => array('firstName' => 'Greg', 'lastName' => 'Suehr', 'role' => 'Captain',
-                      'profileImage' => 'https://cdn.freecodecamp.org/curriculum/cat-photo-app/relaxing-cat.jpg'
-      ),
-      'encouragement' => array(
-        'header_message' => 'Ready to crush it?',
-      ),
-      'alerts' => array(
-        'alert_text' => 'You have 2 orders waiting for approval and 3 items low in stock.',
-      ),
-      'notifications' => [0, 1, 2],      
       'form'    => $form->createView(),
       'recipes' => $recipes,
       'menu'    => $menu,
-    ]);
+    ]));
   }                
 
   #[Route('/menus/view/{id}', name: 'menu_view')]
   public function menuView(Request $request, RecipeList $menu): Response
   {
-    return $this->render('katzen/manager/view_menu.html.twig', [
+    return $this->render('katzen/manager/view_menu.html.twig',  $this->dashboardContext->with([
       'active'     => 'home',
       'activeItem' => 'home',
       'activeMenu' => 'home',
-      'user' => array('firstName' => 'Greg', 'lastName' => 'Suehr', 'role' => 'Captain',
-                      'profileImage' => 'https://cdn.freecodecamp.org/curriculum/cat-photo-app/relaxing-cat.jpg'
-      ),
-      'encouragement' => array(
-        'header_message' => 'Ready to crush it?',
-      ),
-      'alerts' => array(
-        'alert_text' => 'You have 2 orders waiting for approval and 3 items low in stock.',
-      ),
-      'notifications' => [0, 1, 2],
       'menu' => $menu,
       'items' => $menu->getRecipes(),
-	]);
+	]));
     }
     
   #[Route('/stock', name: 'stock_index')]
