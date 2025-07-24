@@ -30,9 +30,8 @@ final class ManagerController extends AbstractController
   {
 
         return $this->render('katzen/base.html.twig', $this->dashboardContext->with([
-          'active'     => 'home',
-          'activeItem' => 'home',                    
-          'activeMenu' => 'home',
+          'activeItem' => 'dashboard',                    
+          'activeMenu' => null,
           'widgets' => [array('title' => 'KPI', 'value' => '100%')],
         ]));
     }
@@ -99,7 +98,6 @@ final class ManagerController extends AbstractController
     }
     
     return $this->render('katzen/manager/menu_form.html.twig', $this->dashboardContext->with([
-        'active'     => 'menu-create',      
         'activeItem' => 'menu-create',
         'activeMenu' => 'menu',
         'form'         => $form->createView(),
@@ -154,8 +152,7 @@ final class ManagerController extends AbstractController
        } 
 
        return $this->render('katzen/manager/list_menus.html.twig',  $this->dashboardContext->with([
-         'active'     => 'menu-create',
-         'activeItem' => 'menu-create',
+         'activeItem' => 'menu-list',
          'activeMenu' => 'menu',
          'menus'  => $menus,
          'tagMap' => $tagMap
