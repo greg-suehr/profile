@@ -1,12 +1,10 @@
-{% extends 'base.html.twig' %}
+{% extends 'katzen/base.html.twig' %}
 
-{% block title %}All Recipes{% endblock %}
-
-{% block body %}
+{% block main_content %}
 <div class="container my-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0">All Recipes</h1>
-    <a href="#" class="btn btn-primary btn-sm">Add Recipe</a>
+    <a href="{{ path('recipe_build') }}" class="btn btn-primary btn-sm">Add Recipe</a>
   </div>
 
   <div class="table-responsive">
@@ -21,7 +19,7 @@
         {% for recipe in recipes %}
           <tr>
             <td>
-              <a href="{{ path('app_recipe_show', { id: recipe.id }) }}"
+              <a href="{{ path('recipe_show', { id: recipe.id }) }}"
                  class="text-decoration-none">
                 {{ recipe.title }}
               </a>

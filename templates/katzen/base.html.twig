@@ -19,24 +19,25 @@
         <nav class="flex-grow-1 px-3 py-2">
             <ul class="nav nav-pills flex-column mb-auto">
                 <li class="nav-item">
-                    <a href="#" class="nav-link {{ activeItem == 'dashboard' ? 'active' : 'text-secondary' }}" data-item="dashboard">
+                    <a href="{{ path('dashboard_home') }}" class="nav-link {{ activeItem == 'dashboard' ? 'active' : 'text-secondary' }}" data-item="dashboard">
                         <i class="bi bi-columns-gap me-2"></i>Dashboard
                     </a>
                 </li>
                 <li>
-                    <a href="#menuSub" data-bs-toggle="collapse" data-item="menu-container" class="nav-link d-flex justify-content-between align-items-center {{ activeMenu ? 'active' : 'text-secondary' }}">
+                    <a href="#menuSub" data-bs-toggle="collapse" data-item="menu-container" class="nav-link d-flex justify-content-between align-items-center {{ activeMenu == 'menu' ? 'border border-primary text-secondary' : 'text-secondary' }}">
                         <span><i class="bi bi-fork-knife me-2"></i>Menu</span>
-                        <i class="bi bi-chevron-{{ activeMenu ? 'down' : 'right' }}"></i>
+                        <i class="bi bi-chevron-{{ activeMenu == 'menu' ? 'down' : 'right' }}"></i>
                     </a>
-                    <div class="collapse {{ activeMenu ? 'show' : '' }}" id="menuSub">
+                    <div class="collapse {{ activeMenu == 'menu' ? 'show' : '' }}" id="menuSub">
                         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                            <li><a href="{{ path('menu_create_form') }}" class="nav-link ps-4 {{ activeItem == 'menu-create' ? 'active' : 'text-secondary' }}" data-item="menu-create">Create A Menu</a></li>
-                            <li><a href="{{ path('menu_index') }}" class="nav-link ps-4 {{ activeItem == 'menu-past' ? 'active' : 'text-secondary' }}" data-item="menu-past">View Past Menus</a></li>
+                          <li><a href="{{ path('menu_create_form') }}" class="nav-link ps-4 {{ activeItem == 'menu-create' ? 'active' : 'text-secondary' }}" data-item="menu-create">Create A Menu</a></li>
+                          <li><a href="{{ path('recipe_list') }}" class="nav-link ps-4 {{ activeItem == 'recipe-list' ? 'active' : 'text-secondary' }}" data-item="recipe-list">Manage Recipes</a></li>                          
+                          <li><a href="{{ path('menu_index') }}" class="nav-link ps-4 {{ activeItem == 'menu-list' ? 'active' : 'text-secondary' }}" data-item="menu-list">View Past Menus</a></li>
                         </ul>
                     </div>
                 </li>
                 <li>
-                    <a href="#" class="nav-link {{ activeItem == 'orders' ? 'active' : 'text-secondary' }}" data-item="orders">
+                    <a href="{{ path('order_index') }}" class="nav-link {{ activeItem == 'orders' ? 'active' : 'text-secondary' }}" data-item="orders">
                         <i class="bi bi-cart me-2"></i>Orders
                     </a>
                 </li>
