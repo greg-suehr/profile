@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Katzen\Controller\Api;
+namespace App\Katzen\Api;
 
 use App\Katzen\Repository\RecipeRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
