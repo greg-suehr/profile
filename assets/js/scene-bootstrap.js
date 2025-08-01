@@ -392,6 +392,52 @@ class SceneBootstrap {
   }
 
   /**
+   * Animate arbitrary HTML content, but in the canvas!
+   * @param {string} elementId - The value of id attribute of the root DOM item to display
+   */
+  renderHtmlToCanvas(elementId) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    
+    const ctx = this.canvas.getContext('2d');
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    // Style defaults
+    const font = "20px sans-serif";
+    const lineHeight = 28;
+    const maxWidth = this.canvas.width - 40;
+    let x = 20;
+    let y = 50;
+    
+    for (const child of el.children) {
+      const text = child.innerText || child.textContent;
+      if (!text) continue;
+      
+      // You can improve this with actual HTML-style mapping later
+      ctx.font = child.tagName === "H2" ? "bold 28px sans-serif" : font;
+      ctx.fillStyle = "#FBD75F";
+      ctx.textAlign = "left";
+      
+      // Basic line wrapping
+      const words = text.split(" ");
+      let line = "";
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + " ";
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && n > 0) {
+          ctx.fillText(line, x, y);
+          line = words[n] + " ";
+          y += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, x, y);
+      y += lineHeight + 10;
+    }
+  }
+
+  /**
    * Pause the entire scene
    */
   pause() {
