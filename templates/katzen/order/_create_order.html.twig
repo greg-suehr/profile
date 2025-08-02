@@ -1,0 +1,158 @@
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h2 class="card-title mb-4">Create an Order</h2>
+
+    {{ form_start(form) }}
+    {{ form_errors(form) }}
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">{{ form_row(form.customer) }}</div>
+    </div>
+    
+    <div class="mb-4">
+      <h3 class="h5 mb-3">Add Items</h3>
+      <div class="input-group mb-3">
+        <input
+          type="text"
+          id="recipe_search"
+          placeholder="Search recipes..."
+          class="form-control"
+          data-action="search-recipes"
+          />
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-action="open-recipe-modal"
+          >
+          Browse
+        </button>
+      </div>
+      {{ form_widget(form.recipeIds) }}
+      <ul id="selected-recipes" class="list-group">
+        {# This page intentionally left blank :) #}
+      </ul>
+    </div>
+    
+    <div class="d-flex justify-content-end gap-2">
+      {{ form_row(form.submit, { 'label': 'Save' }) }}
+    </div>
+    {{ form_row(form._token) }}
+    {{ form_end(form, { render_rest: false }) }}
+  </div>
+</div>
+
+<!-- Recipe Modal -->
+<div
+  id="recipe-modal"
+  class="modal fade"
+  tabindex="-1"
+  aria-labelledby="recipe-modal-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="recipe-modal-label">Select Recipes</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <input
+            type="text"
+            id="modal_recipe_search"
+            placeholder="Search by title, tag, etc…"
+            class="form-control"
+            data-action="modal-search"
+          />
+        </div>
+        <ul id="recipe-list" class="list-group" style="max-height: 300px; overflow-y: auto;">
+          {# This page intentionally left blank :) #}
+          {% for recipe in recipes %}
+          <li class="list-group-item" data-id="{{ recipe.id }}">{{ recipe.title }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  (() => {
+    const selectedRecipes = new Set();
+    const selectedList = document.getElementById('selected-recipes');
+    const hiddenInput = document.getElementById('order_recipeIds');
+
+    const updateHiddenField = () => {
+      hiddenInput.value = Array.from(selectedRecipes).join(',');
+    };
+
+    document.querySelectorAll('#recipe-list .list-group-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const id = item.dataset.id;
+        const title = item.textContent.trim();
+
+        if (selectedRecipes.has(id)) return;
+
+        selectedRecipes.add(id);
+        updateHiddenField();
+
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.dataset.id = id;
+        li.innerHTML = `${title}<button type="button" class="btn btn-sm btn-danger ms-2">×</button>`;
+
+        li.querySelector('button').addEventListener('click', () => {
+          selectedRecipes.delete(id);
+          updateHiddenField();
+          li.remove();
+        });
+
+        selectedList.appendChild(li);
+      });
+    });
+  })();
+</script>
+{% if selectedRecipeIds is defined %}
+<script>
+  console.log("script run");
+  document.addEventListener('DOMContentLoaded', () => {
+    const ids = "{{ selectedRecipeIds }}".split(',');
+    const allRecipes = {{ recipes|map(r => {'id': r.id, 'title': r.title})|json_encode|raw }};
+    const selectedRecipes = new Set();
+    const selectedList = document.getElementById('selected-recipes');
+    const hiddenInput = document.getElementById('order_recipeIds');
+    
+    const updateHiddenField = () => {
+      hiddenInput.value = Array.from(selectedRecipes).join(',');
+    };
+    
+    ids.forEach(id => {
+      const recipe = allRecipes.find(r => r.id == id);
+      if (!recipe) return;
+      
+      selectedRecipes.add(id);
+      updateHiddenField();
+      
+      const li = document.createElement('li');
+      li.className = 'list-group-item d-flex justify-content-between align-items-center';
+      li.dataset.id = id;
+      li.innerHTML = `${recipe.title}<button type="button" class="btn btn-sm btn-danger ms-2">×</button>`;
+      li.querySelector('button').addEventListener('click', () => {
+        selectedRecipes.delete(id);
+        updateHiddenField();
+        li.remove();
+      });
+      
+      selectedList.appendChild(li);
+    });
+  });
+</script>
+{% endif %}

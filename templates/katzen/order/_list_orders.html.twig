@@ -1,28 +1,34 @@
 <div class="container py-4">
   <h2 class="mb-4">Open Orders</h2>
+  <div class="row g-2">
+    <div class="card-body">
+      <a href="{{ path('order_create_form') }}" class="btn btn-sm btn-outline-primary">Add Order</a>
+    </div>
+  </div>
   <div class="row g-4">
     {% for order in orders %}
       <div class="col-12 col-md-6 col-lg-4">
         <div class="card border shadow-sm h-100">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <span class="fw-bold text-uppercase small">{{ order.tags[0].name }}</span>
-            <span class="badge bg-{{ order.statusColor }}">{{ order.status }}</span>
+            <span class="badge bg-secondary">{{ order.customer }}</span>
+            <!-- TODO: <span class="fw-bold text-uppercase small">(( order.tags[0].name ))</span> -->
+            <span class="badge bg-danger">{{ order.status }}</span>
           </div>
           <div class="card-body">
             <ul class="list-unstyled mb-2">
-              {% for item in order.selection %}
+              {% for item in order.orderItems %}
                 <li class="d-flex justify-content-between">
-                  <span>{{ item.title }}</span>
+                  <span>{{ item.recipeListRecipeId.title }}</span>
                   {% if item.quantity > 1 %}
                     <span class="badge bg-light text-dark">{{ item.quantity }}</span>
                   {% endif %}
                 </li>
               {% endfor %}
             </ul>
-            <small class="text-muted">Started {{ order.createdAt|date('H:i') }}</small>
+            <small class="text-muted">Started {{ "now" | date('H:i') }}</small> <!-- TODO: order.created_at -->
           </div>
           <div class="card-footer text-end">
-            <a href="{{ path('menu_edit_form', { id: order.id }) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+            <a href="{{ path('order_edit_form', { id: order.id }) }}" class="btn btn-sm btn-outline-primary">Edit</a>
             <a href="#" class="btn btn-sm btn-outline-success">Mark as Ready</a>
           </div>
         </div>
