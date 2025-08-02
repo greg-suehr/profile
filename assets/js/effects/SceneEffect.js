@@ -406,12 +406,27 @@ class ParticleEmitterEffect extends EffectInstance {
   }
 
   emitParticle() {
-    const centerX = this.canvas.width / 2;
-    const centerY = this.canvas.height / 2;
+    const area = this.params.area || {
+      x: this.canvas.width / 2 - 50,
+      y: this.canvas.height / 2 - 50,
+      width: 100,
+      height: 100
+    };
+    
+    const resolve = (val, dim) => {
+      if (typeof val === 'string' && val.endsWith('%')) {
+        return (parseFloat(val) / 100) * dim;
+      }
+      return val;
+    };
+
+
+    const x = resolve(area.x, this.canvas.width) + Math.random() * resolve(area.width, this.canvas.width);
+    const y = resolve(area.y, this.canvas.height) + Math.random() * resolve(area.height, this.canvas.height);
     
     this.particles.push({
-      x: centerX + (Math.random() - 0.5) * 100,
-      y: centerY + (Math.random() - 0.5) * 100,
+      x,
+      y,
       vx: this.particleConfig.velocity.x + (Math.random() - 0.5) * 20,
       vy: this.particleConfig.velocity.y + (Math.random() - 0.5) * 20,
       birthTime: this.lastEmissionTime

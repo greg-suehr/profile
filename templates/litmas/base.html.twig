@@ -1,202 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Litmas 2025</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!--    {{ encore_entry_script_tags('scene') }} -->
+  <meta charset="UTF-8">
+  <title>Litmas 2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  {% block styles %}
     <style>
-:root {
-  --color-primary: #4E0000;
-  --color-secondary: #9A1D1D;
-  --color-accent: #FBD75F;
-  --color-surface: #2A0000;
-  --color-text: #FBD75F;
-  --color-border: #2A0000;
-}
+      :root {
+        --color-primary: #4E0000;
+        --color-secondary: #9A1D1D;
+        --color-accent: #FBD75F;
+        --color-surface: #2A0000;
+        --color-text: #FBD75F;
+        --color-border: #2A0000;
+      }
 
-/* Navbar */
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  background-color: var(--color-primary);
-  color: var(--color-text);
-}
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background-color: var(--color-primary);
+        color: var(--color-text);
+      }
 
-.hidden {
-  display: none;
-}
+      body.canvas-mode {
+        background-color: #003E00;
+      }
 
-.litmas-navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: var( --color-surface);
-  padding: 0.75rem 1.25rem;
-  border-bottom: 3px solid var(--color-border);
-  color: white;
-}
+      canvas.fullscreen-canvas {
+        display: block;
+        background: #000;
+        width: 100vw;
+        height: 100vh;
+      }
 
-.nav-left .nav-logo {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-}
+      .hidden { display: none; }
 
-.nav-left img {
-  height: 40px;
-  width: auto;
-}
+      .litmas-navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: var(--color-surface);
+        padding: 0.75rem 1.25rem;
+        border-bottom: 3px solid var(--color-border);
+        color: white;
+      }
 
-.nav-right .nav-links {
-  display: flex;
-  gap: 1.25rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
+      .nav-left .nav-logo {
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+      }
 
-.nav-right .nav-links button, a {
-  background: none;
-  border: none;
-  color: var(--color-text);
-  font-weight: 600;
-  text-transform: uppercase;
-  transition: color 0.2s ease-in-out;
-}
+      .nav-left img {
+        height: 40px;
+        width: auto;
+      }
 
-.nav-right .nav-links button:hover {
-  color: var(--color-warning);
-}
+      .nav-right .nav-links {
+        display: flex;
+        gap: 1.25rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
 
-/* Main Content */
-.litmas-content {
-  text-align: center;
-  background-color: var(--color-primary);
-  color: var(--color-text);
-  padding: 2rem 1rem;
-}
+      .nav-right .nav-links button, .nav-right .nav-links a {
+        background: none;
+        border: none;
+        color: var(--color-text);
+        font-weight: 600;
+        text-transform: uppercase;
+        transition: color 0.2s ease-in-out;
+      }
 
-.litmas-title {
-  font-size: 4rem;
-  font-weight: 900;
-  letter-spacing: 0.1rem;
-  color: var(--color-text);
-  margin-bottom: 2rem;
-}
+      .nav-right .nav-links button:hover,
+      .nav-right .nav-links a:hover {
+        color: var(--color-warning);
+      }
 
-/* Canvas + Krampus */
-.canvas-container {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 2rem auto;
-  max-width: 800px;
-  height: 400px;
-}
+      #litmas-site-structure.hidden {
+        opacity: 0;
+        display: none;
+      }
+      
+      #litmas-site-structure.fade-in {
+        display: block;
+        animation: fadeIn 2s ease forwards;
+      }
 
-.canvas-container canvas {
-  width: 100%;
-  height: 100%;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-}
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+        }
+      }
+      
+      .litmas-content {
+        text-align: center;
+        background-color: var(--color-primary);
+        color: var(--color-text);
+        padding: 2rem 1rem;
+      }
 
-.krampus-overlay {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  height: 150px;
-  width: auto;
-  z-index: 10;
-  pointer-events: none;
-}
+      .litmas-title {
+        font-size: 4rem;
+        font-weight: 900;
+        letter-spacing: 0.1rem;
+        color: var(--color-text);
+        margin-bottom: 2rem;
+      }
 
-/* Details Text */
-.litmas-details p {
-  margin: 0.25rem 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
+      .litmas-cta {
+        margin-top: 2rem;
+      }
 
-/* RSVP Button */
-.litmas-cta {
-  margin-top: 2rem;
-}
+      .rsvp-button {
+        padding: 0.75rem 2rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-surface);
+        background-color: var(--color-accent);
+        border: none;
+        border-radius: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        text-decoration: none;
+        transition: background-color 0.3s ease-in-out, transform 0.2s ease;
+      }
 
-.rsvp-button {
-  padding: 0.75rem 2rem;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-surface);
-  background-color: var(--color-accent);
-  border: none;
-  border-radius: 2rem;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  text-decoration: none;
-  transition: background-color 0.3s ease-in-out, transform 0.2s ease;
-}
+      .rsvp-button:hover {
+        background-color: var(--color-warning);
+        transform: scale(1.05);
+      }
 
-.rsvp-button:hover {
-  background-color: var(--color-warning);
-  transform: scale(1.05);
-}
+      body.krampus-mode {
+        background-color: var(--color-krampus-red);
+        color: #F8F5F0;
+      }
 
-/* Krampus Mode Palette Shift */
-body.krampus-mode {
-  background-color: var(--color-krampus-red);
-  color: #F8F5F0;
-}
+      body.krampus-mode .litmas-navbar {
+        background-color: var(--color-krampus-red);
+        border-color: var(--color-error);
+      }
 
-body.krampus-mode .litmas-navbar {
-  background-color: var(--color-krampus-red);
-  border-color: var(--color-error);
-}
+      body.krampus-mode .rsvp-button {
+        background-color: var(--color-error);
+      }
 
-body.krampus-mode .rsvp-button {
-  background-color: var(--color-error);
-}
-
-body.krampus-mode .rsvp-button:hover {
-  background-color: #9A1D1D;
-}
-
+      body.krampus-mode .rsvp-button:hover {
+        background-color: #9A1D1D;
+      }
     </style>
+  {% endblock %}
 </head>
-<body>
 
+<body class="{% if showCanvas %}canvas-mode{% endif %}">
+  
+  <canvas id="screen" class="fullscreen-canvas" data-scene-id="{{ storyNodeKey }}"></canvas>
+  {{ encore_entry_script_tags('scene') }}
+
+  <div id="litmas-site-structure" class="hidden">
+    {% if not showCanvas %}
     <!-- Navbar -->
     <nav class="litmas-navbar">
-        <div class="nav-left">
-            <button class="nav-logo" onclick="navigateTo('main')">
-                <img src="{{ asset('images/tree_icon.png') }}" alt="Tree Icon" />
-            </button>
-        </div>
-        <div class="nav-right">
-            <ul class="nav-links">
-              <li><a href="{{ path('litmas_rsvp') }}">RSVP</a></li>
-              <li><a href="{{ path('litmas_location') }}">BOTTLEROCKET</a></li>
-              <li><a href="{{ path('litmas_faq') }}">SLEIGHER</a></li>
-            </ul>
-        </div>
+      <div class="nav-left">
+        <button class="nav-logo" onclick="navigateTo('main')">
+          <img src="{{ asset('images/tree_icon.png') }}" alt="Tree Icon" />
+        </button>
+      </div>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="{{ path('litmas_rsvp') }}">RSVP</a></li>
+          <li><a href="{{ path('litmas_location') }}">BOTTLEROCKET</a></li>
+          <li><a href="{{ path('litmas_faq') }}">SLEIGHER</a></li>
+        </ul>
+      </div>
     </nav>
 
     <!-- Main Page Content -->
     <main id="main-content" class="litmas-content">
-        <h1 class="litmas-title">LITMAS</h1>
+      <h1 class="litmas-title">LITMAS</h1>
 
-<!--        <div class="canvas-container"><canvas id="screen" data-scene-id="litmas" class="hidden"></canvas></div> -->
-        <div>
+      <div>
         {% block content %}
         {% endblock %}
-        </div>
-            
-        <div class="litmas-cta">
-            <a href="{{ path('litmas_rsvp') }}" class="rsvp-button">RSVP</a>
-        </div>
+      </div>
+
+      <div class="litmas-cta">
+        <a href="{{ path('litmas_rsvp') }}" class="rsvp-button">RSVP</a>
+      </div>
     </main>
+    {% endif %}
+  </div>
+  <audio id="litmas-music" src="{{ asset('assets/litmas/litmas_intro.wav') }}" loop></audio>
+  <audio id="litmas-sfx-enter" src="{{ asset('assets/litmas/litmas_enter.wav') }}"></audio>
 </body>
+<div id="litmas-splash" style="
+                               position: fixed;
+                               top: 0;
+                               left: 0;
+                               width: 100vw;
+                               height: 100vh;
+                               background: #003E00;
+                               color: #fff;
+                               display: flex;
+                               flex-direction: column;
+                               justify-content: center;
+                               align-items: center;
+                               z-index: 9999;
+                               ">
+  <button id="enter-site" style="
+                                 padding: 1rem 2rem;
+                                 font-size: 1.5rem;
+                                 font-weight: bold;
+                                 background: #FBD75F;
+                                 color: #003E00;
+                                 border: none;
+                                 border-radius: 1rem;
+                                 cursor: pointer;
+                                 transition: transform 0.2s ease-in-out;
+                                 ">Enter Site</button>
+</div>
 </html>

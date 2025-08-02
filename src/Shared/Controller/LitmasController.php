@@ -14,6 +14,8 @@ final class LitmasController extends AbstractController
     public function index(): Response
     {
         return $this->render('litmas/info.html.twig', [
+          'storyNodeKey' => 'litmas',
+          'showCanvas'   => true,
         ]);
     }
 

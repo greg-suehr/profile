@@ -2,12 +2,95 @@
   "sceneId": "litmas",
   "canvasId": "screen",
   "spriteAnimators": [
+    {
+      "name": "treeIdle",
+      "sheetUrl": "/assets/litmas/tree_flash_to_flame_strip.png",
+      "frameDefs": [
+        { "x": 0, "y": 0, "width": 128, "height": 256, "duration": 50 }
+      ],
+       "options": {
+         "loop": true,
+         "scale": 1,
+         "anchor": { "x": 1.0, "y": 1.0 },
+         "position": { "x": "50%", "y": "50%" },
+         "autoPlay": true
+      }
+    },
+    {
+      "name": "treeIgnite",
+      "sheetUrl": "/assets/litmas/tree_flash_to_flame_strip.png",
+      "frameDefs": [
+        { "x": 0, "y": 0, "width": 128, "height": 256, "duration": 90 },
+        { "x": 1, "y": 0, "width": 128, "height": 256, "duration": 90 },
+        { "x": 2, "y": 0, "width": 128, "height": 256, "duration": 90 },
+        { "x": 3, "y": 0, "width": 128, "height": 256, "duration": 90 },
+        { "x": 4, "y": 0, "width": 128, "height": 256, "duration": 90 },
+        { "x": 5, "y": 0, "width": 128, "height": 256, "duration": 90 },
+        { "x": 6, "y": 0, "width": 128, "height": 256, "duration": 90 },
+        { "x": 7, "y": 0, "width": 128, "height": 256, "duration": 90 }
+      ],
+      "options": {
+        "loop": false,
+        "scale": 1,
+        "anchor": { "x": 1.0, "y": 1.0 },
+        "position": { "x": "50%", "y": "50%" },
+        "autoPlay": false
+      }
+    },
+    {
+      "name": "treeBurn",
+      "sheetUrl": "/assets/litmas/tree_flames_loop_strip.png",
+      "frameDefs": [
+        { "x": 0, "y": 0, "width": 128, "height": 256, "duration": 70 },
+        { "x": 1, "y": 0, "width": 128, "height": 256, "duration": 70 },
+        { "x": 2, "y": 0, "width": 128, "height": 256, "duration": 70 },
+        { "x": 3, "y": 0, "width": 128, "height": 256, "duration": 70 },
+        { "x": 4, "y": 0, "width": 128, "height": 256, "duration": 70 },
+        { "x": 5, "y": 0, "width": 128, "height": 256, "duration": 70 },
+        { "x": 6, "y": 0, "width": 128, "height": 256, "duration": 70 },
+        { "x": 7, "y": 0, "width": 128, "height": 256, "duration": 70 }
+      ],
+      "options": {
+        "loop": true,
+        "scale": 1,
+        "anchor": { "x": 1.0, "y": 1.0 },
+        "position": { "x": "50%", "y": "50%" },
+        "autoPlay": false
+      }
+    }    
   ],
   "sceneEffects": [
+    {
+      "type": "ParticleEmitter",
+      "start": 0,
+      "duration": 10000,
+      "params": {
+        "rate": 40,
+        "lifespan": 6000,
+        "size": 3,
+        "color": "#ffffff",
+        "velocity": { "x": 0, "y": 50 },
+        "gravity": { "x": 0, "y": 5 },
+        "fadeOut": false,
+        "area": {
+          "x": 0,
+          "y": 0,
+          "width": "100%",
+          "height": 1
+        }
+      }
+    }
   ],
   "dialogueTimeline": [
   ],
-  "autoSequences": [],
+  "autoSequences": ["ignite"],
   "sequences": {
+    "ignite": {
+      "steps": [
+        { "type": "playAnimator", "animator": "treeIdle",   "delay": 0,    "duration": 3000 },
+        { "type": "playAnimator", "animator": "treeIgnite", "delay": 3000, "duration": 700,  "audio": "litmas-sfx-enter" },
+        { "type": "playAnimator", "animator": "treeBurn",   "delay": 3400, "duration": 6600, "onComplete": "revealSite" }
+      ]
+    }
   }
 }
