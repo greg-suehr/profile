@@ -15,6 +15,15 @@ class SceneBootstrap {
     this.dialogueTimeouts = [];
     this.activeAnimations = new Map(); // Track active position animations
   }
+  
+  resolveConfig(val, dim, canvas) {
+    if (typeof val === 'string' && val.endsWith('%')) {
+      const percent = parseFloat(val);
+      if (dim === 'x') return (percent / 100) * canvas.width;
+      if (dim === 'y') return (percent / 100) * canvas.height;
+    }
+    return val !== undefined ? val : null;
+  }
 
   /**
    * Initialize the scene
@@ -26,6 +35,9 @@ class SceneBootstrap {
       if (!this.canvas) {
         throw new Error('No canvas element found with id="screen" or data-scene-id attribute');
       }
+
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
 
       this.sceneId = this.canvas.dataset.sceneId;
       if (!this.sceneId) {
@@ -89,7 +101,11 @@ class SceneBootstrap {
         await animator.load(config.sheetUrl, config.frameDefs);
         
         // Set position if specified
+        const pos = config.options?.position;
+        
         if (config.position) {
+          const resolvedX = resolveConfig(pos.x, this.canvas.width);
+          const resolvedY = resolveConfig(pos.y, this.canvas.height);          
           animator.setPosition(config.position.x, config.position.y);
         } else {
           // Default to center of canvas
@@ -211,6 +227,19 @@ class SceneBootstrap {
     }
   }
 
+  revealSite() {
+    console.log("ANIMATION COMPLETE");
+    const site = document.getElementById('litmas-site-structure');
+    if (site) {
+      site.classList.remove('hidden');
+      site.classList.add('fade-in');
+      
+      this.stop();
+      this.canvas.remove();
+    }    
+  }
+
+
   /**
    * Execute a single sequence step
    * @param {Object} step - Sequence step configuration
@@ -220,7 +249,42 @@ class SceneBootstrap {
       case 'playAnimator':
         const animator = this.getAnimator(step.animator);
         if (animator) {
+          if (step.onComplete) {
+            animator.onComplete = () => {
+              if (typeof step.onComplete === 'string' && this[step.onComplete]) {
+                this[step.onComplete]();
+              }
+            };
+          }
           animator.play();
+          
+          if (step.audio) {
+            const audioElement = document.getElementById(step.audio);
+            if (audioElement) {
+              try {
+                audioElement.currentTime = 0;
+                const bgMusic = document.getElementById('litmas-music');
+                if (bgMusic) {
+                  let fade = setInterval(() => {
+                    if (bgMusic.volume > 0.05) {
+                      bgMusic.volume -= 0.05;
+                    } else {
+                      bgMusic.volume = 0;
+                      bgMusic.pause();
+                      clearInterval(fade);
+                    }
+                  }, 100);
+                }
+                audioElement.play().catch(err => {
+                  console.warn(`Audio "${step.audio}" could not be played:`, err);
+                });
+              } catch (err) {
+                console.error(`Error playing audio "${step.audio}":`, err);
+              }
+            } else {
+              console.warn(`Audio element "${step.audio}" not found in DOM.`);
+            }
+          }
         }
         break;
         
@@ -273,21 +337,20 @@ class SceneBootstrap {
     const startTime = performance.now();
     const duration = step.duration || 1000;
 
-    function resolveConfig(val, dim) {
-      if (typeof val === 'string' && val.endsWith('%')) {
-        return (parseFloat(val) / 100) * animator.canvas[dim];
-      }
-      return val;
-    }
-
-    const fromPosX = resolveConfig(step.from.x) || animator.position.x;
-    const fromPosY = resolveConfig(step.from.y) || animator.position.y;
-    const fromPos = { x: fromPosX, y: fromPosY };
+    const fromPosX = resolveConfig(step.from?.x, 'x', animator.canvas);
+    const fromPosY = resolveConfig(step.from?.y, 'y', animator.canvas);
+    const fromPos = {
+      x: fromPosX !== null ? fromPosX : animator.position.x,
+      y: fromPosY !== null ? fromPosY : animator.position.y,
+    };
     
-    const toPosX = resolveConfig(step.to.x) || fromPos.x;
-    const toPosY = resolveConfig(step.to.y) || fromPos.y;
-    const toPos = { x: toPosX, y: toPosY };
-    
+    const toPosX = resolveConfig(step.to?.x, 'x', animator.canvas);
+    const toPosY = resolveConfig(step.to?.y, 'y', animator.canvas);
+    const toPos = {
+      x: toPosX !== null ? toPosX : fromPos.x,
+      y: toPosY !== null ? toPosY : fromPos.y,
+    };
+        
     const easing = step.easing || 'linear';
 
     // Store animation reference for cleanup
@@ -392,6 +455,52 @@ class SceneBootstrap {
   }
 
   /**
+   * Animate arbitrary HTML content, but in the canvas!
+   * @param {string} elementId - The value of id attribute of the root DOM item to display
+   */
+  renderHtmlToCanvas(elementId) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    
+    const ctx = this.canvas.getContext('2d');
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    // Style defaults
+    const font = "20px sans-serif";
+    const lineHeight = 28;
+    const maxWidth = this.canvas.width - 40;
+    let x = 20;
+    let y = 50;
+    
+    for (const child of el.children) {
+      const text = child.innerText || child.textContent;
+      if (!text) continue;
+      
+      // You can improve this with actual HTML-style mapping later
+      ctx.font = child.tagName === "H2" ? "bold 28px sans-serif" : font;
+      ctx.fillStyle = "#FBD75F";
+      ctx.textAlign = "left";
+      
+      // Basic line wrapping
+      const words = text.split(" ");
+      let line = "";
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + " ";
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && n > 0) {
+          ctx.fillText(line, x, y);
+          line = words[n] + " ";
+          y += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, x, y);
+      y += lineHeight + 10;
+    }
+  }
+
+  /**
    * Pause the entire scene
    */
   pause() {
@@ -488,6 +597,27 @@ if (document.readyState === 'loading') {
 
 async function initializeScene() {
   sceneBootstrap = new SceneBootstrap();
+
+  // TODO: generalize litmas hacks
+  document.getElementById('enter-site').addEventListener('click', async () => {
+  document.getElementById('litmas-splash').style.display = 'none';
+
+    const audio = document.getElementById('litmas-music');
+    if (audio) {
+      try {
+        await audio.play();
+      } catch (e) {
+        console.warn('User interaction failed to trigger audio:', e);
+      }
+    }
+    
+    // Start the scene animation
+    if (!window.sceneBootstrap) {
+      window.sceneBootstrap = new SceneBootstrap();
+      await window.sceneBootstrap.init();
+    }
+  });
+  
   await sceneBootstrap.init();
   
   // Make bootstrap available globally for debugging
