@@ -1,0 +1,47 @@
+{% extends 'katzen/base.html.twig' %}
+
+{% block title %}Current Inventory{% endblock %}
+
+{% block main_content %}
+<div class="container py-4">
+  <h2 class="mb-4">Current Inventory</h2>
+  <div class="row g-2 mb-4">
+    <div class="card-body">
+      <a href="{{ path('stock_count_create') }}" class="btn btn-sm btn-outline-primary">Start New Count</a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    {% for target in targets %}
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card border shadow-sm h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold">{{ target.name }}</span>
+            <span class="badge {{ target.status == 'Out' ? 'bg-danger' : (target.status == 'Low' ? 'bg-warning text-dark' : 'bg-success') }}">
+              {{ target.status|default('OK') }}
+            </span>
+          </div>
+          <div class="card-body">
+            <p class="mb-1">Available: <strong>{{ target.currentQty }}</strong>
+              {{ target.baseUnit.name | default('units') }}
+            </p>
+            {% if target.item %}
+              <p class="text-muted small">Source: Item - {{ target.item.name }}</p>
+            {% elseif target.recipe %}
+              <p class="text-muted small">Source: Recipe - {{ target.recipe.title }}</p>
+            {% endif %}
+          </div>
+          <div class="card-footer text-end">
+            <a href="{{ path('stock_target_show', { id: target.id }) }}" class="btn btn-sm btn-outline-primary">View</a>
+            <a href="{{ path('stock_target_adjust', { id: target.id }) }}" class="btn btn-sm btn-outline-secondary">Adjust</a>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="col">
+        <div class="alert alert-info">No stock targets configured.</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

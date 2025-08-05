@@ -12,6 +12,8 @@ use App\Katzen\Repository\RecipeListRepository;
 use App\Katzen\Repository\RecipeRepository;
 use App\Katzen\Repository\TagRepository;
 use App\Katzen\Service\DashboardContextService;
+use App\Katzen\Service\DefaultMenuPlanner;
+use App\Katzen\Service\OrderService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,7 +23,11 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class OrderController extends AbstractController
 {
-  public function __construct(private DashboardContextService $dashboardContext) {}
+  public function __construct(
+    private DashboardContextService $dashboardContext,
+    private DefaultMenuPlanner $menuPlanner,
+    private OrderService $orderService,
+  ) {}
   
   #[Route('/orders', name: 'order_index')]
   public function index(Request $request, EntityManagerInterface $em): Response
@@ -47,39 +53,13 @@ final class OrderController extends AbstractController
       $recipeIdsCsv = $form->get('recipeIds')->getData();
       $recipeIds = array_filter(array_map('intval', explode(',', $recipeIdsCsv)));
 
-      if ($recipeIds) {
-        $recipes = $em->getRepository(Recipe::class)
-                      ->findBy(['id' => $recipeIds]);
-        
-        foreach ($recipes as $recipe) {
-          $item = new OrderItem();
-          $item->setRecipeListRecipeId($recipe);
-          $item->setQuantity(1); # TODO: parse multiple serving quantities / order sizes
-          $item->setOrderId($order);
-          $order->addOrderItem($item);
-        }
-      }
-
-      $order->setStatus('pending');
-      $em->persist($order);
-      $em->flush();
+      $this->orderService->createOrder($order, $recipeIds);
       
       $this->addFlash('success', 'Order created!');
       return $this->redirectToRoute('order_index');
     }
-    
-    # TODO: source active RecipeLists from MenuPlanner interface
-    $menu = $em->createQueryBuilder()
-	    ->select('r')
-        ->from(RecipeList::class, 'r')
-        ->leftJoin(Tag::class, 't', 'WITH', 't.obj = :obj AND t.obj_id = r.id')
-        ->setParameter('obj', 'recipe_list')
-        ->andWhere('t.type = :type AND t.value IN (:status)')
-        ->setParameter('type', 'menu')
-        ->setParameter('status', ['current'])
-      ->setMaxResults(1)
-      ->getQuery()
-      ->getOneOrNullResult();
+
+    $menu = $this->menuPlanner->getActiveMenu();
 
     if (!$menu) {
       throw $this->createNotFoundException('No active menu found.');
@@ -114,52 +94,13 @@ final class OrderController extends AbstractController
       $recipeIdsCsv = $form->get('recipeIds')->getData();
       $recipeIds = array_filter(array_map('intval', explode(',', $recipeIdsCsv)));
 
-      $existingItems = $order->getOrderItems();
-      $existingRecipeIds = [];
-
-      foreach ($existingItems as $item) {
-        $existingId = $item->getRecipeListRecipeId()->getId();
-        if (!in_array($existingId, $recipeIds)) {
-          $order->removeOrderItem($item);
-          $em->remove($item);
-        } else {
-          $existingRecipeIds[] = $existingId;
-        }
-      }
-      
-      $newRecipeIds = array_diff($recipeIds, $existingRecipeIds);
-      if (!empty($newRecipeIds)) {
-        $newRecipes = $em->getRepository(Recipe::class)->findBy(['id' => $newRecipeIds]);
-
-        foreach ($newRecipes as $recipe) {
-          $item = new OrderItem();
-          $item->setRecipeListRecipeId($recipe);
-          $item->setQuantity(1);          
-          $item->setOrderId($order);
-          $order->addOrderItem($item);
-        }
-      }
-      
-      $order->setStatus('pending');
-      $em->persist($order);
-      $em->flush();
+      $this->orderService->updateOrder($order, $recipeIds);
       
       $this->addFlash('success', 'Order updated!');
       return $this->redirectToRoute('order_index');
     }
-    
-    # TODO: source active RecipeLists from MenuPlanner interface
-    $menu = $em->createQueryBuilder()
-        ->select('r')
-        ->from(RecipeList::class, 'r')
-        ->leftJoin(Tag::class, 't', 'WITH', 't.obj = :obj AND t.obj_id = r.id')
-    	->setParameter('obj', 'recipe_list')
-        ->andWhere('t.type = :type AND t.value IN (:status)')
-        ->setParameter('type', 'menu')
-        ->setParameter('status', ['current'])
-      ->setMaxResults(1)
-      ->getQuery()
-      ->getOneOrNullResult();
+
+    $menu = $this->menuPlanner->getActiveMenu();
     
     if (!$menu) {
       throw $this->createNotFoundException('No active menu found.');

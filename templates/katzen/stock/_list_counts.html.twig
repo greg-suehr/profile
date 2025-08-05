@@ -1,0 +1,37 @@
+{% extends 'katzen\base.html.twig' %}
+
+{% block title %}Quick Stock Count{% endblock %}
+
+{% block main_content %}
+<div class="container py-4">
+  <h2 class="mb-4">Quick Stock Count</h2>
+  <div class="row g-2 mb-4">
+    <div class="card-body">
+      <a href="{{ path('stock_count_create') }}" class="btn btn-sm btn-outline-primary">Start New Count</a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    {% for count in stockCounts %}
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card border shadow-sm h-100">
+          <div class="card-header d-flex justify-content-between">
+            <span class="fw-bold">Stock Count #{{ count.id }}</span>
+            <span class="text-muted small">{{ count.timestamp|date('Y-m-d H:i') }}</span>
+          </div>
+          <div class="card-body">
+            <p class="card-text">{{ count.notes|default('No notes.') }}</p>
+          </div>
+          <div class="card-footer text-end">
+            <a href="{{ path('stock_count_show', { id: count.id }) }}" class="btn btn-sm btn-outline-primary">View</a>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="col">
+        <div class="alert alert-info">No stock counts recorded yet.</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

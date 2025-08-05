@@ -20,6 +20,16 @@ services:
     App\Katzen\:
         resource: '../src/Katzen/'
 
+    App\Katzen\Messenger\TaskExecutor\:
+        resource: '../src/Katzen/Messenger/TaskExecutor'
+        tags: ['app.async_task_executor']
+        autowire: true
+        autoconfigure: false
+
+    App\Katzen\Messenger\Handler\AsyncTaskHandler:
+        arguments:
+            $taskExecutors: !tagged_iterator app.async_task_executor
+
     App\Katzen\Service\RecipeImportService:
         arguments:
             $adapters: !tagged_iterator recipe.adapter

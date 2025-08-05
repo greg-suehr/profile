@@ -82,6 +82,7 @@ class RecipeIngredient
     private ?object $supplyObject = null;
 
   // Handles the polymorphic association between items, recipes, etc
+  # TODO: deprecate? superceded by SupplyResolver  
     public function getSupply(?EntityManagerInterface $em = null): ?object
     {
         if ($this->supplyObject !== null) {

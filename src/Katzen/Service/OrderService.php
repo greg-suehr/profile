@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Katzen\Service;
+
+use App\Katzen\Entity\Order;
+use App\Katzen\Entity\OrderItem;
+use App\Katzen\Entity\Recipe;
+use App\Katzen\Repository\OrderRepository;
+use App\Katzen\Repository\OrderItemRepository;
+use App\Katzen\Service\StockTargetAutogenerator;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
+
+final class OrderService
+{
+  public function __construct(
+    private OrderRepository $orderRepo,
+    private OrderItemRepository $itemRepo,
+    private EntityManagerInterface $em,
+    private StockTargetAutogenerator $autogenerator,
+    private MessageBusInterface $bus,
+  ) {}
+
+  public function createOrder(Order $order, array $recipeIds): void
+  {
+    $recipes = $this->em->getRepository(Recipe::class)
+                        ->findBy(['id' => $recipeIds]);
+        
+    foreach ($recipes as $recipe) {
+      $this->autogenerator->ensureExistsForRecipe($recipe);
+      
+      $item = new OrderItem();
+      $item->setRecipeListRecipeId($recipe);
+      $item->setQuantity(1); // TODO: handle variable order quantity
+      $item->setOrderId($order);
+      $order->addOrderItem($item);
+    }
+
+    $order->setStatus('pending');
+    $this->em->persist($order);
+    $this->em->flush();
+  }
+
+  public function updateOrder(Order $order, array $recipeIds): void
+  {
+    $existingItems = $order->getOrderItems();
+    $existingRecipeIds = [];
+    
+    foreach ($existingItems as $item) {
+      $existingId = $item->getRecipeListRecipeId()->getId();
+      if (!in_array($existingId, $recipeIds)) {
+        $order->removeOrderItem($item);
+        $this->em->remove($item);
+      } else {
+        $existingRecipeIds[] = $existingId;
+      }
+    }
+    
+    $newRecipeIds = array_diff($recipeIds, $existingRecipeIds);
+    if (!empty($newRecipeIds)) {
+      $newRecipes = $this->em->getRepository(Recipe::class)
+                             ->findBy(['id' => $newRecipeIds]);
+      
+      foreach ($newRecipes as $recipe) {
+        $this->autogenerator->ensureExistsForRecipe($recipe);
+        
+        $item = new OrderItem();
+        $item->setRecipeListRecipeId($recipe);
+        $item->setQuantity(1);
+        $item->setOrderId($order);
+        $order->addOrderItem($item);
+      }
+    }
+    
+    $order->setStatus('pending');
+    $this->em->persist($order);
+    $this->em->flush();
+  }
+  
+  public function markOrderComplete(Order $order): void
+  {
+    foreach ($order->getOrderItems() as $orderLine) {
+      $this->bus->dispatch(new AsyncTaskMessage(
+        taskType: 'consume_stock',
+        payload: [
+          'stock_target.id' => $orderLine->getStockTarget()->getId(),
+          'quantity' => $orderLine->getQuantity(),
+        ]
+      ));
+    }
+    
+    $order->setStatus(OrderStatus::COMPLETE);
+    $this->em->flush();
+  }
+  
+}
+
+?>

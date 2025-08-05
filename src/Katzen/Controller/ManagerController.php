@@ -225,14 +225,6 @@ final class ManagerController extends AbstractController
 	]));
     }
     
-  #[Route('/stock', name: 'stock_index')]
-  public function stock(Request $request, ItemRepository $itemRepo): Response
-  {        
-        return $this->render('katzen/recipe/list.html.twig', [
-          'recipes'         => $itemRepo->findAll(),
-        ]);
-    }
-
   #[Route('/schedules', name: 'schedule_index')]
   public function schedules(Request $request): Response
     {
