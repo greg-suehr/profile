@@ -40,22 +40,59 @@ final class StockController extends AbstractController
   public function stock_count_create(Request $request, EntityManagerInterface $em): Response
   {
     $targets = $em->getRepository(StockTarget::class)->findBy([]);
-    return $this->render('katzen/stock/_list_stock.html.twig', $this->dashboardContext->with([
+
+    if ($request->isMethod('POST')) {
+      $notes = $request->request->get('notes') ?? '';
+      $inputCounts = [];
+      
+      foreach ($targets as $target) {
+        $field = 'counted_' . $target->getId();
+        $qty = $request->request->get($field);
+        if ($qty !== null && $qty !== '') {
+          $inputCounts[$target->getId()] = (float)$qty;
+        }
+      }
+      
+      $this->inventoryService->recordBulkStockCount($inputCounts, $notes);
+      
+      $this->addFlash('success', 'Stock count recorded.');
+      return $this->redirectToRoute('stock_index');
+    }
+
+    return $this->render('katzen/stock/_bulk_count.html.twig', $this->dashboardContext->with([
       'activeItem' => 'stock', 
       'activeMenu' => null,
       'targets'    => $targets,
     ]));
   }
 
-  #[Route('/stock/show', name: 'stock_target_show')]
-  public function stock_target_show(Request $request, EntityManagerInterface $em): Response
+  #[Route('/stock/show/{id}', name: 'stock_target_show')]
+  public function stock_target_show(
+    Request $request,
+    EntityManagerInterface $em,
+    int $id,
+  ) : Response
   {
-    $targets = $em->getRepository(StockTarget::class)->findBy([]);
-    return $this->render('katzen/stock/_list_stock.html.twig', $this->dashboardContext->with([
-      'activeItem' => 'stock', 
-      'activeMenu' => null,
-      'targets'    => $targets,
-    ]));
+    $target = $em->getRepository(StockTarget::class)->find($id);
+    
+    if (!$target) {
+        throw $this->createNotFoundException("StockTarget #$id not found.");
+    }
+
+    if ($target->getItem()) {
+        return $this->redirectToRoute('item', [
+            'id' => $target->getItem()->getId()
+        ]);
+    }
+
+    if ($target->getRecipe()) {
+        return $this->redirectToRoute('recipe_show', [
+            'id' => $target->getRecipe()->getId()
+        ]);
+    }
+
+    $this->addFlash('warning', 'This stock target has no associated item or recipe.');
+    return $this->redirectToRoute('stock_index');
   }
 
   #[Route('/stock/adjust/{id}', name: 'stock_target_adjust')]

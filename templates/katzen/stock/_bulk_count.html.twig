@@ -1,0 +1,47 @@
+{% extends 'katzen/base.html.twig' %}
+
+{% block title %}New Stock Count{% endblock %}
+
+{% block main_content %}
+<div class="container py-4">
+  <h2 class="mb-4">Quick Bulk Stock Count</h2>
+  <form method="post">
+    <div class="mb-3">
+      <label for="notes" class="form-label">Notes (optional)</label>
+      <textarea id="notes" name="notes" class="form-control" rows="2"></textarea>
+    </div>
+
+    <div class="row g-3">
+      {% for target in targets %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-header">
+              <strong>{{ target.name }}</strong>
+              <span class="badge float-end {{ target.status == 'Out' ? 'bg-danger' : (target.status == 'Low' ? 'bg-warning text-dark' : 'bg-success') }}">
+                {{ target.status|default('OK') }}
+              </span>
+            </div>
+            <div class="card-body">
+              <p>Current: <strong>{{ target.currentQty }}</strong>
+                {{ target.baseUnit.name | default('units') }}
+              </p>
+              <div class="mb-2">
+                <label for="counted_{{ target.id }}" class="form-label">New Count</label>
+                <input type="number" step="0.01" min="0" name="counted_{{ target.id }}" id="counted_{{ target.id }}" class="form-control" placeholder="(leave blank to skip)">
+              </div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="col">
+          <div class="alert alert-info">No stock targets found.</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="mt-4 text-end">
+      <button type="submit" class="btn btn-primary">Submit Stock Count</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -3,6 +3,7 @@
 namespace App\Katzen\Service;
 
 use App\Katzen\Entity\StockCount;
+use App\Katzen\Entity\StockCountItem;
 use App\Katzen\Entity\StockTarget;
 use App\Katzen\Entity\StockTransaction;
 use App\Katzen\Repository\StockTargetRepository;
@@ -84,6 +85,46 @@ final class InventoryService
       throw new \InvalidArgumentException("Stock target not found for $type: $id");
     }
     return $target;
+  }
+
+  public function recordBulkStockCount(array $countedQuantities, ?string $notes = ''): void
+  {
+    $now = new \DateTime();
+
+    $count = new StockCount();
+    $count->setTimestamp($now);
+    $count->setNotes($notes ?? '');
+    
+    foreach ($countedQuantities as $stockTargetId => $countedQty) {
+      $target = $this->requireTarget($stockTargetId);
+      $expectedQty = (float) $target->getCurrentQty();
+      
+      $item = new StockCountItem();
+      $item->setStockCount($count);
+      $item->setStockTarget($target);
+      $item->setExpectedQty($expectedQty);
+      $item->setCountedQty($countedQty);
+      $item->setUnit($target->getBaseUnit()); # TODO: support contextual unit counts
+      $item->setNotes('Bulk manual count entry');
+      
+      $count->addStockCountItem($item);
+      $this->em->persist($item);
+
+      $txn = new StockTransaction();
+      $txn->setStockTarget($target);
+      $txn->setQty($countedQty);
+      $txn->setUseType('manual_count');
+      $txn->setUnit($target->getBaseUnit());
+      $txn->setReason('Manual stock count from bulk entry at ' . $now->format('Y-m-d H:i'));
+      
+      $this->em->persist($txn);
+
+      // TODO: consider whether to defer setCurrentQty to Estimator service
+      $target->setCurrentQty($countedQty);
+    }
+    
+    $this->em->persist($count);
+    $this->em->flush();
   }
 }
 
