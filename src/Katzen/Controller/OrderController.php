@@ -30,9 +30,12 @@ final class OrderController extends AbstractController
   ) {}
   
   #[Route('/orders', name: 'order_index')]
-  public function index(Request $request, EntityManagerInterface $em): Response
+  public function index(Request $request, EntityManagerInterface $em): Response  
   {
-    $orders = $em->getRepository(Order::class)->findBy([]); # TODO: Add ['created_at' => 'DESC']) to Order entity
+    # TODO: Add ['created_at' => 'DESC']) to Order entity
+    $orders = $em->getRepository(Order::class)->findBy([
+      'status' => 'pending'
+    ]); 
     return $this->render('katzen/order/list_orders.html.twig', $this->dashboardContext->with([
       'activeItem' => 'orders',                    
       'activeMenu' => null,
@@ -119,5 +122,19 @@ final class OrderController extends AbstractController
       'recipes'    => $menu->getRecipes(),
       'selectedRecipeIds' => implode(',', $existingRecipeIds),
     ]));
+  }
+  
+  #[Route('/order/complete/{id}', name: 'order_mark_ready')]
+  public function orderMarkReady(int $id, Request $request, EntityManagerInterface $em): Response
+  {
+    $order = $em->getRepository(Order::class)->find($id);
+    if (!$order) {
+      throw $this->createNotFoundException('Order not found.');
+    }
+
+    $this->orderService->completeOrder($order);
+    
+    $this->addFlash('success', 'Order created!');
+    return $this->redirectToRoute('order_index');
   }
 }

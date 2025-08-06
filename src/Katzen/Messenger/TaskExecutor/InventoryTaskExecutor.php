@@ -2,11 +2,12 @@
 
 namespace App\Katzen\Messenger\TaskExecutor;
 
-use App\Katzen\Service\InventoryServiceInterface;
+use App\Katzen\Service\InventoryService;
 
 final class InventoryTaskExecutor implements AsyncTaskExecutorInterface
 {
     public function __construct(
+      private InventoryService $inventoryService,
     ) {}
 
     public function supports(string $taskType): bool
@@ -18,7 +19,7 @@ final class InventoryTaskExecutor implements AsyncTaskExecutorInterface
     {
         match ($taskType) {
             'consume_stock' => $this->inventoryService->consumeStock(
-                $payload['item_id'],
+                $payload['stock_target.id'],
                 $payload['quantity'],
             ),
         };

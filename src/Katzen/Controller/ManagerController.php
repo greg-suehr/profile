@@ -228,10 +228,11 @@ final class ManagerController extends AbstractController
   #[Route('/schedules', name: 'schedule_index')]
   public function schedules(Request $request): Response
     {
-        return $this->render('katzen/manager/dashboard.html.twig', [
-          'active' => 'coming_soon',
+        return $this->render('katzen/base.html.twig', $this->dashboardContext->with([
+          'activeItem' => 'schedule',
+          'activeMenu' => null,
           'description' => 'Scheduling coming soon!'
-        ]);
+        ]));
     }
 
   #[Route('/notifications', name: 'notifications')]

@@ -28,3 +28,4 @@ framework:
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
             'App\Profile\Message\ProvisionSiteSchema': async
+            'App\Katzen\Messenger\Message\AsyncTaskMessage': async

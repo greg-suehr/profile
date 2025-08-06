@@ -2,11 +2,15 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Entity\StockCount;
 use App\Katzen\Entity\StockTarget;
+use App\Katzen\Entity\StockTransaction;
 use App\Katzen\Entity\Recipe;
+use App\Katzen\Form\StockAdjustType;
 use App\Katzen\Repository\RecipeRepository;
 use App\Katzen\Repository\StockTargetRepository;
 use App\Katzen\Service\DashboardContextService;
+use App\Katzen\Service\InventoryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +20,10 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class StockController extends AbstractController
 {
-  public function __construct(private DashboardContextService $dashboardContext) {}
+  public function __construct(
+    private DashboardContextService $dashboardContext,
+    private InventoryService $inventoryService,
+  ) {}
   
   #[Route('/stock', name: 'stock_index')]
   public function index(Request $request, EntityManagerInterface $em): Response
@@ -51,14 +58,37 @@ final class StockController extends AbstractController
     ]));
   }
 
-    #[Route('/stock/adjust', name: 'stock_target_adjust')]
-  public function stock_target_adjust(Request $request, EntityManagerInterface $em): Response
+  #[Route('/stock/adjust/{id}', name: 'stock_target_adjust')]
+  public function stock_target_adjust(
+    Request $request,
+    EntityManagerInterface $em,
+    StockTargetRepository $targetRepo,
+    int $id,
+  ) : Response
   {
-    $targets = $em->getRepository(StockTarget::class)->findBy([]);
-    return $this->render('katzen/stock/_list_stock.html.twig', $this->dashboardContext->with([
+    $target = $targetRepo->find($id);
+
+    if (!$target) {
+      throw $this->createNotFoundException('Stock target not found.');
+    }
+
+    $form = $this->createForm(StockAdjustType::class, [
+      'stock_target' => $target
+    ]);
+    $form->handleRequest($request);
+    
+    if ($form->isSubmitted() && $form->isValid()) {
+      $data = $form->getData();
+      $this->inventoryService->adjustStock($target->getId(), $data['qty'], $data['reason'] ?? null);
+      
+      $this->addFlash('success', 'Stock adjusted.');      
+      return $this->redirectToRoute('stock_index');
+    }
+    
+    return $this->render('katzen/stock/_adjust_stock_item.html.twig', $this->dashboardContext->with([
       'activeItem' => 'stock', 
-      'activeMenu' => null,
-      'targets'    => $targets,
+      'activeMenu' => null,      
+      'form' => $form->createView(),
     ]));
-  }  
+  }
 }

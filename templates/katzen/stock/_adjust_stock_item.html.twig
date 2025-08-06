@@ -1,0 +1,27 @@
+{% extends 'katzen/base.html.twig' %}
+
+{% block main_content %}
+  <h2>Adjust Stock</h2>
+
+  {{ form_start(form) }}
+    <div class="mb-3">
+      {{ form_label(form.stock_target) }}
+      {{ form_widget(form.stock_target, {'attr': {'class': 'form-control'}}) }}
+      {{ form_errors(form.stock_target) }}
+    </div>
+
+    <div class="mb-3">
+      {{ form_label(form.qty) }}
+      {{ form_widget(form.qty, {'attr': {'class': 'form-control'}}) }}
+      {{ form_errors(form.qty) }}
+    </div>
+
+    <div class="mb-3">
+      {{ form_label(form.reason) }}
+      {{ form_widget(form.reason, {'attr': {'class': 'form-control'}}) }}
+      {{ form_errors(form.reason) }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+  {{ form_end(form) }}
+{% endblock %}

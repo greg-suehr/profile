@@ -15,51 +15,11 @@
         <div class="p-3 border-bottom border-secondary">
             <h1 class="h4 mb-0 text-primary">Katzen</h1>
         </div>
-        {% include 'katzen/partials/_profile_block.html.twig' %}
-        <nav class="flex-grow-1 px-3 py-2">
-            <ul class="nav nav-pills flex-column mb-auto">
-                <li class="nav-item">
-                    <a href="#" class="nav-link {{ activeItem == 'dashboard' ? 'active' : 'text-secondary' }}" data-item="dashboard">
-                        <i class="bi bi-speedometer2 me-2"></i>Dashboard
-                    </a>
-                </li>
-                <li>
-                    <a href="#menuSub" data-bs-toggle="collapse" class="nav-link d-flex justify-content-between align-items-center {{ activeMenu ? 'active' : 'text-secondary' }}">
-                        <span><i class="bi bi-egg-fried me-2"></i>Menu</span>
-                        <i class="bi bi-chevron-{{ activeMenu ? 'down' : 'right' }}"></i>
-                    </a>
-                    <div class="collapse {{ activeMenu ? 'show' : '' }}" id="menuSub">
-                        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                            <li><a href="#" class="nav-link ps-4 {{ activeItem == 'menu-create' ? 'active' : 'text-secondary' }}" data-item="menu-create">Create A Menu</a></li>
-                            <li><a href="#" class="nav-link ps-4 {{ activeItem == 'menu-past' ? 'active' : 'text-secondary' }}" data-item="menu-past">View Past Menus</a></li>
-                        </ul>
-                    </div>
-                </li>
-                <li>
-                    <a href="#" class="nav-link {{ activeItem == 'orders' ? 'active' : 'text-secondary' }}" data-item="orders">
-                        <i class="bi bi-cart-fill me-2"></i>Orders
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link {{ activeItem == 'schedule' ? 'active' : 'text-secondary' }}" data-item="schedule">
-                        <i class="bi bi-calendar3 me-2"></i>Schedule
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link {{ activeItem == 'stock' ? 'active' : 'text-secondary' }}" data-item="stock">
-                        <i class="bi bi-box-seam me-2"></i>Stock
-                    </a>
-                </li>
-            </ul>
-        </nav>
     </aside>
 
     <div class="main-content">
-        <header class="header">
-            {% include 'katzen/partials/_header.html.twig' %}
-        </header>
         <main class="main-area p-4">
-            {% block content %}{% endblock %}
+            {% block body %}{% endblock %}
         </main>
     </div>
 

@@ -5,6 +5,7 @@ namespace App\Katzen\Service;
 use App\Katzen\Entity\Order;
 use App\Katzen\Entity\OrderItem;
 use App\Katzen\Entity\Recipe;
+use App\Katzen\Messenger\Message\AsyncTaskMessage;
 use App\Katzen\Repository\OrderRepository;
 use App\Katzen\Repository\OrderItemRepository;
 use App\Katzen\Service\StockTargetAutogenerator;
@@ -18,6 +19,7 @@ final class OrderService
     private OrderItemRepository $itemRepo,
     private EntityManagerInterface $em,
     private StockTargetAutogenerator $autogenerator,
+    private RecipeExpanderService $expander,
     private MessageBusInterface $bus,
   ) {}
 
@@ -77,19 +79,28 @@ final class OrderService
     $this->em->flush();
   }
   
-  public function markOrderComplete(Order $order): void
+  public function completeOrder(Order $order): void
   {
     foreach ($order->getOrderItems() as $orderLine) {
-      $this->bus->dispatch(new AsyncTaskMessage(
-        taskType: 'consume_stock',
-        payload: [
-          'stock_target.id' => $orderLine->getStockTarget()->getId(),
-          'quantity' => $orderLine->getQuantity(),
-        ]
-      ));
+      $recipe = $orderLine->getRecipeListRecipeId();
+      if (!$recipe) {
+        throw new \RuntimeException("Order item missing recipe");
+      }
+
+      $expanded = $this->expander->getStockConsumptions($recipe, $orderLine->getQuantity());
+
+      foreach ($expanded as $consumption) {
+        $this->bus->dispatch(new AsyncTaskMessage(
+          taskType: 'consume_stock',
+          payload: [
+            'stock_target.id' => $consumption['target']->getId(),
+            'quantity' => $consumption['quantity'],
+          ]
+        ));
+      }
     }
     
-    $order->setStatus(OrderStatus::COMPLETE);
+    $order->setStatus('complete');
     $this->em->flush();
   }
   

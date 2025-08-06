@@ -31,13 +31,24 @@ class StockTargetRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?StockTarget
-//    {
-//        return $this->createQueryBuilder('s')
-//            ->andWhere('s.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+  public function findOneByItemId($value): ?StockTarget
+  {
+    return $this->createQueryBuilder('s')
+        ->join('s.item', 'i')
+        ->andWhere('i.id = :val')
+        ->setParameter('val', $value)
+        ->getQuery()        
+        ->getOneOrNullResult();
+    }
+
+  public function findOneByRecipeId($value): ?StockTarget
+  {
+    return $this->createQueryBuilder('s')
+        ->join('s.recipe', 'r')
+        ->andWhere('r.id = :val')
+        ->setParameter('val', $value)
+        ->getQuery()
+        ->getOneOrNullResult()
+        ;
+    }  
 }

@@ -4,6 +4,7 @@ namespace App\Katzen\Service;
 
 use App\Katzen\Entity\Item;
 use App\Katzen\Entity\Recipe;
+use App\Katzen\Entity\RecipeIngredient;
 use App\Katzen\Entity\StockTarget;
 use App\Katzen\Service\SupplyResolver;
 use App\Katzen\Repository\StockTargetRepository;
@@ -16,6 +17,19 @@ final class StockTargetAutogenerator
         private StockTargetRepository $repo,
         private SupplyResolver $supplyResolver,
     ) {}
+
+    public function getStockTarget(RecipeIngredient $ingredient): StockTarget
+    {
+      $supply = $ingredient->getSupply($this->em); # TODO: not this
+      $type = $ingredient->getSupplyType();
+
+      
+      return match ($type) {
+        'item' => $this->ensureExistsForItem($supply),
+        'recipe' => $this->ensureExistsForRecipe($supply),
+        default => throw new UnexpectedValueException("Unknown supply type: $type"),
+      };
+    }
 
     public function ensureExistsForRecipe(Recipe $recipe, array &$visited = []): StockTarget
     {

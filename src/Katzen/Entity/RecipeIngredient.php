@@ -93,10 +93,10 @@ class RecipeIngredient
             throw new \LogicException('EntityManager is required to resolve supply.');
         }
 
-        if ($this->supplyType === 'item') {
-          $this->supplyObject = $em->getRepository(Item::class)->find($this->supplyId);
-        } elseif ($this->supplyType === 'recipe') {
-          $this->supplyObject = $em->getRepository(Recipe::class)->find($this->supplyId);
+        if ($this->supply_type === 'item') {
+          $this->supplyObject = $em->getRepository(Item::class)->find($this->supply_id);
+        } elseif ($this->supply_type === 'recipe') {
+          $this->supplyObject = $em->getRepository(Recipe::class)->find($this->supply_id);
         } else {
           throw new \UnexpectedValueException("Unknown supply_type: {$this->supplyType}");
         }
