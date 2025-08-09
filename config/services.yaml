@@ -20,6 +20,19 @@ services:
     App\Katzen\:
         resource: '../src/Katzen/'
 
+    App\Katzen\Dashboard\Widget\:
+        resource: '../src/Katzen/Dashboard/Widget/*'
+        autowire: true
+        autoconfigure: true
+
+    _instanceof:
+        App\Katzen\Dashboard\Widget\WidgetInterface:
+            tags: ['app.dashboard_widget']
+
+    App\Katzen\Dashboard\Widget\WidgetRegistry:
+        arguments:
+            $widgets: !tagged_iterator app.dashboard_widget
+
     App\Katzen\Messenger\TaskExecutor\:
         resource: '../src/Katzen/Messenger/TaskExecutor'
         tags: ['app.async_task_executor']

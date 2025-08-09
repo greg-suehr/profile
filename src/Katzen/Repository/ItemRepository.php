@@ -45,7 +45,7 @@ class ItemRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('me')
           ->andWhere('me.id = :val')
-          ->setParameter('val', $id)
+          ->setParameter('val', $id)          
           ->getQuery()
           ->getOneOrNullResult();
     }
@@ -58,6 +58,7 @@ class ItemRepository extends ServiceEntityRepository
       return $this->createQueryBuilder('i')
         ->where('LOWER(i.name) LIKE LOWER(:val)')
         ->setParameter('val', '%' . $name . '%')
+        ->andWhere('i.archived_at IS NULL')
         ->orderBy('i.name', 'ASC')
         ->setMaxResults(10)
         ->getQuery()

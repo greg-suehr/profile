@@ -16,20 +16,24 @@ class StockTargetRepository extends ServiceEntityRepository
         parent::__construct($registry, StockTarget::class);
     }
 
-//    /**
-//     * @return StockTarget[] Returns an array of StockTarget objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('s')
-//            ->andWhere('s.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('s.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+  public function countAll(): int
+  {
+    return (int) $this->createQueryBuilder('s')
+        ->select('COUNT(s.id)')
+        ->getQuery()
+        ->getSingleScalarResult();
+  }
+
+  public function countByStatus(array|string $statuses): int
+  {
+    $statuses = (array) $statuses;
+    return (int) $this->createQueryBuilder('s')
+        ->select('COUNT(s.id)')
+        ->andWhere('s.status IN (:st)')
+        ->setParameter('st', $statuses)
+        ->getQuery()
+        ->getSingleScalarResult();
+  }
 
   public function findOneByItemId($value): ?StockTarget
   {

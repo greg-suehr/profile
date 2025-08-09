@@ -49,6 +49,9 @@ class Item
     #[ORM\OneToMany(targetEntity: ItemVariant::class, mappedBy: 'item')]
     private Collection $itemVariants;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $archived_at = null;
+
     public function __construct()
     {
         $this->itemVariants = new ArrayCollection();
@@ -186,6 +189,18 @@ class Item
                 $itemVariant->setItem(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getArchivedAt(): ?\DateTimeInterface
+    {
+        return $this->archived_at;
+    }
+
+    public function setArchivedAt(?\DateTimeInterface $archived_at): static
+    {
+        $this->archived_at = $archived_at;
 
         return $this;
     }

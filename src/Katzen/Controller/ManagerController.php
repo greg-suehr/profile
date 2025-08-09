@@ -2,6 +2,7 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Dashboard\Widget\WidgetRegistry;
 use App\Katzen\Entity\Items;
 use App\Katzen\Entity\Recipe;
 use App\Katzen\Entity\RecipeList;
@@ -23,18 +24,23 @@ use Seld\JsonLint\JsonParser;
 
 final class ManagerController extends AbstractController
 {
-  public function __construct(private DashboardContextService $dashboardContext) {}
+  public function __construct(
+    private DashboardContextService $dashboardContext,
+    private WidgetRegistry $widgets,
+  ) {}
   
   #[Route('/dashboard', name: 'dashboard_home')]
   public function index(): Response
   {
+      # TODO: per context, role, user Dashboard Widget selection
+      $views = array_map(fn($v) => $v->toArray(), $this->widgets->all());
 
-        return $this->render('katzen/base.html.twig', $this->dashboardContext->with([
-          'activeItem' => 'dashboard',                    
-          'activeMenu' => null,
-          'widgets' => [array('title' => 'KPI', 'value' => '100%')],
-        ]));
-    }
+      return $this->render('katzen/manager/dashboard.html.twig', $this->dashboardContext->with([
+        'activeItem' => 'dashboard',                    
+        'activeMenu' => null,
+        'widgets' => $views,
+      ]));
+  }
 
   // TODO: port tag logic to a shared TagManager service
   private function setMenuTags(RecipeList $menu, string $tag_type, string $value, EntityManagerInterface $em, TagRepository $tagRepo): void

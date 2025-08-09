@@ -1,8 +1,8 @@
-{% extends 'base.html.twig' %}
+{% extends 'katzen/base.html.twig' %}
 
 {% block title %}All Items{% endblock %}
 
-{% block body %}
+{% block main_content %}
 <div class="container my-4">
 
   {# — Category selector nav — #}
@@ -10,14 +10,14 @@
     <li class="nav-item">
       <a 
         class="nav-link {% if not selectedCategory %}active{% endif %}" 
-        href="{{ path('app_item') }}">
+        href="{{ path('item_index') }}">
         All</a>
     </li>
     {% for cat in categories %}
       <li class="nav-item">
         <a
           class="nav-link {% if selectedCategory == cat %}active{% endif %}"
-          href="{{ path('app_item', { category: cat }) }}">
+          href="{{ path('item_index', { category: cat }) }}">
           {{ cat }}
         </a>
       </li>
@@ -39,18 +39,24 @@
         {% for item in items %}
           <tr>
             <td>
-              <a href="#" class="text-decoration-none">{{ item.name }}</a>
+              <a href="{{ path('item_show', { id: item.id }) }}" class="text-decoration-none">{{ item.name }}</a>
             </td>
             <td>{{ item.category }}</td>
             <td>{{ item.subcategory ?: '—' }}</td>
             <td class="text-end">
               <div class="btn-group btn-group-sm">
-                <a href="#" class="btn btn-outline-secondary" title="Edit">
+                <a href="{{  path('admin') }}" class="btn btn-outline-secondary" title="Edit">
                   <i class="bi bi-pencil-fill"></i>
                 </a>
-                <a href="#" class="btn btn-outline-danger" title="Delete">
-                  <i class="bi bi-trash-fill"></i>
-                </a>
+                <form method="post"
+                      action="{{ path('item_delete', { id: item.id }) }}"
+                      style="display:inline"
+                      onsubmit="return confirm('Delete this item?');">
+                  <input type="hidden" name="_token" value="{{ csrf_token('delete_item_' ~ item.id) }}">
+                  <button class="btn btn-outline-danger" title="Delete">
+                    <i class="bi bi-trash-fill"></i>
+                  </button>
+                </form>
               </div>
             </td>
           </tr>

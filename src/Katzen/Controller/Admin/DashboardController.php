@@ -20,7 +20,7 @@ class DashboardController extends AbstractDashboardController
     public function index(): Response
     {
       $routeBuilder = $this->container->get(AdminUrlGenerator::class);
-      $url = $routeBuilder->setController(RecipientCrudController::class)->generateUrl();
+      $url = $routeBuilder->setController(ItemCrudController::class)->generateUrl();
       return $this->redirect($url);
     }
 
@@ -33,7 +33,7 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
       //yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
-      yield MenuItem::linktoRoute('Back to the waitlist', 'fas fa-home', 'app_notify_list');
+      yield MenuItem::linktoRoute('Back to dashboard', 'fas fa-home', 'dashboard_home');
       yield MenuItem::linktoCrud('Items', 'fas fa-carrot', Item::class);
       yield MenuItem::linktoCrud('Units', 'fas fa-scale-balanced', Unit::class);
     }

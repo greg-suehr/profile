@@ -32,4 +32,17 @@ class RecipeRepository extends ServiceEntityRepository
         ->getQuery()
         ->getResult();
   }
+
+  public function findIdsAndTitlesReferencingItem(int $itemId): array
+  {
+    return $this->createQueryBuilder('r')
+        ->select('r.id AS id, r.title AS title')
+        ->join('r.recipeIngredients', 'ri')
+        ->andWhere('ri.supply_type = :type')
+        ->andWhere('ri.supply_id = :id')
+        ->setParameter('type', 'item')
+        ->setParameter('id', $itemId)
+        ->getQuery()
+        ->getArrayResult();
+    }
 }

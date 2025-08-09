@@ -31,7 +31,7 @@ final class StockController extends AbstractController
     $targets = $em->getRepository(StockTarget::class)->findBy([]);
     return $this->render('katzen/stock/_list_stock.html.twig', $this->dashboardContext->with([
       'activeItem' => 'stock', 
-      'activeMenu' => null,
+      'activeMenu' => 'stock',
       'targets'    => $targets,
     ]));
   }
@@ -61,7 +61,7 @@ final class StockController extends AbstractController
 
     return $this->render('katzen/stock/_bulk_count.html.twig', $this->dashboardContext->with([
       'activeItem' => 'stock', 
-      'activeMenu' => null,
+      'activeMenu' => 'stock',
       'targets'    => $targets,
     ]));
   }
@@ -80,7 +80,7 @@ final class StockController extends AbstractController
     }
 
     if ($target->getItem()) {
-        return $this->redirectToRoute('item', [
+        return $this->redirectToRoute('item_show', [
             'id' => $target->getItem()->getId()
         ]);
     }
@@ -124,7 +124,7 @@ final class StockController extends AbstractController
     
     return $this->render('katzen/stock/_adjust_stock_item.html.twig', $this->dashboardContext->with([
       'activeItem' => 'stock', 
-      'activeMenu' => null,      
+      'activeMenu' => 'stock',
       'form' => $form->createView(),
     ]));
   }
