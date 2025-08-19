@@ -91,7 +91,7 @@ final class RecipeController extends AbstractController
 
         $recipeRepo->save($recipe, true);
 
-        return $this->redirectToRoute('app_recipe_show', ['id' => $recipe->getId()]);
+        return $this->redirectToRoute('recipe_show', ['id' => $recipe->getId()]);
     }
     
 	return $this->render('katzen/recipe/build.html.twig', $this->dashboardContext->with([

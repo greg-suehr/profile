@@ -58,7 +58,7 @@ class Recipe
     private ?string $status = null;
 
     #[ORM\Column]
-    private ?bool $is_public = null;
+    private ?bool $is_public = false;
 
     /**
      * @var Collection<int, RecipeIngredient>
