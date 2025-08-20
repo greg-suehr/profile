@@ -1,0 +1,6 @@
+{% block quantity_unit_widget %}
+  {{ form_widget(form.qstr) }}
+  {{ form_widget(form.quantity) }}
+  {{ form_widget(form.unit) }}
+  {{ form_errors(form.qstr) }}
+{% endblock %}

@@ -81,7 +81,16 @@ final class RecipeController extends AbstractController
     $form   = $this->createForm(RecipeBuilderType::class, $recipe);
 
     $form->handleRequest($request);
-    
+
+    if ($form->isSubmitted() && !$form->isValid()) {
+      $messages = [];
+      foreach ($form->getErrors(true) as $err) { $messages[] = $err->getMessage(); }
+      $this->addFlash('danger', implode("\n", array_unique($messages)));
+      return $this->render('katzen/recipe/build.html.twig', [
+        'recipe_form' => $form,
+      ]);
+    }
+
     if ($form->isSubmitted() && $form->isValid()) {
         $recipe->setAuthor($this->getUser());
         $recipe->setStatus('draft');

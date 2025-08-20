@@ -5,6 +5,7 @@ namespace App\Katzen\Form;
 use App\Katzen\Entity\RecipeIngredient;
 use App\Katzen\Entity\Item;
 use App\Katzen\Entity\Unit;
+use App\Katzen\Form\QuantityUnitType;
 use App\Katzen\Repository\ItemRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -20,25 +21,24 @@ final class RecipeIngredientType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            // Unmapped UI control for picking an Item
-            ->add('supply', EntityType::class, [
-                'class'        => Item::class,
-                'choice_label' => 'name',
-                'placeholder'  => 'Choose…',
-                'mapped'       => false,
-                'required'     => true,
-                'query_builder' => fn(ItemRepository $r) =>
-                    $r->createQueryBuilder('i')->andWhere('i.archived_at IS NULL')->orderBy('i.name','ASC'),
-            ])
-            ->add('quantity') // consider NumberType + constraints later
-            ->add('unit', EntityType::class, [
-                'class' => Unit::class, 'choice_label' => 'name',
-            ])
-            ->add('note');
-
-        // Prefill 'supply' when editing
+          ->add('supply', EntityType::class, [
+            'class'        => Item::class,
+            'choice_label' => 'name',
+            'placeholder'  => 'Choose…',
+            'mapped'       => false,
+            'required'     => true,
+            'query_builder' => fn(ItemRepository $r) =>
+              $r->createQueryBuilder('i')->andWhere('i.archived_at IS NULL')->orderBy('i.name','ASC'),
+          ])
+          ->add('quantityUnit', QuantityUnitType::class, [
+            'label' => false,
+          ])
+          ->add('note', null, [
+            'required' => false
+          ]);
+        
         $builder->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $e) {
-            $ri = $e->getData();            // RecipeIngredient|null
+            $ri = $e->getData();
             $form = $e->getForm();
             if (!$ri instanceof RecipeIngredient) return;
 
@@ -49,27 +49,26 @@ final class RecipeIngredientType extends AbstractType
             }
         });
 
-        // Write back to (supplyType, supplyId)
         $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $e) {
             $ri = $e->getData();
             $form = $e->getForm();
             if (!$ri instanceof RecipeIngredient) return;
 
-            /** @var Item|null $item */
             $item = $form->get('supply')->getData();
             if ($item) {
-                $ri->setSupplyType('item');
-                $ri->setSupplyId($item->getId());
+              $ri->setSupplyType('item');
+              $ri->setSupplyId($item->getId());
             } else {
-                // choose your policy; either clear or invalidate
-                $ri->setSupplyType(null);
-                $ri->setSupplyId(null);
+              $ri->setSupplyType(null);
+              $ri->setSupplyId(null);
             }
         });
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults(['data_class' => RecipeIngredient::class]);
+        $resolver->setDefaults([
+          'data_class' => RecipeIngredient::class,
+        ]);
     }
 }
