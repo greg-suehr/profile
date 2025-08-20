@@ -13,12 +13,12 @@ class RecipeInstructionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-          ->add('section_number')
-          ->add('step_number')
+#          ->add('section_number')
+#          ->add('step_number')
           ->add('description')
-          ->add('prep_time')
-          ->add('cook_time')
-          ->add('wait_time')
+#          ->add('prep_time')
+#          ->add('cook_time')
+#          ->add('wait_time')
           ;
     }
 
@@ -26,6 +26,7 @@ class RecipeInstructionType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => RecipeInstruction::class,
+            'allow_extra_fields' => true,
         ]);
     }
 }

@@ -8,6 +8,7 @@ use App\Katzen\Entity\RecipeInstruction;
 use App\Katzen\Entity\Unit;
 use App\Katzen\Entity\User;
 use App\Katzen\Form\RecipeIngredientType;
+use App\Katzen\Form\RecipeInstructionType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -44,6 +45,19 @@ class RecipeBuilderType extends AbstractType
               'label' => false,
               'attr' => ['class' => 'ingredient-collection'],
             ])
+            ->add('recipeInstructions', CollectionType::class, [
+              'entry_type' => RecipeInstructionType::class,
+              'entry_options' => [
+                'label' => false,
+                'row_attr' => ['data-collection-item' => ''],
+              ],
+              'allow_add' => true,
+              'allow_delete' => true,
+              'by_reference' => false,
+              'prototype' => true,
+              'label' => false,
+              'attr' => ['class' => 'instruction-collection'],
+            ])          
             ->add('save', SubmitType::class, ['label' => 'Continue']);
         ;
     }
@@ -52,6 +66,7 @@ class RecipeBuilderType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Recipe::class,
+            'allow_extra_fields' => true,
         ]);
     }
 }

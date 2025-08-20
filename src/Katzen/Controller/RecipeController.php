@@ -86,9 +86,11 @@ final class RecipeController extends AbstractController
       $messages = [];
       foreach ($form->getErrors(true) as $err) { $messages[] = $err->getMessage(); }
       $this->addFlash('danger', implode("\n", array_unique($messages)));
-      return $this->render('katzen/recipe/build.html.twig', [
+      return $this->render('katzen/recipe/build.html.twig', $this->dashboardContext->with([
+        'activeItem' => 'recipe-list',
+        'activeMenu' => 'menu',
         'recipe_form' => $form,
-      ]);
+      ]));
     }
 
     if ($form->isSubmitted() && $form->isValid()) {

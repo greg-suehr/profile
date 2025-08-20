@@ -19,22 +19,22 @@ class RecipeInstruction
     private ?Recipe $recipe = null;
 
     #[ORM\Column]
-    private ?int $section_number = null;
+    private ?int $section_number = 0;
 
     #[ORM\Column]
-    private ?int $step_number = null;
+    private ?int $step_number = 0;
 
     #[ORM\Column(length: 1000)]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 6, scale: 2)]
-    private ?string $prep_time = null;
+    private ?string $prep_time = '0.0';
 
     #[ORM\Column(type: Types::DECIMAL, precision: 6, scale: 2)]
-    private ?string $cook_time = null;
+    private ?string $cook_time = '0.0';
 
     #[ORM\Column(type: Types::DECIMAL, precision: 6, scale: 2)]
-    private ?string $wait_time = null;
+    private ?string $wait_time = '0.0';
 
     public function getId(): ?int
     {

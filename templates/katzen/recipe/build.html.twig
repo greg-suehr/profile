@@ -58,7 +58,6 @@
         <span class="badge text-bg-light" data-role="chosen-item-name"></span>
         {{ form_row(proto.quantityUnit) }}
         {{ form_widget(proto.supply, { attr: { class: 'd-none' } }) }}
-        <input type="hidden" name="{{ proto.vars.full_name }}[unit_hint]" value="">
         
         <button type="button" class="btn btn-outline-danger btn-sm" data-collection-remove>&times;</button>
       </div>
@@ -76,12 +75,38 @@
           
           {{ form_widget(entry.quantityUnit, {'attr': {'class': 'd-none'}}) }}
           {{ form_widget(entry.supply,   {'attr': {'class': 'd-none'}}) }}
-          <input type="hidden" name="{{ entry.vars.full_name }}[unit_hint]" value="">
           
           <button type="button" class="btn btn-outline-danger btn-sm" data-collection-remove>&times;</button>
         </div>
         {% endfor %}
       </div>
+    </div>
+
+    <div class="mb-4">
+      <h5>Add Instructions</h5>
+
+      {% set proto = recipe_form.recipeInstructions.vars.prototype %}
+      {% set instructionPrototype %}
+      <div class="ri-row d-flex align-items-center gap-2" data-collection-item>
+        {{ form_row(proto.description) }}        
+        <button type="button" class="btn btn-outline-danger btn-sm" data-collection-remove>&times;</button>
+      </div>
+      {% endset %}
+
+      <div id="instructions-list"
+           class="mt-3"
+           data-index="{{ recipe_form.recipeInstructions|length }}"
+           data-prototype="{{ instructionPrototype|e('html_attr') }}">
+        {% for entry in recipe_form.recipeInstructions %}
+        <div class="ri-row d-flex align-items-center gap-2" data-collection-item>
+          {{ form_row(entry.description) }}
+          <button type="button" class="btn btn-outline-danger btn-sm" data-collection-remove>&times;</button>
+        </div>
+        {% endfor %}
+      </div>
+
+      <button type="button" class="btn btn-outline-primary btn-sm" 
+              data-collection-add="#instructions-list">+ Step</button>
     </div>
 
     <div class="text-end mt-4">
@@ -102,7 +127,7 @@
   const holder  = document.getElementById('ingredients-list');
 
   let index      = parseInt(holder.dataset.index || '0', 10);
-  const prototype = holder.dataset.prototype;    // ← correct source
+  const prototype = holder.dataset.prototype;
 
   // --- search & pick ---
   input.addEventListener('input', debounce(async () => {
@@ -178,6 +203,27 @@
     const itemRow = btn.closest('[data-collection-item]') || btn.closest('.form-group, .mb-3, .row');
     if (itemRow) itemRow.remove();
   });
+
+  function addInstructionRow() {
+    const html = prototype.replace(/__name__/g, String(index));
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html.trim();
+    
+    const row = tmp.firstElementChild;
+    if (!row) { console.error('Prototype did not render an instruction row element'); return; }
+    
+    holder.appendChild(row);
+    index += 1;
+    holder.dataset.index = String(index);
+  }
+  
+  holder.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-collection-remove]');
+    if (!btn) return;
+    e.preventDefault();
+    const itemRow = btn.closest('[data-collection-item]') || btn.closest('.form-group, .mb-3, .row');
+    if (itemRow) itemRow.remove();
+  });    
   
   function debounce(fn, wait) {
     let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(null, args), wait); };
@@ -212,9 +258,63 @@
     const row = e.target.closest('.ri-row');
     const { qty, unit } = parseQty(e.target.value);
     if (qty != null) row.querySelector('input[name$="[quantity]"]').value = String(qty);
-    const hint = row.querySelector('input[name$="[unit_hint]"]');
-    if (unit && hint) hint.value = unit;
   });
+
+  function addCollectionRow(holder) {
+    if (!holder) return null;
+
+    let index = parseInt(holder.dataset.index || holder.querySelectorAll('[data-collection-item]').length || 0, 10);
+
+    const protoHtml   = holder.dataset.prototype;
+    const protoName   = holder.dataset.prototypeName || '__name__';
+    const labelToken  = `${protoName}__label__`;
+    const indexToken  = new RegExp(protoName, 'g');
+
+    if (!protoHtml) {
+      console.warn('Missing data-prototype on collection holder:', holder);
+      return null;
+    }
+
+    let html = protoHtml.replace(new RegExp(labelToken, 'g'), `#${index + 1}`);
+    html = html.replace(indexToken, index);
+
+    const tpl = document.createElement('template');
+    tpl.innerHTML = html.trim();
+    const node = tpl.content.firstElementChild;
+
+    holder.appendChild(node);
+
+    index += 1;
+    holder.dataset.index = String(index);
+
+    const firstInput = node.querySelector('input, textarea, select');
+    if (firstInput) firstInput.focus();
+
+    document.dispatchEvent(new CustomEvent('collection:add', { detail: { holder, row: node } }));
+
+    return node;
+  }
+
+  document.addEventListener('click', (e) => {
+    const addBtn = e.target.closest('[data-collection-add]');
+    if (!addBtn) return;
+
+    const selector = addBtn.getAttribute('data-collection-add');
+    const holder   = document.querySelector(selector);
+    addCollectionRow(holder);
+  });
+
+  document.addEventListener('click', (e) => {
+    const rmBtn = e.target.closest('[data-collection-remove]');
+    if (!rmBtn) return;
+
+    const row = rmBtn.closest('[data-collection-item]');
+    if (row) {
+      const holder = row.parentElement;
+      row.remove();
+      document.dispatchEvent(new CustomEvent('collection:remove', { detail: { holder } }));
+    }
+  });  
 });
 </script>
 {% endblock %}
