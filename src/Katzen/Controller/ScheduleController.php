@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Katzen\Controller;
+
+use App\Katzen\Entity\Order;
+use App\Katzen\Entity\OrderItem;
+use App\Katzen\Entity\Recipe;
+use App\Katzen\Entity\RecipeList;
+use App\Katzen\Entity\Tag;
+use App\Katzen\Form\OrderType;
+use App\Katzen\Repository\RecipeListRepository;
+use App\Katzen\Repository\RecipeRepository;
+use App\Katzen\Repository\TagRepository;
+use App\Katzen\Service\DashboardContextService;
+use App\Katzen\Service\DefaultMenuPlanner;
+use App\Katzen\Service\OrderService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Form;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Attribute\Route;
+use Doctrine\ORM\EntityManagerInterface;
+
+final class ScheduleController extends AbstractController
+{
+
+  public function __construct(
+    private DashboardContextService $dashboardContext,
+    private DefaultMenuPlanner $menuPlanner,
+    private OrderService $orderService,
+  ) {}
+  
+  #[Route('/schedules', name: 'schedule_index')]
+  public function schedules(Request $request, EntityManagerInterface $em): Response
+  {
+    $start = (new \DateTimeImmutable('monday this week'));
+    $end   = $start->modify('+7 days');
+
+    # TODO: move to Repo method
+    $orders = $em->getRepository(Order::class)->createQueryBuilder('o')
+        ->where('o.status = :pending')
+        ->andWhere('o.scheduled_at >= :start AND o.scheduled_at < :end')
+        ->setParameter('pending', 'pending')
+        ->setParameter('start', $start->format('Y-m-d'))
+        ->setParameter('end',   $end->format('Y-m-d'))
+        ->orderBy('o.scheduled_at', 'ASC')
+        ->getQuery()->getResult();
+
+    $byDay = [];
+    foreach ($orders as $o) {
+        $k = $o->getScheduledAt()?->format('Y-m-d') ?? 'unscheduled';
+        $byDay[$k][] = $o;
+    }
+
+    return $this->render('katzen/schedule/index.html.twig', $this->dashboardContext->with([
+      'activeItem' => 'schedule',
+      'activeMenu' => null,
+      'start'      => $start,
+      'days'       => array_map(fn($i) => $start->modify("+$i days"), range(0,6)),
+      'byDay'      => $byDay,
+    ]));
+  }
+
+}
+  

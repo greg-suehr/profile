@@ -1,0 +1,124 @@
+{% extends 'katzen/base.html.twig' %}
+
+{% block main_content %}
+<div class="container py-4">
+  
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="h5 mb-1">Open Orders This Week</h2>
+      <div class="text-muted small">
+        {{ start|date('M j') }} – {{ days|last|date('M j') }} ·
+        Total: {{ byDay|reduce((carry, items) => carry + items|length, 0) }}
+      </div>
+    </div>
+    <div class="btn-group btn-group-sm">
+      <a class="btn btn-outline-secondary" href="?week=prev" aria-disabled="true">‹ Prev</a>
+      <button class="btn btn-outline-secondary" disabled>Week</button>
+      <a class="btn btn-outline-secondary" href="?week=next" aria-disabled="true">Next ›</a>
+    </div>
+  </div>
+  
+  {# Calendar grid #}
+  <div class="card shadow-sm">
+    <div class="card-header bg-light">
+      <div class="row row-cols-7 g-0 text-center small fw-semibold">
+        {% for d in days %}
+        <div class="col py-2 border-end">{{ d|date('D') }}<div class="text-muted">{{ d|date('M j') }}</div></div>
+        {% endfor %}
+      </div>
+    </div>
+    
+    <div class="card-body p-0">
+      <div class="row row-cols-7 g-0 text-start small" id="schedule-grid">
+        {% for d in days %}
+        {% set key = d|date('Y-m-d') %}
+        <div class="col border-end" data-day="{{ key }}">
+          <div class="p-2" style="min-height: 10rem;">
+            {# each order renders a horizontal row-bar #}
+            {% for order in (byDay[key]|default([])) %}
+            <div class="schedule-row d-flex align-items-center mb-2"
+                 data-order-id="{{ order.id }}"
+                 data-slot="{{ order.slot ?? 'afternoon' }}">
+              <div class="schedule-bar flex-grow-1">
+                <span class="badge bg-secondary me-2">{{ order.customer }}</span>
+                <span class="text-nowrap">
+                  {{ order.orderItems|length }} item{{ order.orderItems|length == 1 ? '' : 's' }}
+                </span>
+              </div>
+              <select class="form-select form-select-sm ms-2 slot-picker" style="width: 7.5rem;">
+                {% for opt in ['morning','afternoon','evening'] %}
+                <option value="{{ opt }}" {{ (order.slot ?? 'afternoon') == opt ? 'selected' : '' }}>
+                  {{ opt|capitalize }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            {% else %}
+            <div class="text-muted small py-3">No orders</div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+  (function() {
+    const grid = document.getElementById('schedule-grid');
+    
+    grid.querySelectorAll('.schedule-row').forEach(row => {
+      row.draggable = true;
+      row.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', row.dataset.orderId);
+        e.dataTransfer.effectAllowed = 'move';
+        row.classList.add('opacity-50');
+      });
+      row.addEventListener('dragend', () => row.classList.remove('opacity-50'));
+      row.querySelector('.slot-picker').addEventListener('change', (e) => {
+        row.dataset.slot = e.target.value;
+        fetch(`/api/orders/${row.dataset.orderId}/schedule`, {
+          method: 'PATCH',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify({ slot: row.dataset.slot })
+        });
+      });
+    });
+
+    grid.querySelectorAll('[data-day]').forEach(col => {
+      col.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+      col.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const id   = e.dataTransfer.getData('text/plain');
+        const row  = grid.querySelector('.schedule-row[data-order-id="'+id+'"]');
+        if (!row) return;
+        col.querySelector('.text-muted')?.remove(); // remove "No orders"
+        col.querySelector('.p-2').appendChild(row);
+        fetch(`/api/orders/${id}/schedule`, {
+          method: 'PATCH',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify({ scheduledDate: col.dataset.day })
+        });
+      });
+    });
+  })();
+  </script>
+{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .schedule-row { cursor: grab; }
+    .schedule-row:active { cursor: grabbing; }
+    .schedule-bar {
+      border: 1px dashed var(--bs-border-color);
+      border-radius: .75rem;
+      padding: .4rem .6rem;
+      background: var(--bs-light);
+    }
+  </style>
+{% endblock %}

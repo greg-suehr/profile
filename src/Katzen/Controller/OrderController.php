@@ -137,4 +137,20 @@ final class OrderController extends AbstractController
     $this->addFlash('success', 'Order created!');
     return $this->redirectToRoute('order_index');
   }
+
+  #[Route('/api/orders/{id}/schedule', name: 'order_schedule_update', methods: ['PATCH'])]
+  public function updateSchedule(int $id, Request $req, EntityManagerInterface $em): Response
+  {
+    $order = $em->getRepository(Order::class)->find($id);
+    if (!$order) { return $this->json(['error' => 'not found'], 404); }
+    
+    $data = json_decode($req->getContent(), true) ?? [];
+    if (isset($data['scheduledDate'])) {
+      $order->setScheduledDate(new \DateTimeImmutable($data['scheduledDate']));
+    }
+    if (isset($data['slot'])) { $order->setSlot($data['slot']); }
+    
+    $em->flush();
+    return $this->json(['ok' => true]);
+  }
 }
