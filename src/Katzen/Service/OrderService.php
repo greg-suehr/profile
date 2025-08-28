@@ -23,17 +23,19 @@ final class OrderService
     private MessageBusInterface $bus,
   ) {}
 
-  public function createOrder(Order $order, array $recipeIds): void
+  public function createOrder(Order $order, array $recipeQuantities): void
   {
     $recipes = $this->em->getRepository(Recipe::class)
-                        ->findBy(['id' => $recipeIds]);
+                        ->findBy(['id' => array_keys($recipeQuantities)]);
         
     foreach ($recipes as $recipe) {
       $this->autogenerator->ensureExistsForRecipe($recipe);
+
+      $qty = $recipeQuantities[$recipe->getId()] ?? 1;
       
       $item = new OrderItem();
       $item->setRecipeListRecipeId($recipe);
-      $item->setQuantity(1); // TODO: handle variable order quantity
+      $item->setQuantity($qty);
       $item->setOrderId($order);
       $order->addOrderItem($item);
     }
@@ -95,6 +97,7 @@ final class OrderService
           payload: [
             'stock_target.id' => $consumption['target']->getId(),
             'quantity' => $consumption['quantity'],
+            'reason'   => 'order#' . $order->getId(),
           ]
         ));
       }

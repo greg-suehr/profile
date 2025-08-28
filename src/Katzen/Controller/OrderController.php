@@ -56,7 +56,12 @@ final class OrderController extends AbstractController
       $recipeIdsCsv = $form->get('recipeIds')->getData();
       $recipeIds = array_filter(array_map('intval', explode(',', $recipeIdsCsv)));
 
-      $this->orderService->createOrder($order, $recipeIds);
+      $recipeQuantities = [];
+        foreach ($recipeIds as $rid) {
+            $recipeQuantities[$rid] = 1; # TODO: read recipeQuantities from Form
+        }
+
+      $this->orderService->createOrder($order, $recipeQuantities);
       
       $this->addFlash('success', 'Order created!');
       return $this->redirectToRoute('order_index');
@@ -134,7 +139,7 @@ final class OrderController extends AbstractController
 
     $this->orderService->completeOrder($order);
     
-    $this->addFlash('success', 'Order created!');
+    $this->addFlash('success', 'Order complete!');
     return $this->redirectToRoute('order_index');
   }
 

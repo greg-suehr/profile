@@ -48,6 +48,9 @@ class RecipeMappingService
         $this->entityManager->beginTransaction();
 
         try {
+          $latest = $this->entityManager->getRepository(Recipe::class)
+                         ->getLatestVersionForTitle($data['title']);
+          
           $recipe = new Recipe();
           $recipe->setTitle($data['title']);
           $recipe->setSummary($data['summary'] ?? '');
@@ -58,8 +61,7 @@ class RecipeMappingService
           $recipe->setWaitTime($data['wait_time'] ?? 0);
           $recipe->setCreatedAt(new \DateTimeImmutable());
           $recipe->setUpdatedAt(new \DateTime());
-          // TODO: implement a getLatestVersion
-          $recipe->setVersion(1);
+          $recipe->setVersion($latest + 1);
           // TODO: build import validation workflow
           $recipe->setStatus('imported');
           // TODO: build publishing and saving workflow

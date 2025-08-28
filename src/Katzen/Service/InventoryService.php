@@ -55,7 +55,7 @@ final class InventoryService
     $this->em->flush();
   }
 
-  public function consumeStock(int $stockTargetId, float $quantity): void
+  public function consumeStock(int $stockTargetId, float $quantity, ?string $reason = null): void
   {
     $target = $this->requireTarget($stockTargetId);
     
@@ -67,7 +67,7 @@ final class InventoryService
 
     $transaction = new StockTransaction();
     $transaction->setStockTarget($target);
-    $transaction->setQty(-$qty);
+    $transaction->setQty(-$quantity);
     $transaction->setReason($reason);
     $transaction->setUseType('consumption');
     
@@ -82,7 +82,7 @@ final class InventoryService
     $target = $this->targetRepo->find($id);
     
     if (!$target) {
-      throw new \InvalidArgumentException("Stock target not found for $type: $id");
+      throw new \InvalidArgumentException("Stock target not found for: $id");
     }
     return $target;
   }

@@ -16,11 +16,20 @@ class RecipeRepository extends ServiceEntityRepository
         parent::__construct($registry, Recipe::class);
     }
 
-    public function save(Recipe $recipe): void
-    {
-        $this->getEntityManager()->persist($recipe);
-        $this->getEntityManager()->flush();
-    }
+  public function save(Recipe $recipe): void
+  {
+    $this->getEntityManager()->persist($recipe);
+    $this->getEntityManager()->flush();
+  }
+
+  public function getLatestVersionForTitle(string $title): int
+  {
+    return $this->createQueryBuilder('r')
+       ->select('MAX(r.version)')
+       ->andWhere('r.title = :title')
+       ->setParameter('title', $title)
+       ->getQuery()->getSingleScalarResult();
+  }
 
   public function findByTitleLike(string $term): array
   {

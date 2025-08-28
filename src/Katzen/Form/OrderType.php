@@ -29,7 +29,7 @@ class OrderType extends AbstractType
                 'prototype' => true,
                 'label' => false,
             ])
-            ->add('recipeIds', HiddenType::class, [
+            ->add('recipeIds', HiddenType::class, [ # TODO: re-implement as recipeQts
               'mapped' => false,
               'required' => false,
               'attr' => ['id' => 'recipe_ids_field'],
