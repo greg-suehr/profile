@@ -29,7 +29,7 @@ class StockTarget
     private ?Unit $base_unit = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
-    private ?string $current_qty = null;
+    private ?float $current_qty = 0.00;
 
     #[ORM\Column(length: 16, nullable: true)]
     private ?string $status = null;
@@ -42,6 +42,9 @@ class StockTarget
 
     #[ORM\OneToOne(mappedBy: 'stock_target', cascade: ['persist', 'remove'])]
     private ?StockTargetRule $stockTargetRule = null;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    private ?float $reorder_point = 0.00;
 
     public function __construct()
     {
@@ -173,6 +176,18 @@ class StockTarget
         }
 
         $this->stockTargetRule = $stockTargetRule;
+
+        return $this;
+    }
+
+    public function getReorderPoint(): ?string
+    {
+        return $this->reorder_point;
+    }
+
+    public function setReorderPoint(string $reorder_point): static
+    {
+        $this->reorder_point = $reorder_point;
 
         return $this;
     }
