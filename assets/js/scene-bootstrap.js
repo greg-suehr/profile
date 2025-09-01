@@ -56,10 +56,7 @@ class SceneBootstrap {
       // Setup dialogue timeline
       this.setupDialogueTimeline();
 
-      // Start the scene
-      this.startScene();
-
-      // DEBUG: console.log(`Scene "${this.sceneId}" loaded successfully`);
+      console.log(`Scene "${this.sceneId}" loaded and ready - waiting for user interaction`);
     } catch (error) {
       console.error('Failed to initialize scene:', error);
       this.showError(error.message);
@@ -228,17 +225,84 @@ class SceneBootstrap {
   }
 
   revealSite() {
-    console.log("ANIMATION COMPLETE");
+    console.log("ANIMATION COMPLETE - Starting site reveal transition");
+    
     const site = document.getElementById('litmas-site-structure');
-    if (site) {
-      site.classList.remove('hidden');
-      site.classList.add('fade-in');
-      
-      this.stop();
-      this.canvas.remove();
+    const canvas = this.canvas;
+    const audio    = document.getElementById('litmas-music');
+    const altAudio = document.getElementById('litmas-sfx-enter');
+    
+    if (!site || !canvas) {
+      console.warn('Required elements not found for site reveal');
+      return;
+    }
+    
+    // Start music fade out
+    if (audio && !audio.paused) {
+      this.fadeOutMusic(audio, 1500); // 1.5 second fade
+    }
+    
+    if (altAudio && !altAudio.paused) {
+      this.fadeOutMusic(altAudio, 6000); // 6.0 second fade
     }    
+    
+    // Prepare site content (hidden but ready)
+    site.style.opacity = '0';
+    site.style.transition = 'opacity 2s ease-in-out';
+    site.classList.remove('hidden');
+    
+    // Start canvas fade out
+    canvas.style.transition = 'opacity 1.5s ease-out';
+    canvas.style.opacity = '0';
+    
+    // After canvas fades out, show site content
+    setTimeout(() => {
+      // Fade in site content
+      site.style.opacity = '1';
+      
+      // After site content is visible, clean up canvas
+      setTimeout(() => {
+        this.stop(); // Stop all animations
+        canvas.style.display = 'none'; // Hide canvas completely
+        
+        // Switch body class from canvas-mode to normal
+        document.body.classList.remove('canvas-mode');
+        
+        console.log("Site reveal transition complete");
+      }, 2000); // Wait for site fade-in to complete
+      
+    }, 1500); // Wait for canvas fade-out to complete
+    console.log("ANIMATION COMPLETE");
   }
 
+  /**
+   * Smooth music fade out helper method
+   * @param {HTMLAudioElement} audioElement - The audio element to fade
+   * @param {number} duration - Fade duration in milliseconds
+   */
+  fadeOutMusic(audioElement, duration = 1500) {
+    console.log("Fading...", audioElement);
+    const startVolume = audioElement.volume;
+    const fadeSteps = 50;
+    const stepTime = duration / fadeSteps;
+    const volumeStep = startVolume / fadeSteps;
+    
+    let currentStep = 0;
+    
+    const fadeInterval = setInterval(() => {
+      currentStep++;
+      const newVolume = Math.max(0, startVolume - (volumeStep * currentStep));
+    audioElement.volume = newVolume;
+      
+      if (currentStep >= fadeSteps || newVolume <= 0) {
+        clearInterval(fadeInterval);
+        audioElement.pause();
+        audioElement.currentTime = 0; // Reset to beginning
+        audioElement.volume = startVolume; // Reset volume for next time
+        console.log("Music fade out complete");
+      }
+    }, stepTime);
+  }
 
   /**
    * Execute a single sequence step
@@ -250,11 +314,14 @@ class SceneBootstrap {
         const animator = this.getAnimator(step.animator);
         if (animator) {
           if (step.onComplete) {
+            console.log("attach onComplete for ", step);
             animator.onComplete = () => {
               if (typeof step.onComplete === 'string' && this[step.onComplete]) {
                 this[step.onComplete]();
               }
             };
+          } else {
+            console.log("no onComplete for ", step);
           }
           animator.play();
           
@@ -588,40 +655,122 @@ class SceneBootstrap {
 // Global scene bootstrap instance
 let sceneBootstrap = null;
 
-// Initialize scene when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeScene);
-} else {
-  initializeScene();
+// Initialize scene configuration but don't start animations yet
+async function prepareScene() {
+  sceneBootstrap = new SceneBootstrap();
+  
+  try {
+    // Find canvas and get scene ID
+    sceneBootstrap.canvas = document.getElementById('screen') || document.querySelector('canvas[data-scene-id]');
+    if (!sceneBootstrap.canvas) {
+      throw new Error('No canvas element found with id="screen" or data-scene-id attribute');
+    }
+
+    sceneBootstrap.canvas.width = window.innerWidth;
+    sceneBootstrap.canvas.height = window.innerHeight;
+
+    sceneBootstrap.sceneId = sceneBootstrap.canvas.dataset.sceneId;
+    if (!sceneBootstrap.sceneId) {
+      throw new Error('Canvas element missing data-scene-id attribute');
+    }
+
+    // Load scene configuration
+    await sceneBootstrap.loadSceneConfig();
+
+    // Initialize scene effects (but don't start them)
+    sceneBootstrap.initializeSceneEffects();
+
+// Initialize sprite animators (but don't play them)
+await sceneBootstrap.initializeSpriteAnimators();
+
+// Setup dialogue timeline (but don't start it)
+sceneBootstrap.setupDialogueTimeline();
+
+console.log(`Scene "${sceneBootstrap.sceneId}" prepared but not started`);
+
+// Make bootstrap available globally for debugging
+window.sceneBootstrap = sceneBootstrap;
+
+} catch (error) {
+  console.error('Failed to prepare scene:', error);
+  sceneBootstrap.showError(error.message);
+}
 }
 
-async function initializeScene() {
-  sceneBootstrap = new SceneBootstrap();
+// Modified startScene method - add this to your SceneBootstrap class
+SceneBootstrap.prototype.startSceneAnimations = function() {
+  console.log("Starting scene animations after user interaction");
 
-  // TODO: generalize litmas hacks
-  document.getElementById('enter-site').addEventListener('click', async () => {
+  // Start scene effects
+  this.effectManager.play();
+
+  // Start sprite animators that should auto-play
+  for (const [name, animator] of this.spriteAnimators) {
+    const config = this.config.spriteAnimators.find(cfg => cfg.name === name);
+    if (!config.options || config.options.autoPlay !== false) {
+      animator.play();
+    }
+  }
+
+  // Trigger auto sequences
+  const autoSequences = this.config.autoSequences || [];
+  for (const sequenceName of autoSequences) {
+    this.triggerSequence(sequenceName);
+  }
+};
+
+// Updated enter site handler
+async function handleEnterSite() {
+  console.log("User clicked Enter Site");
+
+  // Hide splash screen
   document.getElementById('litmas-splash').style.display = 'none';
 
-    const audio = document.getElementById('litmas-music');
-    if (audio) {
-      try {
-        await audio.play();
-      } catch (e) {
-        console.warn('User interaction failed to trigger audio:', e);
-      }
+  // Start background music
+  const audio = document.getElementById('litmas-music');
+  if (audio) {
+    try {
+      await audio.play();
+    } catch (e) {
+      console.warn('User interaction failed to trigger audio:', e);
     }
-    
-    // Start the scene animation
-    if (!window.sceneBootstrap) {
-      window.sceneBootstrap = new SceneBootstrap();
-      await window.sceneBootstrap.init();
+  }
+
+  // If scene isn't prepared yet, prepare it first
+  if (!sceneBootstrap) {
+    document.body.classList.add('canvas-mode');
+    await prepareScene();
+  }
+
+  // Now start the actual animations
+  if (sceneBootstrap) {
+    sceneBootstrap.startSceneAnimations();
+  }
+}
+
+// Initialize when DOM is ready - but only prepare, don't start
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    // Set up the enter site button handler
+    const enterButton = document.getElementById('enter-site');
+    if (enterButton) {
+      enterButton.addEventListener('click', handleEnterSite);
     }
+
+    // Prepare scene but don't start animations
+    document.body.classList.add('canvas-mode');
+    prepareScene();
   });
-  
-  await sceneBootstrap.init();
-  
-  // Make bootstrap available globally for debugging
-  window.sceneBootstrap = sceneBootstrap;
+} else {
+  // Set up the enter site button handler
+  const enterButton = document.getElementById('enter-site');
+  if (enterButton) {
+    enterButton.addEventListener('click', handleEnterSite);
+  }
+
+  // Prepare scene but don't start animations
+  document.body.classList.add('canvas-mode');
+  prepareScene();
 }
 
 // Handle page unload

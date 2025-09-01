@@ -14,7 +14,9 @@ a {
 }
 
 footer {
-  background-color: #ffffff !important;
+  background-color: #f6f1eb !important;
+  text-align: center;
+  font-size: x-small;
 }
 
 

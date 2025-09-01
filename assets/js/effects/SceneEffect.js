@@ -154,7 +154,7 @@ export class SceneEffect {
       
       // Clear canvas for this frame
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      console.log("SceneEffect tick - cleared canvas, rendering", this.effects.length, "effects and", this.animators.length, "animators");
+      // console.log("DEBUG: SceneEffect tick - cleared canvas, rendering", this.effects.length, "effects and", this.animators.length, "animators");
       
       // Update and render all effects
       for (const effect of this.effects) {

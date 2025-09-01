@@ -29,10 +29,13 @@
       }
 
       canvas.fullscreen-canvas {
+        position: fixed;
+        inset: 0;        
         display: block;
-        background: #000;
+        background: #003E00;
         width: 100vw;
         height: 100vh;
+        z-index: 1000;
       }
 
       .hidden { display: none; }
@@ -81,13 +84,17 @@
         color: var(--color-warning);
       }
 
-      #litmas-site-structure.hidden {
-        opacity: 0;
-        display: none;
+      #litmas-site-structure {
+        min-height: 100vh;  
+        opacity: 1;
       }
-      
+
+      body.canvas-mode #litmas-site-structure {
+        opacity: 0;
+        pointer-events: none; /* optional: prevents accidental clicks behind canvas */
+      }
+
       #litmas-site-structure.fade-in {
-        display: block;
         animation: fadeIn 2s ease forwards;
       }
 
@@ -160,8 +167,7 @@
   <canvas id="screen" class="fullscreen-canvas" data-scene-id="{{ storyNodeKey }}"></canvas>
   {{ encore_entry_script_tags('scene') }}
 
-  <div id="litmas-site-structure" class="hidden">
-    {% if not showCanvas %}
+  <div id="litmas-site-structure">
     <!-- Navbar -->
     <nav class="litmas-navbar">
       <div class="nav-left">
@@ -191,35 +197,34 @@
         <a href="{{ path('litmas_rsvp') }}" class="rsvp-button">RSVP</a>
       </div>
     </main>
-    {% endif %}
   </div>
   <audio id="litmas-music" src="{{ asset('assets/litmas/litmas_intro.wav') }}" loop></audio>
   <audio id="litmas-sfx-enter" src="{{ asset('assets/litmas/litmas_enter.wav') }}"></audio>
+  <div id="litmas-splash" style="
+                                 position: fixed;
+                                 top: 0;
+                                 left: 0;
+                                 width: 100vw;
+                                 height: 100vh;
+                                 background: #003E00;
+                                 color: #fff;
+                                 display: flex;
+                                 flex-direction: column;
+                                 justify-content: center;
+                                 align-items: center;
+                                 z-index: 9999;
+                                 ">
+    <button id="enter-site" style="
+                                   padding: 1rem 2rem;
+                                   font-size: 1.5rem;
+                                   font-weight: bold;
+                                   background: #FBD75F;
+                                   color: #003E00;
+                                   border: none;
+                                   border-radius: 1rem;
+                                   cursor: pointer;
+                                   transition: transform 0.2s ease-in-out;
+                                   ">Enter Site</button>
+  </div>
 </body>
-<div id="litmas-splash" style="
-                               position: fixed;
-                               top: 0;
-                               left: 0;
-                               width: 100vw;
-                               height: 100vh;
-                               background: #003E00;
-                               color: #fff;
-                               display: flex;
-                               flex-direction: column;
-                               justify-content: center;
-                               align-items: center;
-                               z-index: 9999;
-                               ">
-  <button id="enter-site" style="
-                                 padding: 1rem 2rem;
-                                 font-size: 1.5rem;
-                                 font-weight: bold;
-                                 background: #FBD75F;
-                                 color: #003E00;
-                                 border: none;
-                                 border-radius: 1rem;
-                                 cursor: pointer;
-                                 transition: transform 0.2s ease-in-out;
-                                 ">Enter Site</button>
-</div>
 </html>

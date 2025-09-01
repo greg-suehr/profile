@@ -152,3 +152,72 @@ body.krampus-mode .rsvp-button {
 body.krampus-mode .rsvp-button:hover {
   background-color: #9A1D1D;
 }
+
+/* Transitions */
+
+/* Canvas transition support */
+canvas.fullscreen-canvas {
+  display: block;
+  background: var(--color-xmas-green);
+  width: 100vw;
+  height: 100vh;
+  opacity: 1;
+  /* Will be set via JavaScript for smooth fade */
+  transition: opacity 1.5s ease-out;
+}
+
+/* Site structure transition support */
+body.canvas-mode #litmas-site-structure {
+  opacity: 0;
+  transition: opacity 2s ease-in-out;
+}
+
+body.canvas-mode #litmas-site-structure.hidden {
+  opacity: 0;
+  display: none;
+}
+
+#litmas-site-structure.fade-in {
+  display: block;
+  opacity: 1;
+}
+
+#litmas-site-structure {
+  opacity: 1;
+  transition: opacity 2s ease-in-out;
+}
+
+/* Ensure smooth transition when removing canvas-mode */
+body {
+  transition: background-color 0.5s ease-in-out;
+}
+
+/* Override the previous fade-in animation with smoother transition */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Add subtle entrance animation for content elements */
+.litmas-content {
+  transform: translateY(20px);
+  transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+}
+
+body:not(.canvas-mode) .litmas-content {
+  transform: translateY(0);
+}
+
+/* Navigation fade in */
+.litmas-navbar {
+  transform: translateY(-10px);
+  transition: transform 0.6s ease-out 0.2s, opacity 0.6s ease-out 0.2s;
+}
+
+body:not(.canvas-mode) .litmas-navbar {
+  transform: translateY(0);
+}
