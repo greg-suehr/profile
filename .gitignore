@@ -2,7 +2,7 @@
 *.backup
 data/*
 scripts/*
-public/images/*full.jpg
+public/images/*
 *DS_Store
 
 ###> symfony/framework-bundle ###
