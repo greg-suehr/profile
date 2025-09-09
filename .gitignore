@@ -2,6 +2,7 @@
 *.backup
 data/*
 scripts/*
+assets/images/*
 public/images/*
 *DS_Store
 
