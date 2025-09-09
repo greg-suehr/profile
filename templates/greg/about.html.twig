@@ -7,26 +7,128 @@
   <div class="container">
     <h1><strong>I'm Greg</strong></h1>
     <p class="intro">
-      I am a software developer, writer, and translator.
     </p>
 
     <p class="intro">
-      The page is a short note outlining a few select personal facts, i.e. about "me".
-      If you are interested in my work or working with me, 
-      My blog (also in the links above), contains an unordered list of both personal and professional thoughts.
+      I am a maker and artist interested in tools, systems, and symbols.
+    </p>
+    
+    <p>
+      More about the work I do is on the <a href={{ path('profile_work') }}>Work</a> page.
+      This page is about "me".<sup><a id="fn-1-ref" href="#fn-1">1</a></sup>
     </p>
 
     <p class="intro">
+      My professional interests evolved along the standard pipeline:
+      Fantasy > Mythology > Magick > Symbols > Math
+      > Physics > Crushing, Overwhelming Dread Facing the Infinite Depth of Reality
+      > Camus > Husserl.
+      At the end of this pipline, I found myself reading a lot of the same stuff
+      about mythology and symbols I was interested in as a kid.
+      This time, much wearier.
     </p>
 
-    <p class="intro">...</p>
+    <p class="intro">
+      Naturally, I became a software developer.<sup><a id="fn-2-ref" href="#fn-2">2</a></sup>
+    </p>
+
+    <p class="intro">
+      My technical work is an extension of my interests in the Philosophy of Technology and Aesthetics.
+      I help others create systems that drive autonomy and adaptability,
+      while building practices that keep systems understandable and maintainable.      
+    </p>
+
+    <p class="intro">
+      My interests are always expanding. Currently,
+      I am building <a>web applications</a>, helping teams <a>design and deploy</a> software better,
+      and bridging gaps for <a>creative entrepreneurs</a>. I am also <a>reading</a> as much as I can, and
+      cultivating <a>new skills</a>.
+    </p>
+
+    <p class="intro">
+      Fixing computer bugs is a soothing escape from the absurd, but it can be an eye strain<sup><a id="fn-3-ref" href="#fn-3">3</a></sup>.
+      When I need a break from symbols, I enjoy:
+      <ol>
+        <li>
+          Baking. Also, consuming the products of baking.
+        </li>
+        <li>
+          Making music with my certified garage rock band (we have a garage).
+        </li>
+        <li>
+          Running, rock climbing, and other outdoor activities.<sup><a id="fn-4-ref" href="#fn-4">4</a></sup>
+        </li>
+        <li>
+          Watching movies with my two cats (they enjoy sci-fi).<sup><a id="fn-5-ref" href="#fn-5">5</a></sup>
+        </li>
+      </ol>
+    </p>
     
     <img src="{{ asset('images/pittsburgh-warm_small_jordan-faux-unsplash.jpg') }}" class="img-fluid hero-image section">
+
+    <p id="fn-1">
+      <sup><a href="#fn-1-ref">[1]</a></sup>
+      This page still primarily describes things I <i>do</i>. I have more to say on this in the footnotes
+      of the <a href={{ path('profile_work') }}>Work</a> page, but making and doing are important to our
+      identity, I think. At least more important than biographical facts or medical trivia.
+    </p>
+    <p id="fn-2" href="#fn-2-ref">
+      <sup><a href="#fn-2-ref">[2]</a></sup>
+      For a long time, "philosopher" was the weariest profession. While many date the transition of this title
+      from philosophy to information technology in the early 90s,
+      it was actually Ada Lovelace who first typified the software developer as the most "over it" professional.<sup><a href="#fn-fn-1-ref">&dagger;</a></sup>
+    </p>
+    <p id="fn-3" href="#fn-3-ref">
+      <sup><a href="#fn-3-ref">[3]</a></sup>
+      I have a visual acuity of 20/180 in both eyes and a slight astigmatism. Also, at some point I developed
+      tinnitus. See? These things aren't interesting.
+    </p>
+    <p id="fn-4" href="#fn-4-ref">
+      <sup><a href="#fn-4-ref">[4]</a></sup>
+      I am a member of the National Speleological Society, but my claustrophic nature limits my interest
+      in caves to conservation rather than wiggling my way through them.
+      I also have aspirations to become a much more capable birder and botanizer.
+    </p>
+    <p id="fn-5" href="#fn-5-ref">
+      <sup><a href="#fn-5-ref">[5]</a></sup>
+      This one doesn't help with the eye strain, but it is the most relaxing!
+    </p>        
   </div>
 </section>
 
+<footer>
+      <div class="site-map">
+        <div class="container">
+          <div class="row">
+            <p></p>
+            <p></p>
+            <aside>
+              This page intentionally left blank.
+            </aside>
+            <p></p>
+            <p></p>
+          </div>
+        </div>
+      </div>
+</footer>
+
 <section class="summary-section">
-  <div class="mx-auto" style="width: 600px;">
+  <div class="container">
+  <p id="fn-fn-1">
+    <sup><a href="#fn-fn-1-ref">[&dagger;]</a></sup>
+    Philosophy had a real comeback season in the 80s, but the internet developed just in time to keep technologists
+    in the lead. Common driver of this misconception.<sup><a id="fn-fn-2-ref" href="#fn-fn-2">&Dagger;</a></sup>
+  </p>
+  <p id="fn-fn-2">
+    <sup><a href="#fn-fn-2-ref">[&Dagger;]</a></sup>
+    Yes, this is a footnote footnote.<sup><a id="fn-fn-3-ref" href="#fn-fn-3">&dagger;&dagger;</a></sup>
+  </p>
+  <p id="fn-fn-3">
+    <sup><a href="#fn-fn-3-ref">[&dagger;&dagger;]</a></sup>
+    Footnotes for footnote footnotes are treated as footnote footnotes. This prevents undesireable recursion.
+  </p>
   </div>
 </section>
 {% endblock %}
+
+{% block footer_text %}This page also intentionally left blank.{% endblock %}

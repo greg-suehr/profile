@@ -1,0 +1,156 @@
+{% extends 'profile_base.html.twig' %}
+
+{% block title %}Greg Suehr{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 text-content">
+                <h1>Software Engineer</h1>
+                <div class="mx-auto">
+                  <p>
+                    I am currently looking for a full-time role in software engineering.
+                  </p>
+                </div>
+
+                <details>
+                  <summary><strong>Application Development</strong></summary>
+                  <p>
+                    I try to pick up new skills regularly, and generally think                    
+                    good design, documentation, and processes determine software quality more than stack.
+                  </p>
+                  <p>
+                    That said, most of my work has been in the following environments:
+                  </p>
+                  <ul>
+                    <li>
+                      <strong>PHP:</strong> Symfony, Doctrine, Twig.
+                    </li>
+                    <li>
+                      <strong>Perl:</strong> nginx, DBIx, Template Toolkit.
+                    </li>
+                    <li>
+                      <strong>Python:</strong> uWSGI, Django, Flask, FastAPI.
+                    </li>
+                  </ul>
+                  <p>
+                    I have worked on a variety of systems, including:
+                    (i) ERP and financial accounting software with complex business logic,
+                    (ii) data pipelines in high performance computing projects,
+                    (iii) crawlers and knowledge graphs.
+                    And more! I'm always looking for new hallenges and interesting problems to solve.
+                  </p>
+                </details>
+
+                <details>
+                  <summary><strong>Data Systems</strong></summary>
+                  <p>
+                    Dealing with the data is my specialialty. I've acquired a particular set of skills including:
+                  </p>
+                  <ul>
+                    <li>
+                      Schema design and query optimization in <strong>Postgres</strong> and <strong>MySQL</strong>.
+                    </li>
+                    <li>
+                      Building and debugging ETL pipelines.
+                    </li>
+                    <li>
+                      Writing convulting queries to get you that report you need,
+                      which I'll do if you buy me coffee.
+                    </li>
+                  </ul>
+                </details>
+
+                <details>
+                  <summary><strong>DevOps</strong></summary>
+                  <p>
+                    Deploying code is almost as fun as debugging it. Don't you think?
+                  </p>
+                  <p>
+                    As a matter of necessity, I've gotten myself into and out of trouble using:
+                  </p>
+                  <ul>
+                    <li>
+                      <strong>Git:</strong> and I'll resolve your merge conflict if you buy me coffee.
+                    </li>
+                    <li>
+                      <strong>AWS:</strong> cost analysis and configuration.
+                    </li>                    
+                    <li>
+                      <strong>Docker:</strong> actually, I've never had trouble with Docker. Docker is amazing.
+                    </li>                    
+                  </ul>
+                </details>
+
+                <details>
+                  <summary><strong>Design</strong></summary>
+                  <p>
+                    I have excellent taste.
+                  </p>
+                  <p>
+                    Even better, I know when to call on collaborators with even better taste or situated knowledge
+                    to ensure projects I work on start with great design and end polished and highly functional.
+                  </p>
+                  <p>
+                    I'm passionate about design systems and
+                    creating consistent, scalable component libraries that improve both developer experience and user interface quality.
+                  </p>
+                </details>
+
+                <details>
+                  <summary><strong>Robotics</strong></summary>
+                  <p>
+                    I don't have much experience in robotics (that's why it's sorted low on this list).
+                    I do have a well used Arduino kit, and aspirations to build a robot drummer à la
+                    <a href="https://en.wikipedia.org/wiki/The_Trons">The Trons</a>.
+                  </p>
+                </details>
+
+                <details>
+                  <summary><strong>Simulation and Computing</strong></summary>
+                  <p>
+                    My first programming work was on the data analysis pipeline for
+                    <a href="https://belle.kek.jp/">Belle</a> and <a href="https://www.belle2.org/">Belle II</a>
+                    particle physics experiments.
+                  </p>
+                  <p>
+                    This <a href="https://arxiv.org/html/2402.14962v1#S7">paper</a>
+                    describes the trigger system my research work focused on.
+                  </p>
+                  <p>
+                    I've leveraged my physics training and tools like
+                    Three.js, Matplotlib, Pandas, NumPy, and SciPy
+                    to build a host of useful tools and interesting simulations.
+                  </p>
+                </details>
+
+            </div>
+            <div class="col-md-6 text-center">
+              <img src="{{ asset('images/pittsburgh-warm_jordan-faux-unsplash.jpg') }}" class="img-fluid hero-image">
+            </div>
+        </div>
+
+        <!--
+        <div class="row">
+          Katzen Feature
+        </div>
+        
+        <div class="row">
+          IsHere Feature
+        </div>
+
+        <div class="row">
+          Other titles I've held:
+          - ETL analyst
+          - Product owner
+          - Product manager
+        </div>
+        -->
+                    
+    </div>
+</section>
+
+<section class="contact-section">
+</section>
+{% endblock %}

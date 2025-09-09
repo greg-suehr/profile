@@ -1,35 +1,87 @@
+{# templates/plays.html.twig #}
 {% extends 'profile_base.html.twig' %}
 
-{% block title %}Greg Suehr | For Hire{% endblock %}
+{% block title %}Greg Suehr | Plays{% endblock %}
 
 {% block content %}
 <section class="hero-section">
   <div class="container">
-    <div class="row">
-      <div class="col">
-        <h2>Hire Me</h2>
-        <p>
-        </p>
+    <h1 class="mb-3"><strong>Service Catalog</strong></h1>
+    <p class="text-secondary-dark mb-0">
+      Click the cards below for additional detail on services and packages I offer.
+    </p>
+  </div>
+</section>
 
-        <h5>Software Development</h5>
-        <p>
-          Quick link to technical portfolio
-        </p>
-        
-        <h5>Creative Consulting</h5>
-        <p>
-          Quick link to creative consulting service catalog
-          Quick link to stageplay portfolio
-        </p>
-        
-        <h5>Translation Services</h5>
-        <p>
-          Quick link to translation portfolio
-        </p>
+{% set plays = plays is defined and plays is not empty ? plays : [
+  {
+    title: 'Application Development',
+    slug: '/hire/develop',
+    image: '', # asset('images/work/tech.png'),
+    blurb: '',
+    tags: [],
+  },
+  {
+    title: 'Creative Consulting',
+    slug: '/hire/create',
+    image: '', # asset('images/work/tech.png'),
+    blurb: '',
+    tags: [],
+  },
+  {
+    title: 'Translation Services',
+    slug: '/hire/translate',
+    image: '', # asset('images/work/tech.png'),
+    blurb: '',
+    tags: [],
+  },
+  {
+    title: 'Technical Consulting',
+    slug: '/hire/translate',
+    image: '', # asset('images/work/tech.png'),
+    blurb: '',
+    tags: [],
+  },
+  {
+    title: 'Production Services',
+    slug: '/hire/translate',
+    image: '', # asset('images/work/tech.png'),
+    blurb: '',
+    tags: [],
+  },
+  {
+    title: 'Research & Discovery Services',
+    slug: '/hire/research',
+    image: '', # asset('images/work/tech.png'),
+    blurb: '',
+    tags: [],
+  },
+] %}
 
-        <img src="{{ asset('images/pittsburgh-warm_small_jordan-faux-unsplash.jpg') }}" class="img-fluid hero-image section">
+<section class="section">
+  <div class="container">
+    <div class="row g-4">
+      {% for play in plays %}
+        <div class="col-12 col-md-6 col-lg-4">
+          <article class="card h-100 border-0 shadow-sm">
+            {% if play.image %}
+              <img src="{{ play.image }}" alt="{{ play.title }}" class="card-img-top img-fluid">
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+              <h3 class="h5 mb-2">
+                {# If you have a route like `play_show`, swap the href below: path('play_show', {slug: play.slug}) #}
+                <a href="{{ play.url is defined ? play.url : '#' }}" class="stretched-link text-decoration-none">
+                  {{ play.title }}
+                </a>
+              </h3>
+              {% if play.blurb %}
+                <p class="text-secondary-dark mb-0">{{ play.blurb }}</p>
+              {% endif %}
+            </div>
+          </article>
+        </div>
+      {% endfor %}
     </div>
-
   </div>
 </section>
 {% endblock %}

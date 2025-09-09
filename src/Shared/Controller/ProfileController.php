@@ -21,20 +21,21 @@ final class ProfileController extends AbstractController
     return $this->render('greg/dark.html.twig');
   } 
 
-  # TODO: complete
+  # TODO: add links
   #[Route('/about', name: 'profile_about')]
   public function overview(): Response
   {
     return $this->render('greg/about.html.twig');
   }
 
-  # TODO: complete
+  # TODO: add links
   #[Route('/work', name: 'profile_work')]
   public function work(): Response
   {
     return $this->render('greg/work.html.twig');
   }
 
+  
   #[Route('/hire', name: 'profile_hire')]
   public function hire(): Response
   {
@@ -53,11 +54,12 @@ final class ProfileController extends AbstractController
   {
     return $this->render('greg/contact.html.twig');
   }
-  
-  #[Route('/hire/develop', name: 'profile_hire_me_tech')]
+
+  # TODO: this one
+  #[Route('/hire/develop', name: 'profile_hire_me_develop')]
   public function hire_me_tech(): Response
   {
-    return $this->render('greg/hire-me-tech.html.twig');
+    return $this->render('greg/hire-me-develop.html.twig');
   }
 
   #[Route('/hire/consult', name: 'profile_hire_me_consult')]
@@ -66,10 +68,10 @@ final class ProfileController extends AbstractController
    return $this->render('greg/hire-me-consult.html.twig');
   }
 
-  #[Route('/hire/create', name: 'profile_hire_me_arts')]
-  public function hire_me_arts(): Response
+  #[Route('/hire/create', name: 'profile_hire_me_create')]
+  public function hire_me_create(): Response
   {
-    return $this->render('greg/hire-me-arts.html.twig');
+    return $this->render('greg/hire-me-create.html.twig');
   }
 
   #[Route('/hire/research', name: 'profile_hire_me_research')]
@@ -78,24 +80,28 @@ final class ProfileController extends AbstractController
     return $this->render('greg/hire-me-research.html.twig');
   }
 
+  # TODO: implement payments
   #[Route('/plays/purchase', name: 'profile_plays_purchase')]
   public function plays_purchase(): Response
   {
     return $this->render('greg/plays-purchase.html.twig');
   }
 
+  # TODO: implement PDF sample file hosting
   #[Route('/plays/read', name: 'profile_plays_read')]
   public function plays_read(): Response
   {
     return $this->render('greg/plays-read.html.twig');
   }
 
+  # TODO: implement PDF sample file hosting  
   #[Route('/poems', name: 'profile_poems')]
   public function poems(): Response
   {
     return $this->render('greg/poems.html.twig');
   }
 
+  # TODO: implement payments
   #[Route('/poems/purchase', name: 'profile_poems_purchase')]
   public function poems_purchase(): Response
   {

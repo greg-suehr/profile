@@ -47,8 +47,12 @@
         <div class="container">
           <div class="row">
             <p></p>
-            <p></p>            
-            <aside>This page intentionally left blank.</p>
+            <p></p>
+            <aside>
+              {% block footer_text %}
+              This page intentionally left blank.
+              {% endblock %}
+            </aside>
           </div>
         </div>
       </div>

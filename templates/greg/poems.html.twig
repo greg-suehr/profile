@@ -1,0 +1,60 @@
+{# templates/plays.html.twig #}
+{% extends 'profile_base.html.twig' %}
+
+{% block title %}Greg Suehr | Poems{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+  <div class="container">
+    <h1 class="mb-3"><strong>Poems</strong></h1>
+    <p class="text-secondary-dark mb-0">
+      Both of these works are in development.
+      If you're interested in either, you should click.
+    </p>
+  </div>
+</section>
+
+{% set poems = poems is defined and poems is not empty ? poems : [
+  {
+    title: 'Compendium',
+    slug: '',
+    image: '', # asset('images/plays/bother-of-a-fly.png'),
+    blurb: '',
+    tags: [],
+  },
+  {
+    title: '57 Haiku',
+    slug: '',
+    image: '', # asset('images/plays/bother-of-a-fly.png'),
+    blurb: '',
+    tags: [],
+  },
+] %}
+
+<section class="section">
+  <div class="container">
+    <div class="row g-4">
+      {% for poem in poems %}
+        <div class="col-6">
+          <article class="card h-100 border-0 shadow-sm">
+            {% if poem.image %}
+              <img src="{{ poem.image }}" alt="{{ poem.title }}" class="card-img-top img-fluid">
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+              <h3 class="h5 mb-2">
+                {# If you have a route like `poem_show`, swap the href below: path('poem_show', {slug: poem.slug}) #}
+                <a href="{{ poem.url is defined ? poem.url : '#' }}" class="stretched-link text-decoration-none">
+                  {{ poem.title }}
+                </a>
+              </h3>
+              {% if poem.blurb %}
+                <p class="text-secondary-dark mb-0">{{ poem.blurb }}</p>
+              {% endif %}
+            </div>
+          </article>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

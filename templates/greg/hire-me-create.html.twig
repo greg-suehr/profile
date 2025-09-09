@@ -1,0 +1,118 @@
+{% extends 'profile_base.html.twig' %}
+
+{% block title %}Greg Suehr{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-6 text-content">
+        <h1>Creative Consulting</h1>
+        <div class="mx-auto">
+          <p>
+            Creative consulting services including but definitely not limited to:
+          </p>
+        </div>
+        
+        <details>
+          <summary><strong>Story Consulting</strong></summary>
+          <p>
+            Got a story to tell, but something's not clicking?
+          </p>
+          <p>
+            I can help you get that story out of your head and onto pages.
+          </p>
+          <ul>
+            <li>
+              <strong>Script Analysis:</strong>
+              In-depth feedback through one-on-one discussions that dig into structure, pacing, and clarity.
+              You'll receive a marked up version of your manuscript and a summary report with an overall review,
+              a list of questions you should address in your next draft,
+              and suggestions to advance your writing.
+            </li>
+            <li>
+              <strong>Revision Plan Review:</strong>
+              We'll map out a strategy for your rewrite so your story grows sharper instead of longer.
+              I help writers develop revision strategies, schedules, beat maps
+              and other tools to help them realize the best version of their work.
+              You'll receive a detailed report outlining the plan we create
+              along with a list of opportunities to develop theme and keep the story kicking.
+            </li>
+            <li>
+              <strong>Writers Room:</strong>
+              Collaborative story development sessions where we break your story.              
+            </li>
+          </ul>
+        </details>
+
+        <details>
+          <summary><strong>Editing</strong></summary>
+          <p>
+            Words are hard. They work or they don't.
+          </p>
+          <p>
+            I make good word. And maybe, you too.
+          </p>
+          <p>
+            I offer two service packages for proofreading and editing
+            academic papers, technical documentation, and literary work.
+          </p>
+          <ul>
+            <li>
+              <strong>A Polish:</strong>
+              A proofread aimed at catching typos, fixing grammar, trimming sentences, removing repetition.
+              I'll flag larger issues, but mostly get what's there ready for publishing and make sure it’s error-free.
+            </li>
+            <li>
+              <strong>The One-Two:</strong>
+              A two-pass edit process where we collaborate to shape up then clean up your manuscript.
+              <ol>
+                <li>
+              The first review and structural edit will focus on major problems, conclusions that need more support, and boring parts that need trimmed.
+              I'll ask you a lot of questions and provide specific recommendations to improve your draft in an editorial report.
+              We'll schedule our second edit session to allow you ample time to incorporate this feedback into your next draft.
+                </li>
+                <li>
+              Once you've rewritten to your satisfaction,
+              We'll conduct another in-depth, comprehensive, line-edit that includes rewriting sentences,
+              improving word choice, and tightening your story / argument.
+              Anything that can’t be easily fixed, will be flagged with comment as something that could be improved.
+              Your final product will be much improved manuscript,
+              and a final editorial report with suggestions to improve your writing.
+                </li>
+              </ol>
+            </li>
+          </ul>
+        </details>
+
+        <details>
+          <summary><strong>Distribution & Publishing</strong></summary>
+          <p>
+            Getting your work out there can be challenging.
+          </p>
+          <p>
+            I help artists understand cost effective methods to distribute music and podcasts,
+            print media, and publish their work.
+          </p>
+          <p>
+            I also help creatives get a handle on the business of making money while making art.
+            
+          </p>
+        </details>
+
+        <p>
+          <br/>
+          Each project has its own unique needs and quite often the process evolves as we work together. I’m open and flexible 
+        </p>
+
+      </div>
+      <div class="col-md-6 text-center">
+        <img src="{{ asset('images/pittsburgh-warm_jordan-faux-unsplash.jpg') }}" class="img-fluid hero-image">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="contact-section">
+</section>
+{% endblock %}

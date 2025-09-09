@@ -7,67 +7,123 @@
   <div class="container">
     <div class="row">
       <div class="col">
-        <h2>Work</h2>
-        <p><emphasis>"...sucks, I know"</emphasis></p>
+        <h1><strong>Work</strong><sub style="font-size: 0.4em">  sucks, I know</sub></h1>
 
         <p>
-          I don't actually think work sucks, but I love Blink-182.
-          I love my work.
-          I believe the cultivation of a craft (τέχνη, "techne" one stem of "technology") is an essential component of sound mind and good life.
+          I don't actually think work sucks.
+          I love my work.<sup><a id="fn-1-ref" href="#fn-1">1</a></sup>
+        </p>
+        <p>
+          I believe the cultivation of a craft <sup><a id="fn-2-ref" href="#fn-2">2</a></sup>
+          is a strong foundation for all around wellness.
         </p>
 
-        <h5>Software Development</h5>
-        <p>
-          "Learn to code", they said. Well, I did. Then it became work.          
-        </p>
-        <p>
-          My approach to software development is: people first, systems next.
-          It is also language agnostic.
-          I have developed:
-          (i) Web applications
-          (ii) Business systems: ERP, CRM, integrations with eCommerce, logistics, and  payments.
-          (iii) Data piplines for 
-          (iv) Web crawlers
-        </p>
-        <p>
+        <div class="container">
+          <div class="row">
+            <div class="col-md-2">             
+              <h4>Software Development</h4>
+            </div>
+            <div class="col-md-6">              
+              <p>
+                "Learn to code", they said. Well, I did. Then it became work.
+              </p>
+              <p>
+                Writing code is primarily how I keep the lights on. I have been debugging, designing,
+                deploying for {{ 'now'|date('Y') - 2015 }} (as of {{ 'now'|date('Y') }}) years now.
+                And I'm almost getting good at it!
+              </p>
+              <p>
+                If you're interested in hiring me to write code for you,
+                or to help your team design and deploy code more effectively,
+                read more about my technical work on <a href={{ path('profile_hire_me_develop') }}>this page</a>.
+              </p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-2">
+              <h4>Writing</h4>
+            </div>
+            <div class="col-md-6">
+              <p>
+                I enjoy writing, and I write often.
+              </p>
+              <p>
+                Sometimes, things I write end up on my <a href={{ path('profile_blog') }}>blog</a>.
+              </p>
+              <p>
+                More often I write <a href={{ path('profile_poems') }}>poetry</a> and <a href={{ path('profile_plays') }}>plays</a>. Some of these are for sale, and you should buy them.
+              </p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-2">
+              <h4>Translation</h4>
+            </div>
+            <div class="col-md-6">
+              <p>
+                My translation is mostly to make academic and literary works available for my own study.
+                Most works I translate are German, and sometimes French.
+              </p>
+              <p>
+                My primary professional interest as a translator is to make more works of Günter Anders available in English.
+                Besides that, my interests as a poet and historian motivate me to broaden my language skills.
+              </p>
+              <p
+                Studying languages is fun. It also helps your brain think more creatively.
+              </p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-2">
+              <h4>Teaching</h4>
+            </div>
+            <div class="col-md-6">
+              <p>
+                Teaching and learning are essential in my work practice.
+              </p>
+              <p>
+                My <a href={{ path('profile_hire_me_create') }}>creative consulting</a> and other ways I can <a href={{ path('profile_hire_me_consult') }}>help you get things done</a> aim to provide
+                my clients and colleagues the information and tools they need to do their best work autonomously.
+              </p>
+              <p>
+                When capacity becomes more of a bottleneck than a knowledge gap,
+                I bring the hands-on experience and hustle to get things done.
+              </p>
+              <p>
+                I also occasionally take students for private lessons in guitar, bass, and the foundations of music theory.
+                Not usually from my website.
+              </p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-2">
+              <h4>Other Work</h4>
+            </div>
+            <div class="col-md-6">
+              <p>
+                Like I said, I love my work, and I have a lot of it.
+              </p>
+              <p>
+                If you have an interesting project and an interest in working with me, you should <a href={{ path('profile_contact') }}>reach out</a>.
+                I am always on the search for exciting projects, even if none of these headers are a 1:1 fit.
+              </p>
+            </div>
+          </div>
           
-        </p>
-        <p>
-        </p>
-        
-        <h5>Writing</h5>
-        <p>
-          I enjoy writing, and I write often.
-        </p>
-        <p>
-          I write <a>poetry</a> and <a>plays</a>.
-        </p>
-        <p>
-          , and occassionally <a>hot takes</a> on aesthetics, land ethics, techonology an other topics of interest.</p>
-        </p>
-        
-        <h5>Translation</h5>
-        <p>I translate wo of German and French work.</p>
-        <p>My current focus is producing translations of <a>Aesop's Fables</a> (mostly as a reason to explore more of the collection). I am also compiling works of <a>Rilke</a> and <a>Günter Anders</a>.</p>
-        
-        <h5>Teaching</h5>
-        <p>
-          I occasionally take students for private lessons in guitar, bass, and the foundations of music theory.
-        </p>
-
-        <h5>Teaching</h5>
-        <p>
-          ...
-        </p>
-
-        <h5>Other Work</h5>
-        <p>
-          Like I said, I love my work, and I have a lot of it.
-        </p>          
-
         <img src="{{ asset('images/pittsburgh-warm_small_jordan-faux-unsplash.jpg') }}" class="img-fluid hero-image section">
-    </div>
 
+        <p id="fn-1">
+          <sup><a href="#fn-1-ref">[1]</a></sup>
+          I do love Blink-182.
+        </p>
+        <p id="fn-2">
+          <sup><a href="#fn-2-ref">[2]</a></sup>
+          τέχνη, "techne" one stem of "technology"
+        </p>        
+    </div>
   </div>
 </section>
 {% endblock %}
