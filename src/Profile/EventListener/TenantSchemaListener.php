@@ -35,19 +35,21 @@ class TenantSchemaListener implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event): void
     {
+        /* // Debug 
         $this->logger->debug('TenantSchemaListener::onKernelRequest fired', [
             'isMainRequest' => $event->isMainRequest(),
             'pathInfo'      => $event->getRequest()->getPathInfo(),
         ]);
+        */
 
         if (!$event->isMainRequest()) {
-            $this->logger->debug('Skipping sub-request.');
+          // $this->logger->debug('Skipping sub-request.');
             return;
         }
         
         $site = $this->siteContext->getCurrentSite();
         if (!$site) {
-            $this->logger->debug('No site in context; skipping schema set.');
+          //  $this->logger->debug('No site in context; skipping schema set.');
             return;
         }
 
