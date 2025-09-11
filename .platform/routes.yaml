@@ -11,8 +11,24 @@
 "https://www.mulvaylitmas.com/":
   type: redirect
   to: "https://mulvaylitmas.com/"
+
+# Static assets for mulvaylitmas
+"https://mulvaylitmas.com/build/":
+  type: static
+  location: "public/build/"
+"https://mulvaylitmas.com/images/":
+  type: static
+  location: "public/images/"
+"https://mulvaylitmas.com/assets/":
+  type: static
+  location: "public/assets/"
+
+# Main app route (must come after static routes)
 "https://mulvaylitmas.com/litmas":
   type: upstream
   upstream: "app:http"
 
-"http://{all}/": { type: redirect, to: "https://{all}/" }
+# HTTP to HTTPS redirect
+"http://{all}/": 
+  type: redirect
+  to: "https://{all}/"
