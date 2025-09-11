@@ -14,6 +14,10 @@ final class ProfileController extends AbstractController
   {
     $host = $request->getHost();
     
+    if ($host === 'mulvaylitmas.com') {
+      return $this->redirectToRoute('litmas_index');
+    }
+    
     if ($host === 'gregsuehr.com') {
       return $this->render('hyper_link/story.html.twig');
     }
