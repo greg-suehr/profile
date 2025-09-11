@@ -5,9 +5,6 @@
     type: upstream
     upstream: "app:http"
 
-"https://mulvaylitmas.com/":
-  type: redirect
-  to: "https://mulvaylitmas.com/litmas"
 "https://www.mulvaylitmas.com/":
   type: redirect
   to: "https://mulvaylitmas.com/"
@@ -24,7 +21,7 @@
   location: "public/assets/"
 
 # Main app route (must come after static routes)
-"https://mulvaylitmas.com/litmas":
+"https://mulvaylitmas.com/":
   type: upstream
   upstream: "app:http"
 
