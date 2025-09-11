@@ -7,7 +7,7 @@
 
 "https://mulvaylitmas.com/":
   type: redirect
-  to: "https://mulvaylitmas.com/litmas_index"
+  to: "https://mulvaylitmas.com/litmas/"
 "https://www.mulvaylitmas.com/":
   type: redirect
   to: "https://mulvaylitmas.com/"
