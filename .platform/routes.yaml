@@ -3,5 +3,16 @@
     upstream: "app:http"
 "https://gregsuehr.com/":
     type: upstream
-    upstream: "app:http"    
+    upstream: "app:http"
+
+"https://mulvaylitmas.com/":
+  type: redirect
+  to: "https://mulvaylitmas.com/litmas_index"
+"https://www.mulvaylitmas.com/":
+  type: redirect
+  to: "https://mulvaylitmas.com/"
+"https://mulvaylitmas.com/{all}":
+  type: upstream
+  upstream: "web:http"
+
 "http://{all}/": { type: redirect, to: "https://{all}/" }
