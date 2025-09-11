@@ -11,5 +11,8 @@
 "https://www.mulvaylitmas.com/":
   type: redirect
   to: "https://mulvaylitmas.com/"
+"https://mulvaylitmas.com/litmas/":
+  type: upstream
+  upstream: "app:http"
 
 "http://{all}/": { type: redirect, to: "https://{all}/" }
