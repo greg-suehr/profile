@@ -21,7 +21,10 @@ final class LitmasController extends AbstractController
     #[Route('/litmas', name: 'litmas_index')]
     public function index(Request $request): Response
     {
+        $textContent = $this->cmsRepository->findBySlug('main');
+        
         return $this->render('litmas/info.html.twig', [
+          'textContent'  => $textContent,
           'storyNodeKey' => 'litmas',
           'showCanvas'   => true,
         ]);
@@ -30,7 +33,8 @@ final class LitmasController extends AbstractController
     #[Route('/litmas/info', name: 'litmas_info')]
     public function info(Request $request): Response
     {
-        $textContent = $this->cmsRepository->findBySlug('main');
+        $textContent = $this->cmsRepository->findOneBySlug('main');
+        
         return $this->render('litmas/info.html.twig', [
           'textContent'  => $textContent,
           'storyNodeKey' => 'litmas-info',

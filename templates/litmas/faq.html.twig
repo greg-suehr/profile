@@ -2,6 +2,9 @@
 {% block content %}
 <h1 class="litmas-title">SLEIGHER</h1>
 <div id="bottlerocket-info">
+  {% if textContent %}
+  {{ textContent.html |raw }}
+  {% else %}  
   <p>
     Sleigher - Krampus Band brings sonic holiday punishment to the naughty
     and revelry (to everyone) since 2017.
@@ -15,6 +18,7 @@
   </a>
   <a href="https://www.youtube.com/channel/UCIOfdO6uVS64Bwz8-hxWPQg">
     <i class="fa-brands fa-youtube"></i>
-  </a>  
+  </a>
+  {% end %}
 </div>
 {% endblock %}
