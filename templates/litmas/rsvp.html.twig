@@ -1,0 +1,25 @@
+{% extends 'litmas/base.html.twig' %}
+{% block content %}
+<div id="event-info" class="litmas-details container mt-5">  
+  <img src="{{ asset('images/krampus.png') }}" alt="Krampus" class="krampus-overlay" />
+  <div class="litmas-form-container">
+  {{ form_start(form) }}
+  <div class="mb-3">
+    {{ form_label(form.name) }}
+    {{ form_widget(form.name, {'attr': {'class': 'litmas-form-field'}}) }}
+    {{ form_errors(form.name) }}
+  </div>
+  <div class="mb-3">
+    {{ form_label(form.guestCount) }}
+    {{ form_widget(form.guestCount, {'attr': {'class': 'litmas-form-field'}}) }}
+    {{ form_errors(form.guestCount) }}
+  </div>
+  <div class="mb-3">
+    {{ form_label(form.note) }}
+    {{ form_widget(form.note, {'attr': {'class': 'litmas-form-field'}}) }}
+    {{ form_errors(form.note) }}
+  </div>  
+  {{ form_end(form) }}
+  </div>
+</div>
+{% endblock %}

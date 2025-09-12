@@ -111,6 +111,28 @@
         padding: 2rem 1rem;
       }
 
+      .litmas-form-container {
+        max-width: 500px;
+        margin: 40px auto;
+        padding: 30px;
+        background-color: var(--color-primary);
+        border-style: solid;
+        border-color: var(--color-border);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .litmas-form-field {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: var(--color-text);
+      }
+
       .litmas-title {
         font-size: 4rem;
         font-weight: 900;
@@ -163,9 +185,11 @@
 </head>
 
 <body class="{% if showCanvas %}canvas-mode{% endif %}">
-  
+
+  {% if showCanvas %}
   <canvas id="screen" class="fullscreen-canvas" data-scene-id="{{ storyNodeKey }}"></canvas>
   {{ encore_entry_script_tags('scene') }}
+  {% endif %}
 
   <div id="litmas-site-structure">
     <!-- Navbar -->
@@ -198,6 +222,7 @@
       </div>
     </main>
   </div>
+  {% if showCanvas %}
   <audio id="litmas-music" src="{{ asset('assets/litmas/litmas_intro.wav') }}" loop></audio>
   <audio id="litmas-sfx-enter" src="{{ asset('assets/litmas/litmas_enter.wav') }}"></audio>
   <div id="litmas-splash" style="
@@ -226,5 +251,6 @@
                                    transition: transform 0.2s ease-in-out;
                                    ">Enter Site</button>
   </div>
+  {% endif %}
 </body>
 </html>
