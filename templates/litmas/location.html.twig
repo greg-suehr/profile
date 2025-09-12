@@ -1,9 +1,25 @@
 {% extends 'litmas/base.html.twig' %}
 {% block content %}
-<div id="bottlerocket-info">
-  <h2>About Bottlerocket</h2>
+<h1 class="litmas-title">BOTTLEROCKET</h1>
+<div id="bottlerocket-address">
   <p>226 Arlington Ave, Pittsburgh, PA 15210</p>
-  <p>The Bottlerocket Social Club is an eclectic venue known for its punk shows, basement energy, and ultra-tight sound. Litmas is its final form.</p>
-  <p>Parking is street-level and limited. Carpool if you can. There will be signs.</p>
+</div>
+<div id="bottlerocket-info">
+  <p>
+    Bottlerocket Social Hall is a performance venue and bar in Allentown.    
+  </p>
+  <p>
+    With their wood paneled walls, velvet wallpaper, and Rockola Jukebox, Bottlerocket
+    is a trip into yesteryear. They serve great hot dogs and host awesome events,
+    including <a href={{ path('litmas_rsvp') }}>LITMAS</a>.
+  </p>
+  <h2>Parking</h2>
+  <p>
+    Bottlerocket has two free lots at <strong>824 Industry St.</strong> and <strong>205 Allen St.</strong>
+  </p>
+  <p>
+    Check out a map of the block with the lots on Bottlerocket's website under
+    <a href="https://www.bottlerocketpgh.com/faq">Where Do I Park?</a>
+  </p>
 </div>
 {% endblock %}

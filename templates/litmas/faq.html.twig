@@ -1,10 +1,20 @@
 {% extends 'litmas/base.html.twig' %}
 {% block content %}
+<h1 class="litmas-title">SLEIGHER</h1>
 <div id="bottlerocket-info">
-  <h2>WTF is Sleigher?</h2>
-  <p>Sleiger is</p>
-  <p>Bringing rock n’ roll holiday revelry to the naughty since 2017</p>
-  <a href="https://www.instagram.com/sleigherkrampusband/">I</a>
-  <a href="https://www.youtube.com/channel/UCIOfdO6uVS64Bwz8-hxWPQg">Y</a>  
+  <p>
+    Sleigher - Krampus Band brings sonic holiday punishment to the naughty
+    and revelry (to everyone) since 2017.
+  </p>  
+  <p>
+    This year, Sleigheris providing entertainment for 
+    <a href={{ path('litmas_rsvp') }}>LITMAS</a>.
+  </p>
+  <a href="https://www.instagram.com/sleigherkrampusband/">
+    <i class="fa-brands fa-instagram"></i>
+  </a>
+  <a href="https://www.youtube.com/channel/UCIOfdO6uVS64Bwz8-hxWPQg">
+    <i class="fa-brands fa-youtube"></i>
+  </a>  
 </div>
 {% endblock %}

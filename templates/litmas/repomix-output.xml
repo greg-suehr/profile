@@ -1,3 +1,56 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+base.html.twig
+faq.html.twig
+info.html.twig
+location.html.twig
+rsvp.html.twig
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="base.html.twig">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -493,3 +546,102 @@
   {% endif %}
 </body>
 </html>
+</file>
+
+<file path="faq.html.twig">
+{% extends 'litmas/base.html.twig' %}
+{% block content %}
+<h1 class="litmas-title">SLEIGHER</h1>
+<div id="bottlerocket-info">
+  <p>
+    Sleigher - Krampus Band brings sonic holiday punishment to the naughty
+    and revelry (to everyone) since 2017.
+  </p>  
+  <p>
+    This year, Sleigheris providing entertainment for 
+    <a href={{ path('litmas_rsvp') }}>LITMAS</a>.
+  </p>
+  <a href="https://www.instagram.com/sleigherkrampusband/">
+    <i class="fa-brands fa-instagram"></i>
+  </a>
+  <a href="https://www.youtube.com/channel/UCIOfdO6uVS64Bwz8-hxWPQg">
+    <i class="fa-brands fa-youtube"></i>
+  </a>  
+</div>
+{% endblock %}
+</file>
+
+<file path="info.html.twig">
+{% extends 'litmas/base.html.twig' %}
+{% block content %}
+<h1 class="litmas-title">LITMAS</h1>
+<div id="event-info" class="litmas-details container mt-5">
+  <img src="{{ asset('images/krampus.png') }}" alt="Krampus" class="krampus-overlay" />
+  <p class="litmas-date">NOVEMBER 29, 2025</p>
+  <p class="litmas-location">Bottlerocket Social Club</p>
+  <p class="litmas-feature">Feat. Sleigher</p>
+</div>
+ <div class="litmas-cta">
+   <a href="{{ path('litmas_rsvp') }}" class="rsvp-button">RSVP</a>
+ </div>
+{% endblock %}
+</file>
+
+<file path="location.html.twig">
+{% extends 'litmas/base.html.twig' %}
+{% block content %}
+<h1 class="litmas-title">BOTTLEROCKET</h1>
+<div id="bottlerocket-address">
+  <p>226 Arlington Ave, Pittsburgh, PA 15210</p>
+</div>
+<div id="bottlerocket-info">
+  <p>
+    Bottlerocket Social Hall is a performance venue and bar in Allentown.    
+  </p>
+  <p>
+    With their wood paneled walls, velvet wallpaper, and Rockola Jukebox, Bottlerocket
+    is a trip into yesteryear. They serve great hot dogs and host awesome events,
+    including <a href={{ path('litmas_rsvp') }}>LITMAS</a>.
+  </p>
+  <h2>Parking</h2>
+  <p>
+    Bottlerocket has two free lots at <strong>824 Industry St.</strong> and <strong>205 Allen St.</strong>
+  </p>
+  <p>
+    Check out a map of the block with the lots on Bottlerocket's website under
+    <a href="https://www.bottlerocketpgh.com/faq">Where Do I Park?</a>
+  </p>
+</div>
+{% endblock %}
+</file>
+
+<file path="rsvp.html.twig">
+{% extends 'litmas/base.html.twig' %}
+{% block content %}
+<div id="event-info" class="litmas-details container mt-5">  
+  <img src="{{ asset('images/krampus.png') }}" alt="Krampus" class="krampus-overlay" />
+  <div class="litmas-form-container">
+  {{ form_start(form) }}
+  <div class="mb-3">
+    {{ form_label(form.name) }}
+    {{ form_widget(form.name, {'attr': {'class': 'litmas-form-field'}}) }}
+    {{ form_errors(form.name) }}
+  </div>
+  <div class="mb-3">
+    {{ form_label(form.guestCount) }}
+    {{ form_widget(form.guestCount, {'attr': {'class': 'litmas-form-field'}}) }}
+    {{ form_errors(form.guestCount) }}
+  </div>
+  <div class="mb-3">
+    {{ form_label(form.note) }}
+    {{ form_widget(form.note, {'attr': {'class': 'litmas-form-field'}}) }}
+    {{ form_errors(form.note) }}
+  </div>
+  <button type="submit">Submit RSVP</button>
+  {{ form_end(form) }}
+  </div>
+</div>
+{% endblock %}
+</file>
+
+</files>

@@ -1,9 +1,13 @@
 {% extends 'litmas/base.html.twig' %}
 {% block content %}
+<h1 class="litmas-title">LITMAS</h1>
 <div id="event-info" class="litmas-details container mt-5">
   <img src="{{ asset('images/krampus.png') }}" alt="Krampus" class="krampus-overlay" />
   <p class="litmas-date">NOVEMBER 29, 2025</p>
   <p class="litmas-location">Bottlerocket Social Club</p>
   <p class="litmas-feature">Feat. Sleigher</p>
 </div>
+ <div class="litmas-cta">
+   <a href="{{ path('litmas_rsvp') }}" class="rsvp-button">RSVP</a>
+ </div>
 {% endblock %}
