@@ -2,7 +2,7 @@
 
 namespace App\Shared\Entity;
 
-use App\Repository\CmsPageRepository;
+use App\Shared\Repository\CmsPageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
