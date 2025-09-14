@@ -68,7 +68,19 @@
       z-index: 100;
     }
 
-    .nav-left .nav-logo {
+    .nav-left {
+      flex: 1;
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .nav-center {
+      flex: 0 0 auto;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .nav-center .nav-logo {
       background: none;
       border: none;
       padding: 0.5rem;
@@ -76,17 +88,24 @@
       border-radius: 8px;
       transition: all 0.3s ease;
     }
-
-    .nav-left .nav-logo:hover {
+    
+    .nav-center .nav-logo:hover {
       background: rgba(251, 215, 95, 0.1);
     }
-
-    .nav-left img {
+    
+    .nav-center img {
       height: 40px;
       width: auto;
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
     }
+    
+    .nav-right {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+    }
 
+    .nav-left .nav-links,
     .nav-right .nav-links {
       display: flex;
       gap: 2rem;
@@ -95,6 +114,8 @@
       padding: 0;
     }
 
+    .nav-left .nav-links button, 
+    .nav-left .nav-links a,
     .nav-right .nav-links button, 
     .nav-right .nav-links a {
       background: none;
@@ -111,11 +132,16 @@
       position: relative;
       overflow: hidden;
     }
+
+    .nav-left .nav-links button:hover::before,
+    .nav-left .nav-links a:hover::before,
     .nav-right .nav-links button:hover::before,
     .nav-right .nav-links a:hover::before {
       left: 0;
     }
-
+    
+    .nav-left .nav-links button:hover,
+    .nav-left .nav-links a:hover,
     .nav-right .nav-links button:hover,
     .nav-right .nav-links a:hover {
       color: var(--color-secondary);
@@ -299,9 +325,6 @@
 
     .krampus-overlay {
       max-width: 200px;
-      opacity: 0.8;
-      margin: 1rem;
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
     }
 
     /* Info Pages Styling */
@@ -440,14 +463,17 @@
     <!-- Navbar -->
     <nav class="litmas-navbar">
       <div class="nav-left">
-        <button class="nav-logo" onclick="navigateTo('main')">
-          <img src="{{ asset('images/tree_icon.png') }}" alt="Tree Icon" />          
-        </button>
+        <ul class="nav-links">
+          <li><a href="{{ path('litmas_location') }}">BOTTLEROCKET</a></li>
+        </ul>
+      </div>
+      <div class="nav-center">
+        <div class="nav-logo">
+          <a href="{{ path('litmas_info') }}"><img src="{{ asset('assets/litmas/krampus.png') }}" alt='krampus_logo'/>
+        </div>
       </div>
       <div class="nav-right">
         <ul class="nav-links">
-          <li><a href="{{ path('litmas_info') }}">LITMAS</a></li>
-          <li><a href="{{ path('litmas_location') }}">BOTTLEROCKET</a></li>
           <li><a href="{{ path('litmas_faq') }}">SLEIGHER</a></li>
         </ul>
       </div>

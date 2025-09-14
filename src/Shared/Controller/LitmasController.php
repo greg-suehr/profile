@@ -21,7 +21,7 @@ final class LitmasController extends AbstractController
     #[Route('/litmas', name: 'litmas_index')]
     public function index(Request $request): Response
     {
-        $textContent = $this->cmsRepository->findBySlug('main');
+        $textContent = $this->cmsRepository->findOneBySlug('main');
         
         return $this->render('litmas/info.html.twig', [
           'textContent'  => $textContent,
@@ -53,10 +53,7 @@ final class LitmasController extends AbstractController
       if ($form->isSubmitted() && $form->isValid()) {
         $rsvp->setTimestamp(new \DateTime());
         $rsvpRepo->add($rsvp, true);
-        return $this->render('litmas/info.html.twig', [
-          'storyNodeKey' => 'litmas-confirm',
-          'showCanvas'   => false,
-        ]);
+        return $this->redirectToRoute('litmas_info');
       }        
 
       return $this->render('litmas/rsvp.html.twig', [
@@ -69,7 +66,7 @@ final class LitmasController extends AbstractController
       #[Route('/litmas/location', name: 'litmas_location')]
     public function location(Request $request): Response
     {
-        $textContent = $this->cmsRepository->findBySlug('location');
+        $textContent = $this->cmsRepository->findOneBySlug('location');
         
         return $this->render('litmas/location.html.twig', [
           'textContent' => $textContent,
@@ -81,7 +78,7 @@ final class LitmasController extends AbstractController
     #[Route('/litmas/faq', name: 'litmas_faq')]
     public function faq(Request $request): Response
     {
-        $textContent = $this->cmsRepository->findBySlug('faq');
+        $textContent = $this->cmsRepository->findOneBySlug('faq');
 
         return $this->render('litmas/faq.html.twig', [
           'textContent'  => $textContent,

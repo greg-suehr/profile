@@ -14,6 +14,11 @@
     {{ form_widget(form.guestCount, {'attr': {'class': 'litmas-form-field'}}) }}
     {{ form_errors(form.guestCount) }}
   </div>
+  <div class="mb-3" id="guestCountOtherRow" style="display: none;">
+    {{ form_label(form.guestCountOther) }}
+    {{ form_widget(form.guestCountOther, {'attr': {'class': 'litmas-form-field'}}) }}
+    {{ form_errors(form.guestCountOther) }}
+  </div>
   <div class="mb-3">
     {{ form_label(form.note) }}
     {{ form_widget(form.note, {'attr': {'class': 'litmas-form-field'}}) }}
@@ -23,4 +28,36 @@
   {{ form_end(form) }}
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const select = document.querySelector('[data-guest-select]');
+    const otherRow = document.getElementById('guestCountOtherRow');
+    const otherInput = document.querySelector('[data-guest-other]');
+    const SHOW_ON_VALUE = '6';
+    
+    if (!select || !otherRow || !otherInput) {
+      console.error('Form elements not found:', { select, otherRow, otherInput });
+      return;
+    }
+    
+    function toggleOther() {
+      const isOther = select.value === SHOW_ON_VALUE;
+      
+      if (isOther) {
+        otherRow.style.display = 'block';
+        otherInput.required = true;
+        setTimeout(() => otherInput.focus(), 100);
+      } else {
+        otherRow.style.display = 'none';
+        otherInput.required = false;
+        otherInput.value = '';
+      }
+    }
+    
+    toggleOther();
+    
+    select.addEventListener('change', toggleOther);
+  });
+</script>
 {% endblock %}

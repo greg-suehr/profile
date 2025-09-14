@@ -1,11 +1,11 @@
 {% extends 'litmas/base.html.twig' %}
 {% block content %}
 <h1 class="litmas-title">LITMAS</h1>
+<img src="{{ asset('assets/litmas/krampus.png') }}" alt="Krampus" class="krampus-overlay" />
 <div id="event-info" class="litmas-details container mt-5">
   {% if textContent %}
   {{ textContent.html |raw }}
   {% else %}
-  <img src="{{ asset('images/krampus.png') }}" alt="Krampus" class="krampus-overlay" />
   <p class="litmas-date">NOVEMBER 29, 2025</p>
   <p class="litmas-location">Bottlerocket Social Club</p>
   <p class="litmas-feature">Feat. Sleigher</p>
