@@ -19,7 +19,7 @@ class CmsPageCrudController extends AbstractCrudController
     {
         return [
           TextField::new('slug'),
-          TextareaField::new('html'),          
+          TextEditorField::new('html'),          
         ];
     }
 }
