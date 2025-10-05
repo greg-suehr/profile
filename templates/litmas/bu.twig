@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Litmas 2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://kit.fontawesome.com/fb6622f4bc.js" crossorigin="anonymous"></script>
+  {% block styles %}
+<style>
+    :root {
+      --color-primary: #4E0000;
+      --color-secondary: #9A1D1D;
+      --color-accent: #FBD75F;
+      --color-surface: #2A0000;
+      --color-text: #FBD75F;
+      --color-border: #6B1A1A;
+      --color-input-bg: #3A0000;
+      --color-input-border: #8B2B2B;
+      --color-input-focus: #FBD75F;
+      --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --gradient-bg: radial-gradient(ellipse at center, #4E0000 0%, #2A0000 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--gradient-bg);
+      color: var(--color-text);
+/*      font-family: 'Arial', sans-serif;      */
+    }
+
+    body.canvas-mode {
+      background-color: #003E00;
+    }
+
+    canvas.fullscreen-canvas {
+      position: fixed;
+      inset: 0;
+      display: block;
+      background: #003E00;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1000;
+    }
+
+    .hidden { 
+      display: none; 
+    }
+
+    .litmas-navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(42, 0, 0, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 1rem 2rem;
+      border-bottom: 2px solid var(--color-border);
+      box-shadow: var(--shadow-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-left {
+      flex: 1;
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .nav-center {
+      flex: 0 0 auto;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .nav-center .nav-logo {
+      background: none;
+      border: none;
+      padding: 0.5rem;
+      margin: 0;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-center .nav-logo:hover {
+      background: rgba(251, 215, 95, 0.1);
+    }
+    
+    .nav-center img {
+      height: 40px;
+      width: auto;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+    
+    .nav-right {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .nav-left .nav-links,
+    .nav-right .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-left .nav-links button, 
+    .nav-left .nav-links a,
+    .nav-right .nav-links button, 
+    .nav-right .nav-links a {
+      background: none;
+      border: none;
+      color: var(--color-text);
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-left .nav-links button:hover::before,
+    .nav-left .nav-links a:hover::before,
+    .nav-right .nav-links button:hover::before,
+    .nav-right .nav-links a:hover::before {
+      left: 0;
+    }
+    
+    .nav-left .nav-links button:hover,
+    .nav-left .nav-links a:hover,
+    .nav-right .nav-links button:hover,
+    .nav-right .nav-links a:hover {
+      color: var(--color-secondary);
+      transform: translateY(-2px);
+    }
+
+    #litmas-site-structure {
+      min-height: 100vh;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    body.canvas-mode #litmas-site-structure {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .litmas-content {
+      text-align: center;
+      padding: 3rem 1rem;
+      position: relative;
+    }
+
+    .litmas-title {
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 900;
+      letter-spacing: 0.2rem;
+      color: var(--color-text);
+      margin-bottom: 2rem;
+      background: var(--color-text);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .litmas-form-container {
+      max-width: 500px;
+      margin: 2rem auto;
+      padding: 2.5rem;
+      background: rgba(42, 0, 0, 0.8);
+      backdrop-filter: blur(15px);
+      border: 2px solid var(--color-border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-elevated);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .litmas-form-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--color-text);
+    }
+
+    /* Enhanced Form Fields */
+    .litmas-form-field {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.75rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--color-text);
+      text-transform: uppercase;
+      letter-spacing: 0.05rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      font-size: 1rem;
+      background: var(--color-input-bg);
+      border: 2px solid var(--color-input-border);
+      border-radius: 12px;
+      color: var(--color-text);
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    input[type="text"]::placeholder,
+    input[type="number"]::placeholder,
+    textarea::placeholder {
+      color: rgba(251, 215, 95, 0.5);
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--color-input-focus);
+      box-shadow: 0 0 0 3px rgba(251, 215, 95, 0.2);
+      background: rgba(58, 0, 0, 0.8);
+      transform: translateY(-2px);
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .litmas-cta {
+      margin-top: 3rem;
+    }
+
+    .rsvp-button {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--color-surface);
+      background: var(--color-text);
+      border: none;
+      border-radius: 25px;
+      box-shadow: var(--shadow-elevated);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.05rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .rsvp-button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translate(-50%, -50%);
+    }
+
+    .rsvp-button:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .rsvp-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .rsvp-button:active {
+      transform: translateY(-1px);
+    }
+
+    /* Event Info Styling */
+    .litmas-details {
+      position: relative;
+      margin: 2rem auto;
+      max-width: 600px;
+    }
+
+    .litmas-date,
+    .litmas-location,
+    .litmas-feature {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 1rem 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .litmas-date {
+      font-size: 2rem;
+      color: var(--color-accent);
+    }
+
+    .krampus-overlay {
+      max-width: 200px;
+    }
+
+    /* Info Pages Styling */
+    #bottlerocket-info {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: rgba(42, 0, 0, 0.6);
+      border-radius: 16px;
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-elevated);
+    }
+
+    #bottlerocket-info h2 {
+      color: var(--color-accent);
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    #bottlerocket-info p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    #bottlerocket-info a {
+      color: var(--color-accent);
+      text-decoration: none;
+      font-weight: 600;
+      margin: 0 0.5rem;
+      transition: color 0.3s ease;
+    }
+
+    #bottlerocket-info a:hover {
+      color: #fff;
+    }
+
+    #bottlerocket-address {
+      max-width: 600px;
+      margin: 0.5rem auto;
+      padding: 0.5rem;
+      background: rgba(42, 0, 0, 0.6);
+      border-radius: 16px;
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-elevated);
+    }
+
+    #bottlerocket-address p {
+      font-size: 1.6rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .litmas-navbar {
+        padding: 1rem;
+      }
+      
+      .nav-right .nav-links {
+        gap: 1rem;
+      }
+      
+      .nav-right .nav-links button,
+      .nav-right .nav-links a {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+      }
+      
+      .litmas-form-container {
+        margin: 1rem;
+        padding: 2rem;
+      }
+      
+      .rsvp-button {
+        font-size: 1.1rem;
+        padding: 0.875rem 2rem;
+      }
+    }
+
+    .litmas-form-container {
+      animation: slideInUp 0.6s ease-out;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    button[type="submit"],
+    input[type="submit"] {
+      width: 100%;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-surface);
+      background: var(--color-text);
+      border: none;
+      border-radius: 12px;
+      box-shadow: var(--shadow-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.05rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    button[type="submit"]:hover,
+    input[type="submit"]:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-elevated);
+    }
+
+    button[type="submit"]:active,
+    input[type="submit"]:active {
+      transform: translateY(0);
+    }
+  </style>  
+  {% endblock %}
+</head>
+
+<body class="{% if showCanvas %}canvas-mode{% endif %}">
+
+  {% if showCanvas %}
+  <!--
+      # Spritesheet animations
+      <canvas id="screen" class="fullscreen-canvas" data-scene-id="{{ storyNodeKey }}"></canvas>
+      {{ encore_entry_script_tags('scene') }}
+      -->
+      {{ encore_entry_script_tags('scene') }}
+      <canvas id="screen" class="fullscreen-canvas" data-scene-id="{{ storyNodeKey }}"></canvas>
+      <video
+        id="litmas-video"
+        data-intro="video"
+        class="fullscreen-canvas hidden"
+        src="{{ asset('assets/litmas/litmas-intro.mp4') }}"
+        playsinline
+        preload="auto"
+        muted
+        controlslist="nodownload noplaybackrate"
+        </video>
+      
+  {% endif %}
+
+  <div id="litmas-site-structure">
+    <!-- Navbar -->
+    <nav class="litmas-navbar">
+      <div class="nav-left">
+        <ul class="nav-links">
+          <li><a href="{{ path('litmas_location') }}">BOTTLEROCKET</a></li>
+        </ul>
+      </div>
+      <div class="nav-center">
+        <div class="nav-logo">
+          <a href="{{ path('litmas_info') }}"><img src="{{ asset('assets/litmas/krampus.png') }}" alt='krampus_logo'/>
+        </div>
+      </div>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="{{ path('litmas_faq') }}">SLEIGHER</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Page Content -->
+    <main id="main-content" class="litmas-content">
+      <div>
+        {% block content %}
+        {% endblock %}
+      </div>
+    </main>
+  </div>
+  
+  {% if showCanvas %}
+  <audio id="litmas-music" src="{{ asset('assets/litmas/litmas_intro.wav') }}" loop></audio>
+  <audio id="litmas-sfx-enter" src="{{ asset('assets/litmas/litmas_enter.wav') }}"></audio>
+  <div id="litmas-splash" style="
+                                 position: fixed;
+                                 top: 0;
+                                 left: 0;
+                                 width: 100vw;
+                                 height: 100vh;
+                                 background: #003E00;
+                                 color: #fff;
+                                 display: flex;
+                                 flex-direction: row;
+                                 justify-content: center;
+                                 align-items: center;
+                                 z-index: 9999;
+                                 ">
+    <button id="enter-site-naughty" style="
+                                   padding: 1rem 2rem;
+                                   font-size: 1.5rem;
+                                   font-weight: bold;
+                                   background: #FBD75F;
+                                   color: #003E00;
+                                   border: none;
+                                   border-radius: 1rem;
+                                   cursor: pointer;
+                                   transition: transform 0.2s ease-in-out;
+                                   ">Naughty</button>
+
+    <button id="enter-site-nice" style="
+                                        padding: 1rem 2rem;
+                                        font-size: 1.5rem;
+                                        font-weight: bold;
+                                        background: #FBD75F;
+                                        color: #003E00;
+                                        border: none;
+                                        border-radius: 1rem;
+                                        cursor: pointer;
+                                        transition: transform 0.2s ease-in-out;
+                                        ">Nice</button>
+
+  </div>
+  {% endif %}
+</body>
+</html>

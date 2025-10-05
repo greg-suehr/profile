@@ -85,7 +85,9 @@ export class SceneEffect {
       'CanvasShake': CanvasShakeEffect,
       'GlitchOverlay': GlitchOverlayEffect,
       'Rift': RiftEffect,
-      'WrenchDrop': WrenchDropEffect
+      'WrenchDrop': WrenchDropEffect,
+      'VideoPlayer': VideoPlayerEffect,
+      'Callback': CallbackEffect
     };
 
     return effectTypes[type] || null;
@@ -635,4 +637,124 @@ class WrenchDropEffect extends EffectInstance {
     this.context.fillRect(this.x + 2, this.y - 3, 4, 9);
   }
 }
+
+/**
+ * Video player effect
+ */
+class VideoPlayerEffect extends EffectInstance {
+  start() {
+    const { src, loop, muted, autoplay, volume, fit = 'contain', audio } = this.params;
+    this.video = document.createElement('video');
+    this.video.playsInline = true;
+    this.video.muted = muted !== false;     // default true for autoplay
+    this.video.loop = !!loop;
+    this.video.preload = 'auto';
+    this.video.crossOrigin = 'anonymous';
+    this.video.src = src;    
+    this.video.volume = volume ?? 1.0;
+    this._fit = fit;                        // 'cover' | 'contain'
+
+    if (audio) {
+      this._audioConfig = audio; // e.g. { id: 'litmas-sfx-enter', at: 3000 }
+      this._audioTriggered = false;
+    }
+    
+    if (autoplay) {
+      this.video.play().catch(()=>{/* starts on external gesture */});
+    }
+    this._ended = false;
+    this.onEnded = () => {
+      this._ended = true;
+      this.video.pause();
+      this.video.currentTime = 0;
+      this.dispatchDone();
+    };
+    this.video.addEventListener('ended', this.onEnded);
+  }  
+
+  /**
+   * Notify bootstrap via a CustomEvent on the window
+   */
+  dispatchDone() {
+    console.log("Video ended! Dispatch event");
+    window.dispatchEvent(new CustomEvent('video:ended', {
+      bubbles: true,
+      detail: { type: 'VideoPlayer', id: this._id || null }
+    }
+    ));
+  }
+
+  update(currentTime) {
+    const relativeTime = currentTime - this.startTime;
+    
+    if (relativeTime >= 0) {
+      if (!this.hasStarted) {
+        this.start();
+        this.hasStarted = true;
+      }
+      this.isActive = true;
+      this.render(relativeTime);
+      // Don't call end() based on duration - video will handle it
+    }
+  }
+  
+  render(relativeTime) {
+    if (!this.video) return;
+
+    if (this._audioConfig && !this._audioTriggered && relativeTime >= this._audioConfig.at) {
+      this._audioTriggered = true;
+      const audioEl = document.getElementById(this._audioConfig.id);
+      if (audioEl) {
+        audioEl.currentTime = 0;
+        audioEl.play().catch(err => console.warn('Audio playback failed:', err));
+      }
+    }
+    
+    const vw = this.video.videoWidth || 1, vh = this.video.videoHeight || 1;
+    const cw = this.canvas.width, ch = this.canvas.height;
+    let dw = cw, dh = ch, dx = 0, dy = 0;
+
+    const scaleContain = Math.min(cw / vw, ch / vh);
+    const scaleCover   = Math.max(cw / vw, ch / vh);
+    const s = this._fit === 'cover' ? scaleCover : scaleContain;
+
+    dw = vw * s; dh = vh * s;
+    dx = (cw - dw) / 2; dy = (ch - dh) / 2;
+
+    this.context.drawImage(this.video, dx, dy, dw, dh);
+  }
+
+  end() {
+    console.log("ending video...");
+    if (this.video) {
+      this.video.removeEventListener('ended', this.onEnded);
+      this.video.pause();
+      this.video.src = '';
+      this.video = null;
+    }
+  }
+}
+
+/**
+ * Callback trigger effect - executes a callback after duration
+ */
+class CallbackEffect extends EffectInstance {
+  start() {
+    this.callback = this.params.callback;
+    this.targetElement = this.params.targetElement;
+  }
+  
+  end() {
+    if (this.callback && typeof this.callback === 'string') {
+      // Dispatch custom event that bootstrap can listen for
+      window.dispatchEvent(new CustomEvent('effect:callback', {
+        detail: { callback: this.callback }
+      }));
+    }
+  }
+  
+  render(relativeTime) {
+  }
+}
+
 

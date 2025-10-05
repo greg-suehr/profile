@@ -457,8 +457,37 @@
   {% if showCanvas %}
   <canvas id="screen" class="fullscreen-canvas" data-scene-id="{{ storyNodeKey }}"></canvas>
   {{ encore_entry_script_tags('scene') }}
+  
+  <audio id="litmas-music" src="{{ asset('assets/litmas/litmas_intro.wav') }}" loop></audio>
+  <audio id="litmas-sfx-enter" src="{{ asset('assets/litmas/litmas_enter.wav') }}"></audio>
+  <div id="litmas-splash" style="
+                                 position: fixed;
+                                 top: 0;
+                                 left: 0;
+                                 width: 100vw;
+                                 height: 100vh;
+                                 background: #003E00;
+                                 color: #fff;
+                                 display: flex;
+                                 flex-direction: column;
+                                 justify-content: center;
+                                 align-items: center;
+                                 z-index: 9999;
+                                 ">
+    <button id="enter-site-naughty" style="
+                                           padding: 1rem 2rem;
+                                           font-size: 1.5rem;
+                                           font-weight: bold;
+                                           background: #FBD75F;
+                                           color: #003E00;
+                                           border: none;
+                                           border-radius: 1rem;
+                                           cursor: pointer;
+                                           transition: transform 0.2s ease-in-out;
+                                           ">Enter Site</button>
+  </div>
   {% endif %}
-
+  
   <div id="litmas-site-structure">
     <!-- Navbar -->
     <nav class="litmas-navbar">
@@ -487,35 +516,5 @@
       </div>
     </main>
   </div>
-  {% if showCanvas %}
-  <audio id="litmas-music" src="{{ asset('assets/litmas/litmas_intro.wav') }}" loop></audio>
-  <audio id="litmas-sfx-enter" src="{{ asset('assets/litmas/litmas_enter.wav') }}"></audio>
-  <div id="litmas-splash" style="
-                                 position: fixed;
-                                 top: 0;
-                                 left: 0;
-                                 width: 100vw;
-                                 height: 100vh;
-                                 background: #003E00;
-                                 color: #fff;
-                                 display: flex;
-                                 flex-direction: column;
-                                 justify-content: center;
-                                 align-items: center;
-                                 z-index: 9999;
-                                 ">
-    <button id="enter-site" style="
-                                   padding: 1rem 2rem;
-                                   font-size: 1.5rem;
-                                   font-weight: bold;
-                                   background: #FBD75F;
-                                   color: #003E00;
-                                   border: none;
-                                   border-radius: 1rem;
-                                   cursor: pointer;
-                                   transition: transform 0.2s ease-in-out;
-                                   ">Enter Site</button>
-  </div>
-  {% endif %}
 </body>
 </html>

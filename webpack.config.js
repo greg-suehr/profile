@@ -22,7 +22,9 @@ Encore
      */
     .addEntry('app', './assets/app.js')
     .addEntry('prologue', './assets/js/prologue.js')
-    .addEntry('scene', './assets/js/scene-bootstrap.js')
+    .addEntry('scene', './assets/js/scene-bootstrap.js')   
+    // TODO: design autoload, config file for client projects
+    //    .addEntry('litmas', './assets/js/project/litmas/scene.js')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()

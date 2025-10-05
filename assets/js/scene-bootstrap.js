@@ -48,6 +48,18 @@ class SceneBootstrap {
       await this.loadSceneConfig();
 
       // Initialize scene effects
+      window.addEventListener('effect:callback', (e) => {
+        const callbackName = e.detail.callback;
+        if (callbackName === 'revealSite' && typeof this.revealSite === 'function') {
+          this.revealSite();
+        }
+      });
+
+      window.addEventListener('video:ended', () => {
+        console.log('[Scene] video:ended → revealSite()');
+        this.revealSite();
+      });
+      
       this.initializeSceneEffects();
 
       // Initialize sprite animators
@@ -193,6 +205,8 @@ class SceneBootstrap {
       this.triggerSequence(sequenceName);
     }
   }
+
+  /** 
 
   /**
    * Get a sprite animator by name
@@ -660,41 +674,11 @@ async function prepareScene() {
   sceneBootstrap = new SceneBootstrap();
   
   try {
-    // Find canvas and get scene ID
-    sceneBootstrap.canvas = document.getElementById('screen') || document.querySelector('canvas[data-scene-id]');
-    if (!sceneBootstrap.canvas) {
-      throw new Error('No canvas element found with id="screen" or data-scene-id attribute');
-    }
-
-    sceneBootstrap.canvas.width = window.innerWidth;
-    sceneBootstrap.canvas.height = window.innerHeight;
-
-    sceneBootstrap.sceneId = sceneBootstrap.canvas.dataset.sceneId;
-    if (!sceneBootstrap.sceneId) {
-      throw new Error('Canvas element missing data-scene-id attribute');
-    }
-
-    // Load scene configuration
-    await sceneBootstrap.loadSceneConfig();
-
-    // Initialize scene effects (but don't start them)
-    sceneBootstrap.initializeSceneEffects();
-
-// Initialize sprite animators (but don't play them)
-await sceneBootstrap.initializeSpriteAnimators();
-
-// Setup dialogue timeline (but don't start it)
-sceneBootstrap.setupDialogueTimeline();
-
-console.log(`Scene "${sceneBootstrap.sceneId}" prepared but not started`);
-
-// Make bootstrap available globally for debugging
-window.sceneBootstrap = sceneBootstrap;
-
-} catch (error) {
-  console.error('Failed to prepare scene:', error);
-  sceneBootstrap.showError(error.message);
-}
+    await sceneBootstrap.init(); 
+  } catch (error) {
+    console.error('Failed to prepare scene:', error);
+    sceneBootstrap.showError(error.message);
+  }
 }
 
 // Modified startScene method - add this to your SceneBootstrap class
@@ -752,10 +736,13 @@ async function handleEnterSite() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     // Set up the enter site button handler
-    const enterButton = document.getElementById('enter-site');
-    if (enterButton) {
-      enterButton.addEventListener('click', handleEnterSite);
-    }
+    const enterButtons = ['enter-site-naughty', 'enter-site-nice'];
+    enterButtons.forEach(id => {
+      const button = document.getElementById(id);
+      if (button) {
+        button.addEventListener('click', handleEnterSite);
+      }
+    });
 
     // Prepare scene but don't start animations
     document.body.classList.add('canvas-mode');
@@ -763,11 +750,14 @@ if (document.readyState === 'loading') {
   });
 } else {
   // Set up the enter site button handler
-  const enterButton = document.getElementById('enter-site');
-  if (enterButton) {
-    enterButton.addEventListener('click', handleEnterSite);
-  }
-
+  const enterButtons = ['enter-site-naughty', 'enter-site-nice'];
+  enterButtons.forEach(id => {
+      const button = document.getElementById(id);
+      if (button) {
+        button.addEventListener('click', handleEnterSite);
+      }
+  });
+  
   // Prepare scene but don't start animations
   document.body.classList.add('canvas-mode');
   prepareScene();

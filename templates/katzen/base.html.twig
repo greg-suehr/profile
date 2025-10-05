@@ -53,7 +53,7 @@
                     </a>
                     <div class="collapse {{ activeMenu == 'stock' ? 'show' : '' }}" id="stockSub">
                         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                          <li><a href="{{ path('admin') }}" class="nav-link ps-4 {{ activeItem == 'item-create' ? 'active' : 'text-secondary' }}" data-item="item-create">Add An Item</a></li>
+                          <li><a href="{{ path('katzen_admin') }}" class="nav-link ps-4 {{ activeItem == 'item-create' ? 'active' : 'text-secondary' }}" data-item="item-create">Add An Item</a></li>
                           <li><a href="{{ path('stock_index') }}" class="nav-link ps-4 {{ activeItem == 'stock' ? 'active' : 'text-secondary' }}" data-item="stock-list">Current Stock</a></li>                          
                           <li><a href="{{ path('item_index') }}" class="nav-link ps-4 {{ activeItem == 'items' ? 'active' : 'text-secondary' }}" data-item="item-list">Manage Items</a></li>
                         </ul>
