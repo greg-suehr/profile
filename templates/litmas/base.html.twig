@@ -174,6 +174,7 @@
       flex-direction: row;
       flex-wrap: nowrap;
       justify-content: center;
+      gap: 10px;
       align-items: center;
       z-index: 9999;
     }
@@ -511,6 +512,7 @@
   <audio id="litmas-music" src="{{ asset('assets/litmas/litmas_intro.wav') }}" loop></audio>
   <audio id="litmas-sfx-enter" src="{{ asset('assets/litmas/litmas_enter.wav') }}"></audio>
   <div id="litmas-splash">
+    <img src="{{ asset('assets/litmas/krampus.png') }}" alt="Krampus" class="krampus-overlay" />
     <p class="litmas-intro-q">
       You made the list.<br>
       We checked it twice.<br>
@@ -519,7 +521,6 @@
     </p>
     <div id="litmas-splash-row">
       <button id="enter-site-naughty" class="litmas-btn">Naughty</button>
-      <img src="{{ asset('assets/litmas/krampus.png') }}" alt="Krampus" class="krampus-overlay" />          
       <button id="enter-site-nice"    class="litmas-btn">Nice</button>
     </div>
   </div>
