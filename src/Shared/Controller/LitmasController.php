@@ -19,15 +19,31 @@ final class LitmasController extends AbstractController
     ) {}
        
     #[Route('/litmas', name: 'litmas_index')]
-    public function index(Request $request): Response
+  public function index(Request $request, SessionInterface $session): Response
     {
+        $naughtyOrNice = $session->get('naughty_or_nice');
+        
         $textContent = $this->cmsRepository->findOneBySlug('main');
         
         return $this->render('litmas/info.html.twig', [
           'textContent'  => $textContent,
           'storyNodeKey' => 'litmas',
           'showCanvas'   => true,
+          'hasSelection' => $naughtyOrNice !== null,
         ]);
+    }
+
+    #[Route('/litmas/set-choice', name: 'litmas_set_choice', methods: ['POST'])]
+    public function setChoice(Request $request, SessionInterface $session): Response
+    {
+      $choice = $request->request->get('choice'); // 'naughty' or 'nice'
+        
+      if ($choice === 'naughty' || $choice === 'nice') {
+        $session->set('naughty_or_nice', $choice);
+        $session->set('naughty_or_nice_bool', $choice === 'naughty');
+      }
+
+      return $this->json(['success' => true]);
     }
 
     #[Route('/litmas/info', name: 'litmas_info')]
@@ -43,9 +59,18 @@ final class LitmasController extends AbstractController
     }  
 
     #[Route('/litmas/rsvp', name: 'litmas_rsvp')]
-    public function rsvp(Request $request, RsvpLogRepository $rsvpRepo): Response
+    public function rsvp(Request $request, SessionInterface $session,  RsvpLogRepository $rsvpRepo): Response
     {
       $rsvp   = new RsvpLog();
+
+      $label = $session->get('naughty_or_nice');
+      if ($label !== null) {
+        $rsvp->setLabel($label);
+      }
+      else {
+        $rsvp->setLabel('naughty');
+      }
+      
       $form   = $this->createForm(RsvpType::class, $rsvp);
 
       $form->handleRequest($request);

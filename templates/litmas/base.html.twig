@@ -555,4 +555,66 @@
     </main>
   </div>
 </body>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+  const naughtyBtn = document.getElementById('enter-site-naughty');
+  const niceBtn = document.getElementById('enter-site-nice');
+  const splash = document.getElementById('litmas-splash');
+  const siteStructure = document.getElementById('litmas-site-structure');
+  const body = document.body;
+
+  function handleChoice(choice) {
+    // Send the choice to the server
+    fetch('/litmas/set-choice', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'choice=' + choice
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Hide splash screen
+        if (splash) {
+          splash.style.display = 'none';
+        }
+        
+        // Show main site
+        if (siteStructure) {
+          siteStructure.style.opacity = '1';
+          siteStructure.style.pointerEvents = 'auto';
+        }
+        
+        // Remove canvas mode
+        body.classList.remove('canvas-mode');
+        
+        // Play enter sound if available
+        const enterSfx = document.getElementById('litmas-sfx-enter');
+        if (enterSfx) {
+          enterSfx.play().catch(e => console.log('Audio play failed:', e));
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error saving choice:', error);
+      // Still show the site even if save fails
+      if (splash) splash.style.display = 'none';
+      if (siteStructure) {
+        siteStructure.style.opacity = '1';
+        siteStructure.style.pointerEvents = 'auto';
+      }
+      body.classList.remove('canvas-mode');
+    });
+  }
+
+  if (naughtyBtn) {
+    naughtyBtn.addEventListener('click', () => handleChoice('naughty'));
+  }
+
+  if (niceBtn) {
+    niceBtn.addEventListener('click', () => handleChoice('nice'));
+  }
+    });
+</script>
 </html>

@@ -29,6 +29,9 @@ class RsvpLog
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $timestamp = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $label = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,6 +93,18 @@ class RsvpLog
     public function setTimestamp(?\DateTimeInterface $timestamp): static
     {
         $this->timestamp = $timestamp;
+
+        return $this;
+    }
+
+    public function getLabel(): ?string
+    {
+        return $this->label;
+    }
+
+    public function setLabel(?string $label): static
+    {
+        $this->label = $label;
 
         return $this;
     }
