@@ -8,6 +8,8 @@ use App\Katzen\Entity\Recipe;
 use App\Katzen\Messenger\Message\AsyncTaskMessage;
 use App\Katzen\Repository\OrderRepository;
 use App\Katzen\Repository\OrderItemRepository;
+use App\Katzen\Service\InventoryService;
+use App\Katzen\Service\Response\ServiceResponse;
 use App\Katzen\Service\StockTargetAutogenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -18,6 +20,7 @@ final class OrderService
     private OrderRepository $orderRepo,
     private OrderItemRepository $itemRepo,
     private EntityManagerInterface $em,
+    private InventoryService $inventoryService,
     private StockTargetAutogenerator $autogenerator,
     private RecipeExpanderService $expander,
     private MessageBusInterface $bus,
@@ -106,7 +109,67 @@ final class OrderService
     $order->setStatus('complete');
     $this->em->flush();
   }
-  
-}
 
-?>
+  public function checkStockForOpenOrders(): ServiceResponse
+  {
+    try {
+      $openOrders = $this->orderRepo->findByStatus('pending');
+      
+      if (empty($openOrders)) {
+        return ServiceResponse::success(
+          data: [
+            'success' => [],
+            'error' => [],
+          ],
+          message: 'No open orders to check'
+        );
+      }
+
+      $aggregatedRequirements = $this->aggregateStockRequirements($openOrders);
+
+      $result = $this->inventoryService->bulkCheckStock($aggregatedRequirements);
+
+      return ServiceResponse::success(
+        data: $result,
+        message: sprintf('Checked stock for %d open orders', count($openOrders))
+            );
+    } catch (\Throwable $e) {
+      return ServiceResponse::failure(
+        errors: 'Failed to check stock: ' . $e->getMessage(),
+        metadata: ['exception' => get_class($e)]
+      );
+    }
+  }
+
+  private function aggregateStockRequirements(array $orders): array
+  {
+    $aggregated = [];
+
+    foreach ($orders as $order) {
+      foreach ($order->getOrderItems() as $orderItem) {
+        $recipe = $orderItem->getRecipeListRecipeId();
+        if (!$recipe) {
+          continue;
+                }
+        
+        $consumptions = $this->expander->getStockConsumptions(
+          $recipe, 
+          $orderItem->getQuantity()
+        );
+        
+        foreach ($consumptions as $consumption) {
+          $targetId = $consumption['target']->getId();
+          $qty = $consumption['quantity'];
+          
+          if (!isset($aggregated[$targetId])) {
+            $aggregated[$targetId] = 0.0;
+          }
+          $aggregated[$targetId] += $qty;
+        }
+      }
+    }
+
+    return $aggregated;
+  }
+      
+}

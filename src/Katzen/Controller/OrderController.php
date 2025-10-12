@@ -16,6 +16,7 @@ use App\Katzen\Service\DefaultMenuPlanner;
 use App\Katzen\Service\OrderService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Form;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -158,4 +159,24 @@ final class OrderController extends AbstractController
     $em->flush();
     return $this->json(['ok' => true]);
   }
+
+  #[Route('/api/orders/stock_check', name: 'order_stock_check', methods: ['GET'])]
+  public function orderStockCheck(Request $request): JsonResponse {
+      $response = $this->orderService->checkStockForOpenOrders();
+      
+      if ($response->isFailure()) {
+        return $this->json([
+          'success' => false,
+          'errors' => $response->getErrors(),
+        ], 400);
+      }
+
+      $data = $response->getData();
+
+      return $this->json([
+        'success' => true,
+        'sufficient_stock' => $data['success'],
+        'insufficient_stock' => $data['error'],
+      ]);
+  } 
 }

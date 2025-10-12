@@ -87,6 +87,28 @@ final class InventoryService
     return $target;
   }
 
+  public function bulkCheckStock(array $itemQuantities): array
+  {
+     $results = [
+       "success" => [],
+       "error" => []
+     ];
+     
+     foreach ($itemQuantities as $stockTargetId => $qtyNeeded) {
+       $target = $this->requireTarget($stockTargetId);
+       $currentQty = (float) $target->getCurrentQty();
+
+       if ($currentQty >= $qtyNeeded) {
+         $results["success"][$stockTargetId] = 0.0;
+       }
+       else {
+         $results["error"][$stockTargetId] = $qtyNeeded - $currentQty;
+       }
+     }
+
+    return $results;
+  }
+
   public function recordBulkStockCount(array $countedQuantities, ?string $notes = ''): void
   {
     $now = new \DateTime();

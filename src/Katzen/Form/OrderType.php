@@ -9,7 +9,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\TextAreaType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -20,7 +20,7 @@ class OrderType extends AbstractType
     {
         $builder
             ->add('customer', TextType::class, ['required' => false])          
-            ->add('notes', TextAreaType::class, ['required' => false])
+            ->add('notes', TextareaType::class, ['required' => false])
             ->add('orderItems', CollectionType::class, [
                 'entry_type' => AddOrderItemType::class,
                 'allow_add' => true,

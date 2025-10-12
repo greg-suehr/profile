@@ -33,9 +33,11 @@ final class RecipeController extends AbstractController
   #[Route('/katzen', name: 'app_landing')]
   public function landing_page(): Response
   {
-        return $this->render('katzen/recipe/index.html.twig', [
-          'controller_name' => 'RecipeController',
-        ]);
+        return $this->render('katzen/recipe/index.html.twig', $this->dashboardContext->with([
+           'activeItem'      => 'recipe',
+           'activeMenu'      => 'menu',
+           'controller_name' => 'RecipeController',
+        ]));
     }
 
   #[Route('/recipe/list', name: 'recipe_list')]
