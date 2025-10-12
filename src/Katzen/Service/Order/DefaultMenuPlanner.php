@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Katzen\Service;
+namespace App\Katzen\Service\Order;
 
 use App\Katzen\Entity\Recipe;
 use App\Katzen\Entity\RecipeList;

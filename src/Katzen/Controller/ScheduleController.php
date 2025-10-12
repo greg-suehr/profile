@@ -11,9 +11,8 @@ use App\Katzen\Form\OrderType;
 use App\Katzen\Repository\RecipeListRepository;
 use App\Katzen\Repository\RecipeRepository;
 use App\Katzen\Repository\TagRepository;
-use App\Katzen\Service\DashboardContextService;
-use App\Katzen\Service\DefaultMenuPlanner;
 use App\Katzen\Service\OrderService;
+use App\Katzen\Service\Utility\DashboardContextService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,7 +25,6 @@ final class ScheduleController extends AbstractController
 
   public function __construct(
     private DashboardContextService $dashboardContext,
-    private DefaultMenuPlanner $menuPlanner,
     private OrderService $orderService,
   ) {}
   

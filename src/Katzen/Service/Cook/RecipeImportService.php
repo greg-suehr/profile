@@ -1,5 +1,5 @@
 <?php
-namespace App\Katzen\Service;
+namespace App\Katzen\Service\Cook;
 
 use App\Katzen\Adapter\RecipeAdapterInterface;
 use App\Katzen\Adapter\JSONAdapter;

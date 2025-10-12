@@ -1,5 +1,5 @@
 <?php
-namespace App\Katzen\Service;
+namespace App\Katzen\Service\Inventory;
 
 use App\Katzen\Entity\Item;
 use Doctrine\ORM\EntityManagerInterface;

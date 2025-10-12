@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Katzen\Service;
+namespace App\Katzen\Service\Cook;
 
 use App\Katzen\Entity\Item;
 use App\Katzen\Entity\Recipe;
 use App\Katzen\Entity\StockTarget;
-use App\Katzen\Service\StockTargetAutogenerator;
+use App\Katzen\Service\Inventory\StockTargetAutogenerator;
 use App\Katzen\Repository\StockTargetRepository;
 use Doctrine\ORM\EntityManagerInterface;
 

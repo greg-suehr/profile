@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Katzen\Service;
+namespace App\Katzen\Service\Utility;
 
 #use App\Katzen\Repository\TaskRepository;
 #use App\Katzen\Repository\NotificationRepository;

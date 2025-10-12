@@ -1,7 +1,7 @@
 <?php
 namespace App\Katzen\Adapter;
 
-use App\Katzen\Service\RecipeMappingService;
+use App\Katzen\Service\Cook\RecipeMappingService;
 use Smalot\PdfParser\Parser;
 
 class PDFAdapter implements RecipeAdapterInterface

@@ -8,9 +8,10 @@ use App\Katzen\Entity\Recipe;
 use App\Katzen\Messenger\Message\AsyncTaskMessage;
 use App\Katzen\Repository\OrderRepository;
 use App\Katzen\Repository\OrderItemRepository;
+use App\Katzen\Service\Cook\RecipeExpanderService
 use App\Katzen\Service\InventoryService;
+use App\Katzen\Service\Inventory\StockTargetAutogenerator;
 use App\Katzen\Service\Response\ServiceResponse;
-use App\Katzen\Service\StockTargetAutogenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 

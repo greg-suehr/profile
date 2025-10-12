@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Katzen\Service;
+namespace App\Katzen\Service\Inventory;
 
 use App\Katzen\Entity\Item;
 use App\Katzen\Entity\Recipe;
 use App\Katzen\Entity\RecipeIngredient;
 use App\Katzen\Entity\StockTarget;
-use App\Katzen\Service\SupplyResolver;
+use App\Katzen\Service\Inventory\SupplyResolver;
 use App\Katzen\Repository\StockTargetRepository;
 use Doctrine\ORM\EntityManagerInterface;
 

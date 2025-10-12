@@ -4,7 +4,7 @@ namespace App\Katzen\Dashboard\Widget;
 
 use App\Katzen\Entity\Order;
 use App\Katzen\Repository\OrderRepository;
-use App\Katzen\Service\RecipeExpanderService;
+use App\Katzen\Service\Cook\RecipeExpanderService;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class TodaysPrepWidget implements WidgetInterface

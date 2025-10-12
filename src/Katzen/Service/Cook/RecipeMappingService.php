@@ -1,5 +1,5 @@
 <?php
-namespace App\Katzen\Service;
+namespace App\Katzen\Service\Cook;
 
 use App\Katzen\Entity\Recipe;
 use App\Katzen\Entity\RecipeIngredient;
@@ -7,7 +7,7 @@ use App\Katzen\Entity\RecipeInstruction;
 use App\Katzen\Entity\Item;
 use App\Katzen\Entity\Unit;
 use App\Katzen\Entity\KatzenUser;
-use App\Katzen\Service\IngredientValidator;
+use App\Katzen\Service\Inventory\IngredientValidator;
 use Doctrine\ORM\EntityManagerInterface;
 
 class RecipeMappingService
