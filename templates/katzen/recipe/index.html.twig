@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'katzen/base.html.twig' %}
 
 {% block title %}Recipe Dashboard{% endblock %}
 
@@ -126,11 +126,11 @@
     <section class="dashboard-section">
       <h3>Recipe Building</h3>
       <ul class="dashboard-links">
-        <li><a href="{{ path('app_recipe_list') }}">View Recipe Catalog</a></li>
-        <li><a href="{{ path('app_recipe_build') }}">Build Manual Recipe</a></li>
-        <li><a href="{{ path('app_recipe_build') }}">Smart Recipe Builder</a></li>
-        <li><a href="{{ path('app_recipe_import') }}">Duplicate Recipe</a></li>
-        <li><a href="{{ path('app_recipe_list') }}">Archive Recipes</a></li>
+        <li><a href="{{ path('recipe_list') }}">View Recipe Catalog</a></li>
+        <li><a href="{{ path('recipe_build') }}">Build Manual Recipe</a></li>
+        <li><a href="{{ path('recipe_build') }}">Smart Recipe Builder</a></li>
+        <li><a href="{{ path('recipe_import') }}">Duplicate Recipe</a></li>
+        <li><a href="{{ path('recipe_list') }}">Archive Recipes</a></li>
       </ul>
     </section>
 
