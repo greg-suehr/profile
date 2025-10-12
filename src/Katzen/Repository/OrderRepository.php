@@ -22,7 +22,6 @@ class OrderRepository extends ServiceEntityRepository
                  ->andWhere('o.status = :val')
                  ->setParameter('val', $value)
                  ->orderBy('o.id', 'ASC')
-                 ->setMaxResults(10)
                  ->getQuery()
                  ->getResult()
             ;

@@ -6,6 +6,7 @@ use App\Katzen\Entity\StockCount;
 use App\Katzen\Entity\StockCountItem;
 use App\Katzen\Entity\StockTarget;
 use App\Katzen\Entity\StockTransaction;
+use App\Katzen\Service\Response\ServiceResponse;
 use App\Katzen\Repository\StockTargetRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -29,7 +30,7 @@ final class InventoryService
     $target->setCurrentQty($target->getCurrentQty() + $qty);
     
     $this->em->persist($transaction);
-    $this->em->flush();
+    $this->em->flush();    
   }
   
   public function adjustStock(int $stockTargetId, float $newQty, ?string $reason = null): void
@@ -87,26 +88,46 @@ final class InventoryService
     return $target;
   }
 
-  public function bulkCheckStock(array $itemQuantities): array
+  public function bulkCheckStock(array $itemQuantities): ServiceResponse
   {
-     $results = [
-       "success" => [],
-       "error" => []
-     ];
+     $results = [];
+     $isShort = false;
      
      foreach ($itemQuantities as $stockTargetId => $qtyNeeded) {
        $target = $this->requireTarget($stockTargetId);
        $currentQty = (float) $target->getCurrentQty();
-
-       if ($currentQty >= $qtyNeeded) {
-         $results["success"][$stockTargetId] = 0.0;
+       $remainingQty = $currentQty - $qtyNeeded;
+       
+       if ($remainingQty >= 0) {
+         $statusLabel = "ok";
        }
        else {
-         $results["error"][$stockTargetId] = $qtyNeeded - $currentQty;
+         $statusLabel = "insufficient";
+         $isShort = true;
        }
+
+       $results[$stockTargetId] = [
+         "name"     => $target->getName(),
+         "unit"     => $target->getBaseUnit() ? $target->getBaseUnit()->getName() : "unitless",         
+         "quantity" => $currentQty,
+         "status"   => $statusLabel,
+         "shortage" => max(-$remainingQty, 0),
+         "surplus"  => max($remainingQty, 0),
+       ];
      }
 
-    return $results;
+     if ($isShort) {
+       return ServiceResponse::failure(
+         errors: 'Insufficient stock',
+         data: $results,
+       );
+     }
+     else {
+       return ServiceResponse::success(
+         data: $results,
+         message: 'All stock available',
+       );
+     }
   }
 
   public function recordBulkStockCount(array $countedQuantities, ?string $notes = ''): void

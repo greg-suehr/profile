@@ -1,7 +1,7 @@
 <?php
 namespace App\Katzen\Controller;
 
-use App\Katzen\Service\RecipeImportService;
+use App\Katzen\Service\Cook\RecipeImportService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;

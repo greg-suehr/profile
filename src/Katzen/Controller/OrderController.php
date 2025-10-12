@@ -130,17 +130,29 @@ final class OrderController extends AbstractController
     ]));
   }
   
-  #[Route('/order/complete/{id}', name: 'order_mark_ready')]
-  public function orderMarkReady(int $id, Request $request, EntityManagerInterface $em): Response
+  #[Route('/order/complete/{id}', name: 'order_mark_ready', methods: ['POST'])]
+  public function orderMarkReady(Order $order, Request $request): Response
   {
-    $order = $em->getRepository(Order::class)->find($id);
-    if (!$order) {
-      throw $this->createNotFoundException('Order not found.');
+    # TODO: test and fix CSRF
+    $this->denyAccessUnlessGranted('ROLE_USER');
+    if (!$this->isCsrfTokenValid('order_complete_'.$order->getId(), (string) $request->request->get('_token'))) {
+      $this->addFlash('danger', 'Invalid request token.');
+      return $this->redirectToRoute('order_index');
+    }
+    
+    $response = $this->orderService->completeOrder($order);
+
+    if ($response->isSuccess()) {
+      $msg = $response->message ?? 'Order complete!';
+      $status = $response->getData()['status'] ?? 'complete';
+      $this->addFlash($status === 'already_complete' ? 'info' : 'success', $msg);
+      return $this->redirectToRoute('order_index');
     }
 
-    $this->orderService->completeOrder($order);
+    $msg = $response->message ?? 'Unable to mark order complete.';
+    $first = $response->getFirstError();
+    $this->addFlash('danger', $first ? $msg.' '.$first : $msg);
     
-    $this->addFlash('success', 'Order complete!');
     return $this->redirectToRoute('order_index');
   }
 
@@ -174,9 +186,14 @@ final class OrderController extends AbstractController
       $data = $response->getData();
 
       return $this->json([
-        'success' => true,
-        'sufficient_stock' => $data['success'],
-        'insufficient_stock' => $data['error'],
+        'ok' => true,
+        'summary' => [
+          'targets_ok' => array_filter($data,
+                                       function($item) { return $item['status'] === 'ok'; }),
+          'targets_insufficient' => array_filter($data,
+                                                 function($item) { return $item['status'] === 'insufficient'; }),
+        ],
+        'targets' => $data
       ]);
   } 
 }

@@ -4,6 +4,7 @@ namespace App\Katzen\Controller\Admin;
 
 use App\Katzen\Entity\KatzenUser;
 use App\Katzen\Entity\Item;
+use App\Katzen\Entity\StockTarget;
 use App\Katzen\Entity\Unit;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -35,6 +36,7 @@ class DashboardController extends AbstractDashboardController
       //yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
       yield MenuItem::linktoRoute('Back to dashboard', 'fas fa-home', 'dashboard_home');
       yield MenuItem::linktoCrud('Items', 'fas fa-carrot', Item::class);
+      yield MenuItem::linktoCrud('Stock', 'fas fa-egg', StockTarget::class);
       yield MenuItem::linktoCrud('Units', 'fas fa-scale-balanced', Unit::class);
     }
 }

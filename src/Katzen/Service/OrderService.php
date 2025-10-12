@@ -8,7 +8,7 @@ use App\Katzen\Entity\Recipe;
 use App\Katzen\Messenger\Message\AsyncTaskMessage;
 use App\Katzen\Repository\OrderRepository;
 use App\Katzen\Repository\OrderItemRepository;
-use App\Katzen\Service\Cook\RecipeExpanderService
+use App\Katzen\Service\Cook\RecipeExpanderService;
 use App\Katzen\Service\InventoryService;
 use App\Katzen\Service\Inventory\StockTargetAutogenerator;
 use App\Katzen\Service\Response\ServiceResponse;
@@ -85,32 +85,103 @@ final class OrderService
     $this->em->flush();
   }
   
-  public function completeOrder(Order $order): void
+  public function completeOrder(Order $order): ServiceResponse
   {
-    foreach ($order->getOrderItems() as $orderLine) {
-      $recipe = $orderLine->getRecipeListRecipeId();
-      if (!$recipe) {
-        throw new \RuntimeException("Order item missing recipe");
+    try {
+      if ($order->getStatus() === 'complete') {
+        return ServiceResponse::success(
+          data: [
+            'order_id'       => $order->getId(),
+            'enqueued_tasks' => 0,
+            'status'         => 'already_complete',
+          ],
+          message: 'Order is already marked complete; no work performed.'
+        );
       }
 
-      $expanded = $this->expander->getStockConsumptions($recipe, $orderLine->getQuantity());
+      $errors        = [];
+      $enqueuedTasks = 0;
 
-      foreach ($expanded as $consumption) {
-        $this->bus->dispatch(new AsyncTaskMessage(
-          taskType: 'consume_stock',
-          payload: [
-            'stock_target.id' => $consumption['target']->getId(),
-            'quantity' => $consumption['quantity'],
-            'reason'   => 'order#' . $order->getId(),
+      
+      foreach ($order->getOrderItems() as $orderLine) {
+        $recipe = $orderLine->getRecipeListRecipeId();
+        if (!$recipe) {
+          $errors[] = sprintf('Order item  %s is missing a recipe.',
+                             method_exists($orderLine, 'getId') ? ($orderLine->getId() ?? 'unknown') : 'unknown'
+          );
+
+          continue;
+        }        
+
+        $expanded = $this->expander->getStockConsumptions($recipe, $orderLine->getQuantity());
+
+        foreach ($expanded as $consumption) {
+          $target   = $consumption['target']   ?? null;
+          $quantity = $consumption['quantity'] ?? null;
+
+          if (!$target || $quantity === null) {
+            $errors[] = sprintf(
+              'Malformed consumption record for order item %s.',
+              method_exists($orderLine, 'getId') ? ($orderLine->getId() ?? 'unknown') : 'unknown'
+            );
+            continue;
+          }
+
+          
+          $this->bus->dispatch(new AsyncTaskMessage(
+            taskType: 'consume_stock',
+            payload: [
+              'stock_target.id' => $target->getId(),
+              'quantity' => $quantity,
+              'reason'   => 'order#' . $order->getId(),
+            ]
+          ));
+
+          $enqueuedTasks++;
+        }
+      }
+
+      if (!empty($errors)) {
+        return ServiceResponse::failure(
+          errors: $errors,
+          message: 'Order not completed due to errors.',
+          data: [
+            'order_id'       => $order->getId(),
+            'enqueued_tasks' => $enqueuedTasks,
+            'status'         => 'blocked',
+          ],
+          metadata: [
+            'order_status' => $order->getStatus(),
           ]
-        ));
+        );
       }
-    }
     
-    $order->setStatus('complete');
-    $this->em->flush();
+      $order->setStatus('complete');
+      $this->em->flush();
+      
+      return ServiceResponse::success(
+        data: [
+          'order_id'       => $order->getId(),
+          'enqueued_tasks' => $enqueuedTasks,
+          'status'         => 'complete',
+        ],
+        message: 'Order marked complete and stock consumption tasks enqueued.'
+      );
+    } catch (\Throwable $e) {
+      return ServiceResponse::failure(
+        errors: 'Failed to complete order: ' . $e->getMessage(),
+        message: 'Unhandled exception while completing order.',
+        data: [
+          'order_id' => $order->getId(),
+        ],
+        metadata: [
+          'exception' => get_class($e),
+          'code'      => (int) $e->getCode(),
+        ]
+      );
+    }
   }
-
+  
   public function checkStockForOpenOrders(): ServiceResponse
   {
     try {
@@ -130,8 +201,16 @@ final class OrderService
 
       $result = $this->inventoryService->bulkCheckStock($aggregatedRequirements);
 
+      if ($result->isFailure()) {
+        return ServiceResponse::failure(
+          errors: $result->getErrors(),
+          message: sprintf('Checked stock for %d open orders: insufficient stock', count($openOrders)),
+          data: $result->getData(),
+        );
+      }
+      
       return ServiceResponse::success(
-        data: $result,
+        data: $result->getData(),
         message: sprintf('Checked stock for %d open orders', count($openOrders))
             );
     } catch (\Throwable $e) {

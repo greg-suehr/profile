@@ -43,7 +43,7 @@ services:
         arguments:
             $taskExecutors: !tagged_iterator app.async_task_executor
 
-    App\Katzen\Service\RecipeImportService:
+    App\Katzen\Service\Cook\RecipeImportService:
         arguments:
             $adapters: !tagged_iterator recipe.adapter
 

@@ -5,15 +5,33 @@
 {% block main_content %}
 <div class="container py-4">
   <h2 class="mb-4">Current Inventory</h2>
+
   <div class="row g-2 mb-4">
-    <div class="card-body">
+    <div class="col-12 col-md-8">
+      <div class="input-group">
+        <span class="input-group-text">Filter</span>
+        <input
+          id="inventory-filter"
+          type="text"
+          class="form-control"
+          placeholder='Type names, comma-separated (e.g. "blueberr, pie dough,salt,sugar")'
+          aria-label="Filter inventory by names"
+          >
+        <button class="btn btn-outline-secondary" type="button" id="inventory-filter-clear">Clear</button>
+      </div>
+      <small class="text-muted">Showing <span id="inventory-match-count">{{ targets|length }}</span> items</small>
+    </div>
+    
+    <div class="card-body col-12 col-md-4 text-md-end">
       <a href="{{ path('stock_count_create') }}" class="btn btn-sm btn-outline-primary">Start New Count</a>
     </div>
   </div>
-
-  <div class="row g-4">
+  
+  <div class="row g-4" id="inventory-grid">
     {% for target in targets %}
-      <div class="col-12 col-md-6 col-lg-4">
+    <div class="col-12 col-md-6 col-lg-4"
+         data-target-card
+         data-haystack="{{ (target.name ~ ' ' ~ (target.item ? target.item.name : '') ~ ' ' ~ (target.recipe ? target.recipe.title : ''))|lower|e('html_attr') }}">
         <div class="card border shadow-sm h-100">
           <div class="card-header d-flex justify-content-between align-items-center">
             <span class="fw-bold">{{ target.name }}</span>
@@ -44,4 +62,48 @@
     {% endfor %}
   </div>
 </div>
+
+<script>
+  (function () {
+    const input   = document.getElementById('inventory-filter');
+    const clear   = document.getElementById('inventory-filter-clear');
+    const grid    = document.getElementById('inventory-grid');
+    const cards   = Array.from(grid.querySelectorAll('[data-target-card]'));
+    const counter = document.getElementById('inventory-match-count');
+    
+    const norm = s => (s || '').toString().normalize('NFKD').toLowerCase().trim();
+    const parseTerms = v => norm(v)
+          .split(/[,\n]/g)
+          .map(t => t.trim())
+          .filter(Boolean);
+    
+    const matches = (haystack, terms) => {
+      if (terms.length === 0) return true;
+      return terms.some(t => haystack.includes(t));
+    };
+    
+    const apply = () => {
+      const terms = parseTerms(input.value);
+      let visible = 0;
+      
+      for (const card of cards) {
+        const hay = norm(card.dataset.haystack);
+        const show = matches(hay, terms);
+        card.classList.toggle('d-none', !show);
+        if (show) visible++;
+      }
+      
+      if (counter) counter.textContent = visible;
+    };
+    
+    input.addEventListener('input', apply);
+    clear.addEventListener('click', () => {
+      input.value = '';
+      input.focus();
+      apply();
+    });
+
+    apply();
+  })();
+</script>
 {% endblock %}

@@ -30,7 +30,19 @@
           </div>
           <div class="card-footer text-end">
             <a href="{{ path('order_edit_form', { id: order.id }) }}" class="btn btn-sm btn-outline-primary">Edit</a>
-            <a href="{{ path('order_mark_ready', { id: order.id }) }}" class="btn btn-sm btn-outline-success">Mark as Ready</a>
+            <form
+              action="{{ path('order_mark_ready', { id: order.id }) }}"
+              method="post"
+              style="display:inline"
+              onsubmit="return confirm('Mark this order as complete?');"
+              >
+              <input type="hidden" name="_token"
+                     value="{{ csrf_token('order_complete_' ~ order.id) }}">
+              <button type="submit"
+                      class="btn btn-sm btn-outline-success">
+                Mark as Ready
+              </button>
+            </form>
           </div>
         </div>
       </div>
