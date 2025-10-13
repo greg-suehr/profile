@@ -16,6 +16,11 @@ class StockCountItemRepository extends ServiceEntityRepository
     parent::__construct($registry, StockCountItem::class);
   }
 
+  public function add(StockCountItem $item): void
+  {
+    $this->getEntityManager()->persist($item);
+  }
+
   public function save(StockCountItem $item): void
   {
     $this->getEntityManager()->persist($item);

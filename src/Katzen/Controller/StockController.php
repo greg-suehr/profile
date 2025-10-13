@@ -53,12 +53,22 @@ final class StockController extends AbstractController
         }
       }
       
-      $this->inventoryService->recordBulkStockCount($inputCounts, $notes);
+      $result = $this->inventoryService->recordBulkStockCount($inputCounts, $notes);
+
+      if ($result->isFailure()) {
+        $this->addFlash('danger', $result->getMessage() ?: 'Failed to record stock count.');
+        return $this->redirectToRoute('stock_index');        
+      }
+
+      $data = $result->getData();
+      $this->addFlash('success', sprintf(
+        'Stock count recorded for %d items.',
+        (int)($data['item_count'] ?? 0)
+      ));
       
-      $this->addFlash('success', 'Stock count recorded.');
       return $this->redirectToRoute('stock_index');
     }
-
+    
     return $this->render('katzen/stock/_bulk_count.html.twig', $this->dashboardContext->with([
       'activeItem' => 'stock', 
       'activeMenu' => 'stock',
@@ -116,7 +126,13 @@ final class StockController extends AbstractController
     
     if ($form->isSubmitted() && $form->isValid()) {
       $data = $form->getData();
-      $this->inventoryService->adjustStock($target->getId(), $data['qty'], $data['reason'] ?? null);
+      $result = $this->inventoryService->adjustStock($target->getId(), $data['qty'], $data['reason'] ?? null);
+
+      if ($result->isFailure()) {
+        $this->addFlash('danger', $result->getMessage() ?: 'Failed to adjust stock.');        
+        $this->addFlash('warning', implode('; ', (array)$result->getErrors()));
+        return $this->redirectToRoute('stock_index');
+      }
       
       $this->addFlash('success', 'Stock adjusted.');      
       return $this->redirectToRoute('stock_index');

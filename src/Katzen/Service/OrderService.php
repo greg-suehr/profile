@@ -226,7 +226,7 @@ final class OrderService
             );
             continue;
           }
-
+          
           
           $this->bus->dispatch(new AsyncTaskMessage(
             taskType: 'consume_stock',

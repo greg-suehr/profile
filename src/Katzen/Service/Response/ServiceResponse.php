@@ -64,4 +64,14 @@ final class ServiceResponse
   {
     return $this->errors[0] ?? null;
   }
+
+  public function getMessage(): ?string
+  {
+    return $this->message;
+  }
+
+  public function getMetadata(): array
+  {
+    return $this->metadata;
+  }
 }

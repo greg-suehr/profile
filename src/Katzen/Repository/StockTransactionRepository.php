@@ -16,6 +16,11 @@ class StockTransactionRepository extends ServiceEntityRepository
     parent::__construct($registry, StockTransaction::class);
   }
 
+  public function add(StockTransaction $txn): void
+  {
+    $this->getEntityManager()->persist($txn);
+  }
+
   public function save(StockTransaction $txn): void
   {
     $this->getEntityManager()->persist($txn);
