@@ -11,10 +11,16 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class StockTargetRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, StockTarget::class);
-    }
+  public function __construct(ManagerRegistry $registry)
+  {
+    parent::__construct($registry, StockTarget::class);
+  }
+
+  public function save(StockTarget $target): void
+  {
+    $this->getEntityManager()->persist($target);
+    $this->getEntityManager()->flush();
+  }
 
   public function countAll(): int
   {

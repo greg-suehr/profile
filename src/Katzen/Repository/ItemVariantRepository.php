@@ -11,10 +11,16 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ItemVariantRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, ItemVariant::class);
-    }
+  public function __construct(ManagerRegistry $registry)
+  {
+    parent::__construct($registry, ItemVariant::class);
+  }
+
+  public function save(ItemVariant $itemVariant): void
+  {
+    $this->getEntityManager()->persist($itemVariant);
+    $this->getEntityManager()->flush();
+  }
 
     //    /**
     //     * @return ItemVariant[] Returns an array of ItemVariant objects

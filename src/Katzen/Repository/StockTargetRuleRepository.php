@@ -11,10 +11,16 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class StockTargetRuleRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, StockTargetRule::class);
-    }
+  public function __construct(ManagerRegistry $registry)
+  {
+    parent::__construct($registry, StockTargetRule::class);
+  }
+
+  public function save(StockTargetRule $rule): void
+  {
+    $this->getEntityManager()->persist($rule);
+    $this->getEntityManager()->flush();
+  }
 
 //    /**
 //     * @return StockTargetRule[] Returns an array of StockTargetRule objects

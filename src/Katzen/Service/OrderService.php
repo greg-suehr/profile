@@ -8,6 +8,7 @@ use App\Katzen\Entity\Recipe;
 use App\Katzen\Messenger\Message\AsyncTaskMessage;
 use App\Katzen\Repository\OrderRepository;
 use App\Katzen\Repository\OrderItemRepository;
+use App\Katzen\Repository\RecipeRepository;
 use App\Katzen\Service\Cook\RecipeExpanderService;
 use App\Katzen\Service\InventoryService;
 use App\Katzen\Service\Inventory\StockTargetAutogenerator;
@@ -20,6 +21,7 @@ final class OrderService
   public function __construct(
     private OrderRepository $orderRepo,
     private OrderItemRepository $itemRepo,
+    private RecipeRepository $recipeRepo,
     private EntityManagerInterface $em,
     private InventoryService $inventoryService,
     private StockTargetAutogenerator $autogenerator,
@@ -27,10 +29,14 @@ final class OrderService
     private MessageBusInterface $bus,
   ) {}
 
+  /**
+   * Create a new order from a recipe => quantity array.
+   *
+   * @param array<int,int|float> $recipeQuantities
+   */
   public function createOrder(Order $order, array $recipeQuantities): void
   {
-    $recipes = $this->em->getRepository(Recipe::class)
-                        ->findBy(['id' => array_keys($recipeQuantities)]);
+    $recipes = $recipeRepo->findBy(['id' => array_keys($recipeQuantities)]);
         
     foreach ($recipes as $recipe) {
       $this->autogenerator->ensureExistsForRecipe($recipe);

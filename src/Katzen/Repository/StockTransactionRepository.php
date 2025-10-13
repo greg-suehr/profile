@@ -16,6 +16,12 @@ class StockTransactionRepository extends ServiceEntityRepository
     parent::__construct($registry, StockTransaction::class);
   }
 
+  public function save(StockTransaction $txn): void
+  {
+    $this->getEntityManager()->persist($txn);
+    $this->getEntityManager()->flush();
+  }
+
   public function sumConsumedSince(StockTarget $target, \DateTimeImmutable $since): ?float
   {
     return (float) $this->createQueryBuilder('t')

@@ -11,10 +11,16 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class OrderItemRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, OrderItem::class);
-    }
+  public function __construct(ManagerRegistry $registry)
+  {
+    parent::__construct($registry, OrderItem::class);
+  }
+  
+  public function save(OrderItem $item): void
+  {
+    $this->getEntityManager()->persist($orderItem);
+    $this->getEntityManager()->flush();
+  }
 
 //    /**
 //     * @return OrderItem[] Returns an array of OrderItem objects

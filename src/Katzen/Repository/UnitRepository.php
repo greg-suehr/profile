@@ -35,6 +35,12 @@ class UnitRepository extends ServiceEntityRepository
   {
       parent::__construct($registry, Unit::class);
   }
+
+  public function save(Unit $unit): void
+  {
+    $this->getEntityManager()->persist($unit);
+    $this->getEntityManager()->flush();
+  }
   
   /**
    * Resolve a user token (name/alias/abbr) to a Unit by matching:

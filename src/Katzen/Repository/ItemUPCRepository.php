@@ -11,10 +11,16 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ItemUPCRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, ItemUPC::class);
-    }
+  public function __construct(ManagerRegistry $registry)
+  {
+    parent::__construct($registry, ItemUPC::class);
+  }
+
+  public function save(ItemUPC $itemUPC): void
+  {
+    $this->getEntityManager()->persist($itemUPC);
+    $this->getEntityManager()->flush();
+  }
 
     //    /**
     //     * @return ItemUPC[] Returns an array of ItemUPC objects

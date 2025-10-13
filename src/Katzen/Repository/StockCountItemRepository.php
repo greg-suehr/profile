@@ -11,10 +11,16 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class StockCountItemRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, StockCountItem::class);
-    }
+  public function __construct(ManagerRegistry $registry)
+  {
+    parent::__construct($registry, StockCountItem::class);
+  }
+
+  public function save(StockCountItem $item): void
+  {
+    $this->getEntityManager()->persist($item);
+    $this->getEntityManager()->flush();
+  }
 
 //    /**
 //     * @return StockCountItem[] Returns an array of StockCountItem objects

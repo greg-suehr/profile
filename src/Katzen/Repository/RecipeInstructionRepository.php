@@ -11,10 +11,16 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class RecipeInstructionRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, RecipeInstruction::class);
-    }
+  public function __construct(ManagerRegistry $registry)
+  {
+    parent::__construct($registry, RecipeInstruction::class);
+  }
+
+  public function save(RecipeInstruction $recipeInstruction): void
+  {
+    $this->getEntityManager()->persist($recipeInstruction);
+    $this->getEntityManager()->flush();
+  }
 
     //    /**
     //     * @return RecipeInstruction[] Returns an array of RecipeInstruction objects

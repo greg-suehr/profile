@@ -10,10 +10,16 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class RecipeListRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, RecipeList::class);
-    }
+  public function __construct(ManagerRegistry $registry)
+  {
+    parent::__construct($registry, RecipeList::class);
+  }
+
+  public function save(RecipeList $recipeList): void
+  {
+    $this->getEntityManager()->persist($recipeList);
+    $this->getEntityManager()->flush();
+  }
 
 //    /**
 //     * @return RecipeList[] Returns an array of RecipeList objects
