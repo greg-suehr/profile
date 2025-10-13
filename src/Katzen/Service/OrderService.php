@@ -13,7 +13,6 @@ use App\Katzen\Service\Cook\RecipeExpanderService;
 use App\Katzen\Service\InventoryService;
 use App\Katzen\Service\Inventory\StockTargetAutogenerator;
 use App\Katzen\Service\Response\ServiceResponse;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class OrderService
@@ -22,7 +21,6 @@ final class OrderService
     private OrderRepository $orderRepo,
     private OrderItemRepository $itemRepo,
     private RecipeRepository $recipeRepo,
-    private EntityManagerInterface $em,
     private InventoryService $inventoryService,
     private StockTargetAutogenerator $autogenerator,
     private RecipeExpanderService $expander,
@@ -36,7 +34,7 @@ final class OrderService
    */
   public function createOrder(Order $order, array $recipeQuantities): void
   {
-    $recipes = $recipeRepo->findBy(['id' => array_keys($recipeQuantities)]);
+    $recipes = $this->recipeRepo->findBy(['id' => array_keys($recipeQuantities)]);
         
     foreach ($recipes as $recipe) {
       $this->autogenerator->ensureExistsForRecipe($recipe);
@@ -51,8 +49,7 @@ final class OrderService
     }
 
     $order->setStatus('pending');
-    $this->em->persist($order);
-    $this->em->flush();
+    $this->orderRepo->save($order);
   }
 
   public function updateOrder(Order $order, array $recipeIds): void
@@ -64,7 +61,7 @@ final class OrderService
       $existingId = $item->getRecipeListRecipeId()->getId();
       if (!in_array($existingId, $recipeIds)) {
         $order->removeOrderItem($item);
-        $this->em->remove($item);
+        $this->itemRepo->remove($item);
       } else {
         $existingRecipeIds[] = $existingId;
       }
@@ -72,8 +69,7 @@ final class OrderService
     
     $newRecipeIds = array_diff($recipeIds, $existingRecipeIds);
     if (!empty($newRecipeIds)) {
-      $newRecipes = $this->em->getRepository(Recipe::class)
-                             ->findBy(['id' => $newRecipeIds]);
+      $newRecipes = $this->recipeRepo->findBy(['id' => $newRecipeIds]);
       
       foreach ($newRecipes as $recipe) {
         $this->autogenerator->ensureExistsForRecipe($recipe);
@@ -87,8 +83,7 @@ final class OrderService
     }
     
     $order->setStatus('pending');
-    $this->em->persist($order);
-    $this->em->flush();
+    $this->orderRepo->save($order);
   }
   
   public function completeOrder(Order $order): ServiceResponse
@@ -163,7 +158,7 @@ final class OrderService
       }
     
       $order->setStatus('complete');
-      $this->em->flush();
+      $this->orderRepo->flush();
       
       return ServiceResponse::success(
         data: [

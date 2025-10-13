@@ -18,7 +18,13 @@ class OrderItemRepository extends ServiceEntityRepository
   
   public function save(OrderItem $item): void
   {
-    $this->getEntityManager()->persist($orderItem);
+    $this->getEntityManager()->persist($item);
+    $this->getEntityManager()->flush();
+  }
+
+  public function remove(OrderItem $item): void
+  {
+    $this->getEntityManager()->remove($item);
     $this->getEntityManager()->flush();
   }
 
