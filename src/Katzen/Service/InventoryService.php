@@ -92,7 +92,7 @@ final class InventoryService
   {
      $results = [];
      $isShort = false;
-     
+
      foreach ($itemQuantities as $stockTargetId => $qtyNeeded) {
        $target = $this->requireTarget($stockTargetId);
        $currentQty = (float) $target->getCurrentQty();

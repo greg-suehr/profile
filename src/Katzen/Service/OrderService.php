@@ -32,58 +32,158 @@ final class OrderService
    *
    * @param array<int,int|float> $recipeQuantities
    */
-  public function createOrder(Order $order, array $recipeQuantities): void
+  public function createOrder(Order $order, array $recipeQuantities): ServiceResponse
   {
-    $recipes = $this->recipeRepo->findBy(['id' => array_keys($recipeQuantities)]);
-        
-    foreach ($recipes as $recipe) {
-      $this->autogenerator->ensureExistsForRecipe($recipe);
+     try {
+       if (empty($recipeQuantities)) {
+         return ServiceResponse::failure(
+           errors: ['No recipes provided.'],
+           message: 'Order not created: empty recipe list.',
+           data: ['order_id' => $order->getId()]
+         );
+       }
+       
+       $recipes = $this->recipeRepo->findBy(['id' => array_keys($recipeQuantities)]);
 
-      $qty = $recipeQuantities[$recipe->getId()] ?? 1;
+       if (empty($recipes)) {
+         return ServiceResponse::failure(
+           errors: ['No matching recipes found for provided IDs.'],
+           message: 'Order not created: invalid recipe IDs.',
+           data: ['order_id' => $order->getId()]
+         );
+       }
+
+       $missingIds = array_diff(array_keys($recipeQuantities), array_map(fn($r) => $r->getId(), $recipes));
+       $errors = [];
+       if (!empty($missingIds)) {
+         $errors[] = sprintf('Unknown recipe IDs: %s', implode(', ', $missingIds));
+       }
+       
+       foreach ($recipes as $recipe) {
+         $this->autogenerator->ensureExistsForRecipe($recipe);
+
+         $qty = (float) ($recipeQuantities[$recipe->getId()] ?? 1);
+         if ($qty <= 0) {
+           $errors[] = sprintf('Quantity must be positive for recipe %d.', $recipe->getId());
+           continue;
+         }
       
-      $item = new OrderItem();
-      $item->setRecipeListRecipeId($recipe);
-      $item->setQuantity($qty);
-      $item->setOrderId($order);
-      $order->addOrderItem($item);
-    }
+         $item = new OrderItem();
+         $item->setRecipeListRecipeId($recipe);
+         $item->setQuantity($qty);
+         $item->setOrderId($order);
+         $order->addOrderItem($item);
+       }
 
-    $order->setStatus('pending');
-    $this->orderRepo->save($order);
-  }
+       if (!empty($errors)) {
+         return ServiceResponse::failure(
+           errors: $errors,
+           message: 'Order not created due to validation errors.',
+           data: ['order_id' => $order->getId()]
+         );
+       }
+       
+       $order->setStatus('pending');
+       $this->orderRepo->save($order);
 
-  public function updateOrder(Order $order, array $recipeIds): void
+       return ServiceResponse::success(
+         data: [
+           'order_id'   => $order->getId(),
+           'item_count' => count($order->getOrderItems()),
+           'status'     => 'pending',
+         ],
+         message: 'Order created.'
+       );
+     } catch (\Throwable $e) {
+       return ServiceResponse::failure(
+         errors: ['Failed to create order: ' . $e->getMessage()],
+         message: 'Unhandled exception while creating order.',
+         data: ['order_id' => $order->getId()],
+         metadata: [
+           'exception' => get_class($e),
+           'code'      => (int) $e->getCode(),
+         ]
+       );
+     }
+  }     
+
+  /**
+   * Replace the order’s recipes with the provided list (default qty=1 for new ones).
+   *
+   * @param int[] $recipeIds
+   */
+  public function updateOrder(Order $order, array $recipeIds): ServiceResponse
   {
-    $existingItems = $order->getOrderItems();
-    $existingRecipeIds = [];
+    try {
+      $existingItems = $order->getOrderItems();
+      $existingRecipeIds = [];
     
-    foreach ($existingItems as $item) {
-      $existingId = $item->getRecipeListRecipeId()->getId();
-      if (!in_array($existingId, $recipeIds)) {
-        $order->removeOrderItem($item);
-        $this->itemRepo->remove($item);
-      } else {
-        $existingRecipeIds[] = $existingId;
-      }
-    }
-    
-    $newRecipeIds = array_diff($recipeIds, $existingRecipeIds);
-    if (!empty($newRecipeIds)) {
-      $newRecipes = $this->recipeRepo->findBy(['id' => $newRecipeIds]);
-      
-      foreach ($newRecipes as $recipe) {
-        $this->autogenerator->ensureExistsForRecipe($recipe);
+      foreach ($existingItems as $item) {
+        $existingId = $item->getRecipeListRecipeId()->getId();
+
+        if ($existingId === null) {
+          $order->removeOrderItem($item);
+          $this->itemRepo->remove($item);
+          continue;
+        }
         
-        $item = new OrderItem();
-        $item->setRecipeListRecipeId($recipe);
-        $item->setQuantity(1);
-        $item->setOrderId($order);
-        $order->addOrderItem($item);
+        if (!in_array($existingId, $recipeIds, true)) {
+          $order->removeOrderItem($item);
+          $this->itemRepo->remove($item);
+        } else {
+          $existingRecipeIds[] = $existingId;
+        }
       }
-    }
     
-    $order->setStatus('pending');
-    $this->orderRepo->save($order);
+      $newRecipeIds = array_values(array_diff($recipeIds, $existingRecipeIds));
+      if (!empty($newRecipeIds)) {
+        $newRecipes = $this->recipeRepo->findBy(['id' => $newRecipeIds]);
+        
+        $foundIds = array_map(fn($r) => $r->getId(), $newRecipes);
+        $invalidIds = array_diff($newRecipeIds, $foundIds);
+        
+        if (!empty($invalidIds)) {
+          return ServiceResponse::failure(
+            errors: [sprintf('Unknown recipe IDs: %s', implode(', ', $invalidIds))],
+            message: 'Order not updated due to invalid recipe IDs.',
+            data: ['order_id' => $order->getId()]
+          );
+        }
+        
+        foreach ($newRecipes as $recipe) {
+          # TODO: remove shim after shoring up input data validation
+          $this->autogenerator->ensureExistsForRecipe($recipe);
+        
+          $item = new OrderItem();
+          $item->setRecipeListRecipeId($recipe);
+          $item->setQuantity(1);
+          $item->setOrderId($order);
+          $order->addOrderItem($item);
+        }
+      }
+    
+      $order->setStatus('pending');
+      $this->orderRepo->save($order);
+
+      return ServiceResponse::success(
+        data: [
+          'order_id'   => $order->getId(),
+          'item_count' => count($order->getOrderItems()),
+          'status'     => 'pending',
+        ],
+        message: 'Order updated.'
+      );
+    } catch (\Throwable $e) {
+      return ServiceResponse::failure(
+        errors: ['Failed to update order: ' . $e->getMessage()],
+        message: 'Unhandled exception while updating order.',
+        data: ['order_id' => $order->getId()],
+        metadata: [
+          'exception' => get_class($e),
+          'code'      => (int) $e->getCode(),
+        ]
+      );
+    }
   }
   
   public function completeOrder(Order $order): ServiceResponse
@@ -102,7 +202,6 @@ final class OrderService
 
       $errors        = [];
       $enqueuedTasks = 0;
-
       
       foreach ($order->getOrderItems() as $orderLine) {
         $recipe = $orderLine->getRecipeListRecipeId();
@@ -170,7 +269,7 @@ final class OrderService
       );
     } catch (\Throwable $e) {
       return ServiceResponse::failure(
-        errors: 'Failed to complete order: ' . $e->getMessage(),
+        errors: ['Failed to complete order: ' . $e->getMessage()],
         message: 'Unhandled exception while completing order.',
         data: [
           'order_id' => $order->getId(),
@@ -198,9 +297,18 @@ final class OrderService
         );
       }
 
-      $aggregatedRequirements = $this->aggregateStockRequirements($openOrders);
+      $aggregateResults = $this->aggregateStockRequirements($openOrders);
+      if ($aggregateResults->isFailure()) {
+        return ServiceResponse::failure(
+          errors: $result->getErrors(),
+          message: sprintf('Unable to generate stock requirements for %d open orders.', count($openOrders)),
+          data: $aggregateResults->getData()
+        );
+      }
+      
+      $requirements = $aggregateResults->getData()['requirements'];                                                         
 
-      $result = $this->inventoryService->bulkCheckStock($aggregatedRequirements);
+      $result = $this->inventoryService->bulkCheckStock($requirements);
 
       if ($result->isFailure()) {
         return ServiceResponse::failure(
@@ -216,41 +324,60 @@ final class OrderService
             );
     } catch (\Throwable $e) {
       return ServiceResponse::failure(
-        errors: 'Failed to check stock: ' . $e->getMessage(),
+        errors: ['Failed to check stock: ' . $e->getMessage()],
         metadata: ['exception' => get_class($e)]
       );
     }
   }
 
-  private function aggregateStockRequirements(array $orders): array
+  private function aggregateStockRequirements(array $orders): ServiceResponse
   {
-    $aggregated = [];
-
-    foreach ($orders as $order) {
-      foreach ($order->getOrderItems() as $orderItem) {
-        $recipe = $orderItem->getRecipeListRecipeId();
-        if (!$recipe) {
-          continue;
-                }
-        
-        $consumptions = $this->expander->getStockConsumptions(
-          $recipe, 
-          $orderItem->getQuantity()
-        );
-        
-        foreach ($consumptions as $consumption) {
-          $targetId = $consumption['target']->getId();
-          $qty = $consumption['quantity'];
-          
-          if (!isset($aggregated[$targetId])) {
-            $aggregated[$targetId] = 0.0;
+    $errors = [];
+    try {
+      $requirements = [];
+      
+      foreach ($orders as $order) {
+        foreach ($order->getOrderItems() as $orderItem) {
+          $recipe = $orderItem->getRecipeListRecipeId();
+          if (!$recipe) {    
+            $errors[] = sprintf('No recipe for order item %d.', $orderItem->getId());
+            continue;
           }
-          $aggregated[$targetId] += $qty;
+        
+          $consumptions = $this->expander->getStockConsumptions(
+            $recipe, 
+            $orderItem->getQuantity()
+          );
+        
+          foreach ($consumptions as $consumption) {
+            $target = $consumption['target'] ?? null;
+            $qty = $consumption['quantity'] ?? null;
+
+            if (!$target || $qty === null) {
+              $errors[] = sprintf('No target or quantity for order item %d.', $orderItem->getId());
+              continue;
+            }
+
+            $targetId = $target->getId();
+            if (!isset($requirements[$targetId])) {
+              $requirements[$targetId] = 0.0;
+            }
+            $requirements[$targetId] += (float) $qty;
+          }
         }
       }
-    }
 
-    return $aggregated;
+      return ServiceResponse::success(
+        data: ['requirements' => $requirements],
+        message: 'Aggregated stock requirements.',
+        metadata: ['errors' => $errors]
+      );
+    } catch (\Throwable $e) {      
+      return ServiceResponse::failure(
+        errors: ['Failed to aggregate requirements: ' . $e->getMessage()],
+        message: 'Unhandled exception while aggregating stock requirements.',
+        metadata: ['exception' => get_class($e)]
+      );
+    }
   }
-      
 }
