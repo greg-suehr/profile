@@ -2,6 +2,7 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableFilter, TableAction};
 use App\Katzen\Entity\StockCount;
 use App\Katzen\Entity\StockTarget;
 use App\Katzen\Entity\StockTransaction;
@@ -35,6 +36,118 @@ final class StockController extends AbstractController
       'targets'    => $targets,
     ]));
   }
+
+  #[Route('/stock/bulk', name: 'stock_bulk', methods: ['POST'])]
+  public function stockBulk(Request $request, EntityManagerInterface $em): Response
+  {
+    $payload = json_decode($request->getContent(), true) ?? [];
+    if (!$this->isCsrfTokenValid('stock_bulk', $payload['_token'] ?? '')) {
+      return $this->json(['ok' => false, 'error' => 'Bad CSRF'], 400);
+    }
+    
+    $action = $payload['action'] ?? null;
+    $ids    = array_map('intval', $payload['ids'] ?? []);
+    
+    if (!$action || empty($ids)) {
+      return $this->json(['ok' => false, 'error' => 'Missing action or ids'], 400);
+    }
+    
+    switch ($action) {
+    case 'delete':
+      foreach ($ids as $id) {
+        $target = $em->getRepository(StockTarget::class)->find($id);
+        if ($target) $em->remove($target);
+      }
+      $em->flush();
+      break;
+
+    default:
+      return $this->json(['ok' => false, 'error' => 'Unknown action'], 400);
+    }
+
+    return $this->json(['ok' => true]);
+  }
+
+  #[Route('stock/manage', name: 'stock_table')]
+  public function manage(Request $request, EntityManagerInterface $em): Response
+    {
+        $targets = $em->getRepository(StockTarget::class)->findBy([]);
+        
+        $rows = [];
+        foreach ($targets as $target) {
+          $sourceName = '';
+          if ($target->getItem()) {
+            $sourceName = 'Item: ' . $target->getItem()->getName();
+          } elseif ($target->getRecipe()) {
+            $sourceName = 'Recipe: ' . $target->getRecipe()->getTitle();
+          }
+          
+          $row = TableRow::create([
+            'name' => $target->getName(),
+            'status' => $target->getStatus() ?? 'OK',
+            'available' => $target->getCurrentQty() . ' ' . ($target->getBaseUnit()?->getName() ?? 'units'),
+            'source' => $sourceName,
+          ])
+          ->setId($target->getId());
+
+          $status = $target->getStatus();
+          if ($status === 'Out') {
+            $row->setStyleClass('table-danger');
+          } elseif ($status === 'Low') {
+            $row->setStyleClass('table-warning');
+          }$rows[] = $row;
+        }
+
+        $table = TableView::create('stock-table')
+            ->addField(
+              TableField::text('name', 'Item Name')
+                    ->sortable()
+            )
+            ->addField(
+              TableField::badge('status', 'Status')
+                    ->badgeMap([
+                      'OK' => 'success',
+                      'Low' => 'warning',
+                      'Out' => 'danger',
+                    ])
+                    ->sortable()
+            )
+            ->addField(
+            TableField::text('available', 'Available')
+                    ->align('right')
+                    ->sortable()
+            )
+            ->addField(
+              TableField::text('source', 'Source')
+                    ->hiddenMobile()
+            )
+            ->setRows($rows)
+            ->setSelectable(true)
+            ->addQuickAction(TableAction::view()->setRoute('stock_target_show'))
+            ->addQuickAction(
+              TableAction::create('adjust', 'Adjust')
+                    ->setIcon('bi-plus-slash-minus')
+                    ->setVariant('outline-secondary')
+                    ->setRoute('stock_target_adjust')
+            )
+            ->addBulkAction(
+              TableAction::create('count', 'Start Count for Selected')
+                    ->setIcon('bi-clipboard-check')
+                    ->setVariant('outline-primary')
+            )
+            ->setSearchPlaceholder('Type item names, comma-separated (e.g. "blueberry, pie dough, salt, sugar")')
+            ->setEmptyState('No stock targets configured.')
+            ->build();
+
+        return $this->render('katzen/component/table_view.html.twig', $this->dashboardContext->with([
+          'activeItem' => 'items',
+          'activeMenu' => 'stock',
+          'table' => $table,
+          'bulkRoute' => 'stock_bulk',
+          'csrfSlug' => 'stock_bulk',
+        ]));
+   } 
+          
 
   #[Route('/stock/count', name: 'stock_count_create')]
   public function stock_count_create(Request $request, EntityManagerInterface $em): Response

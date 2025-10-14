@@ -2,6 +2,11 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Component\TableView\TableView;
+use App\Katzen\Component\TableView\TableAction;
+use App\Katzen\Component\TableView\TableField;
+use App\Katzen\Component\TableView\TableFilter;
+use App\Katzen\Component\TableView\TableRow;
 use App\Katzen\Dashboard\Widget\WidgetRegistry;
 use App\Katzen\Entity\Items;
 use App\Katzen\Entity\Recipe;
@@ -41,6 +46,50 @@ final class ManagerController extends AbstractController
         'widgets' => $views,
       ]));
   }
+
+
+  #[Route('/menus/bulk', name: 'menu_bulk', methods: ['POST'])]
+  public function menuBulk(Request $request, EntityManagerInterface $em, TagRepository $tagRepo): Response
+  {
+    $payload = json_decode($request->getContent(), true) ?? [];
+    if (!$this->isCsrfTokenValid('menu_bulk', $payload['_token'] ?? '')) {
+      return $this->json(['ok' => false, 'error' => 'Bad CSRF'], 400);
+    }
+    
+    $action = $payload['action'] ?? null;
+    $ids    = array_map('intval', $payload['ids'] ?? []);
+
+    if (!$action || empty($ids)) {
+      return $this->json(['ok' => false, 'error' => 'Missing action or ids'], 400);
+    }
+    
+    switch ($action) {
+    case 'archive':
+      // set status tag to 'archived' for each menu
+      foreach ($ids as $id) {
+        $menu = $em->getRepository(\App\Katzen\Entity\RecipeList::class)->find($id);
+        if (!$menu) continue;
+        // reuse your tag helper
+        $this->setMenuTags($menu, 'status', 'archived', $em, $tagRepo);
+      }
+      $em->flush();
+      break;
+      
+    case 'delete':
+      foreach ($ids as $id) {
+        $menu = $em->getRepository(\App\Katzen\Entity\RecipeList::class)->find($id);
+        if ($menu) $em->remove($menu);
+      }
+      $em->flush();
+      break;
+      
+    default:
+      return $this->json(['ok' => false, 'error' => 'Unknown action'], 400);
+    }
+    
+    return $this->json(['ok' => true]);
+  }
+
 
   // TODO: port tag logic to a shared TagManager service
   private function setMenuTags(RecipeList $menu, string $tag_type, string $value, EntityManagerInterface $em, TagRepository $tagRepo): void
@@ -152,13 +201,81 @@ final class ManagerController extends AbstractController
        $tagMap = [];
        foreach ($tags as $tag) {
          $tagMap[$tag->getObjId()][$tag->getType()] = $tag->getValue();
-       } 
+       }
 
-       return $this->render('katzen/manager/list_menus.html.twig',  $this->dashboardContext->with([
+       $rows = [];
+       foreach ($menus as $menu) {
+         $menuTags = $tagMap[$menu->getId()] ?? [];
+         $status = $menuTags['status'] ?? '-';
+         $mealType = $menuTags['meal_type'] ?? 'all day';
+         
+         $row = TableRow::create([
+           'name' => $menu->getName(),
+           'status' => $status,
+           'meal_type' => $mealType,
+           'last_used' => $menu->getUpdatedAt() ? $menu->getUpdatedAt()->format('Y-m-d') : 'never',
+         ])
+          ->setId($menu->getId())
+          ->setLink('menu_view', ['id' => $menu->getId()]);
+         
+         if ($status === 'archived') {
+           $row->setStyleClass('text-muted');
+          }
+            
+         $rows[] = $row;
+      }
+
+       $table = TableView::create('menus-table')
+            ->addField(
+              TableField::link('name', 'Name', 'menu_view')
+                    ->sortable()
+            )
+            ->addField(
+              TableField::badge('status', 'Status')
+                    ->badgeMap([
+                      'active' => 'success',
+                      'current' => 'primary',
+                      'draft' => 'warning',
+                      'archived' => 'secondary',
+                    ])
+                    ->sortable()
+            )
+            ->addField(
+              TableField::text('meal_type', 'Meal Type')
+                    ->sortable()
+                    ->hiddenMobile()
+            )
+            ->addField(
+              TableField::date('last_used', 'Last Used', 'Y-m-d')
+                    ->sortable()
+                    ->hiddenMobile()
+            )
+            ->setRows($rows)
+            ->setSelectable(true)
+            ->addQuickAction(TableAction::edit('menu_edit_form'))
+            ->addQuickAction(TableAction::view('menu_view'))
+            ->addBulkAction(
+              TableAction::create('archive', 'Archive Selected')
+                    ->setIcon('bi-archive')
+                    ->setVariant('outline-warning')
+                    ->setConfirmMessage('Are you sure you want to archive the selected menus?')
+            )
+            ->addBulkAction(
+              TableAction::create('delete', 'Delete Selected')
+                    ->setIcon('bi-trash')
+                    ->setVariant('outline-danger')
+                    ->setConfirmMessage('Are you sure you want to delete the selected menus? This cannot be undone.')
+            )
+            ->setSearchPlaceholder('Search menus by name...')
+            ->setEmptyState('No menus found. Create your first menu to get started!')
+            ->build();
+       
+       return $this->render('katzen/component/table_view.html.twig',  $this->dashboardContext->with([         
          'activeItem' => 'menu-list',
          'activeMenu' => 'menu',
-         'menus'  => $menus,
-         'tagMap' => $tagMap
+         'table' => $table,
+         'bulkRoute' => 'menu_bulk',
+         'csrfSlug' => 'menu_bulk'
        ]));
     }
 

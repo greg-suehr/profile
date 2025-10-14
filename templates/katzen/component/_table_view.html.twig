@@ -1,0 +1,191 @@
+{#
+  TableView Component
+
+  Usage: {% include 'katzen/components/_table_view.html.twig' with { table: tableConfig } %}
+#}
+
+{% set tableId = table.id %}
+{% set useServerSide = table.useServerSide %}
+
+<div class="table-view-container"
+     data-table-id="{{ tableId }}"
+     data-selectable="{{ table.selectable ? 'true' : 'false' }}"
+     data-server-side="{{ useServerSide ? 'true' : 'false' }}"
+     data-bulk-endpoint="{{ path(bulkRoute) }}"
+     data-csrf="{{ csrf_token(csrfSlug) }}"
+     >
+  
+  {% if table.showToolbar %}
+  <div class="table-toolbar mb-3">
+    <div class="row g-2 align-items-center">
+      
+      {# Search Bar #}
+      <div class="col-12 col-md-8">
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input
+            type="text"
+            class="form-control table-search"
+            placeholder="{{ table.searchPlaceholder }}"
+            data-table-search="{{ tableId }}"
+            aria-label="Search table"
+            >
+          <button class="btn btn-outline-secondary table-search-clear" type="button">
+            <i class="bi bi-x-lg"></i> Clear
+          </button>
+        </div>
+        
+        {# Display/Selected Status Text #}
+        <small class="text-muted d-block mt-1">
+          Showing <span class="table-stat-visible">{{ table.rowCount }}</span> 
+          of <span class="table-stat-total">{{ table.rowCount }}</span> items
+          {% if table.selectable %}
+          <span class="table-stat-selected-wrapper" style="display: none;">
+            , <span class="table-stat-selected">0</span> selected
+          </span>
+          {% endif %}
+        </small>
+      </div>
+      
+      {# Bulk Actions #}
+      {% if table.hasBulkActions %}
+      <div class="col-12 col-md-4 text-md-end">
+        <div class="btn-group" role="group">
+          {% for action in table.bulkActions %}
+          <button
+            type="button"
+            class="btn btn-sm btn-{{ action.variant }} table-bulk-action"
+            data-action="{{ action.name }}"
+            {% if action.requiresSelection %}data-requires-selection="true"{% endif %}
+            {% if action.confirmMessage %}data-confirm="{{ action.confirmMessage }}"{% endif %}
+            disabled
+            >
+            {% if action.icon %}<i class="{{ action.icon }}"></i>{% endif %}
+            {{ action.label }}
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      
+    </div>
+  </div>
+  {% endif %}
+  
+  {# Table #}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle {{ table.stickyHeader ? 'table-sticky-header' : '' }}" data-table="{{ tableId }}">
+      <thead class="table-light">
+        <tr>
+          {% if table.selectable %}
+          <th style="width: 40px;">
+            <input
+              type="checkbox"
+              class="form-check-input table-select-all"
+              aria-label="Select all visible rows"
+              >
+          </th>
+          {% endif %}
+          
+          {# Field Headers #}
+          {% for field in table.fields %}
+          <th
+            class="text-{{ field.align }} {{ field.hiddenMobile ? 'd-none d-md-table-cell' : '' }}"
+            {% if field.sortable %}
+            data-sortable="true"
+            data-sort-key="{{ field.key }}"
+            style="cursor: pointer; user-select: none;"
+            {% endif %}
+            >
+            {{ field.label }}
+            {% if field.sortable %}
+            <i class="bi bi-chevron-expand text-muted sort-icon" style="font-size: 0.75rem;"></i>
+            {% endif %}
+          </th>
+          {% endfor %}
+          
+          {# Quick Actions Column #}
+          {% if table.hasQuickActions %}
+          <th class="text-end" style="width: 120px;">Actions</th>
+          {% endif %}
+        </tr>
+      </thead>
+      
+      <tbody>
+        {% for row in table.rows %}
+        <tr
+          class="{{ row.styleClass }}"
+          {% if row.id %}data-row-id="{{ row.id }}"{% endif %}
+          {% if row.linkRoute %}data-row-link="{{ path(row.linkRoute, row.linkParams) }}"{% endif %}
+          {% for key, value in row.attributes %}data-{{ key }}="{{ value }}"{% endfor %}
+          data-searchable="{{ row.searchable }}"
+          >
+          {# Selection Checkbox #}
+          {% if table.selectable %}
+          <td>
+            <input
+              type="checkbox"
+              class="form-check-input table-row-select"
+              value="{{ row.id }}"
+              aria-label="Select row"
+              >
+          </td>
+          {% endif %}
+          
+          {# Field Values #}
+          {% for field in table.fields %}
+          <td class="text-{{ field.align }} {{ field.hiddenMobile ? 'd-none d-md-table-cell' : '' }}">
+            {% set value = row.data[field.key] ?? '-' %}
+            
+            {% if field.type == 'link' %}
+            <a href="{{ path(field.linkRoute, field.linkParams|merge({id: row.id})) }}" class="text-decoration-none">
+              {{ value }}
+            </a>
+            
+            {% elseif field.type == 'badge' or field.type == 'status' %}
+            {% set badgeClass = field.badgeMap[value]|default('secondary') %}
+            <span class="badge bg-{{ badgeClass }}">{{ value }}</span>
+            
+            {% elseif field.type == 'currency' %}
+            ${{ value|number_format(2) }}
+            
+            {% elseif field.type == 'date' %}
+            {{ value|date(field.format ?? 'Y-m-d') }}
+            
+            {% else %}
+            {{ value }}
+            {% endif %}
+          </td>
+          {% endfor %}
+          
+          {# Quick Actions #}
+          {% if table.hasQuickActions %}
+          <td class="text-end">
+            <div class="btn-group btn-group-sm" role="group">
+              {% for action in table.quickActions %}
+              <a
+                href="{{ action.route ? path(action.route, action.routeParams|merge({id: row.id})) : '#' }}"
+                class="btn btn-{{ action.variant }} table-quick-action"
+                data-action="{{ action.name }}"
+                {% if action.confirmMessage %}data-confirm="{{ action.confirmMessage }}"{% endif %}
+                title="{{ action.label }}"
+                >
+                {% if action.icon %}<i class="{{ action.icon }}"></i>{% endif %}
+              </a>
+              {% endfor %}
+            </div>
+          </td>
+          {% endif %}
+        </tr>
+        {% else %}
+        <tr class="table-empty-state">
+          <td colspan="{{ table.fields|length + (table.selectable ? 1 : 0) + (table.hasQuickActions ? 1 : 0) }}" class="text-center py-4 text-muted">
+            {{ table.emptyState }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  
+</div>
