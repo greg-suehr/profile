@@ -96,7 +96,6 @@ final class ManagerController extends AbstractController
 
     # TODO: fix Ajax routing, smooth out page flashes
     if ($request->isXmlHttpRequest()) {
-      //dd("Ajax :)");
       return $this->render('katzen/manager/_menu_form.html.twig', [
         'form'    => $form->createView(),
         'recipes' => $recipes,
@@ -132,7 +131,6 @@ final class ManagerController extends AbstractController
        }
        
        if ($mealFilter) {
-         dd("meal");
          $query->andWhere('EXISTS (
             SELECT 1 FROM App\Katzen\Entity\Tag mt 
             WHERE mt.obj = CONCAT(\'recipelist:\', r.id) 
@@ -142,7 +140,6 @@ final class ManagerController extends AbstractController
        }
        
        if ($search) {
-         dd("search");
          $query->andWhere('r.name LIKE :search')->setParameter('search', "%$search%");
        }
        

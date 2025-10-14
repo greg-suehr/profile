@@ -126,15 +126,11 @@ final class RecipeController extends AbstractController
       $flow->saveCurrentStepData($form);
       
       if ($flow->nextStep()) {
-        //        dd($flow->getCurrentStepNumber());
         $form = $flow->createForm();
       } else {
-        // flow finished
-        $recipeRepo->save($recipe);
-        
-        $flow->reset(); // remove step data from the session
-        
-        return $this->redirectToRoute('recipe'); // redirect when done
+        $recipeRepo->save($recipe);        
+        $flow->reset();        
+        return $this->redirectToRoute('recipe');
       }
 	}
 
@@ -165,7 +161,6 @@ final class RecipeController extends AbstractController
             elseif ($jsonText) {
               $jsonData = json_decode($jsonText, true);
               if (!$jsonData) {
-                // Slower, but useful JSON parsing via Seld\JsonLint
                 $parser = new JsonParser();
                 $parsingException = $parser->lint($jsonText);
                 throw new \Exception($parsingException->getMessage());

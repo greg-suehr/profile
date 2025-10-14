@@ -258,9 +258,7 @@ final class InventoryService
   private function requireTarget(int $id): StockTarget
   {
     $target = $this->targetRepo->find($id);
-    dd($target);
     if (!$target) {
-      dd($id);
       throw new \RuntimeException("Stock target not found for: $id");
     }
     return $target;
