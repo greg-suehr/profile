@@ -54,9 +54,9 @@ final class ConversionHelper
     $ctx = $e->getContext();
     
     if (str_contains(strtolower($e->getMessage()), 'cross-category')) {
-      return "Can’t convert $a → $b without item-specific context (density).";
+      return "Can't convert $a to $b without item-specific context (density).";
     }
     
-    return $e->getMessage() ?: "Can’t convert $a → $b.";
+    return $e->getMessage() ?: "Can’t convert $a to $b.";
   }
 }
