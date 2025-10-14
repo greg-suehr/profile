@@ -142,7 +142,7 @@ class UnitConversionLog
         return $this->entity_type;
     }
 
-    public function setEntityType(string $entity_type): static
+    public function setEntityType(?string $entity_type): static
     {
         $this->entity_type = $entity_type;
 
@@ -154,7 +154,7 @@ class UnitConversionLog
         return $this->entity_id;
     }
 
-    public function setEntityId(string $entity_id): static
+    public function setEntityId(?string $entity_id): static
     {
         $this->entity_id = $entity_id;
 
@@ -170,7 +170,7 @@ class UnitConversionLog
     public function setCreatedAt(): void
     {
       if ($this->created_at === null) {
-        $this->created_at = $created_at;
+        $this->created_at = new \DateTimeImmutable;
       }
     }
 }

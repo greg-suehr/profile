@@ -12,6 +12,7 @@ use App\Katzen\Repository\RecipeRepository;
 use App\Katzen\Service\Cook\RecipeExpanderService;
 use App\Katzen\Service\InventoryService;
 use App\Katzen\Service\Inventory\StockTargetAutogenerator;
+use App\Katzen\Service\Order\RequirementsPlanner;
 use App\Katzen\Service\Response\ServiceResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -21,6 +22,7 @@ final class OrderService
     private OrderRepository $orderRepo,
     private OrderItemRepository $itemRepo,
     private RecipeRepository $recipeRepo,
+    private RequirementsPlanner $requirements,
     private InventoryService $inventoryService,
     private StockTargetAutogenerator $autogenerator,
     private RecipeExpanderService $expander,
@@ -185,7 +187,10 @@ final class OrderService
       );
     }
   }
-  
+
+  /**
+   * Update order status and generate stock consumption events.
+   */
   public function completeOrder(Order $order): ServiceResponse
   {
     try {
@@ -200,50 +205,49 @@ final class OrderService
         );
       }
 
-      $errors        = [];
+      $warnings      = [];
       $enqueuedTasks = 0;
       
-      foreach ($order->getOrderItems() as $orderLine) {
-        $recipe = $orderLine->getRecipeListRecipeId();
-        if (!$recipe) {
-          $errors[] = sprintf('Order item  %s is missing a recipe.',
-                             method_exists($orderLine, 'getId') ? ($orderLine->getId() ?? 'unknown') : 'unknown'
-          );
+      $plan = $this->requirements->plan(['orders'=>[$order]], purpose: 'consume', groupBy: 'stockTarget');
 
-          continue;
-        }        
-
-        $expanded = $this->expander->getStockConsumptions($recipe, $orderLine->getQuantity());
-
-        foreach ($expanded as $consumption) {
-          $target   = $consumption['target']   ?? null;
-          $quantity = $consumption['quantity'] ?? null;
-
-          if (!$target || $quantity === null) {
-            $errors[] = sprintf(
-              'Malformed consumption record for order item %s.',
-              method_exists($orderLine, 'getId') ? ($orderLine->getId() ?? 'unknown') : 'unknown'
-            );
-            continue;
-          }
-          
-          
-          $this->bus->dispatch(new AsyncTaskMessage(
-            taskType: 'consume_stock',
-            payload: [
-              'stock_target.id' => $target->getId(),
-              'quantity' => $quantity,
-              'reason'   => 'order#' . $order->getId(),
-            ]
-          ));
-
-          $enqueuedTasks++;
-        }
+      if ($plan['errors']) {
+        return ServiceResponse::failure(
+          errors: $plan['errors'],
+          data: $plan,
+          message: 'Unit conversion failed for one or more ingredients.',
+          metadata: [
+            'order_id' => $order->getId()
+          ]
+        );
       }
 
-      if (!empty($errors)) {
+      foreach ($plan['requirements'] as $req) {
+        if ($req->totalBaseQty <= 0) {
+          $warnings[] = 'No stock consumption record for order item: invalid quantity.';
+          continue;
+        }
+        if (!$req->target?->getId()) {
+          $warnings[] = 'No stock consumption record for order item %s: invalid stock target.';
+          continue;
+        }
+        
+        $this->bus->dispatch(new AsyncTaskMessage(
+          taskType: 'consume_stock',
+          payload: [
+            'stock_target.id' => $req->target?->getId(),
+            'quantity' => $req->totalBaseQty,
+            'reason'   => 'order#' . $order->getId(),
+          ]
+        ));
+        
+        $enqueuedTasks++;
+      }     
+
+      # TODO: consider soft-failure and inventory reconciliation instead of
+      #       interrupting order completion with Requirement Planning errors
+      if (!empty($warnings)) {
         return ServiceResponse::failure(
-          errors: $errors,
+          errors: $warnings,
           message: 'Order not completed due to errors.',
           data: [
             'order_id'       => $order->getId(),
@@ -255,7 +259,7 @@ final class OrderService
           ]
         );
       }
-    
+      
       $order->setStatus('complete');
       $this->orderRepo->flush();
       

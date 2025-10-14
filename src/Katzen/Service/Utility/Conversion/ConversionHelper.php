@@ -38,7 +38,6 @@ final class ConversionHelper
       return null;
       
     } catch (\Throwable $e) {
-      
       $msg = 'Unexpected conversion error.';
       $errors[] = $msg;
       $this->logger->error('Conversion crashed', ['exception' => $e]);

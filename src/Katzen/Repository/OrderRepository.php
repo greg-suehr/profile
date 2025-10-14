@@ -27,6 +27,18 @@ class OrderRepository extends ServiceEntityRepository
     $this->getEntityManager()->flush();
   }
 
+  public function findByDateRange(\DateTimeInterface$from, \DateTimeInterface $to): array
+  {
+    return $this->createQueryBuilder('o')
+                 ->andWhere('o.created_at >= :from')
+                 ->setParameter('from', $from)
+                 ->andWhere('o.created_at <= :to')
+                 ->setParameter('to', $to)      
+                 ->orderBy('o.id', 'ASC')
+                 ->getQuery()
+                 ->getResult();
+  }
+
   public function findByStatus($value): array
   {
     return $this->createQueryBuilder('o')
@@ -34,17 +46,11 @@ class OrderRepository extends ServiceEntityRepository
                  ->setParameter('val', $value)
                  ->orderBy('o.id', 'ASC')
                  ->getQuery()
-                 ->getResult()
-            ;
-        }
+                 ->getResult();
+  }
 
-    //    public function findOneBySomeField($value): ?Order
-    //    {
-    //        return $this->createQueryBuilder('o')
-    //            ->andWhere('o.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+  public function findOpen(): array
+  {
+    return $this->findByStatus('pending');
+  }
 }
