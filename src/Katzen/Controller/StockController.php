@@ -54,7 +54,7 @@ final class StockController extends AbstractController
     
     switch ($action) {
     case 'count':
-      return $this->json(['ok' => true, 'redirect' => $this->generateUrl('stock_count_create_filtered', [ 'ids' => implode(',',array_values($ids))] )]);
+      return $this->json(['ok' => true, 'redirect' => $this->generateUrl('stock_count_create', [ 'ids' => implode(',',array_values($ids))] )]);
     case 'delete':
       foreach ($ids as $id) {
         $target = $em->getRepository(StockTarget::class)->find($id);
@@ -149,11 +149,10 @@ final class StockController extends AbstractController
           'csrfSlug' => 'stock_bulk',
         ]));
    } 
-          
-  #[Route('/stock/count', name: 'stock_count_create')]
-  #[Route('/stock/count/{ids}', name: 'stock_count_create_filtered')]
+  
+  #[Route('/stock/count/{ids?}', name: 'stock_count_create')]
   public function stock_count_create(
-    string $ids=null,
+    ?string $ids,
     Request $request,
     EntityManagerInterface $em
   ): Response

@@ -29,7 +29,7 @@ class TableAction
         return new self($name, $label);
     }
     
-    public static function view(string $route = null): self
+  public static function view(?string $route): self
     {
         $action = new self('view', 'View');
         $action->icon = 'bi-eye-fill';
@@ -40,7 +40,7 @@ class TableAction
         return $action;
     }
     
-    public static function edit(string $route = null): self
+    public static function edit(?string $route): self
     {
         $action = new self('edit', 'Edit');
         $action->icon = 'bi-pencil-fill';
@@ -51,7 +51,7 @@ class TableAction
         return $action;
     }
     
-    public static function delete(string $route = null): self
+    public static function delete(?string $route): self
     {
         $action = new self('delete', 'Delete');
         $action->icon = 'bi-trash-fill';
