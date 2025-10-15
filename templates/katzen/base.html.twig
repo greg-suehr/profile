@@ -31,7 +31,7 @@
                     <div class="collapse {{ activeMenu == 'menu' ? 'show' : '' }}" id="menuSub">
                         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                           <li><a href="{{ path('menu_create_form') }}" class="nav-link ps-4 {{ activeItem == 'menu-create' ? 'active' : 'text-secondary' }}" data-item="menu-create">Create A Menu</a></li>
-                          <li><a href="{{ path('recipe_list') }}" class="nav-link ps-4 {{ activeItem == 'recipe-list' ? 'active' : 'text-secondary' }}" data-item="recipe-list">Manage Recipes</a></li>                          
+                          <li><a href="{{ path('recipe_table') }}" class="nav-link ps-4 {{ activeItem == 'recipe-list' ? 'active' : 'text-secondary' }}" data-item="recipe-list">Manage Recipes</a></li>                          
                           <li><a href="{{ path('menu_index') }}" class="nav-link ps-4 {{ activeItem == 'menu-list' ? 'active' : 'text-secondary' }}" data-item="menu-list">View Past Menus</a></li>
                         </ul>
                     </div>

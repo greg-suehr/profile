@@ -34,7 +34,7 @@ final class ManagerController extends AbstractController
     private WidgetRegistry $widgets,
   ) {}
   
-  #[Route('/dashboard', name: 'dashboard_home')]
+  #[Route('/katzen', name: 'dashboard_home')]
   public function index(): Response
   {
       # TODO: per context, role, user Dashboard Widget selection

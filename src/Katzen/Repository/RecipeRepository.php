@@ -22,6 +22,12 @@ class RecipeRepository extends ServiceEntityRepository
     $this->getEntityManager()->flush();
   }
 
+  public function delete(Recipe $recipe): void
+  {
+    $this->getEntityManager()->remove($recipe);
+    $this->getEntityManager()->flush();
+  }
+
   public function getLatestVersionForTitle(string $title): int
   {
     return $this->createQueryBuilder('r')

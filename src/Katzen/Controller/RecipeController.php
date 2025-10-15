@@ -2,6 +2,9 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Component\TableView\{
+  TableView, TableRow, TableField, TableFilter, TableAction
+    };
 use App\Katzen\Entity\Recipe;
 use App\Katzen\Form\ImportRecipeType;
 use App\Katzen\Form\RecipeBuilderType;
@@ -18,48 +21,131 @@ use Seld\JsonLint\JsonParser;
 
 final class RecipeController extends AbstractController
 {
-  public function __construct(private DashboardContextService $dashboardContext) {}
+  public function __construct(
+    private DashboardContextService $dashboardContext,
+    private ItemRepository $itemRepo,
+    private RecipeRepository $recipeRepo,
+  ){}
   
-  #[Route('/recipe', name: 'app_recipe')]
+  #[Route('/recipe', name: 'recipe_index')]
   public function index(): Response
   {
-        return $this->render('katzen/recipe/index.html.twig',  $this->dashboardContext->with([
-          'activeItem'      => 'recipe',
-          'activeMenu'      => 'menu',
-          'controller_name' => 'RecipeController',
-        ]));
-    }
-
-  #[Route('/katzen', name: 'app_landing')]
-  public function landing_page(): Response
-  {
-        return $this->render('katzen/recipe/index.html.twig', $this->dashboardContext->with([
-           'activeItem'      => 'recipe',
-           'activeMenu'      => 'menu',
-           'controller_name' => 'RecipeController',
-        ]));
-    }
-
-  #[Route('/recipe/list', name: 'recipe_list')]
-    public function list(Request $request, RecipeRepository $recipeRepo): Response
-    {
-        
-        return $this->render('katzen/recipe/list.html.twig', $this->dashboardContext->with([
-          'activeItem'      => 'recipe-list',
-          'activeMenu'      => 'menu',
-          'controller_name' => 'RecipeController',
-          'recipes'         => $recipeRepo->findAll(),
-        ]));
-    }
+    $recipes = $this->recipeRepo->findBy([]);
+    return $this->render('katzen/recipe/index.html.twig',  $this->dashboardContext->with([
+      'activeItem' => 'recipe',
+      'activeMenu' => 'menu',
+      'recipes'    => $recipes,
+    ]));
+  }  
   
-  #[Route('/recipe/show/{id}', name: 'recipe_show')]
-  public function show(Request $request, Recipe $recipe, ItemRepository $itemRepo): Response
+  #[Route('/recipe/bulk', name: 'recipe_bulk', methods: ['POST'])]
+  public function recipeBulk(Request $request): Response
+  {
+    $payload = json_decode($request->getContent(), true) ?? [];
+    if (!$this->isCsrfTokenValid('recipe_bulk', $payload['_token'] ?? '')) {
+      return $this->json(['ok' => false, 'error' => 'Bad CSRF'], 400);
+    }
+    
+    $action = $payload['action'] ?? null;
+    $ids    = array_map('intval', $payload['ids'] ?? []);
+    
+    if (!$action || empty($ids)) {
+      return $this->json(['ok' => false, 'error' => 'Missing action or ids'], 400);
+    }
+    
+    switch ($action) {
+    case 'delete':
+      foreach ($ids as $id) {
+        $recipe = $this->recipeRepo->findBy([ 'id' => $id ]);
+        if ($recipe) $this->delete($recipe);
+      }
+      break;
+      
+    default:
+      return $this->json(['ok' => false, 'error' => 'Unknown action'], 400);
+    }
+    
+    return $this->json(['ok' => true]);
+  }
+
+  #[Route('/recipe/manage', name: 'recipe_table')]
+  public function list(Request $request): Response
+  {
+    $recipes = $this->recipeRepo->findBy([]);
+    $rows = [];
+    foreach ($recipes as $recipe) {
+      $numIngredients = $recipe->getRecipeIngredients()->count();
+      
+      $row = TableRow::create([
+        'name' => $recipe->getTitle(),
+        'item_count' => $numIngredients,
+        'prep_time' => $recipe->getPrepTime(),
+        'wait_time' => $recipe->getWaitTime(),
+        'cook_time' => $recipe->getCookTime(),
+        'status' => $recipe->getStatus(),
+      ])
+        ->setId($recipe->getId())
+        ->setLink('recipe_view', ['id' => $recipe->getId()]);
+
+      $rows[] = $row;
+    }
+
+    $table = TableView::create('recipe-table')
+      ->addField(
+        TableField::text('name', 'Recipe Name')
+        ->sortable()
+      )
+      ->addField(
+    	TableField::text('item_count', 'Ingredients')
+        ->sortable()
+      )
+      ->addField(
+        TableField::duration('prep_time', 'Prep')
+        ->sortable()
+      )
+      ->addField(
+        TableField::duration('wait_time', 'Wait')
+        ->sortable()
+      )
+      ->addField(
+        TableField::duration('cook_time', 'Cook')
+        ->sortable()
+      )
+      ->addField(
+        TableField::text('status', 'Status')
+        ->align('right')
+        ->sortable()
+      )
+      ->setRows($rows)
+      ->setSelectable(true)
+      ->addQuickAction(TableAction::view('recipe_view'))
+      ->addBulkAction(
+        TableAction::create('delete', 'Delete Selected')
+            ->setIcon('bi-trash')
+            ->setVariant('outline-danger')
+            ->setConfirmMessage('Are you sure you want to delete the selected recipes? This cannot be undone.')
+      )
+      ->setSearchPlaceholder('Search recipes by name...')
+      ->setEmptyState('No recipes found. Create your first recipe to get started!')
+      ->build();
+    
+    return $this->render('katzen/component/table_view.html.twig', $this->dashboardContext->with([
+      'activeItem' => 'recipe-list',
+      'activeMenu' => 'menu',
+      'table'      => $table,
+      'bulkRoute'  => 'recipe_bulk',
+      'csrfSlug'   => 'recipe_bulk',
+    ]));
+  }
+  
+  #[Route('/recipe/view/{id}', name: 'recipe_view')]
+  public function view(Request $request, Recipe $recipe): Response
     {
         $recipe_ingredients = array();
 
         foreach ($recipe->getRecipeIngredients() as $ingredient) {
           if ($ingredient->getSupplyType() === 'item') {
-            $item = $itemRepo->findItemById($ingredient->getSupplyId());
+            $item = $this->itemRepo->findItemById($ingredient->getSupplyId());
             $ingredient->supplyLabel = $item ? $item->getName() : 'Unknown ingredient';
           } else {
             $ingredient->supplyLabel = 'Unknown ingredient';
@@ -67,7 +153,7 @@ final class RecipeController extends AbstractController
           array_push($recipe_ingredients, $ingredient);
         }
           
-        return $this->render('katzen/recipe/show.html.twig', $this->dashboardContext->with([
+        return $this->render('katzen/recipe/view.html.twig', $this->dashboardContext->with([
           'activeItem' => 'recipe-list',
           'activeMenu' => 'menu',
           'recipe' => $recipe,
@@ -76,7 +162,7 @@ final class RecipeController extends AbstractController
     }
 
   #[Route('/recipe/build', name: 'recipe_build')]
-    public function build(Request $request, RecipeRepository $recipeRepo): Response
+    public function build(Request $request): Response
     {
 
     $recipe = new Recipe();
@@ -102,9 +188,9 @@ final class RecipeController extends AbstractController
         $recipe->setCreatedAt(new \DateTimeImmutable());
         $recipe->setUpdatedAt(new \DateTime());
 
-        $recipeRepo->save($recipe, true);
+        $this->recipeRepo->save($recipe, true);
 
-        return $this->redirectToRoute('recipe_show', ['id' => $recipe->getId()]);
+        return $this->redirectToRoute('recipe_view', ['id' => $recipe->getId()]);
     }
     
 	return $this->render('katzen/recipe/build.html.twig', $this->dashboardContext->with([
@@ -115,7 +201,7 @@ final class RecipeController extends AbstractController
     }
 
    #[Route('/recipe/create', name: 'recipe_create')]
-  public function create(Request $request, RecipeRepository $recipeRepo, CreateRecipeFlow $flow): Response
+  public function create(Request $request, CreateRecipeFlow $flow): Response
   {
     $recipe = new Recipe();
 
@@ -128,7 +214,7 @@ final class RecipeController extends AbstractController
       if ($flow->nextStep()) {
         $form = $flow->createForm();
       } else {
-        $recipeRepo->save($recipe);        
+        $this->recipeRepo->save($recipe);        
         $flow->reset();        
         return $this->redirectToRoute('recipe');
       }

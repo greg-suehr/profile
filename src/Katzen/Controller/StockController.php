@@ -72,35 +72,35 @@ final class StockController extends AbstractController
 
   #[Route('stock/manage', name: 'stock_table')]
   public function manage(Request $request, EntityManagerInterface $em): Response
-    {
-        $targets = $em->getRepository(StockTarget::class)->findBy([]);
+  {
+    $targets = $em->getRepository(StockTarget::class)->findBy([]);
         
-        $rows = [];
-        foreach ($targets as $target) {
-          $sourceName = '';
-          if ($target->getItem()) {
-            $sourceName = 'Item: ' . $target->getItem()->getName();
-          } elseif ($target->getRecipe()) {
-            $sourceName = 'Recipe: ' . $target->getRecipe()->getTitle();
-          }
-          
-          $row = TableRow::create([
-            'name' => $target->getName(),
-            'status' => $target->getStatus() ?? 'OK',
-            'available' => $target->getCurrentQty() . ' ' . ($target->getBaseUnit()?->getName() ?? 'units'),
-            'source' => $sourceName,
-          ])
-          ->setId($target->getId());
-
-          $status = $target->getStatus();
-          if ($status === 'Out') {
-            $row->setStyleClass('table-danger');
-          } elseif ($status === 'Low') {
-            $row->setStyleClass('table-warning');
-          }$rows[] = $row;
-        }
-
-        $table = TableView::create('stock-table')
+    $rows = [];
+    foreach ($targets as $target) {
+      $sourceName = '';
+      if ($target->getItem()) {
+        $sourceName = 'Item: ' . $target->getItem()->getName();
+      } elseif ($target->getRecipe()) {
+        $sourceName = 'Recipe: ' . $target->getRecipe()->getTitle();
+      }
+      
+      $row = TableRow::create([
+        'name' => $target->getName(),
+        'status' => $target->getStatus() ?? 'OK',
+        'available' => $target->getCurrentQty() . ' ' . ($target->getBaseUnit()?->getName() ?? 'units'),
+        'source' => $sourceName,
+      ])
+      ->setId($target->getId());
+      
+      $status = $target->getStatus();
+      if ($status === 'Out') {
+        $row->setStyleClass('table-danger');
+      } elseif ($status === 'Low') {
+        $row->setStyleClass('table-warning');
+      }$rows[] = $row;
+    }
+    
+    $table = TableView::create('stock-table')
             ->addField(
               TableField::text('name', 'Item Name')
                     ->sortable()
@@ -125,7 +125,7 @@ final class StockController extends AbstractController
             )
             ->setRows($rows)
             ->setSelectable(true)
-            ->addQuickAction(TableAction::view()->setRoute('stock_target_show'))
+            ->addQuickAction(TableAction::view('stock_target_view'))
             ->addQuickAction(
               TableAction::create('adjust', 'Adjust')
                     ->setIcon('bi-plus-slash-minus')
@@ -199,8 +199,8 @@ final class StockController extends AbstractController
     ]));
   }
 
-  #[Route('/stock/show/{id}', name: 'stock_target_show')]
-  public function stock_target_show(
+  #[Route('/stock/show/{id}', name: 'stock_target_view')]
+  public function stock_target_view(
     Request $request,
     EntityManagerInterface $em,
     int $id,
@@ -219,7 +219,7 @@ final class StockController extends AbstractController
     }
 
     if ($target->getRecipe()) {
-        return $this->redirectToRoute('recipe_show', [
+        return $this->redirectToRoute('recipe_view', [
             'id' => $target->getRecipe()->getId()
         ]);
     }
