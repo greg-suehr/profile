@@ -113,12 +113,13 @@ final class StockController extends AbstractController
     
     $view = $panel->build();
     
-    return $this->render('katzen/stock/index_panel.html.twig', $this->dashboardContext->with([
+    return $this->render('katzen/component/panel_view.html.twig', $this->dashboardContext->with([
       'activeMenu' => 'stock',
       'activeItem' => 'stock',
       'view' => $view,
       'q'    => $q,
       'activeGroup' => $activeGroup ?? 'all',
+      'groupSlug' => 'stock_index',
     ]));
   }
 

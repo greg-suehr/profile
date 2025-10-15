@@ -2,14 +2,14 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Component\PanelView\{PanelView, PanelCard, PanelField, PanelGroup, PanelAction};
 use App\Katzen\Entity\Order;
 use App\Katzen\Entity\OrderItem;
 use App\Katzen\Entity\Recipe;
 use App\Katzen\Entity\RecipeList;
 use App\Katzen\Entity\Tag;
 use App\Katzen\Form\OrderType;
-use App\Katzen\Repository\RecipeListRepository;
-use App\Katzen\Repository\RecipeRepository;
+use App\Katzen\Repository\OrderRepository;
 use App\Katzen\Repository\TagRepository;
 use App\Katzen\Service\Order\DefaultMenuPlanner;
 use App\Katzen\Service\OrderService;
@@ -28,24 +28,77 @@ final class OrderController extends AbstractController
     private DashboardContextService $dashboardContext,
     private DefaultMenuPlanner $menuPlanner,
     private OrderService $orderService,
+    private OrderRepository $orderRepo,
+    private TagRepository $tagRepo,    
   ) {}
   
   #[Route('/orders', name: 'order_index')]
-  public function index(Request $request, EntityManagerInterface $em): Response  
+  public function index(Request $request): Response  
   {
+    $activeGroup = $request->query->get('group');
+    $q = $request->query->get('q');
     # TODO: Add ['created_at' => 'DESC']) to Order entity
-    $orders = $em->getRepository(Order::class)->findBy([
-      'status' => 'pending'
-    ]); 
-    return $this->render('katzen/order/list_orders.html.twig', $this->dashboardContext->with([
-      'activeItem' => 'orders',                    
+    $orders = $this->orderRepo->findBy([
+      'status' => ['pending', 'ready', 'waiting'],
+    ]);
+
+    $cards = [];
+    foreach ($orders as $o) {
+      $data = [
+        'id'            => (string) $o->getId(),
+        'customer'      => $o->getCustomer(),
+        'numItems'      => $o->getOrderItems()->count(),
+        'status'        => $o->getStatus(),
+      ];
+
+      $card = PanelCard::create($data['id'])
+        ->setTitle($data['customer'] ?? $data['customer'] ?? sprintf('Order #%d', $data['id']))
+        ->setData($data)
+        ->addBadge(strtoupper($data['status']), match ($data['status']) {
+            'waiting' => 'danger', 'ready' => 'success', default => 'warning'
+          })
+        ->addPrimaryField(PanelField::number('numItems', 'Items', 0)->icon('bi-box'))
+        ->addQuickAction(
+          PanelAction::edit([ 'name' => 'order_edit_form', 'params' => ['id' => $data['id']]])
+          );
+      
+      if ($data['status'] === 'waiting') { $card->setBorderColor('var(--color-error)'); }
+
+      $cards[] = $card;
+    }
+
+    $groups = [
+      PanelGroup::create('all', 'All')->setIcon('bi-grid'),
+      PanelGroup::create('waiting', 'Waiting')->whereEquals('status', 'waiting')->setIcon('bi-exclamation-triangle'),
+    ];
+
+    $panel = PanelView::create('orders')
+            ->setCards($cards)
+            ->setSelectable(true)
+            ->setSearchPlaceholder('Search by order items, customer name...')
+            ->setEmptyState('No orders found.')
+      ;
+    
+    foreach ($groups as $g) { $panel->addGroup($g); }
+
+    if (\in_array($activeGroup, array_map(fn($g) => $g->getKey(), $groups), true)) {
+      $panel->setActiveGroup($activeGroup === 'all' ? null : $activeGroup);
+    }
+    
+    $view = $panel->build();
+    
+    return $this->render('katzen/component/panel_view.html.twig', $this->dashboardContext->with([
+      'activeItem' => 'orders',
       'activeMenu' => null,
-      'orders' => $orders,
+      'view' => $view,
+      'q'    => $q,
+      'activeGroup' => $activeGroup ?? 'all',
+      'groupSlug' => 'order_index',
     ]));
   }
 
   #[Route('/order/create', name: 'order_create_form')]
-  public function orderCreate(Request $request, EntityManagerInterface $em, RecipeListRepository $recipeRepo, TagRepository $tagRepo): Response
+  public function orderCreate(Request $request): Response
   {
     $order = new Order();
     $form = $this->createForm(OrderType::class, $order);
@@ -84,9 +137,9 @@ final class OrderController extends AbstractController
   }
 
   #[Route('/order/edit/{id}', name: 'order_edit_form')]
-  public function orderEdit(int $id, Request $request, EntityManagerInterface $em): Response
+  public function orderEdit(int $id, Request $request): Response
   {
-    $order = $em->getRepository(Order::class)->find($id);
+    $order = $this->orderRepo->find($id);
     if (!$order) {
       throw $this->createNotFoundException('Order not found.');
     }
@@ -157,9 +210,9 @@ final class OrderController extends AbstractController
   }
 
   #[Route('/api/orders/{id}/schedule', name: 'order_schedule_update', methods: ['PATCH'])]
-  public function updateSchedule(int $id, Request $req, EntityManagerInterface $em): Response
+  public function updateSchedule(int $id, Request $req): Response
   {
-    $order = $em->getRepository(Order::class)->find($id);
+    $order = $this->orderRepo->findBy([ 'id' => $id ]);
     if (!$order) { return $this->json(['error' => 'not found'], 404); }
     
     $data = json_decode($req->getContent(), true) ?? [];
@@ -168,7 +221,7 @@ final class OrderController extends AbstractController
     }
     if (isset($data['slot'])) { $order->setSlot($data['slot']); }
     
-    $em->flush();
+    $this->orderRepo->save($order);
     return $this->json(['ok' => true]);
   }
 

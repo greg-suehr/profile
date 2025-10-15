@@ -109,7 +109,7 @@ class PanelAction
         return $this->icon;
     }
     
-    public function getRoute(): ?string
+    public function getRoute(): ?array
     {
         return $this->route;
     }
