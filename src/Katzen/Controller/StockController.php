@@ -2,6 +2,7 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Component\PanelView\{PanelView, PanelCard, PanelField, PanelGroup, PanelAction};
 use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableFilter, TableAction};
 use App\Katzen\Entity\StockCount;
 use App\Katzen\Entity\StockTarget;
@@ -24,21 +25,105 @@ final class StockController extends AbstractController
   public function __construct(
     private DashboardContextService $dashboardContext,
     private InventoryService $inventoryService,
+    private StockTargetRepository $stockRepo,
   ) {}
   
   #[Route('/stock', name: 'stock_index')]
-  public function index(Request $request, EntityManagerInterface $em): Response
+  public function index(Request $request): Response
   {
-    $targets = $em->getRepository(StockTarget::class)->findBy([]);
-    return $this->render('katzen/stock/_list_stock.html.twig', $this->dashboardContext->with([
-      'activeItem' => 'stock', 
+    $activeGroup = $request->query->get('group');
+    $q = $request->query->get('q');
+    $targets = $this->stockRepo->findBy([]);
+
+    $cards = [];
+    foreach ($targets as $t) {
+      $data = [
+        'id'            => (string) $t->getId(),
+        'name'          => $t->getName(),                           // e.g. "Rice"
+        'item_name'     => $t->getItem()?->getName(),
+        'source_type'   => $t->getItem() ? 'item' : 'recipe',
+      #  'location'      => $t->getLocation()?->getLabel() ?? null,
+        'qty'           => $t->getCurrentQty(),                       // float
+        'unit'          => $t->getBaseUnit()?->getAbbreviation() ?? null,     // "g", "kg", etc.
+      #  'min_qty'       => $t->getMinQuantity() ?? 0,
+        'status'        => $t->getCurrentQty() <= 0 ? 'out'
+          : ($t->getCurrentQty() <= ($t->getReorderPoint() ?? 0) ? 'low' : 'ok'),
+      #  'last_count'    => $t->getLastCountedAt(),
+      #  'updated_at'    => $t->getUpdatedAt(),
+      ];
+
+      $card = PanelCard::create($data['id'])
+                ->setTitle($data['name'] ?? $data['item_name'] ?? 'Untitled')
+                ->setData($data)
+                ->addBadge(strtoupper($data['status']), match ($data['status']) {
+                    'out' => 'danger', 'low' => 'warning', default => 'success'
+                  })
+#                ->setMeta($data['location'] ? "Location: {$data['location']}" : null)
+                ->addPrimaryField(PanelField::number('qty', 'Quantity', 2)->icon('bi-box'))
+                ->addPrimaryField(PanelField::text('unit', 'Unit')->muted())
+#                ->addContextField(PanelField::date('last_count', 'Last Count', 'Y-m-d'))
+#                ->addContextField(PanelField::date('updated_at', 'Updated', 'Y-m-d H:i'))
+                ->addQuickAction(
+                  PanelAction::view([ 'name' => 'stock_target_view', 'params' => ['id' => $data['id']]])
+                )
+#                ->addQuickAction(
+#                  PanelAction::edit([ 'name' => 'stock_target_edit', 'params' => ['id' => $data['id']]])
+#                )
+                ->addQuickAction(
+                  PanelAction::create('count', 'Count Now')
+                        ->setIcon('bi-clipboard-check')
+                        ->setVariant('outline-success')
+                        ->setRoute([ 'name' => 'stock_count_create', 'params' => ['ids' => $data['id']]])
+                );
+
+      if ($data['status'] === 'out') { $card->setBorderColor('var(--color-error)'); }
+      elseif ($data['status'] === 'low') { $card->setBorderColor('var(--color-warning)'); }
+      
+      $cards[] = $card;
+    }
+
+    $groups = [
+      PanelGroup::create('all', 'All')->setIcon('bi-grid'),
+      PanelGroup::create('low', 'Low Stock')->whereEquals('status', 'low')->setIcon('bi-exclamation-triangle'),
+      PanelGroup::create('out', 'Out of Stock')->whereEquals('status', 'out')->setIcon('bi-x-octagon'),
+      PanelGroup::create('items_only', 'Items Only')->whereEquals('source_type', 'item')->setIcon('bi-bag'),
+      PanelGroup::create('prep_only', 'Prep Only')->whereEquals('source_type', 'recipe')->setIcon('bi-egg-fried')
+       ];
+
+    $panel = PanelView::create('stock')
+            ->setCards($cards)
+            ->setSelectable(true)
+            ->setSearchPlaceholder('Search name, location, unit…')
+            ->setEmptyState('No inventory targets found.')
+            ->addBulkAction(
+              PanelAction::create('bulk_count', 'Start Count Session')->setIcon('bi-clipboard')->setVariant('outline-primary')
+            )
+            ->addBulkAction(
+              PanelAction::create('bulk_adjust', 'Adjust Quantities')->setIcon('bi-arrow-left-right')->setVariant('outline-secondary')
+            )
+            ->addBulkAction(
+              PanelAction::delete([ 'name' => 'stock_target_bulk_archive'])
+            );
+
+    foreach ($groups as $g) { $panel->addGroup($g); }
+
+    if (\in_array($activeGroup, array_map(fn($g) => $g->getKey(), $groups), true)) {
+      $panel->setActiveGroup($activeGroup === 'all' ? null : $activeGroup);
+    }
+    
+    $view = $panel->build();
+    
+    return $this->render('katzen/stock/index_panel.html.twig', $this->dashboardContext->with([
       'activeMenu' => 'stock',
-      'targets'    => $targets,
+      'activeItem' => 'stock',
+      'view' => $view,
+      'q'    => $q,
+      'activeGroup' => $activeGroup ?? 'all',
     ]));
   }
 
   #[Route('/stock/bulk', name: 'stock_bulk', methods: ['POST'])]
-  public function stockBulk(Request $request, EntityManagerInterface $em): Response
+  public function stockBulk(Request $request): Response
   {
     $payload = json_decode($request->getContent(), true) ?? [];
     if (!$this->isCsrfTokenValid('stock_bulk', $payload['_token'] ?? '')) {
@@ -57,10 +142,9 @@ final class StockController extends AbstractController
       return $this->json(['ok' => true, 'redirect' => $this->generateUrl('stock_count_create', [ 'ids' => implode(',',array_values($ids))] )]);
     case 'delete':
       foreach ($ids as $id) {
-        $target = $em->getRepository(StockTarget::class)->find($id);
-        if ($target) $em->remove($target);
+        $target = $this->stockRepo->findBy([ 'id' => $id]);
+        if ($target) $this->stockRepo->delete($target);
       }
-      $em->flush();
       break;
 
     default:
@@ -71,9 +155,9 @@ final class StockController extends AbstractController
   }
 
   #[Route('stock/manage', name: 'stock_table')]
-  public function manage(Request $request, EntityManagerInterface $em): Response
+  public function manage(Request $request): Response
   {
-    $targets = $em->getRepository(StockTarget::class)->findBy([]);
+    $targets = $this->stockRepo->findBy([]);
         
     $rows = [];
     foreach ($targets as $target) {
@@ -154,14 +238,13 @@ final class StockController extends AbstractController
   public function stock_count_create(
     ?string $ids,
     Request $request,
-    EntityManagerInterface $em
   ): Response
   {
     if ($ids === null) {
-      $targets = $em->getRepository(StockTarget::class)->findBy([]);
+      $targets = $this->stockRepo->findBy([]);
     }
     else {
-      $targets = $em->getRepository(StockTarget::class)->findByIds(explode(',',$ids));
+      $targets = $this->stockRepo->findByIds(explode(',',$ids));
     }
 
     if ($request->isMethod('POST')) {
@@ -202,11 +285,10 @@ final class StockController extends AbstractController
   #[Route('/stock/show/{id}', name: 'stock_target_view')]
   public function stock_target_view(
     Request $request,
-    EntityManagerInterface $em,
     int $id,
   ) : Response
   {
-    $target = $em->getRepository(StockTarget::class)->find($id);
+    $target = $this->stockRepo->find($id);
     
     if (!$target) {
         throw $this->createNotFoundException("StockTarget #$id not found.");
@@ -231,12 +313,10 @@ final class StockController extends AbstractController
   #[Route('/stock/adjust/{id}', name: 'stock_target_adjust')]
   public function stock_target_adjust(
     Request $request,
-    EntityManagerInterface $em,
-    StockTargetRepository $targetRepo,
     int $id,
   ) : Response
   {
-    $target = $targetRepo->find($id);
+    $target = $this->stockRepo->find($id);
 
     if (!$target) {
       throw $this->createNotFoundException('Stock target not found.');

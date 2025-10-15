@@ -1,0 +1,135 @@
+{# templates/katzen/stock/index_panel.html.twig #}
+{% extends 'katzen/base.html.twig' %}
+{% block title %}Current Inventory{% endblock %}
+
+{% block main_content %}
+<div class="container py-4" data-panel-id="{{ view.id }}">
+  <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+    <div class="input-group" style="max-width: 520px;">
+      <span class="input-group-text">Filter</span>
+      <input id="panel-search" class="form-control" type="text" value="{{ q|default('') }}"
+             placeholder="{{ view.searchPlaceholder ?? 'Search…' }}" autocomplete="off">
+      <button class="btn btn-outline-secondary" id="panel-search-clear" type="button">Clear</button>
+    </div>
+
+    <div class="ms-auto d-flex gap-2 align-items-center">
+      {% if view.selectable and view.bulkActions is not empty %}
+        <div class="btn-group">
+          <button class="btn btn-outline-secondary" id="panel-select-all" type="button">
+            <i class="bi bi-check2-square me-1"></i>Select All
+          </button>
+          <button class="btn btn-outline-secondary" id="panel-clear-selection" type="button">
+            <i class="bi bi-x-square me-1"></i>Clear
+          </button>
+        </div>
+
+        <div class="dropdown">
+          <button class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" type="button">
+            Bulk Actions (<span id="panel-selected-count">0</span>)
+          </button>
+          <div class="dropdown-menu dropdown-menu-end">
+            {% for a in view.bulkActions %}
+              <button class="dropdown-item panel-bulk-action"
+                      data-action="{{ a.action }}"
+                      data-route-name="{{ a.route.name ?? '' }}"
+                      data-route-params='{{ a.route.params|default({})|json_encode }}'
+                      {% if a.confirmMessage %} data-confirm="{{ a.confirmMessage }}"{% endif %}>
+                {% if a.icon %}<i class="bi {{ a.icon }} me-2"></i>{% endif %}
+                {{ a.label }}
+              </button>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {# Group pills #}
+  <div class="mb-3 d-flex flex-wrap gap-2">
+    {% for g in view.groups %}
+      {% set key = g.key %}
+      {% set active = (activeGroup == key) or (activeGroup == 'all' and view.activeGroup is null and key == 'all') %}
+      <a class="btn btn-sm {{ active ? 'btn-primary' : 'btn-outline-secondary' }}"
+         href="{{ path('stock_index', key == 'all' ? {} : { group: key, q: q }) }}">
+        {% if g.icon %}<i class="bi {{ g.icon }} me-1"></i>{% endif %}
+        {{ g.label }}
+        <span class="badge bg-light text-dark ms-1">{{ g.matchCount }}</span>
+      </a>
+    {% endfor %}
+  </div>
+
+  {# Cards grid #}
+  {% if view.cards is empty %}
+    <div class="alert alert-light border text-center">{{ view.emptyState ?? 'Nothing to show.' }}</div>
+  {% else %}
+    <div id="panel-grid" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+      {% for c in view.cards %}
+        <div class="col panel-card"
+             data-searchable="{{ c.searchable|e('html_attr') }}"
+             data-id="{{ c.id }}">
+          <div class="card h-100 {{ c.styleClass ?? '' }}"
+               {% if c.borderColor %} style="border-left: 6px solid {{ c.borderColor }};"{% endif %}>
+            <div class="card-body pb-2">
+              <div class="d-flex align-items-start">
+                <div class="flex-grow-1">
+                  <div class="d-flex align-items-center gap-2">
+                    <h5 class="card-title mb-0">{{ c.title }}</h5>
+                    {% for b in c.badges %}
+                      <span class="badge text-bg-{{ b.variant }}">{{ b.text }}</span>
+                    {% endfor %}
+                  </div>
+                  {% if c.meta %}
+                    <div class="text-muted small mt-1">{{ c.meta }}</div>
+                  {% endif %}
+                </div>
+                {% if view.selectable %}
+                  <div class="form-check ms-2">
+                    <input class="form-check-input panel-select" type="checkbox"
+                           value="{{ c.id }}" aria-label="Select {{ c.title }}">
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="mt-3">
+                <div class="d-flex flex-wrap gap-3">
+                  {% for f in c.primaryFields %}
+                    {% set val = (c.data[f.key] is defined) ? c.data[f.key] : null %}
+                    <div class="d-flex align-items-center gap-1">
+                      {% if f.icon %}<i class="bi {{ f.icon }}"></i>{% endif %}
+                      <div><strong>{{ f.label }}:</strong> {{ f.type == 'number' ? val : (val ?? '—') }}</div>
+                    </div>
+                  {% endfor %}
+                </div>
+                {% if c.contextFields is not empty %}
+                  <div class="text-muted small mt-2 d-flex flex-wrap gap-3">
+                    {% for f in c.contextFields %}
+                      {% set val = (c.data[f.key] is defined) ? c.data[f.key] : null %}
+                      <div>{{ f.label }}: {{ val ?? '—' }}</div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="card-footer d-flex flex-wrap gap-2">
+              {% for a in c.quickActions %}
+                <a class="btn btn-sm btn-{{ a.variant }}"
+                   href="{{ a.route ? path(a.route.name, a.route.params|default({})) : '#' }}"
+                   {% if a.confirmMessage %} data-confirm="{{ a.confirmMessage }}"{% endif %}>
+                  {% if a.icon %}<i class="bi {{ a.icon }} me-1"></i>{% endif %}
+                  {{ a.label }}
+                </a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+{# Hidden form for bulk posts #}
+<form id="panel-bulk-form" method="post" class="d-none">
+  <input type="hidden" name="ids" id="panel-bulk-ids">
+</form>
+{% endblock %}
