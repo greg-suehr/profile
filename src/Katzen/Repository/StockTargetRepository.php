@@ -41,6 +41,11 @@ class StockTargetRepository extends ServiceEntityRepository
         ->getSingleScalarResult();
   }
 
+  public function findByIds(array $ids): array
+  {
+    return $this->findBy(['id' => $ids]);
+  }
+
   public function findOneByItemId($value): ?StockTarget
   {
     return $this->createQueryBuilder('s')

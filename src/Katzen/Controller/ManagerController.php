@@ -65,7 +65,6 @@ final class ManagerController extends AbstractController
     
     switch ($action) {
     case 'archive':
-      // set status tag to 'archived' for each menu
       foreach ($ids as $id) {
         $menu = $em->getRepository(\App\Katzen\Entity\RecipeList::class)->find($id);
         if (!$menu) continue;

@@ -47,12 +47,14 @@ final class StockController extends AbstractController
     
     $action = $payload['action'] ?? null;
     $ids    = array_map('intval', $payload['ids'] ?? []);
-    
+
     if (!$action || empty($ids)) {
       return $this->json(['ok' => false, 'error' => 'Missing action or ids'], 400);
     }
     
     switch ($action) {
+    case 'count':
+      return $this->json(['ok' => true, 'redirect' => $this->generateUrl('stock_count_create_filtered', [ 'ids' => implode(',',array_values($ids))] )]);
     case 'delete':
       foreach ($ids as $id) {
         $target = $em->getRepository(StockTarget::class)->find($id);
@@ -148,11 +150,20 @@ final class StockController extends AbstractController
         ]));
    } 
           
-
   #[Route('/stock/count', name: 'stock_count_create')]
-  public function stock_count_create(Request $request, EntityManagerInterface $em): Response
+  #[Route('/stock/count/{ids}', name: 'stock_count_create_filtered')]
+  public function stock_count_create(
+    string $ids=null,
+    Request $request,
+    EntityManagerInterface $em
+  ): Response
   {
-    $targets = $em->getRepository(StockTarget::class)->findBy([]);
+    if ($ids === null) {
+      $targets = $em->getRepository(StockTarget::class)->findBy([]);
+    }
+    else {
+      $targets = $em->getRepository(StockTarget::class)->findByIds(explode(',',$ids));
+    }
 
     if ($request->isMethod('POST')) {
       $notes = $request->request->get('notes') ?? '';

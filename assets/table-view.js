@@ -357,24 +357,139 @@
         });
       });
     }
-    
-    executeBulkAction(action) {
+
+    async executeBulkAction(action) {
       const selectedIds = Array.from(this.selectedIds);
       
-      // Dispatch custom event for handling by application code
-      const event = new CustomEvent('tableview:bulkaction', {
+      const endpoint = this.container.dataset.bulkEndpoint;
+      const csrfToken = this.container.dataset.csrf;
+      
+      if (!endpoint) {
+        console.error('No bulk endpoint configured');
+        return;
+      }
+      
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: JSON.stringify({
+            action: action,
+            ids: selectedIds,
+            _token: csrfToken
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        
+        if (contentType?.includes('application/json')) {
+          const result = await response.json();
+          
+          if (!result.ok) {
+            throw new Error(result.error || 'Bulk action failed');
+          }
+
+          if (result.redirect) {
+            window.location.href = result.redirect;
+            return;
+          }
+
+          if (result.modal) {
+            this.showModal(result.modal);
+            this.dispatchSuccessEvent(action, selectedIds, result);
+            return;
+          }
+
+          // By default reload page to refresh updated data
+          this.dispatchSuccessEvent(action, selectedIds, result);
+
+          if (result.message) {
+            alert(result.message);
+          }
+          
+          window.location.reload();
+          return;
+        }
+
+        if (contentType?.includes('text/html')) {
+          const html = await response.text();
+          this.showModal(html);
+          this.dispatchSuccessEvent(action, selectedIds, { html });
+          return;
+        }
+        
+        // If we get here with a redirect, it means we were redirected and got HTML
+        const finalUrl = response.url;
+        if (finalUrl !== endpoint) {
+          window.location.href = finalUrl;
+          return;
+        }
+        
+        throw new Error('Unexpected response type: ' + contentType);
+        
+      } catch (error) {
+        console.error('Bulk action failed:', error);
+        this.dispatchErrorEvent(action, error.message);
+        alert(`Action failed: ${error.message}`);
+      }
+    }
+    
+    dispatchSuccessEvent(action, selectedIds, result) {
+      const event = new CustomEvent('tableview:bulkaction:success', {
         detail: {
           tableId: this.tableId,
           action: action,
-          selectedIds: selectedIds
+          selectedIds: selectedIds,
+          result: result
         },
         bubbles: true
       });
-      
       this.container.dispatchEvent(event);
-      
-      // You can also implement direct form submission here
-      console.log(`Bulk action "${action}" on`, selectedIds);
+    }
+
+    dispatchErrorEvent(action, error) {
+      const event = new CustomEvent('tableview:bulkaction:error', {
+        detail: {
+          tableId: this.tableId,
+          action: action,
+          error: error
+        },
+        bubbles: true
+      });
+      this.container.dispatchEvent(event);
+    }
+
+    showModal(html) {
+      // Remove any existing bulk action modal
+      const existingModal = document.getElementById('bulk-action-modal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+
+      // Create modal container
+      const modalContainer = document.createElement('div');
+      modalContainer.id = 'bulk-action-modal';
+      modalContainer.innerHTML = html;
+      document.body.appendChild(modalContainer);
+
+      // Find and show the modal
+      const modalElement = modalContainer.querySelector('.modal');
+      if (modalElement && window.bootstrap) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+
+        // Clean up when modal is hidden
+        modalElement.addEventListener('hidden.bs.modal', () => {
+          modalContainer.remove();
+        });
+      }
     }
     
     updateBulkActionState() {
