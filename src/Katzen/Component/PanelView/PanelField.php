@@ -38,6 +38,11 @@ class PanelField
     {
         return new self($key, $label, 'badge');
     }
+
+    public static function currency(string $key, string $label): self
+    {
+        return new self($key, $label, 'currency');
+    }
     
     public static function date(string $key, string $label, string $format = 'Y-m-d'): self
     {

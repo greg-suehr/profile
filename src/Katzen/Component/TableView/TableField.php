@@ -31,6 +31,11 @@ class TableField
     {
         return new self($key, $label, 'text');
     }
+
+    public static function amount(string $key, string $label): self
+    {
+        return new self($key, $label, 'amount');
+    }
     
     public static function badge(string $key, string $label): self
     {

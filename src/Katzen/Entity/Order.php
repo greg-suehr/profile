@@ -20,6 +20,10 @@ class Order
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $customer = null;
 
+    #[ORM\ManyToOne(inversedBy: 'orders')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Customer $customer_entity = null;
+
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $status = null;
 
@@ -65,6 +69,17 @@ class Order
 
         return $this;
     }
+  
+  public function getCustomerEntity(): ?Customer
+  {
+    return $this->customer_entity;
+  }
+
+  public function setCustomerEntity(?Customer $customer_entity): static
+  {
+    $this->customer_entity = $customer_entity;
+    return $this;
+  }
 
     public function getStatus(): ?string
     {
