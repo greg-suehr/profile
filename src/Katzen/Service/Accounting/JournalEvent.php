@@ -2,14 +2,11 @@
 
 namespace App\Katzen\Service\Accounting;
 
-use App\Katzen\Service\Accounting\ChartOfAccountsService;
-
 final class JournalEvent
 {
   public function __construct(
     private string $transactionType,
     private array $rules,
-    private ChartOfAccountsService $coa
   )
   {}
 

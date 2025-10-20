@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Katzen\Service;
+namespace App\Katzen\Service\Accounting;
 
 use App\Katzen\Entity\Account;
 use App\Katzen\Repository\LedgerEntryRepository;
