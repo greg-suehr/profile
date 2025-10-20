@@ -2,14 +2,20 @@
 
 namespace App\Katzen\Service;
 
+use App\Katzen\Entity\Account;
 use App\Katzen\Entity\Customer;
 use App\Katzen\Entity\Invoice;
 use App\Katzen\Entity\InvoiceLineItem;
 use App\Katzen\Entity\Order;
 use App\Katzen\Entity\Payment;
+use App\Katzen\Repository\AccountRepository;
 use App\Katzen\Repository\CustomerRepository;
 use App\Katzen\Repository\InvoiceRepository;
+use App\Katzen\Repository\LedgerEntryRepository;
 use App\Katzen\Repository\PaymentRepository;
+use App\Katzen\Service\Accounting\ChartOfAccountsService;
+use App\Katzen\Service\Accounting\CostingService;
+use App\Katzen\Service\Accounting\JournalEventService;
 use App\Katzen\Service\Response\ServiceResponse;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -18,8 +24,106 @@ final class AccountingService
   public function __construct(
     private CustomerRepository $customerRepo,
     private InvoiceRepository $invoiceRepo,
+    private LedgerEntryRepository $entries,
     private PaymentRepository $paymentRepo,
+    private ChartOfAccountsService $coa,    
+    private CostingService $costing,
+    private JournalEventService $journalEvents,
   ) {}
+
+  /**
+   * ! NOTE: use Accounting/recordEvent to map financially impactful actions to
+   * ! the standard set of events defined in the JournalEventsService.
+   * !
+   * ! Review the documentation in the JournalEventsService and consider expanding
+   * ! the set of known JournalEvents if needed to implement a new workflow.
+   * 
+   * Write a direct journal entry.
+   *
+   * * @param string $transactionType ('sale', 'purchase', 'cogs', 'adjustment')
+   * * @param list<array{account:string, debit:?float, credit:?float}> $lines proto-LedgerEntryLines
+   * * @param string $referenceType ('order', 'stock_transaction', 'invoice')
+   * * @param string $referenceId Sorry for string cast but accomodates non-numeric object IDs
+   * * @param list<array{metadataKey:string => metadataValue:string}>
+   * * @return ServiceResponse
+   */
+  public function record(
+    string $transactionType,
+    array $lines,
+    string $referenceType,
+    int $referenceId,
+    array $metadata = []
+  ): ServiceResponse {
+    $totalDebit = 0;
+    $totalCredit = 0;
+    
+    foreach ($lines as $line) {
+      $totalDebit += (float)($line['debit'] ?? 0);
+      $totalCredit += (float)($line['credit'] ?? 0);
+    }
+        
+    if (abs($totalDebit - $totalCredit) > 0.01) {
+      return ServiceResponse::error(
+        "Journal entry out of balance. Debits: {$totalDebit}, Credits: {$totalCredit}"
+      );
+    }
+    
+    $entry = new LedgerEntry();
+    $entry->setTimestamp(new \DateTime());
+    $entry->setTransactionType($transactionType);
+    $entry->setReferenceType($referenceType);
+    $entry->setReferenceId((string)$referenceId);
+    $entry->setIsReconciled(false);
+    
+    foreach ($lines as $lineData) {
+      $account = $this->coa->resolve($lineData['account']);
+      
+      $line = new LedgerEntryLine();
+      $line->setAccount($account);
+      $line->setDebit($lineData['debit']);
+      $line->setCredit($lineData['credit']);
+      $line->setMemo($lineData['memo'] ?? null);
+      
+      $entry->addLine($line);
+    }
+    
+    $this->em->persist($entry);
+    $this->em->flush();
+
+    return ServiceResponse::success("Journal entry {$entry->getId()} recorded");
+  }
+
+  /**
+   * Applies a standard JournalEvent to write a set of LedgerEntries so that your
+   * programming problems don't become accounting problems.
+   *
+   * Refer to the JournalEventsService for details on typees of JournalEvents.
+   *
+   * * @param string $transactionType ('sale', 'purchase', 'cogs', 'adjustment')
+   * * @param list<array{account:string, debit:?float, credit:?float}> $lines proto-LedgerEntryLines
+   * * @param string $referenceType ('order', 'stock_transaction', 'invoice')
+   * * @param string $referenceId Sorry for string cast but accomodates non-numeric object IDs
+   * * @param list<array{metadataKey:string => metadataValue:string}>
+   * * @return ServiceResponse
+   */
+  public function recordFromTemplate(
+        string $templateName,
+        array $amounts,  // Just business values, not debits/credits
+        string $referenceType,
+        int $referenceId,
+        array $metadata = []
+    ): ServiceResponse {
+        $template = $this->templates->get($templateName);
+        $lines = $template->buildLines($amounts, $metadata);
+        
+        return $this->record(
+            transactionType: $template->getTransactionType(),
+            lines: $lines,
+            referenceType: $referenceType,
+            referenceId: $referenceId,
+            metadata: $metadata
+        );
+    }
   
   /**
    * Create invoice from an order

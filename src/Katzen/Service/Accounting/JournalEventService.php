@@ -1,0 +1,108 @@
+<?php
+
+namespace App\Katzen\Service\Accounting;
+
+use App\Katzen\Service\Accounting\ChartOfAccountsService;
+use App\Katzen\Service\Accounting\JournalEvent;
+
+final class JournalEventService
+{
+  private array $templates;
+  
+  public function __construct(
+    private ChartOfAccountsService $coa
+  )
+  {
+    $this->templates = [
+      // 1) Order Prepayment and customer deposits
+      // Inputs: prepayment, tax_prepaid (usually 0), memo
+      'order_prepayment' => new JournalEvent(
+        transactionType: 'prepayment',
+        rules: [
+          ['account' => '1000.CASH',              'side'=>'debit',  'expr'=>'${prepayment}', 'memo'=>'Customer prepayment'],
+          ['account' => '2300.CUSTOMER_DEPOSITS', 'side'=>'credit', 'expr'=>'${prepayment}', 'memo'=>'Liability for unearned revenue'],
+        ]
+      ),
+      
+      // 2) COGS at fulfillment
+      // Inputs: cogs_total
+      'cogs_on_fulfillment' => new JournalEvent(
+        transactionType: 'cogs',
+        rules: [
+          ['account' => '5100.COGS_INGREDIENTS', 'side'=>'debit',  'expr'=>'${cogs_total}', 'memo'=>'COGS'],
+          ['account' => '1400.INVENTORY',        'side'=>'credit', 'expr'=>'${cogs_total}', 'memo'=>'Inventory relief'],
+        ]
+      ),
+      
+      // 3) Recognize revenue at fulfillment
+      // Inputs: revenue, tax_total, shipping_revenue, tip_total
+      'unbilled_ar_on_fulfillment' => new JournalEvent(
+        transactionType: 'revenue',
+        rules: [
+          // Gross receivable (unbilled)
+          ['account' => '1320.UNBILLED_AR',      'side'=>'debit',  'expr'=>'${revenue} + ${tax_total} + ${shipping_revenue} + ${tip_total}', 'memo'=>'Recognize receivable at fulfillment'],
+                      
+          // Revenue and liabilities
+          ['account' => '4100.FOOD_SALES',       'side'=>'credit', 'expr'=>'${revenue}', 'memo'=>'Food revenue'],
+
+          // optional components
+          ['account' => '4180.SHIPPING_INCOME',  'side'=>'credit', 'expr'=>'${shipping_revenue}', 'memo'=>'Shipping income', 'when'=>'${shipping_revenue} != 0'],
+          ['account' => '2400.SALES_TAX_PAY',    'side'=>'credit', 'expr'=>'${tax_total}',        'memo'=>'Sales tax liability', 'when'=>'${tax_total} != 0'],
+          ['account' => '2450.TIPS_PAYABLE',     'side'=>'credit', 'expr'=>'${tip_total}',        'memo'=>'Tips payable', 'when'=>'${tip_total} != 0'],
+        ]
+      ),
+
+      // 4) Reclass Unbilled AR to Open AR at invoicing
+      // Inputs: invoice_total (revenue+tax+shipping+tip), apply_prepayment (<= invoice_total)
+      'invoice_reclass_unbilled_to_ar' => new JournalEvent(
+        transactionType: 'reclass',
+        rules: [
+          // move Unbilled AR -> AR
+          ['account' => '1100.ACCOUNTS_RECEIVABLE', 'side'=>'debit',  'expr'=>'${invoice_total}', 'memo'=>'Create AR'],
+          ['account' => '1320.UNBILLED_AR',         'side'=>'credit', 'expr'=>'${invoice_total}', 'memo'=>'Clear Unbilled AR'],
+          
+          // Optional: apply prior deposits to reduce AR (Dr Customer Deposits, Cr AR)
+          ['account' => '2300.CUSTOMER_DEPOSITS',   'side'=>'debit',  'expr'=>'${apply_prepayment}', 'memo'=>'Apply deposit', 'when'=>'${apply_prepayment} != 0'],
+          ['account' => '1100.ACCOUNTS_RECEIVABLE', 'side'=>'credit', 'expr'=>'${apply_prepayment}', 'memo'=>'Reduce AR by deposit', 'when'=>'${apply_prepayment} != 0'],
+        ]
+      ),
+      
+      // 5) Inventory Spoilage and Waste
+      // Inputs: spoilage_cost
+      'inventory_spoilage' => new JournalEvent(
+        transactionType: 'adjustment',
+        rules: [
+          ['account' => '5200.WASTE_SPOILAGE', 'side'=>'debit',  'expr'=>'${spoilage_cost}', 'memo'=>'Spoilage'],
+          ['account' => '1400.INVENTORY',      'side'=>'credit', 'expr'=>'${spoilage_cost}', 'memo'=>'Inventory write-down'],
+        ]
+      ),
+
+      // 6) Refunds (post-fulfillment):
+      // If goods not returned: refund cash and book contra-revenue; reverse tax and tips liabilities.
+      // If goods returned & resellable, also reverse COGS/Inventory (optional flag).
+      // Inputs: refund_amount, tax_refund, tip_refund, shipping_refund, reverse_cogs (0/1), cogs_reversal
+      'refund' => new JournalEvent(
+        transactionType: 'refund',
+        rules: [
+          ['account' => '4500.SALES_RETURNS',   'side'=>'debit',  'expr'=>'${refund_amount}', 'memo'=>'Contra revenue'],
+          ['account' => '2400.SALES_TAX_PAY',   'side'=>'debit',  'expr'=>'${tax_refund}',    'memo'=>'Reverse tax liability', 'when'=>'${tax_refund} != 0'],          
+          ['account' => '2450.TIPS_PAYABLE',    'side'=>'debit',  'expr'=>'${tip_refund}',    'memo'=>'Return tips liability', 'when'=>'${tip_refund} != 0'],
+          ['account' => '4180.SHIPPING_INCOME', 'side'=>'debit',  'expr'=>'${shipping_refund}','memo'=>'Reverse shipping income', 'when'=>'${shipping_refund} != 0'],
+          
+            ['account' => '1000.CASH',            'side'=>'credit', 'expr'=>'${refund_amount} + ${tax_refund} + ${tip_refund} + ${shipping_refund}', 'memo'=>'Cash out'],
+
+          // Optional inventory put-back
+          ['account' => '1400.INVENTORY',       'side'=>'debit',  'expr'=>'${cogs_reversal}', 'memo'=>'Inventory returned', 'when'=>'${reverse_cogs} != 0'],
+          ['account' => '5100.COGS_INGREDIENTS','side'=>'credit', 'expr'=>'${cogs_reversal}', 'memo'=>'Reverse COGS', 'when'=>'${reverse_cogs} != 0'],
+        ]
+      ),
+    ];
+  }
+
+  public function get(string $name): JournalEvent
+  {
+    $tpl = $this->templates[$name] ?? null;
+    if (!$tpl) throw new \RuntimeException("Unknown JournalEvent template: {$name}");
+    return $tpl;
+  }
+}
