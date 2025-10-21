@@ -29,6 +29,24 @@ class StockTransaction
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $reason = null;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $effective_date = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $recorded_at = null;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
+    private ?string $unit_cost = null;
+
+    #[ORM\Column(length: 50)]
+    private ?string $status = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $batch_id = null;
+
+    #[ORM\ManyToOne]
+    private ?LedgerEntry $ledger_entry = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,6 +108,78 @@ class StockTransaction
     public function setReason(?string $reason): static
     {
         $this->reason = $reason;
+
+        return $this;
+    }
+
+    public function getEffectiveDate(): ?\DateTimeInterface
+    {
+        return $this->effective_date;
+    }
+
+    public function setEffectiveDate(\DateTimeInterface $effective_date): static
+    {
+        $this->effective_date = $effective_date;
+
+        return $this;
+    }
+
+    public function getRecordedAt(): ?\DateTimeImmutable
+    {
+        return $this->recorded_at;
+    }
+
+    public function setRecordedAt(\DateTimeImmutable $recorded_at): static
+    {
+        $this->recorded_at = $recorded_at;
+
+        return $this;
+    }
+
+    public function getUnitCost(): ?string
+    {
+        return $this->unit_cost;
+    }
+
+    public function setUnitCost(?string $unit_cost): static
+    {
+        $this->unit_cost = $unit_cost;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getBatchId(): ?int
+    {
+        return $this->batch_id;
+    }
+
+    public function setBatchId(?int $batch_id): static
+    {
+        $this->batch_id = $batch_id;
+
+        return $this;
+    }
+
+    public function getLedgerEntry(): ?LedgerEntry
+    {
+        return $this->ledger_entry;
+    }
+
+    public function setLedgerEntry(?LedgerEntry $ledger_entry): static
+    {
+        $this->ledger_entry = $ledger_entry;
 
         return $this;
     }

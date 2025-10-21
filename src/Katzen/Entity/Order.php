@@ -48,9 +48,31 @@ class Order
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $scheduled_at = null;
 
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    private ?string $subtotal = null;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    private ?string $tax_amount = null;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    private ?string $total_amount = null;
+
+    #[ORM\Column(length: 50)]
+    private ?string $fulfillment_status = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $fulfilled_at = null;
+
+    /**
+     * @var Collection<int, Invoice>
+     */
+    #[ORM\ManyToMany(targetEntity: Invoice::class, inversedBy: 'orders')]
+    private Collection $invoices;
+
     public function __construct()
     {
         $this->orderItems = new ArrayCollection();
+        $this->invoices = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -179,6 +201,90 @@ class Order
     public function setScheduledAt(?\DateTimeInterface $scheduled_at): static
     {
         $this->scheduled_at = $scheduled_at;
+
+        return $this;
+    }
+
+    public function getSubtotal(): ?string
+    {
+        return $this->subtotal;
+    }
+
+    public function setSubtotal(string $subtotal): static
+    {
+        $this->subtotal = $subtotal;
+
+        return $this;
+    }
+
+    public function getTaxAmount(): ?string
+    {
+        return $this->tax_amount;
+    }
+
+    public function setTaxAmount(string $tax_amount): static
+    {
+        $this->tax_amount = $tax_amount;
+
+        return $this;
+    }
+
+    public function getTotalAmount(): ?string
+    {
+        return $this->total_amount;
+    }
+
+    public function setTotalAmount(string $total_amount): static
+    {
+        $this->total_amount = $total_amount;
+
+        return $this;
+    }
+
+    public function getFulfillmentStatus(): ?string
+    {
+        return $this->fulfillment_status;
+    }
+
+    public function setFulfillmentStatus(string $fulfillment_status): static
+    {
+        $this->fulfillment_status = $fulfillment_status;
+
+        return $this;
+    }
+
+    public function getFulfilledAt(): ?\DateTimeInterface
+    {
+        return $this->fulfilled_at;
+    }
+
+    public function setFulfilledAt(?\DateTimeInterface $fulfilled_at): static
+    {
+        $this->fulfilled_at = $fulfilled_at;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Invoice>
+     */
+    public function getInvoices(): Collection
+    {
+        return $this->invoices;
+    }
+
+    public function addInvoice(Invoice $invoice): static
+    {
+        if (!$this->invoices->contains($invoice)) {
+            $this->invoices->add($invoice);
+        }
+
+        return $this;
+    }
+
+    public function removeInvoice(Invoice $invoice): static
+    {
+        $this->invoices->removeElement($invoice);
 
         return $this;
     }

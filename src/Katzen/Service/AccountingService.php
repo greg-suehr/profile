@@ -113,7 +113,7 @@ final class AccountingService
         int $referenceId,
         array $metadata = []
     ): ServiceResponse {
-        $template = $this->templates->get($templateName);
+        $template = $this->journalEvents->templates->get($templateName);
         $lines = $template->buildLines($amounts, $metadata);
         
         return $this->record(

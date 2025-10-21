@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace App\Shared\Repository;
 
-use App\Entity\InviteLog;
+use App\Shared\Entity\InviteLog;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

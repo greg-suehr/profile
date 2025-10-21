@@ -31,6 +31,12 @@ class OrderItem
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
     private ?string $unit_price = null;
 
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    private ?string $cogs = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $fulfilled_at = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -92,6 +98,30 @@ class OrderItem
     public function setUnitPrice(?string $unit_price): static
     {
         $this->unit_price = $unit_price;
+
+        return $this;
+    }
+
+    public function getCogs(): ?string
+    {
+        return $this->cogs;
+    }
+
+    public function setCogs(string $cogs): static
+    {
+        $this->cogs = $cogs;
+
+        return $this;
+    }
+
+    public function getFulfilledAt(): ?\DateTimeInterface
+    {
+        return $this->fulfilled_at;
+    }
+
+    public function setFulfilledAt(?\DateTimeInterface $fulfilled_at): static
+    {
+        $this->fulfilled_at = $fulfilled_at;
 
         return $this;
     }

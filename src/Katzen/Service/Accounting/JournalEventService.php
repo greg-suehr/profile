@@ -14,6 +14,8 @@ final class JournalEventService
   )
   {
     $this->templates = [
+      // Order-To-Cash (OTC) Journal Event Cycle
+      
       // 1) Order Prepayment and customer deposits
       // Inputs: prepayment, tax_prepaid (usually 0), memo
       'order_prepayment' => new JournalEvent(
@@ -94,6 +96,39 @@ final class JournalEventService
           // Optional inventory put-back
           ['account' => '1400.INVENTORY',       'side'=>'debit',  'expr'=>'${cogs_reversal}', 'memo'=>'Inventory returned', 'when'=>'${reverse_cogs} != 0'],
           ['account' => '5100.COGS_INGREDIENTS','side'=>'credit', 'expr'=>'${cogs_reversal}', 'memo'=>'Reverse COGS', 'when'=>'${reverse_cogs} != 0'],
+        ]
+      ),
+
+      // Procure-To-Pay (PTP) Journal Event Cycle
+      
+      // 1) Stock Receipt
+      // Inputs: receipt_total
+      'stock_receipt' => new JournalEvent(
+        transactionType: 'stock_receipt',
+        rules: [
+          ['account' => '1400.INVENTORY',      'side'=>'debit',  'expr'=>'${receipt_total}'],
+          ['account' => '2100.ACCOUNTS_PAYABLE','side'=>'credit', 'expr'=>'${receipt_total}'],
+        ]
+      ),
+
+      // 2. Invoice Match, Cost Realization
+      // Inputs: gr_total, invoice_total, variance
+      'vendor_invoice_matched' => new JournalEvent(
+        transactionType: 'invoice_match',
+        rules: [
+          ['account' => '2100.ACCOUNTS_PAYABLE','side'=>'debit',  'expr'=>'${gr_total}'],
+          ['account' => '2100.ACCOUNTS_PAYABLE','side'=>'credit', 'expr'=>'${invoice_total}'],
+          ['account' => '5300.PURCHASE_VARIANCE','side'=>'debit', 'expr'=>'${variance}', 'when'=>'${variance} != 0'],
+        ]
+      ),
+
+      // 3. Vendor Payment
+      // Inputs: amount
+      'vendor_payment' => new JournalEvent(
+        transactionType: 'payment',
+        rules: [
+          ['account' => '2100.ACCOUNTS_PAYABLE', 'side'=>'debit',  'expr'=>'${amount}'],
+          ['account' => '1000.CASH',             'side'=>'credit', 'expr'=>'${amount}'],
         ]
       ),
     ];

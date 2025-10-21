@@ -76,6 +76,12 @@ class Customer
    */
   #[ORM\OneToMany(targetEntity: Payment::class, mappedBy: 'customer')]
   private Collection $payments;
+
+  #[ORM\Column(length: 50)]
+  private ?string $payment_terms = null;
+
+  #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+  private ?string $ar_balance = null;
   
   public function __construct()
   {
@@ -181,5 +187,29 @@ class Customer
       $payment->setCustomer($this);
     }
     return $this;
+  }
+
+  public function getPaymentTerms(): ?string
+  {
+      return $this->payment_terms;
+  }
+
+  public function setPaymentTerms(string $payment_terms): static
+  {
+      $this->payment_terms = $payment_terms;
+
+      return $this;
+  }
+
+  public function getArBalance(): ?string
+  {
+      return $this->ar_balance;
+  }
+
+  public function setArBalance(string $ar_balance): static
+  {
+      $this->ar_balance = $ar_balance;
+
+      return $this;
   }
 }

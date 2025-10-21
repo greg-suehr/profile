@@ -82,10 +82,17 @@ class Invoice
     #[ORM\OneToMany(targetEntity: Payment::class, mappedBy: 'invoice')]
     private Collection $payments;
 
+    /**
+     * @var Collection<int, Order>
+     */
+    #[ORM\ManyToMany(targetEntity: Order::class, mappedBy: 'invoices')]
+    private Collection $orders;
+
     public function __construct()
     {
         $this->lineItems = new ArrayCollection();
         $this->payments = new ArrayCollection();
+        $this->orders = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -341,5 +348,32 @@ class Invoice
         $total = $subtotal + $taxAmount - (float)$this->discount_amount;
         $this->total_amount = (string)round($total, 2);
         $this->amount_due = (string)round($total - (float)$this->amount_paid, 2);
+    }
+
+    /**
+     * @return Collection<int, Order>
+     */
+    public function getOrders(): Collection
+    {
+        return $this->orders;
+    }
+
+    public function addOrder(Order $order): static
+    {
+        if (!$this->orders->contains($order)) {
+            $this->orders->add($order);
+            $order->addInvoice($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrder(Order $order): static
+    {
+        if ($this->orders->removeElement($order)) {
+            $order->removeInvoice($this);
+        }
+
+        return $this;
     }
 }
