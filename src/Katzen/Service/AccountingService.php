@@ -4,6 +4,8 @@ namespace App\Katzen\Service;
 
 use App\Katzen\Entity\Account;
 use App\Katzen\Entity\Customer;
+use App\Katzen\Entity\LedgerEntry;
+use App\Katzen\Entity\LedgerEntryLine;
 use App\Katzen\Entity\Invoice;
 use App\Katzen\Entity\InvoiceLineItem;
 use App\Katzen\Entity\Order;
@@ -22,6 +24,7 @@ use Doctrine\ORM\EntityManagerInterface;
 final class AccountingService
 {
   public function __construct(
+    private EntityManagerInterface $em,
     private CustomerRepository $customerRepo,
     private InvoiceRepository $invoiceRepo,
     private LedgerEntryRepository $entries,
@@ -80,8 +83,8 @@ final class AccountingService
       
       $line = new LedgerEntryLine();
       $line->setAccount($account);
-      $line->setDebit($lineData['debit']);
-      $line->setCredit($lineData['credit']);
+      $line->setDebit($lineData['debit'] ?? '0.00');
+      $line->setCredit($lineData['credit'] ?? '0.00');
       $line->setMemo($lineData['memo'] ?? null);
       
       $entry->addLine($line);
@@ -99,21 +102,21 @@ final class AccountingService
    *
    * Refer to the JournalEventsService for details on typees of JournalEvents.
    *
-   * * @param string $transactionType ('sale', 'purchase', 'cogs', 'adjustment')
-   * * @param list<array{account:string, debit:?float, credit:?float}> $lines proto-LedgerEntryLines
+   * * @param string $templateName (refer to JournalEventService)
+   * * @param list<array{expr_key:string, amount:?float}> $amounts (refer to JournalEventService)
    * * @param string $referenceType ('order', 'stock_transaction', 'invoice')
    * * @param string $referenceId Sorry for string cast but accomodates non-numeric object IDs
-   * * @param list<array{metadataKey:string => metadataValue:string}>
+   * * @param list<array{metadataKey:string => metadataValue:string}> $metadata
    * * @return ServiceResponse
    */
-  public function recordFromTemplate(
+  public function recordEvent(
         string $templateName,
-        array $amounts,  // Just business values, not debits/credits
+        array $amounts,
         string $referenceType,
-        int $referenceId,
+        string $referenceId,
         array $metadata = []
     ): ServiceResponse {
-        $template = $this->journalEvents->templates->get($templateName);
+        $template = $this->journalEvents->get($templateName);
         $lines = $template->buildLines($amounts, $metadata);
         
         return $this->record(

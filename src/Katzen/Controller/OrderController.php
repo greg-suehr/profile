@@ -122,7 +122,7 @@ final class OrderController extends AbstractController
             $recipeQuantities[$rid] = 1; # TODO: read recipeQuantities from Form
         }
 
-      $this->orderService->createOrder($order, $recipeQuantities);
+      $response = $this->orderService->createOrder($order, $recipeQuantities);
       
       $this->addFlash('success', 'Order created!');
       return $this->redirectToRoute('order_index');

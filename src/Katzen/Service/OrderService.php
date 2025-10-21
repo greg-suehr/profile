@@ -9,6 +9,7 @@ use App\Katzen\Messenger\Message\AsyncTaskMessage;
 use App\Katzen\Repository\OrderRepository;
 use App\Katzen\Repository\OrderItemRepository;
 use App\Katzen\Repository\RecipeRepository;
+use App\Katzen\Service\AccountingService;
 use App\Katzen\Service\Cook\RecipeExpanderService;
 use App\Katzen\Service\InventoryService;
 use App\Katzen\Service\Inventory\StockTargetAutogenerator;
@@ -23,6 +24,7 @@ final class OrderService
     private OrderItemRepository $itemRepo,
     private RecipeRepository $recipeRepo,
     private RequirementsPlanner $requirements,
+    private AccountingService $accounting,
     private InventoryService $inventoryService,
     private StockTargetAutogenerator $autogenerator,
     private RecipeExpanderService $expander,
@@ -60,7 +62,10 @@ final class OrderService
        if (!empty($missingIds)) {
          $errors[] = sprintf('Unknown recipe IDs: %s', implode(', ', $missingIds));
        }
-       
+
+       $orderSubtotal = 0.00;
+       $orderTaxAmount = 0.00;
+       # TODO: sort out Order, Menu, Recipe, Item, StockTarget associations...
        foreach ($recipes as $recipe) {
          $this->autogenerator->ensureExistsForRecipe($recipe);
 
@@ -73,8 +78,12 @@ final class OrderService
          $item = new OrderItem();
          $item->setRecipeListRecipeId($recipe);
          $item->setQuantity($qty);
+         $item->setUnitPrice(1.00); # TODO: initialize OrderItem Price from pricing service
+         $item->setCogs(0.00);      # TODO: initialize expected COGS from costing service         
          $item->setOrderId($order);
          $order->addOrderItem($item);
+         $orderSubtotal += $item->getItemSubtotal();
+         $orderTaxAmount += 0.00; # TODO: design OrderItem level tax rules
        }
 
        if (!empty($errors)) {
@@ -84,7 +93,9 @@ final class OrderService
            data: ['order_id' => $order->getId()]
          );
        }
-       
+       $order->setSubtotal($orderSubtotal);
+       $order->setTaxAmount($orderTaxAmount);
+       $order->setFulfillmentStatus('unfulfilled');
        $order->setStatus('pending');
        $this->orderRepo->save($order);
 
@@ -259,6 +270,27 @@ final class OrderService
           ]
         );
       }
+
+      $r = $this->accounting->recordEvent(
+        'unbilled_ar_on_fulfillment',
+        [
+          'revenue' => $order->getSubtotal(),
+          'tax_total' => $order->getTaxAmount(),            
+        ],
+        'order',
+        (string)$order->getId(),
+      );
+      
+      /*
+      $this->bus->dispatch(new AsyncTaskMessage(
+        taskType: 'record_journal_event',
+        payload: [
+          'stock_target.id' => $req->target?->getId(),
+          'quantity' => $req->totalBaseQty,
+          'reason'   => 'order#' . $order->getId(),
+        ]
+      ));
+      */
       
       $order->setStatus('complete');
       $this->orderRepo->flush();
@@ -269,7 +301,7 @@ final class OrderService
           'enqueued_tasks' => $enqueuedTasks,
           'status'         => 'complete',
         ],
-        message: 'Order marked complete and stock consumption tasks enqueued.'
+        message: 'Order complete!',
       );
     } catch (\Throwable $e) {
       return ServiceResponse::failure(

@@ -34,7 +34,7 @@ class LedgerEntry
     /**
      * @var Collection<int, LedgerEntryLine>
      */
-    #[ORM\OneToMany(targetEntity: LedgerEntryLine::class, mappedBy: 'entry', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: LedgerEntryLine::class, mappedBy: 'entry', orphanRemoval: true, cascade: ["persist"])]
     private Collection $lines;
 
     public function __construct()

@@ -21,8 +21,8 @@ final class JournalEventService
       'order_prepayment' => new JournalEvent(
         transactionType: 'prepayment',
         rules: [
-          ['account' => '1000.CASH',              'side'=>'debit',  'expr'=>'${prepayment}', 'memo'=>'Customer prepayment'],
-          ['account' => '2300.CUSTOMER_DEPOSITS', 'side'=>'credit', 'expr'=>'${prepayment}', 'memo'=>'Liability for unearned revenue'],
+          ['account' => '1000', 'name' => 'CASH',              'side'=>'debit',  'expr'=>'${prepayment}', 'memo'=>'Customer prepayment'],
+          ['account' => '2300', 'name' => 'CUSTOMER_DEPOSITS', 'side'=>'credit', 'expr'=>'${prepayment}', 'memo'=>'Liability for unearned revenue'],
         ]
       ),
       
@@ -31,8 +31,8 @@ final class JournalEventService
       'cogs_on_fulfillment' => new JournalEvent(
         transactionType: 'cogs',
         rules: [
-          ['account' => '5100.COGS_INGREDIENTS', 'side'=>'debit',  'expr'=>'${cogs_total}', 'memo'=>'COGS'],
-          ['account' => '1400.INVENTORY',        'side'=>'credit', 'expr'=>'${cogs_total}', 'memo'=>'Inventory relief'],
+          ['account' => '5100', 'name' => 'COGS_INGREDIENTS', 'side'=>'debit',  'expr'=>'${cogs_total}', 'memo'=>'COGS'],
+          ['account' => '1400', 'name' => 'INVENTORY',        'side'=>'credit', 'expr'=>'${cogs_total}', 'memo'=>'Inventory relief'],
         ]
       ),
       
@@ -42,15 +42,15 @@ final class JournalEventService
         transactionType: 'revenue',
         rules: [
           // Gross receivable (unbilled)
-          ['account' => '1320.UNBILLED_AR',      'side'=>'debit',  'expr'=>'${revenue} + ${tax_total} + ${shipping_revenue} + ${tip_total}', 'memo'=>'Recognize receivable at fulfillment'],
+          ['account' => '1320', 'name' => 'UNBILLED_AR',      'side'=>'debit',  'expr'=>'${revenue} + ${tax_total} + ${shipping_revenue} + ${tip_total}', 'memo'=>'Recognize receivable at fulfillment'],
                       
           // Revenue and liabilities
-          ['account' => '4100.FOOD_SALES',       'side'=>'credit', 'expr'=>'${revenue}', 'memo'=>'Food revenue'],
+          ['account' => '4100', 'name' => 'FOOD_SALES',       'side'=>'credit', 'expr'=>'${revenue}', 'memo'=>'Food revenue'],
 
           // optional components
-          ['account' => '4180.SHIPPING_INCOME',  'side'=>'credit', 'expr'=>'${shipping_revenue}', 'memo'=>'Shipping income', 'when'=>'${shipping_revenue} != 0'],
-          ['account' => '2400.SALES_TAX_PAY',    'side'=>'credit', 'expr'=>'${tax_total}',        'memo'=>'Sales tax liability', 'when'=>'${tax_total} != 0'],
-          ['account' => '2450.TIPS_PAYABLE',     'side'=>'credit', 'expr'=>'${tip_total}',        'memo'=>'Tips payable', 'when'=>'${tip_total} != 0'],
+          ['account' => '4180', 'name' => 'SHIPPING_INCOME',  'side'=>'credit', 'expr'=>'${shipping_revenue}', 'memo'=>'Shipping income', 'when'=>'${shipping_revenue} != 0'],
+          ['account' => '2400', 'name' => 'SALES_TAX_PAY',    'side'=>'credit', 'expr'=>'${tax_total}',        'memo'=>'Sales tax liability', 'when'=>'${tax_total} != 0'],
+          ['account' => '2450', 'name' => 'TIPS_PAYABLE',     'side'=>'credit', 'expr'=>'${tip_total}',        'memo'=>'Tips payable', 'when'=>'${tip_total} != 0'],
         ]
       ),
 
@@ -60,12 +60,12 @@ final class JournalEventService
         transactionType: 'reclass',
         rules: [
           // move Unbilled AR -> AR
-          ['account' => '1100.ACCOUNTS_RECEIVABLE', 'side'=>'debit',  'expr'=>'${invoice_total}', 'memo'=>'Create AR'],
-          ['account' => '1320.UNBILLED_AR',         'side'=>'credit', 'expr'=>'${invoice_total}', 'memo'=>'Clear Unbilled AR'],
+          ['account' => '1100', 'name' => 'ACCOUNTS_RECEIVABLE', 'side'=>'debit',  'expr'=>'${invoice_total}', 'memo'=>'Create AR'],
+          ['account' => '1320', 'name' => 'UNBILLED_AR',         'side'=>'credit', 'expr'=>'${invoice_total}', 'memo'=>'Clear Unbilled AR'],
           
           // Optional: apply prior deposits to reduce AR (Dr Customer Deposits, Cr AR)
-          ['account' => '2300.CUSTOMER_DEPOSITS',   'side'=>'debit',  'expr'=>'${apply_prepayment}', 'memo'=>'Apply deposit', 'when'=>'${apply_prepayment} != 0'],
-          ['account' => '1100.ACCOUNTS_RECEIVABLE', 'side'=>'credit', 'expr'=>'${apply_prepayment}', 'memo'=>'Reduce AR by deposit', 'when'=>'${apply_prepayment} != 0'],
+          ['account' => '2300', 'name' => 'CUSTOMER_DEPOSITS',   'side'=>'debit',  'expr'=>'${apply_prepayment}', 'memo'=>'Apply deposit', 'when'=>'${apply_prepayment} != 0'],
+          ['account' => '1100', 'name' => 'ACCOUNTS_RECEIVABLE', 'side'=>'credit', 'expr'=>'${apply_prepayment}', 'memo'=>'Reduce AR by deposit', 'when'=>'${apply_prepayment} != 0'],
         ]
       ),
       
@@ -74,8 +74,8 @@ final class JournalEventService
       'inventory_spoilage' => new JournalEvent(
         transactionType: 'adjustment',
         rules: [
-          ['account' => '5200.WASTE_SPOILAGE', 'side'=>'debit',  'expr'=>'${spoilage_cost}', 'memo'=>'Spoilage'],
-          ['account' => '1400.INVENTORY',      'side'=>'credit', 'expr'=>'${spoilage_cost}', 'memo'=>'Inventory write-down'],
+          ['account' => '5200', 'name' => 'WASTE_SPOILAGE', 'side'=>'debit',  'expr'=>'${spoilage_cost}', 'memo'=>'Spoilage'],
+          ['account' => '1400', 'name' => 'INVENTORY',      'side'=>'credit', 'expr'=>'${spoilage_cost}', 'memo'=>'Inventory write-down'],
         ]
       ),
 
@@ -86,16 +86,16 @@ final class JournalEventService
       'refund' => new JournalEvent(
         transactionType: 'refund',
         rules: [
-          ['account' => '4500.SALES_RETURNS',   'side'=>'debit',  'expr'=>'${refund_amount}', 'memo'=>'Contra revenue'],
-          ['account' => '2400.SALES_TAX_PAY',   'side'=>'debit',  'expr'=>'${tax_refund}',    'memo'=>'Reverse tax liability', 'when'=>'${tax_refund} != 0'],          
-          ['account' => '2450.TIPS_PAYABLE',    'side'=>'debit',  'expr'=>'${tip_refund}',    'memo'=>'Return tips liability', 'when'=>'${tip_refund} != 0'],
-          ['account' => '4180.SHIPPING_INCOME', 'side'=>'debit',  'expr'=>'${shipping_refund}','memo'=>'Reverse shipping income', 'when'=>'${shipping_refund} != 0'],
+          ['account' => '4500', 'name' => 'SALES_RETURNS',   'side'=>'debit',  'expr'=>'${refund_amount}', 'memo'=>'Contra revenue'],
+          ['account' => '2400', 'name' => 'SALES_TAX_PAY',   'side'=>'debit',  'expr'=>'${tax_refund}',    'memo'=>'Reverse tax liability', 'when'=>'${tax_refund} != 0'],          
+          ['account' => '2450', 'name' => 'TIPS_PAYABLE',    'side'=>'debit',  'expr'=>'${tip_refund}',    'memo'=>'Return tips liability', 'when'=>'${tip_refund} != 0'],
+          ['account' => '4180', 'name' => 'SHIPPING_INCOME', 'side'=>'debit',  'expr'=>'${shipping_refund}','memo'=>'Reverse shipping income', 'when'=>'${shipping_refund} != 0'],
           
-            ['account' => '1000.CASH',            'side'=>'credit', 'expr'=>'${refund_amount} + ${tax_refund} + ${tip_refund} + ${shipping_refund}', 'memo'=>'Cash out'],
+            ['account' => '1000', 'name' => 'CASH',            'side'=>'credit', 'expr'=>'${refund_amount} + ${tax_refund} + ${tip_refund} + ${shipping_refund}', 'memo'=>'Cash out'],
 
           // Optional inventory put-back
-          ['account' => '1400.INVENTORY',       'side'=>'debit',  'expr'=>'${cogs_reversal}', 'memo'=>'Inventory returned', 'when'=>'${reverse_cogs} != 0'],
-          ['account' => '5100.COGS_INGREDIENTS','side'=>'credit', 'expr'=>'${cogs_reversal}', 'memo'=>'Reverse COGS', 'when'=>'${reverse_cogs} != 0'],
+          ['account' => '1400', 'name' => 'INVENTORY',       'side'=>'debit',  'expr'=>'${cogs_reversal}', 'memo'=>'Inventory returned', 'when'=>'${reverse_cogs} != 0'],
+          ['account' => '5100', 'name' => 'COGS_INGREDIENTS','side'=>'credit', 'expr'=>'${cogs_reversal}', 'memo'=>'Reverse COGS', 'when'=>'${reverse_cogs} != 0'],
         ]
       ),
 
@@ -106,8 +106,8 @@ final class JournalEventService
       'stock_receipt' => new JournalEvent(
         transactionType: 'stock_receipt',
         rules: [
-          ['account' => '1400.INVENTORY',      'side'=>'debit',  'expr'=>'${receipt_total}'],
-          ['account' => '2100.ACCOUNTS_PAYABLE','side'=>'credit', 'expr'=>'${receipt_total}'],
+          ['account' => '1400', 'name' => 'INVENTORY',      'side'=>'debit',  'expr'=>'${receipt_total}'],
+          ['account' => '2100', 'name' => 'ACCOUNTS_PAYABLE','side'=>'credit', 'expr'=>'${receipt_total}'],
         ]
       ),
 
@@ -116,9 +116,9 @@ final class JournalEventService
       'vendor_invoice_matched' => new JournalEvent(
         transactionType: 'invoice_match',
         rules: [
-          ['account' => '2100.ACCOUNTS_PAYABLE','side'=>'debit',  'expr'=>'${gr_total}'],
-          ['account' => '2100.ACCOUNTS_PAYABLE','side'=>'credit', 'expr'=>'${invoice_total}'],
-          ['account' => '5300.PURCHASE_VARIANCE','side'=>'debit', 'expr'=>'${variance}', 'when'=>'${variance} != 0'],
+          ['account' => '2100', 'name' => 'ACCOUNTS_PAYABLE','side'=>'debit',  'expr'=>'${gr_total}'],
+          ['account' => '2100', 'name' => 'ACCOUNTS_PAYABLE','side'=>'credit', 'expr'=>'${invoice_total}'],
+          ['account' => '5300', 'name' => 'PURCHASE_VARIANCE','side'=>'debit', 'expr'=>'${variance}', 'when'=>'${variance} != 0'],
         ]
       ),
 
@@ -127,8 +127,8 @@ final class JournalEventService
       'vendor_payment' => new JournalEvent(
         transactionType: 'payment',
         rules: [
-          ['account' => '2100.ACCOUNTS_PAYABLE', 'side'=>'debit',  'expr'=>'${amount}'],
-          ['account' => '1000.CASH',             'side'=>'credit', 'expr'=>'${amount}'],
+          ['account' => '2100', 'name' => 'ACCOUNTS_PAYABLE', 'side'=>'debit',  'expr'=>'${amount}'],
+          ['account' => '1000', 'name' => 'CASH',             'side'=>'credit', 'expr'=>'${amount}'],
         ]
       ),
     ];

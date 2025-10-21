@@ -302,6 +302,5 @@ class Order
 
     $total = $subtotal + $taxAmount - (float)$this->discount_amount;
     $this->total_amount = (string)round($total, 2);
-    $this->amount_due = (string)round($total - (float)$this->amount_paid, 2);
   }
 }
