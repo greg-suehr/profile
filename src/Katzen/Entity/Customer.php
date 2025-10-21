@@ -81,7 +81,7 @@ class Customer
   private ?string $payment_terms = null;
 
   #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-  private ?string $ar_balance = null;
+  private ?string $ar_balance = '0.00';
   
   public function __construct()
   {

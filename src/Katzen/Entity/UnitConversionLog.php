@@ -3,7 +3,7 @@
 namespace App\Katzen\Entity;
 
 use App\Katzen\Entity\Unit;
-use App\Repository\App\Katzen\Entity\UnitConversionLogRepository;
+use App\Katzen\Repository\UnitConversionLogRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 

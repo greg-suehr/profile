@@ -24,10 +24,6 @@ class Invoice
     #[ORM\JoinColumn(nullable: false)]
     private ?Customer $customer = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?Order $order = null;
-
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?string $subtotal = '0.00';
 

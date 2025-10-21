@@ -49,13 +49,13 @@ class Order
     private ?\DateTimeInterface $scheduled_at = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $subtotal = null;
+    private ?string $subtotal = '0.00';
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $tax_amount = null;
+    private ?string $tax_amount = '0.00';
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $total_amount = null;
+    private ?string $total_amount = '0.00';
 
     #[ORM\Column(length: 50)]
     private ?string $fulfillment_status = null;
@@ -164,7 +164,7 @@ class Order
 
     public function setCreatedAt(?\DateTimeInterface $created_at): static
     {
-        $this->created_at = $created_at;
+        $this->created_at = $created_at ?? new \DateTime;
 
         return $this;
     }
@@ -288,4 +288,20 @@ class Order
 
         return $this;
     }
+
+  public function calculateTotals(): void
+  {
+    $subtotal = 0.0;
+    foreach ($this->orderItems as $item) {
+      $subtotal += (float)$item->getItemSubtotal();
+    }
+    
+    $this->subtotal = (string)$subtotal;
+    $taxAmount = $subtotal * ((float)$this->tax_rate / 100);
+    $this->tax_amount = (string)round($taxAmount, 2);
+
+    $total = $subtotal + $taxAmount - (float)$this->discount_amount;
+    $this->total_amount = (string)round($total, 2);
+    $this->amount_due = (string)round($total - (float)$this->amount_paid, 2);
+  }
 }

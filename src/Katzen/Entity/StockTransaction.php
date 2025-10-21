@@ -124,17 +124,17 @@ class StockTransaction
         return $this;
     }
 
-    public function getRecordedAt(): ?\DateTimeImmutable
-    {
-        return $this->recorded_at;
-    }
-
-    public function setRecordedAt(\DateTimeImmutable $recorded_at): static
-    {
-        $this->recorded_at = $recorded_at;
-
-        return $this;
-    }
+  public function getRecordedAt(): ?\DateTimeImmutable
+  {
+    return $this->recorded_at;
+  }
+  
+  #[ORM\PrePersist]
+  public function setRecordedAt(): static
+  {
+    $this->recorded_at = new \DateTimeImmutable();
+    return $this;
+  }
 
     public function getUnitCost(): ?string
     {
