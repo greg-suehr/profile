@@ -10,26 +10,21 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 #[AsEntityListener(event: Events::preUpdate, entity: User::class)]
 class UserEntityListener
 {
-  public function prePersist(LifecycleEventArgs $args): void
+  public function prePersist(User $user): void
   {
-    $entity = $args->getEntity();
-    if (!$entity instanceof User) {
-      return;
-    }
-    
-    $now = new \DateTime();
-    $entity->setCreatedAt($now);
-    $entity->setUpdatedAt($now);
+    $user->setCreatedAt(new \DateTimeImmutable());
+    $user->setUpdatedAt(new \DateTime());
   }
-  
-  public function preUpdate(LifecycleEventArgs $args): void
+
+  public function preUpdate(User $user, PreUpdateEventArgs $args): void
   {
-    $entity = $args->getEntity();
-    if (!$entity instanceof User) {
-      return;
-    }
-    
-    $entity->setUpdatedAt(new \DateTime());
+    $user->setUpdatedAt(new \DateTime());
+
+    $em = $args->getObjectManager();
+    $em->getUnitOfWork()->recomputeSingleEntityChangeSet(
+      $em->getClassMetadata(User::class),
+      $user
+    );
   }
 }
 ?>
