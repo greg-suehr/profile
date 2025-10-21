@@ -60,6 +60,13 @@ final class OrderController extends AbstractController
         ->addPrimaryField(PanelField::number('numItems', 'Items', 0)->icon('bi-box'))
         ->addQuickAction(
           PanelAction::edit([ 'name' => 'order_edit_form', 'params' => ['id' => $data['id']]])
+          )
+        ->addQuickAction(
+          PanelAction::custom('complete', 'Mark Complete')
+             ->setIcon('bi-clipboard-check')
+             ->setVariant('outline-success')
+             ->setMethod('POST')
+             ->setRoute([ 'name' => 'order_complete', 'params' => ['id' => $data['id']]])
           );
       
       if ($data['status'] === 'waiting') { $card->setBorderColor('var(--color-error)'); }
@@ -183,7 +190,7 @@ final class OrderController extends AbstractController
     ]));
   }
   
-  #[Route('/order/complete/{id}', name: 'order_mark_ready', methods: ['POST'])]
+  #[Route('/order/complete/{id}', name: 'order_complete', methods: ['POST'])]
   public function orderMarkReady(Order $order, Request $request): Response
   {
     # TODO: test and fix CSRF

@@ -13,6 +13,7 @@ class PanelAction
     private string $label;
     private string $variant = 'primary';
     private ?string $icon = null;
+    private string $httpMethod = 'GET';
     private ?array $route = null; // ['name' => ..., 'params' => ...]
     private ?string $confirmMessage = null;
     private bool $isBulk = false;
@@ -26,6 +27,11 @@ class PanelAction
     // === FACTORY METHODS ===
     
     public static function create(string $action, string $label): self
+    {
+        return new self($action, $label);
+    }
+
+    public static function custom(string $action, string $label): self
     {
         return new self($action, $label);
     }
@@ -67,6 +73,17 @@ class PanelAction
     {
         $this->icon = $icon;
         return $this;
+    }
+
+    public function setMethod(string $method): self
+    {
+        $this->httpMethod = strtoupper($method);
+        return $this;
+    }
+
+    public function getMethod(): string
+    {
+        return $this->httpMethod;
     }
     
     public function setRoute(array $route): self
@@ -133,6 +150,7 @@ class PanelAction
             'label' => $this->label,
             'variant' => $this->variant,
             'icon' => $this->icon,
+            'method' => $this->httpMethod,
             'route' => $this->route,
             'confirmMessage' => $this->confirmMessage,
             'isBulk' => $this->isBulk,
