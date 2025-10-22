@@ -21,6 +21,18 @@ final class InventoryService
       private StockTransactionRepository $txnRepo,
     ) {}
 
+  /**
+   * Add stock to a specific StockTarget and record a transaction.
+   *
+   * Increments the target’s current quantity by `$qty` and persists a
+   * `StockTransaction` with useType `addition`. Returns the new on-hand
+   * quantity and delta applied.
+   *
+   * * @param int $stockTargetId The StockTarget ID to receive stock
+   * * @param float $qty Positive quantity to add
+   * * @param ?string $reason Optional human-readable reason/memo
+   * * @return ServiceResponse Success with new quantity; failure on validation/errors
+   */
   public function addStock(int $stockTargetId, float $qty, ?string $reason = null): ServiceResponse
   {
     try {
@@ -59,7 +71,19 @@ final class InventoryService
       );
     }
   }
-  
+
+  /**
+   * Set an absolute on-hand quantity for a StockTarget (adjustment).
+   *
+   * Computes the delta from the current quantity to `$newQty`, writes a
+   * `StockTransaction` with useType `adjustment`, and updates the target’s
+   * current quantity.
+   *
+   * * @param int $stockTargetId The StockTarget ID to adjust
+   * * @param float $newQty New non-negative absolute quantity
+   * * @param ?string $reason Optional human-readable reason/memo
+   * * @return ServiceResponse Success with old/new/delta; failure on validation/errors
+   */
   public function adjustStock(int $stockTargetId, float $newQty, ?string $reason = null): ServiceResponse
   {
     try {
@@ -105,6 +129,18 @@ final class InventoryService
     }
   }
 
+  /**
+   * Consume stock from a StockTarget and record a transaction.
+   *
+   * Decrements on-hand by `$quantity` (must be positive), persisting a
+   * `StockTransaction` with negative qty, useType `consumption`, and timestamps.
+   * Fails if consumption would drive quantity below zero.
+   *
+   * * @param int $stockTargetId The StockTarget ID to consume from
+   * * @param float $quantity Positive quantity to consume
+   * * @param ?string $reason Optional human-readable reason/memo
+   * * @return ServiceResponse Success with new quantity; failure on insufficiency/errors
+   */
   public function consumeStock(int $stockTargetId, float $quantity, ?string $reason = null): ServiceResponse
   {
     try {
@@ -159,7 +195,13 @@ final class InventoryService
   }
 
   /**
-   * @param array<int,float> $itemQuantities  stockTargetId => qtyNeeded
+   * Check availability for multiple StockTargets in bulk.
+   *
+   * For each requested target, compares current quantity to needed quantity and
+   * reports `ok` or `insufficient`, along with computed shortage/surplus.
+   *
+   * * @param array<int,float> $itemQuantities Map of stockTargetId => qtyNeeded
+   * * @return ServiceResponse On success: data['results'] per target and data['is_short'] flag
    */
   public function bulkCheckStock(array $itemQuantities): ServiceResponse
   {
@@ -203,6 +245,17 @@ final class InventoryService
     }
   }
 
+  /**
+   * Record a bulk stock count with per-target items and reconcile on-hand.
+   *
+   * Creates a `StockCount` and `StockCountItem` records for each provided target,
+   * writes `manual_count` transactions, and sets each StockTarget’s current
+   * quantity to the counted amount.
+   *
+   * * @param array<int,float> $countedQuantities Map of stockTargetId => countedQty
+   * * @param ?string $notes Optional notes to attach to the StockCount
+   * * @return ServiceResponse Success with count ID and item count; failure with details
+   */
   public function recordBulkStockCount(array $countedQuantities, ?string $notes = ''): ServiceResponse
   {
     try {
@@ -259,6 +312,13 @@ final class InventoryService
     }
   }
 
+  /**
+   * Require and return a StockTarget by ID or throw if missing.
+   *
+   * * @param int $id StockTarget ID to load
+   * * @return StockTarget The found target
+   * * @throws \RuntimeException If no target exists for the given ID
+   */
   private function requireTarget(int $id): StockTarget
   {
     $target = $this->targetRepo->find($id);

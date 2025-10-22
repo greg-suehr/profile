@@ -128,8 +128,19 @@ final class AccountingService
         );
     }
   
+
   /**
-   * Create invoice from an order
+   * Create an invoice from a given Order entity.
+   *
+   * Converts an Order and its OrderItems into a corresponding Invoice and
+   * associated InvoiceLineItems.
+   * 
+   * Calling this method with NO `$options` will reference Customer and Order
+   * attributes to default payment terms, taxes, discounts, and other options.
+   *
+   * * @param Order $order The source order from which to build the invoice
+   * * @param array $options Override parameters (e.g. payment_terms_days, tax_rate, discount_amount, notes)
+   * * @return ServiceResponse Returns success with invoice summary or failure with details
    */
   public function createInvoiceFromOrder(Order $order, array $options = []): ServiceResponse
   {
@@ -194,7 +205,18 @@ final class AccountingService
   }
   
   /**
-   * Record a payment against an invoice
+   * Record a customer payment against an invoice.
+   *
+   * Creates and persists a Payment entity, updates Customer balance,
+   * and applies the payment against the associated Invoice if provided.
+   * Automatically adjusts invoice status (partial, paid, etc.) as appropriate.
+   *
+   * * @param Customer $customer The customer making the payment
+   * * @param float $amount Payment amount (must be positive)
+   * * @param string $paymentMethod The method used (e.g. 'cash', 'card', 'check')
+   * * @param ?Invoice $invoice Optional linked invoice to apply payment toward
+   * * @param array $options Optional metadata (e.g. payment_date, transaction_reference, notes)
+   * * @return ServiceResponse Returns success with updated balances or failure with details
    */
   public function recordPayment(
     Customer $customer,
@@ -243,6 +265,18 @@ final class AccountingService
           $invoice->setStatus('partial');
         }
       }
+      else {
+        # TODO: apply headless payments to next payable invoice or as credits
+        return ServiceResponse::failure(
+          errors: ['No invoice selected for payment application.'].
+          message: 'Please provide an invoice number to apply a payment.',
+          data: [
+            'customer_id' => $customer->getId(),
+            'invoice_id' => $invoice ? $invoice->getId() : null,
+          ],
+          metadata: []
+      );
+      }
       
       $currentBalance = (float)$customer->getAccountBalance();
       $customer->setAccountBalance((string)($currentBalance - $amount));
@@ -273,8 +307,17 @@ final class AccountingService
     }
   }
   
+
   /**
-   * Get customer account statement
+   * Retrieve a customer account statement for a given date range.
+   *
+   * Aggregates invoices and payments for a customer over the specified period,
+   * computes totals and overdue balances, and returns a structured summary.
+   *
+   * * @param Customer $customer The customer to generate a statement for
+   * * @param ?\DateTimeInterface $from Start date (defaults to 90 days prior)
+   * * @param ?\DateTimeInterface $to End date (defaults to today)
+   * * @return ServiceResponse Returns structured summary with invoices and payments
    */
   public function getCustomerStatement(
     Customer $customer,
@@ -374,7 +417,12 @@ final class AccountingService
     }
   
   /**
-   * Get aging report for all customers
+   * Generate an aging report across all customers.
+   *
+   * Groups outstanding invoices into standard aging buckets (0–30, 31–60,
+   * 61–90, and >90 days past due) and aggregates totals by customer.
+   *
+   * * @return ServiceResponse Returns summary totals and per-customer breakdown
    */
   public function getAgingReport(): ServiceResponse
   {
@@ -455,7 +503,14 @@ final class AccountingService
   }
   
   /**
-   * Check if customer can place order based on credit limit
+   * Evaluate whether a customer can place a new order within their credit limit.
+   *
+   * Compares the customer's account balance to their credit limit and the
+   * proposed order amount to determine purchasing eligibility.
+   *
+   * * @param Customer $customer Customer entity to evaluate
+   * * @param float $orderAmount Proposed order amount
+   * * @return ServiceResponse Returns eligibility details and remaining credit
    */
   public function checkCustomerCredit(Customer $customer, float $orderAmount): ServiceResponse
   {
@@ -485,7 +540,15 @@ final class AccountingService
       );
     }
   }
-
+  
+  /**
+   * Generate a sequential invoice number.
+   *
+   * Uses the highest existing invoice ID to compute the next available number,
+   * formatted as `INV-YYYY-XXXXXX`.
+   *
+   * * @return string Formatted invoice number
+   */
   private function generateInvoiceNumber(): string
   {
     $latest = $this->invoiceRepo->createQueryBuilder('i')
@@ -497,7 +560,15 @@ final class AccountingService
     $nextId = $latest ? ($latest->getId() + 1) : 1;
     return 'INV-' . date('Y') . '-' . str_pad((string)$nextId, 6, '0', STR_PAD_LEFT);
   }
-  
+
+  /**
+   * Generate a sequential payment number.
+   *
+   * Uses the highest existing payment ID to compute the next available number,
+   * formatted as `PAY-YYYY-XXXXXX`.
+   *
+   * * @return string Formatted payment number
+   */
   private function generatePaymentNumber(): string
   {
     $latest = $this->paymentRepo->createQueryBuilder('p')

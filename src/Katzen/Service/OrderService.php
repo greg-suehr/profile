@@ -31,10 +31,14 @@ final class OrderService
     private MessageBusInterface $bus,
   ) {}
 
-  /**
-   * Create a new order from a recipe => quantity array.
+  /**   
+   * Create a new order and order items.
    *
-   * @param array<int,int|float> $recipeQuantities
+   * Consumes an Order entity from a form and a recipe => quantity array,
+   * creates OrderItem entities and persists everything.
+   *
+   * * @param Order $order The order to modify
+   * * @param array<int,int|float> $recipeQuantities
    */
   public function createOrder(Order $order, array $recipeQuantities): ServiceResponse
   {
@@ -120,10 +124,18 @@ final class OrderService
      }
   }     
 
+
   /**
-   * Replace the order’s recipes with the provided list (default qty=1 for new ones).
+   * Replace the order’s recipes with the provided list (default qty = 1 for new items).
    *
-   * @param int[] $recipeIds
+   * Removes OrderItems whose recipes are not in `$recipeIds`, keeps those that are,
+   * and creates new OrderItems (qty=1) for any additional recipe IDs found. Validates
+   * that all provided IDs exist before mutating the order, then saves with status
+   * reset to `pending`.
+   *
+   * * @param Order $order The order to modify
+   * * @param int[] $recipeIds List of recipe IDs to be the full contents of the order
+   * * @return ServiceResponse Returns success with counts or failure with validation errors
    */
   public function updateOrder(Order $order, array $recipeIds): ServiceResponse
   {
@@ -200,7 +212,17 @@ final class OrderService
   }
 
   /**
-   * Update order status and generate stock consumption events.
+   * Complete an order, enqueue inventory consumption and accounting events.
+   *
+   * Runs requirement planning to compute stock consumption per StockTarget and
+   * enqueues asynchronous `consume_stock` tasks for each requirement.
+   * If planning yields errors or invalid quantities/targets, returns a failure
+   * with warnings and does not complete the order.
+   * On success, enqueues the async  `unbilled_ar_on_fulfillment` journal event
+   * and marks the order `complete`.
+   *
+   * * @param Order $order The order to complete
+   * * @return ServiceResponse Returns success with task counts or failure with details
    */
   public function completeOrder(Order $order): ServiceResponse
   {
@@ -318,6 +340,14 @@ final class OrderService
     }
   }
   
+  /**
+   * Check inventory coverage for all open orders.
+   *
+   * Retrieves pending orders, aggregates required quantities by StockTarget, and
+   * delegates a bulk stock check to the InventoryService.
+   *
+   * * @return ServiceResponse Returns stock check results for all open orders
+   */
   public function checkStockForOpenOrders(): ServiceResponse
   {
     try {
@@ -366,6 +396,16 @@ final class OrderService
     }
   }
 
+  /**
+   * Aggregate stock requirements for a set of orders.
+   *
+   * Expands each order item’s recipe into stock consumptions using the RecipeExpander,
+   * then sums required base quantities by StockTarget ID. Collects non-blocking
+   * per-item errors (missing targets/quantities) in `metadata.errors`.
+   *
+   * * @param Order[] $orders List of orders to analyze
+   * * @return ServiceResponse On success: data['requirements'] = array<int,float> (targetId => qty)
+   */
   private function aggregateStockRequirements(array $orders): ServiceResponse
   {
     $errors = [];
