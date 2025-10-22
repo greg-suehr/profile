@@ -184,6 +184,34 @@ final class AccountingService
       $invoice->calculateTotals();
       
       $this->invoiceRepo->save($invoice);
+
+      $invoiceTotal = (float)$invoice->getTotalAmount();
+      $applyPrepayment = 0.0;
+
+      # TODO: design prepayment data flows, e.g.
+      if ($order->getCustomerEntity()) {
+        $applyPrepayment = $options['apply_prepayment'] ?? 0.0;
+      }
+
+      $journalEvent = $this->recordEvent(
+        templateName: 'invoice_reclass_unbilled_to_ar',
+        amounts: [
+          'invoice_total' => $invoiceTotal,
+          'apply_prepayment' => $applyPrepayment,
+        ],
+        referenceType: 'invoice',
+        referenceId: (string)$invoice->getId(),
+        metadata: [
+          'order_id' => $order->getId(),
+          'customer_id' => $invoice->getCustomer()->getId(),
+        ]
+      );
+
+      if ($journalEvent->isFailure()) {
+        # TODO: message soft failure on accounting errors
+        #       retry on transient / volume errors
+        #       forward instructions on configuration errors
+      }
       
       return ServiceResponse::success(
         data: [
@@ -268,14 +296,32 @@ final class AccountingService
       else {
         # TODO: apply headless payments to next payable invoice or as credits
         return ServiceResponse::failure(
-          errors: ['No invoice selected for payment application.'].
+          errors: ['No invoice selected for payment application.'],
           message: 'Please provide an invoice number to apply a payment.',
           data: [
             'customer_id' => $customer->getId(),
             'invoice_id' => $invoice ? $invoice->getId() : null,
           ],
           metadata: []
+        );
+      }
+
+       $eventResult = $this->recordEvent(
+        templateName: 'customer_payment',
+        amounts: [
+          'amount' => $amount,
+        ],
+        referenceType: 'payment',
+        referenceId: (string)$payment->getId(),
+        metadata: [
+          'customer_id' => $customer->getId(),
+          'invoice_id' => $invoice->getId(),
+          'payment_method' => $paymentMethod,
+        ]
       );
+      
+      if ($eventResult->isFailure()) {
+        error_log("Failed to record payment journal entry: " . $eventResult->getFirstError());
       }
       
       $currentBalance = (float)$customer->getAccountBalance();

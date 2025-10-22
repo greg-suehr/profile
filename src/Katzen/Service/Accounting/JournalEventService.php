@@ -68,8 +68,18 @@ final class JournalEventService
           ['account' => '1100', 'name' => 'ACCOUNTS_RECEIVABLE', 'side'=>'credit', 'expr'=>'${apply_prepayment}', 'memo'=>'Reduce AR by deposit', 'when'=>'${apply_prepayment} != 0'],
         ]
       ),
+
+      // 1) Order Prepayment and customer deposits
+      // Inputs: prepayment, tax_prepaid (usually 0), memo
+      'invoice_payment' => new JournalEvent(
+        transactionType: 'payment',
+        rules: [
+          ['account' => '1000', 'name' => 'CASH',                'side'=>'debit',  'expr'=>'${amount}', 'memo'=>'Customer payment'],
+          ['account' => '1100', 'name' => 'ACCOUNTS_RECEIVABLE', 'side'=>'credit', 'expr'=>'${amount}', 'memo'=>'Reduce AR by payment']
+        ]
+      ),
       
-      // 5) Inventory Spoilage and Waste
+      // 7) Inventory Spoilage and Waste
       // Inputs: spoilage_cost
       'inventory_spoilage' => new JournalEvent(
         transactionType: 'adjustment',
@@ -79,7 +89,7 @@ final class JournalEventService
         ]
       ),
 
-      // 6) Refunds (post-fulfillment):
+      // 8) Refunds (post-fulfillment):
       // If goods not returned: refund cash and book contra-revenue; reverse tax and tips liabilities.
       // If goods returned & resellable, also reverse COGS/Inventory (optional flag).
       // Inputs: refund_amount, tax_refund, tip_refund, shipping_refund, reverse_cogs (0/1), cogs_reversal

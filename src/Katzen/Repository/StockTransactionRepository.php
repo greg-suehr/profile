@@ -77,29 +77,29 @@ class StockTransactionRepository extends ServiceEntityRepository
   ): array
   {
     $qb = $this->createQueryBuilder('t')
-        ->where('t.stockTarget = :target')
+        ->where('t.stock_target = :target')
         ->setParameter('target', $target);
 
     // Filter by movement type/direction
     if ($direction !== null) {
-      $qb->andWhere('t.useType = :direction')
+      $qb->andWhere('t.use_type = :direction')
          ->setParameter('direction', $direction);
     }
 
     // Filter by date range
     if ($from !== null) {
-      $qb->andWhere('t.createdAt >= :from')
+      $qb->andWhere('t.effective_date >= :from')
          ->setParameter('from', $from);
     }
 
     if ($to !== null) {
-      $qb->andWhere('t.createdAt <= :to')
+      $qb->andWhere('t.effective_date <= :to')
          ->setParameter('to', $to);
     }
 
     // Order for FIFO/LIFO cost layering
     $order = strtoupper($ordered) === 'DESC' ? 'DESC' : 'ASC';
-    $qb->orderBy('t.createdAt', $order)
+    $qb->orderBy('t.effective_date', $order)
        ->addOrderBy('t.id', $order); // Tiebreaker for same-second transactions
 
     // Pagination
@@ -144,6 +144,14 @@ class StockTransactionRepository extends ServiceEntityRepository
   ): array
   {
     return $this->findStockMovements($target, 'inbound', $since, ordered: 'ASC');
+  }
+
+  public function getNextSourceForTarget(
+    StockTarget $target,
+    ?\DateTimeInterface $since = null
+  ): array
+  {
+    return $this->findStockMovements($target, 'opening_balance', $since, ordered: 'ASC');
   }
 
   /**

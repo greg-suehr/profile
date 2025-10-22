@@ -10,6 +10,7 @@ use App\Katzen\Repository\StockCountRepository;
 use App\Katzen\Repository\StockCountItemRepository;
 use App\Katzen\Repository\StockTargetRepository;
 use App\Katzen\Repository\StockTransactionRepository;
+use App\Katzen\Service\AccountingService;
 use App\Katzen\Service\Response\ServiceResponse;
 
 final class InventoryService
@@ -19,6 +20,7 @@ final class InventoryService
       private StockCountItemRepository $countItemRepo,      
       private StockTargetRepository $targetRepo,
       private StockTransactionRepository $txnRepo,
+      private AccountingService $accounting,
     ) {}
 
   /**
@@ -141,7 +143,11 @@ final class InventoryService
    * * @param ?string $reason Optional human-readable reason/memo
    * * @return ServiceResponse Success with new quantity; failure on insufficiency/errors
    */
-  public function consumeStock(int $stockTargetId, float $quantity, ?string $reason = null): ServiceResponse
+  public function consumeStock(
+    int $stockTargetId,
+    float $quantity,
+    ?string $reason = null
+  ): ServiceResponse
   {
     try {
       if ($quantity <= 0) {
@@ -172,16 +178,52 @@ final class InventoryService
       $transaction->setRecordedAt(new \DateTimeImmutable);
       $transaction->setStatus('pending');
       $transaction->setStockTarget($target);
+
+      $unitCost = $this->getUnitCostForTarget($target);
+      if ($unitCost !== null) {
+        $transaction->setUnitCost((string)$unitCost);
+      }
       
       $target->setCurrentQty($newQty);
       
       $this->txnRepo->save($transaction);
+
+      $cogsRecorded = false;
+      $cogsTotal = 0.0;
+      
+      if ($unitCost !== null && $unitCost > 0) {
+        $cogsTotal = $quantity * $unitCost;
+        $cogsResult = $this->accounting->recordEvent(
+          templateName: 'cogs_on_fulfillment',
+          amounts: [
+            'cogs_total' => $cogsTotal,
+          ],
+          referenceType: 'stock_transaction',
+          referenceId: (string)$transaction->getId(),
+          metadata: [
+            'stock_target_id' => $stockTargetId,
+            'quantity' => $quantity,
+            'unit_cost' => $unitCost,
+          ]
+        );
+        
+        $cogsRecorded = $cogsResult->isSuccess();
+      
+        if ($cogsResult->isFailure()) {
+          // Soft fail accounting errors
+          // # TODO: document retry/backoff and blocking error handling for MQ events
+          error_log("Failed to record COGS for stock transaction {$transaction->getId()}: " 
+                    . $cogsResult->getFirstError());
+        }
+      }
       
       return ServiceResponse::success(
         data: [
           'stock_target_id' => $stockTargetId,
           'delta'           => -$quantity,
           'new_qty'         => $newQty,
+          'cogs_total' => $cogsTotal,
+          'cogs_recorded' => $cogsRecorded,
         ],
         message: 'Stock consumed.'
       );
@@ -309,6 +351,19 @@ final class InventoryService
         message: 'Unhandled exception while recording bulk stock count.',
         metadata: ['exception' => get_class($e)]
       );
+    }
+  }
+
+  private function getUnitCostForTarget(StockTarget $target): float
+  {
+    // TODO: Integrate with CostingService
+    // For now, return a placeholder or fetch from stock transactions
+    $sourceTransactions = $this->txnRepo->getNextSourceForTarget($target);
+    if ($sourceTransactions){
+      return $sourceTransactions[0]->getUnitCost();
+    }
+    else {
+      return 0.0;
     }
   }
 
