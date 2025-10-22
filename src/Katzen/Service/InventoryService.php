@@ -132,6 +132,10 @@ final class InventoryService
       $transaction->setQty(-$quantity);
       $transaction->setReason($reason);
       $transaction->setUseType('consumption');
+      $transaction->setEffectiveDate(new \DateTime); 
+      $transaction->setRecordedAt(new \DateTimeImmutable);
+      $transaction->setStatus('pending');
+      $transaction->setStockTarget($target);
       
       $target->setCurrentQty($newQty);
       
