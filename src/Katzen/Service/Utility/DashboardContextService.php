@@ -2,6 +2,7 @@
 
 namespace App\Katzen\Service\Utility;
 
+use App\Katzen\Service\Utility\AlertService;
 use App\Katzen\Service\Utility\EncouragementEngine;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -11,6 +12,7 @@ class DashboardContextService
     public function __construct(
       private Security $security,
       private RequestStack $requestStack,
+      private AlertService $alertService,
       private EncouragementEngine $encouragementEngine,
 #        private TaskRepository $taskRepo,
 #        private NotificationRepository $notificationRepo
@@ -83,10 +85,16 @@ class DashboardContextService
 
     private function getAlertBanner($user): array
     {
-        // TODO: design alerting service
-        return [
-            'alert_text' => 'You have 2 orders waiting for approval and 3 items low in stock.',
-        ];
+      $alerts = $this->alertService->getAlertsForContext(
+        user: $user,
+        route: $this->requestStack->getCurrentRequest()
+            ?->attributes->get('_route', 'unknown'),
+        routeParams: $this->requestStack->getCurrentRequest()
+            ?->attributes->get('_route_params', [])
+      );
+
+      // TODO: design behavior around multiple alert state
+      return $alerts[0] ?? [];
     }
 
     private function getNotifications($user): array
