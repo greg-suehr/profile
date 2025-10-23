@@ -1,0 +1,371 @@
+# Encouragement Message Library
+# 
+# This is an example configuration showing how messages could be
+# externalized from the PHP code into a YAML file for easier editing.
+#
+# Structure: mascot -> route -> mood -> messages[]
+
+sizzle:
+  # Sizzle: Kitchen/Production - Confident and Energetic
+  recipe:
+    energetic:
+      - "Build something delicious!"
+      - "Time to create magic in the kitchen!"
+      - "Let's cook up something amazing!"
+      - "Your next signature dish awaits!"
+    gentle:
+      - "Your recipes are coming together nicely."
+      - "Every dish tells a story."
+      - "Take your time perfecting this one."
+      - "The details make the difference."
+    reflective:
+      - "Review your menu legacy."
+      - "Look at how far your recipes have come."
+      - "Each recipe is a step in your journey."
+      - "Remember where you started."
+    determined:
+      - "You've got this recipe dialed in."
+      - "Push through — perfection is close."
+      - "This is where great dishes are born."
+      - "The hard work is worth it."
+    playful:
+      - "Feeling creative today?"
+      - "What if we tried something wild?"
+      - "Innovation happens here!"
+    focused:
+      - "Dial in those measurements."
+      - "Precision creates consistency."
+      - "One ingredient at a time."
+    calm:
+      - "Cooking is meditation in motion."
+      - "Trust the process."
+      - "Let the technique guide you."
+
+  menu:
+    energetic:
+      - "Craft a menu that sings!"
+      - "Time to showcase your best work!"
+      - "Build your greatest hits collection!"
+    gentle:
+      - "Your menu is shaping up beautifully."
+      - "Each addition makes it stronger."
+      - "Balance and variety shine through."
+    reflective:
+      - "Review your menu legacy."
+      - "See how your offerings have evolved."
+      - "Every menu tells your restaurant's story."
+    determined:
+      - "Curate with purpose."
+      - "Make every item earn its place."
+    playful:
+      - "What would make this menu pop?"
+      - "Time to show off a little!"
+    focused:
+      - "Organize for impact."
+      - "Structure guides the diner's journey."
+    calm:
+      - "A well-planned menu sells itself."
+      - "Everything in harmony."
+
+  default:
+    energetic:
+      - "Let's make today count!"
+      - "Ready to fire on all burners?"
+      - "Time to turn up the heat!"
+    gentle:
+      - "Steady hands make great dishes."
+      - "You're doing great work."
+      - "Excellence is built daily."
+    reflective:
+      - "Every shift teaches something new."
+      - "Progress, not perfection."
+    determined:
+      - "Push through the rush — you've got this."
+      - "Service never stops, and neither do you."
+    playful:
+      - "Kitchens run on creativity and coffee!"
+      - "Another day, another delicious challenge!"
+    focused:
+      - "Mise en place, mise en mind."
+      - "Preparation prevents problems."
+    calm:
+      - "The kitchen is your canvas."
+      - "Cook with intention."
+
+tabby:
+  # Tabby: Orders/Service - Friendly and Upbeat
+  order:
+    energetic:
+      - "Let's serve up some happiness!"
+      - "Time to delight your customers!"
+      - "{{orders_completed_today}} orders done today — fantastic!"
+      - "Every order is an opportunity!"
+    gentle:
+      - "Each order is a chance to shine."
+      - "You've completed {{orders_completed_today}} orders today!"
+      - "Steady service wins the day."
+      - "One order at a time, beautifully done."
+    playful:
+      - "{{orders_completed_today}} happy customers and counting!"
+      - "You're on a roll today!"
+      - "Service with style!"
+      - "Making memories, one order at a time!"
+    determined:
+      - "{{open_orders}} orders waiting — let's tackle them!"
+      - "Busy day, but you handle it with grace."
+      - "The rush is on — you've got this!"
+    reflective:
+      - "Look at all you've accomplished."
+      - "Every order matters."
+    focused:
+      - "Details make the difference."
+      - "Accuracy and speed in harmony."
+    calm:
+      - "You make this look effortless."
+      - "Service flows naturally through you."
+
+  customer:
+    energetic:
+      - "Every customer is a new friend!"
+      - "Build relationships that last."
+      - "Time to create loyal fans!"
+    gentle:
+      - "Your customers appreciate you."
+      - "Service with a smile, always."
+      - "Kindness creates loyalty."
+    playful:
+      - "Making friends one order at a time!"
+      - "Your regulars are your family!"
+    determined:
+      - "Turn challenges into opportunities."
+      - "Great service recovers anything."
+    reflective:
+      - "Look at the relationships you've built."
+      - "Every interaction matters."
+    focused:
+      - "Listen first, serve second."
+      - "Understanding drives satisfaction."
+    calm:
+      - "Your presence puts people at ease."
+      - "Natural hospitality."
+
+  default:
+    energetic:
+      - "Ready to crush it?"
+      - "Let's make today amazing!"
+      - "Your best day starts now!"
+    gentle:
+      - "You're doing wonderful work."
+      - "Keep that positive energy flowing."
+      - "Excellence through consistency."
+    reflective:
+      - "Another day of making people happy."
+      - "You're building something special."
+    playful:
+      - "You make this look easy!"
+      - "Teamwork makes the dream work!"
+      - "High fives all around!"
+    determined:
+      - "Challenges make us stronger."
+      - "Rise to every occasion."
+    focused:
+      - "Stay present, stay excellent."
+      - "One task, fully executed."
+    calm:
+      - "You've got your rhythm down."
+      - "Smooth operations, happy team."
+
+binx:
+  # Binx: Inventory/Purchasing - Methodical and Soothing
+  stock:
+    energetic:
+      - "Time to organize and optimize!"
+      - "Let's get your inventory in perfect order."
+      - "Transform chaos into clarity!"
+    gentle:
+      - "Everything in its place."
+      - "Steady tracking keeps things smooth."
+      - "{{low_stock_items}} items need attention today."
+      - "Progress through patience."
+    focused:
+      - "Precision leads to peace of mind."
+      - "Count carefully, succeed confidently."
+      - "Accuracy is everything."
+      - "Trust the numbers."
+    calm:
+      - "Inventory is under control."
+      - "You've built a well-oiled system."
+      - "Everything accounted for."
+    determined:
+      - "Tighten up those counts."
+      - "Variance is just a puzzle to solve."
+    playful:
+      - "Inventory tetris, anyone?"
+      - "Organizing is oddly satisfying!"
+    reflective:
+      - "See how your system has improved."
+      - "From chaos to order, one count at a time."
+
+  item:
+    energetic:
+      - "Catalog mastery in progress!"
+      - "Build the perfect item database!"
+    gentle:
+      - "Each item tells part of your story."
+      - "Building your inventory foundation."
+      - "Every detail matters."
+    focused:
+      - "Categorize with intention."
+      - "Structure enables efficiency."
+    calm:
+      - "Your catalog is growing beautifully."
+      - "Organization brings peace."
+    determined:
+      - "Clean data, clean operations."
+      - "Get the foundation right."
+    playful:
+      - "Item by item, building greatness!"
+    reflective:
+      - "Look at the system you've created."
+      - "Every item has its place."
+
+  default:
+    energetic:
+      - "Let's organize for success!"
+      - "Time to level up your inventory!"
+    gentle:
+      - "Methodical work pays off."
+      - "You're building something solid."
+      - "Consistency creates confidence."
+    calm:
+      - "Everything is accounted for."
+      - "Your system is working beautifully."
+      - "Order from complexity."
+    focused:
+      - "Details reveal insights."
+      - "Track everything, miss nothing."
+    determined:
+      - "Fix the variance, find the truth."
+      - "Problems are just data waiting to be understood."
+    playful:
+      - "Who knew counting could be fun?"
+      - "Inventory zen achieved!"
+    reflective:
+      - "Your system grows stronger daily."
+      - "From scattered to systematic."
+
+ledger:
+  # Ledger: Accounting/Finance - Precise and Calm
+  invoice:
+    energetic:
+      - "Time to balance the books!"
+      - "Let's get those invoices sent!"
+      - "Revenue realization awaits!"
+    gentle:
+      - "Every invoice tells your business story."
+      - "Precision now prevents problems later."
+      - "One line at a time."
+    focused:
+      - "Line by line, building accuracy."
+      - "Your financial records are impeccable."
+      - "Numbers don't lie when entered right."
+    calm:
+      - "Numbers are looking good."
+      - "Everything adds up perfectly."
+      - "Financial harmony achieved."
+    determined:
+      - "Close the period strong."
+      - "Accuracy under pressure."
+    playful:
+      - "Debits to the left, credits to the right!"
+      - "Making cents of it all!"
+    reflective:
+      - "See your business through the numbers."
+      - "Every invoice is a milestone."
+
+  reports:
+    focused:
+      - "The numbers tell an interesting story."
+      - "Let's see what insights emerge."
+      - "Data reveals truth."
+    reflective:
+      - "Review your progress with clear eyes."
+      - "Every report reveals growth."
+      - "Numbers never lie about trajectory."
+    calm:
+      - "Your financials are in order."
+      - "Everything reconciles beautifully."
+    energetic:
+      - "Time to uncover insights!"
+      - "What story do the numbers tell?"
+    gentle:
+      - "Understanding emerges from analysis."
+      - "Take your time with the details."
+    determined:
+      - "Find the signal in the noise."
+      - "Drill down, find answers."
+    playful:
+      - "Detective work, accountant style!"
+
+  account:
+    energetic:
+      - "Let's build your chart of accounts!"
+      - "Financial structure awaits!"
+    gentle:
+      - "Foundation for all that follows."
+      - "Every account serves a purpose."
+    focused:
+      - "Organize for clarity."
+      - "Structure enables insight."
+    calm:
+      - "Your accounts are beautifully organized."
+      - "Order creates understanding."
+    determined:
+      - "Clean up the structure, clean up the data."
+    playful:
+      - "Accounting: the art of categorization!"
+    reflective:
+      - "See how your financial picture has clarified."
+
+  default:
+    energetic:
+      - "Let's tackle the books!"
+      - "Financial excellence awaits!"
+    gentle:
+      - "Steady accounting builds strong businesses."
+      - "One entry at a time."
+      - "Consistency creates clarity."
+    focused:
+      - "Precision is your superpower."
+      - "The details matter — and you've got them."
+      - "Accuracy, always."
+    calm:
+      - "Your accounts are balanced and beautiful."
+      - "Everything is reconciled."
+      - "Financial peace achieved."
+    determined:
+      - "Close it clean, close it right."
+      - "Accuracy under deadline."
+    playful:
+      - "Making cents of cents!"
+      - "Numbers are your friends!"
+    reflective:
+      - "Look at the financial story you're writing."
+      - "Every entry contributes to the whole."
+
+# Animation hints could also be configured here
+animations:
+  tail-flick:
+    triggers:
+      - high_completions  # > 5 completions
+    weight: 100
+  
+  blink:
+    triggers:
+      - recent_errors     # > 0 errors
+    weight: 100
+  
+  ear-twitch:
+    triggers:
+      - energetic_mood    # Mood === 'energetic'
+    weight: 33  # Random 1 in 3
