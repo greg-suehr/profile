@@ -19,6 +19,7 @@ class TableField
     private ?string $format = null;
     private ?string $linkRoute = null;
     private array $linkParams = [];
+    private ?string $altId = null;
     
     private function __construct(string $key, string $label, string $type)
     {
@@ -69,7 +70,14 @@ class TableField
         $field = new self($key, $label, 'link');
         $field->linkRoute = $route;
         $field->linkParams = $params;
+        $field->altId = null;
         return $field;
+    }
+
+    public function setAltId(string $dataKey): self
+    {
+      $this->altId = $dataKey;
+      return $this;
     }
     
     public function sortable(bool $sortable = true): self
@@ -123,6 +131,7 @@ class TableField
             'format' => $this->format,
             'linkRoute' => $this->linkRoute,
             'linkParams' => $this->linkParams,
+            'altId' => $this->altId,
         ];
     }
 }

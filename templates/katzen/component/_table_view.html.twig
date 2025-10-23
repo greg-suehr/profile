@@ -138,7 +138,8 @@
             {% set value = row.data[field.key] ?? '-' %}
             
             {% if field.type == 'link' %}
-            <a href="{{ path(field.linkRoute, field.linkParams|merge({id: row.id})) }}" class="text-decoration-none">
+            {% set linkId = field.altId ? row.data[field.altId] : row.id %}
+            <a href="{{ path(field.linkRoute, field.linkParams|merge({id: linkId})) }}" class="text-decoration-none">
               {{ value }}
             </a>
             
