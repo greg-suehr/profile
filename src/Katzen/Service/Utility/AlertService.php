@@ -31,21 +31,21 @@ final class AlertService
         $alerts = [];
         
         if ($metrics->stockHealth === 'critical') {
-            $alerts[] = new Alert(
-                type: 'danger',
-                message: sprintf('%d items critically low in stock', $metrics->lowStockItemCount),
-                actionRoute: 'stock_index',
-                actionLabel: 'Review Stock'
-            );
+            $alerts[] = [
+                'type' => 'danger',
+                'alert_text' => sprintf('%d items critically low in stock', $metrics->lowStockItemCount),
+                'actionRoute' => 'stock_index',
+                'actionLabel' => 'Review Stock'
+            ];
         }
         
         if ($metrics->orderLoad === 'slammed') {
-            $alerts[] = new Alert(
-                type: 'warning',
-                message: sprintf('%d orders pending.', $metrics->pendingOrderCount),
-                actionRoute: 'order_index',
-                actionLabel: 'Manage Orders'
-            );
+          $alerts[] = [
+            'type' => 'warning',
+            'alert_text' => sprintf('%d orders pending.', $metrics->pendingOrderCount),
+            'actionRoute' => 'order_index',
+            'actionLabel' => 'Manage Orders'
+          ];
         }
         
         return $alerts;
