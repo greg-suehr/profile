@@ -3,6 +3,8 @@
 namespace App\Katzen\Entity;
 
 use App\Katzen\Repository\PurchaseItemRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -32,6 +34,17 @@ class PurchaseItem
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?string $line_total = null;
+
+    /**
+     * @var Collection<int, StockReceiptItem>
+     */
+    #[ORM\ManyToMany(targetEntity: StockReceiptItem::class, mappedBy: 'purchaseItem')]
+    private Collection $stockReceiptItems;
+
+    public function __construct()
+    {
+        $this->stockReceiptItems = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -106,6 +119,33 @@ class PurchaseItem
     public function setLineTotal(string $line_total): static
     {
         $this->line_total = $line_total;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, StockReceiptItem>
+     */
+    public function getStockReceiptItems(): Collection
+    {
+        return $this->stockReceiptItems;
+    }
+
+    public function addStockReceiptItem(StockReceiptItem $stockReceiptItem): static
+    {
+        if (!$this->stockReceiptItems->contains($stockReceiptItem)) {
+            $this->stockReceiptItems->add($stockReceiptItem);
+            $stockReceiptItem->addPurchaseItem($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStockReceiptItem(StockReceiptItem $stockReceiptItem): static
+    {
+        if ($this->stockReceiptItems->removeElement($stockReceiptItem)) {
+            $stockReceiptItem->removePurchaseItem($this);
+        }
 
         return $this;
     }

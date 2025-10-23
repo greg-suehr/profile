@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Supply Operations{% endblock %}</title>
+
+    {% block stylesheets %}
+    <link type="text/css" rel="stylesheet" href="{{ asset('bundles/craueformflow/css/buttons.css') }}" />
+    {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+</head>
+<body class="d-flex h-100 bg-light">
+    <aside class="d-flex flex-column flex-shrink-0 border-end bg-white" style="width: 16rem;">
+        <div class="p-3 border-bottom">
+            <h1 class="h4 mb-0 text-primary">Katzen</h1>
+        </div>
+        {% include 'katzen/partials/_profile_block.html.twig' %}
+        <nav class="flex-grow-1 px-3 py-2">
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="{{ path('dashboard_home') }}" class="nav-link {{ activeItem == 'dashboard' ? 'active' : 'text-secondary' }}" data-item="dashboard">
+                        <i class="bi bi-columns-gap me-2"></i>Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#vendorSub" data-bs-toggle="collapse" data-item="menu-container" class="nav-link d-flex justify-content-between align-items-center {{ activeMenu == 'vendor' ? 'border border-primary text-secondary' : 'text-secondary' }}">
+                        <span><i class="bi bi-building me-2"></i>Vendors</span>
+                        <i class="bi bi-chevron-{{ activeMenu == 'vendor' ? 'down' : 'right' }}"></i>
+                    </a>
+                    <div class="collapse {{ activeMenu == 'vendor' ? 'show' : '' }}" id="vendorSub">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a href="{{ path('vendor_index') }}" class="nav-link {{ activeItem == 'vendor-list' ? 'active' : 'text-secondary' }}" data-item="vendor-list">
+                                    All Vendors
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ path('vendor_create') }}" class="nav-link {{ activeItem == 'vendor-create' ? 'active' : 'text-secondary' }}" data-item="vendor-create">
+                                    Create Vendor
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li>
+                    <a href="#purchaseSub" data-bs-toggle="collapse" data-item="menu-container" class="nav-link d-flex justify-content-between align-items-center {{ activeMenu == 'purchase' ? 'border border-primary text-secondary' : 'text-secondary' }}">
+                        <span><i class="bi bi-cart me-2"></i>Purchases</span>
+                        <i class="bi bi-chevron-{{ activeMenu == 'purchase' ? 'down' : 'right' }}"></i>
+                    </a>
+                    <div class="collapse {{ activeMenu == 'purchase' ? 'show' : '' }}" id="purchaseSub">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a href="{{ path('purchase_index') }}" class="nav-link {{ activeItem == 'purchase-list' ? 'active' : 'text-secondary' }}" data-item="purchase-list">
+                                    All Purchases
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ path('purchase_create') }}" class="nav-link {{ activeItem == 'purchase-create' ? 'active' : 'text-secondary' }}" data-item="purchase-create">
+                                    Create Purchase
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li>
+                    <a href="#receiptSub" data-bs-toggle="collapse" data-item="menu-container" class="nav-link d-flex justify-content-between align-items-center {{ activeMenu == 'receipt' ? 'border border-primary text-secondary' : 'text-secondary' }}">
+                        <span><i class="bi bi-inbox me-2"></i>Receipts</span>
+                        <i class="bi bi-chevron-{{ activeMenu == 'receipt' ? 'down' : 'right' }}"></i>
+                    </a>
+                    <div class="collapse {{ activeMenu == 'receipt' ? 'show' : '' }}" id="receiptSub">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a href="{{ path('receipt_index') }}" class="nav-link {{ activeItem == 'receipt-list' ? 'active' : 'text-secondary' }}" data-item="receipt-list">
+                                    All Receipts
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ path('receipt_create') }}" class="nav-link {{ activeItem == 'receipt-create' ? 'active' : 'text-secondary' }}" data-item="receipt-create">
+                                    Create Receipt
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li>
+                    <a href="#stockSub" data-bs-toggle="collapse" data-item="menu-container" class="nav-link d-flex justify-content-between align-items-center {{ activeMenu == 'stock' ? 'border border-primary text-secondary' : 'text-secondary' }}">
+                        <span><i class="bi bi-boxes me-2"></i>Stock</span>
+                        <i class="bi bi-chevron-{{ activeMenu == 'stock' ? 'down' : 'right' }}"></i>
+                    </a>
+                    <div class="collapse {{ activeMenu == 'stock' ? 'show' : '' }}" id="stockSub">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a href="{{ path('stock_index') }}" class="nav-link {{ activeItem == 'stock-list' ? 'active' : 'text-secondary' }}" data-item="stock-list">
+                                    All Stock
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ path('stock_table') }}" class="nav-link {{ activeItem == 'stock-table' ? 'active' : 'text-secondary' }}" data-item="stock-count">
+                                    Manage Stock
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li>
+                    <a href="#locationSub" data-bs-toggle="collapse" data-item="menu-container" class="nav-link d-flex justify-content-between align-items-center {{ activeMenu == 'location' ? 'border border-primary text-secondary' : 'text-secondary' }}">
+                        <span><i class="bi bi-geo-alt me-2"></i>Locations</span>
+                        <i class="bi bi-chevron-{{ activeMenu == 'location' ? 'down' : 'right' }}"></i>
+                    </a>
+                    <div class="collapse {{ activeMenu == 'location' ? 'show' : '' }}" id="locationSub">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a href="{{ path('stock_index') }}" class="nav-link {{ activeItem == 'location-list' ? 'active' : 'text-secondary' }}" data-item="location-list">
+                                    All Locations
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <div class="flex-grow-1 d-flex flex-column">
+        {% include 'katzen/partials/_header.html.twig' %}
+
+        <main id="main-content" class="flex-grow-1 p-4" tabindex="-1">
+            {% include 'katzen/partials/_flashes.html.twig' %}
+            {% block main_content %}{% endblock %}
+        </main>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        function initializePageSpecificJS() {
+          // Page-specific JavaScript can be added here
+        }
+        initializePageSpecificJS();
+        window.initializePageSpecificJS = initializePageSpecificJS;
+      });
+    </script>
+    {% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+    {{ encore_entry_script_tags('table-view') }}
+    {% endblock %}    
+</body>
+</html>

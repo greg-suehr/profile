@@ -43,15 +43,20 @@ class Purchase
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?string $total_amount = null;
 
-    /**
-     * @var Collection<int, PurchaseItem>
-     */
     #[ORM\OneToMany(targetEntity: PurchaseItem::class, mappedBy: 'purchase', orphanRemoval: true)]
     private Collection $purchaseItems;
+
+    #[ORM\ManyToMany(targetEntity: StockReceipt::class, inversedBy: 'purchases')]
+    private Collection $stockReceipts;
+
+    #[ORM\ManyToOne(inversedBy: 'purchases')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Vendor $vendor = null;
 
     public function __construct()
     {
         $this->purchaseItems = new ArrayCollection();
+        $this->stockReceipts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -193,6 +198,39 @@ class Purchase
                 $purchaseItem->setPurchase(null);
             }
         }
+
+        return $this;
+    }
+  
+    public function getStockReceipts(): Collection
+    {
+        return $this->stockReceipts;
+    }
+
+    public function addStockReceipt(StockReceipt $stockReceipt): static
+    {
+        if (!$this->stockReceipts->contains($stockReceipt)) {
+            $this->stockReceipts->add($stockReceipt);
+        }
+
+        return $this;
+    }
+
+    public function removeStockReceipt(StockReceipt $stockReceipt): static
+    {
+        $this->stockReceipts->removeElement($stockReceipt);
+
+        return $this;
+    }
+
+    public function getVendor(): ?Vendor
+    {
+        return $this->vendor;
+    }
+
+    public function setVendor(?Vendor $vendor): static
+    {
+        $this->vendor = $vendor;
 
         return $this;
     }

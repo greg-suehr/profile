@@ -1,0 +1,303 @@
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h2 class="card-title mb-4">
+      <i class="bi bi-cart-plus me-2 text-primary"></i>Create Purchase Order
+    </h2>
+      
+    <div class="katzen-tip my-4 p-4 rounded-3 shadow-sm border border-primary bg-light">
+      <div class="d-flex align-items-start">
+        <i class="bi bi-lightbulb text-warning me-3 fs-4"></i>
+        <div>
+          <strong class="d-block mb-1 text-dark">Heads Up!</strong>
+          <p class="mb-0 text-secondary">
+            Purchase orders track what you've ordered from vendors. Once goods arrive, you'll receive them against this PO to update your inventory.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {{ form_start(form) }}
+    {{ form_errors(form) }}
+    
+    {# PO Header Section #}
+    <div class="mb-5">
+      <h5 class="text-secondary border-bottom pb-2 mb-3">
+        <i class="bi bi-file-text me-2"></i>Order Details
+      </h5>
+      
+      <div class="row g-3">
+        <div class="col-md-6">
+          {{ form_row(form.vendor, {
+            'label': 'Vendor',
+            'attr': {'class': 'form-select'}
+          }) }}
+        </div>
+        <div class="col-md-6">
+          {{ form_row(form.po_number, {
+            'label': 'PO Number',
+            'attr': {'class': 'form-control', 'placeholder': 'Auto-generated if left blank'}
+          }) }}
+        </div>
+      </div>
+
+      <div class="row g-3 mt-2">
+        <div class="col-md-4">
+          {{ form_row(form.order_date, {
+            'label': 'Order Date',
+            'attr': {'class': 'form-control'}
+          }) }}
+        </div>
+        <div class="col-md-4">
+          {{ form_row(form.expected_delivery, {
+            'label': 'Expected Delivery',
+            'attr': {'class': 'form-control'}
+          }) }}
+        </div>
+        <div class="col-md-4">
+          {{ form_row(form.tax_amount, {
+            'label': 'Tax Amount',
+            'attr': {'class': 'form-control', 'placeholder': '0.00', 'step': '0.01'}
+          }) }}
+        </div>
+      </div>
+    </div>
+
+    {# Purchase Items Section #}
+    <div class="mb-5">
+      <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+        <h5 class="text-secondary mb-0">
+          <i class="bi bi-list-check me-2"></i>Purchase Items
+        </h5>
+        <button type="button" 
+                class="btn btn-sm btn-outline-primary" 
+                data-collection-add-to="purchaseItems"
+                data-collection-prototype="{{ form.purchaseItems.vars.prototype|e('html_attr') }}">
+          <i class="bi bi-plus-circle me-1"></i>Add Item
+        </button>
+      </div>
+
+      <div class="purchase-items-list" 
+           data-collection="purchaseItems" 
+           data-index="{{ form.purchaseItems|length }}">
+        
+        {# Existing items #}
+        {% for item in form.purchaseItems %}
+          <div class="card mb-3 shadow-sm" data-collection-item>
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <h6 class="mb-0 text-primary">
+                  <i class="bi bi-box me-1"></i>Item {{ loop.index }}
+                </h6>
+                <button type="button" 
+                        class="btn btn-sm btn-outline-danger" 
+                        data-collection-remove>
+                  <i class="bi bi-trash"></i> Remove
+                </button>
+              </div>
+              
+              <div class="row g-3">
+                <div class="col-md-6">
+                  {{ form_row(item.stockTarget, {
+                    'label': 'Item / Stock Target',
+                    'attr': {'class': 'form-select'}
+                  }) }}
+                </div>
+                <div class="col-md-3">
+                  {{ form_row(item.qty_ordered, {
+                    'label': 'Quantity',
+                    'attr': {'class': 'form-control qty-input', 'step': '0.01', 'min': '0'}
+                  }) }}
+                </div>
+                <div class="col-md-3">
+                  {{ form_row(item.unit_price, {
+                    'label': 'Unit Price',
+                    'attr': {'class': 'form-control price-input', 'step': '0.01', 'min': '0'}
+                  }) }}
+                </div>
+              </div>
+              
+              <div class="mt-2">
+                <small class="text-muted">
+                  <strong>Line Total:</strong> 
+                  <span class="line-total">$0.00</span>
+                </small>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+            <p class="mb-0">No items yet. Click "Add Item" to get started.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {# Order Summary #}
+    <div class="card bg-light border-0 mb-4">
+      <div class="card-body">
+        <h6 class="mb-3 text-secondary">
+          <i class="bi bi-calculator me-2"></i>Order Summary
+        </h6>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-muted">Subtotal:</span>
+          <span class="fw-bold" id="po-subtotal">$0.00</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-muted">Tax:</span>
+          <span class="fw-bold" id="po-tax">$0.00</span>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="fs-5 fw-bold">Total:</span>
+          <span class="fs-4 fw-bold text-primary" id="po-total">$0.00</span>
+        </div>
+      </div>
+    </div>
+    
+    {# Action Buttons #}
+    <div class="d-flex justify-content-end gap-2">
+      <a href="{{ path('purchase_index') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-x-circle me-1"></i>Cancel
+      </a>
+      {{ form_row(form.submit, { 
+        'label': 'Create Purchase Order',
+        'attr': {'class': 'btn btn-primary'}
+      }) }}
+    </div>
+    
+    {{ form_row(form._token) }}
+    {{ form_end(form, { render_rest: false }) }}
+  </div>
+</div>
+
+<style>
+  .purchase-items-collection {
+    min-height: 100px;
+  }
+  
+  .katzen-tip {
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  [data-collection-item] {
+    transition: all 0.2s ease;
+  }
+  
+  [data-collection-item]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Collection management
+  const container = document.querySelector('[data-collection="purchaseItems"]');
+  if (!container) return;
+  
+  let index = parseInt(container.dataset.index) || 0;
+  
+  // Add item handler
+  document.querySelectorAll('[data-collection-add-to="purchaseItems"]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const prototype = this.dataset.collectionPrototype;
+      const newForm = prototype.replace(/__name__/g, index);
+      index++;
+      container.dataset.index = index;
+      
+      const emptyState = container.querySelector('.text-center.py-4');
+      if (emptyState) {
+        emptyState.remove();
+      }
+      
+      container.insertAdjacentHTML('beforeend', newForm);
+      attachItemListeners();
+      updateTotals();
+    });
+  });
+  
+  // Remove item handler
+  function attachItemListeners() {
+    document.querySelectorAll('[data-collection-remove]').forEach(btn => {
+      btn.replaceWith(btn.cloneNode(true));
+    });
+    
+    document.querySelectorAll('[data-collection-remove]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const item = this.closest('[data-collection-item]');
+        item.remove();
+        
+        const remainingItems = container.querySelectorAll('[data-collection-item]');
+        if (remainingItems.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-4 text-muted">
+              <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+              <p class="mb-0">No items yet. Click "Add Item" to get started.</p>
+            </div>
+          `;
+        }
+        
+        updateTotals();
+      });
+    });
+    
+    // Attach calculation listeners to qty and price inputs
+    document.querySelectorAll('.qty-input, .price-input').forEach(input => {
+      input.addEventListener('input', updateTotals);
+    });
+  }
+  
+  // Calculate totals
+  function updateTotals() {
+    let subtotal = 0;
+    
+    document.querySelectorAll('[data-collection-item]').forEach(item => {
+      const qtyInput = item.querySelector('.qty-input');
+      const priceInput = item.querySelector('.price-input');
+      const lineTotalSpan = item.querySelector('.line-total');
+      
+      if (qtyInput && priceInput) {
+        const qty = parseFloat(qtyInput.value) || 0;
+        const price = parseFloat(priceInput.value) || 0;
+        const lineTotal = qty * price;
+        
+        if (lineTotalSpan) {
+          lineTotalSpan.textContent = '$' + lineTotal.toFixed(2);
+        }
+        
+        subtotal += lineTotal;
+      }
+    });
+    
+    const taxInput = document.querySelector('input[name*="[tax_amount]"]');
+    const tax = taxInput ? (parseFloat(taxInput.value) || 0) : 0;
+    const total = subtotal + tax;
+    
+    document.getElementById('po-subtotal').textContent = '$' + subtotal.toFixed(2);
+    document.getElementById('po-tax').textContent = '$' + tax.toFixed(2);
+    document.getElementById('po-total').textContent = '$' + total.toFixed(2);
+  }
+  
+  // Tax input listener
+  const taxInput = document.querySelector('input[name*="[tax_amount]"]');
+  if (taxInput) {
+    taxInput.addEventListener('input', updateTotals);
+  }
+  
+  // Initial setup
+  attachItemListeners();
+  updateTotals();
+});
+</script>
