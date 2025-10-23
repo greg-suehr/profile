@@ -46,6 +46,11 @@ class PurchaseItem
         $this->stockReceiptItems = new ArrayCollection();
     }
 
+    public function __toString(): string
+    {
+      return (string)$this->id;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

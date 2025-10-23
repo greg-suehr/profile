@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: VendorRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Vendor
 {
     #[ORM\Id]
@@ -56,7 +57,7 @@ class Vendor
     private ?string $current_balance = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $status = null;
+  private ?string $status = 'active';
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notes = null;
@@ -76,6 +77,11 @@ class Vendor
     public function __construct()
     {
         $this->purchases = new ArrayCollection();
+    }
+
+    public function __toString(): string
+    {
+     	return $this->name;
     }
 
     public function getId(): ?int
