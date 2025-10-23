@@ -71,7 +71,7 @@
         <button type="button" 
                 class="btn btn-sm btn-outline-primary" 
                 data-collection-add-to="purchaseItems"
-                data-collection-prototype="{{ form.purchaseItems.vars.prototype|e('html_attr') }}">
+                data-collection-prototype="{{ form_widget(form.purchaseItems.vars.prototype)|e('html_attr')}}">
           <i class="bi bi-plus-circle me-1"></i>Add Item
         </button>
       </div>

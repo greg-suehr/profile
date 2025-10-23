@@ -179,7 +179,7 @@ final class OrderController extends AbstractController
     foreach ($order->getOrderItems() as $item) {
       $existingRecipeIds[] = $item->getRecipeListRecipeId()->getId();
     }
-    
+
     return $this->render('katzen/order/create_order.html.twig', $this->dashboardContext->with([
       'activeItem' => 'orders',
       'activeMenu' => 'order',

@@ -32,34 +32,39 @@ final class VendorController extends AbstractController
             $rows[] = TableRow::create([
                 'id' => $vendor->getId(),
                 'name' => $vendor->getName(),
-                'contact' => $vendor->getContactName() ?? '—',
                 'email' => $vendor->getEmail() ?? '—',
                 'phone' => $vendor->getPhone() ?? '—',
                 'status' => $vendor->getStatus(),
-            ]);
+            ])
+            ->setId($vendor->getId());
         }
 
         $table = TableView::create('Vendors')
-            ->setFields([
-                TableField::create('name', 'Vendor Name')->setSortable(true),
-                TableField::create('contact', 'Contact')->setSortable(true),
-                TableField::create('email', 'Email'),
-                TableField::create('phone', 'Phone'),
-                TableField::create('status', 'Status')->setSortable(true),
-            ])
+            ->addField(
+              TableField::text('name', 'Vendor Name')->sortable(),
+            )
+            ->addField(
+              TableField::text('email', 'Email'),
+            )
+            ->addField(
+              TableField::text('phone', 'Phone'),
+            )
+            ->addField(
+              TableField::badge('status', 'Status')->sortable(),
+            )          
             ->setRows($rows)
             ->setSelectable(true)
             ->addQuickAction(
                 TableAction::create('view', 'View')
-                    ->setRoute('vendor_show')
                     ->setIcon('bi bi-eye')
                     ->setVariant('outline-primary')
+                    ->setRoute('vendor_show')                  
             )
             ->addQuickAction(
                 TableAction::create('edit', 'Edit')
-                    ->setRoute('vendor_edit')
                     ->setIcon('bi bi-pencil')
                     ->setVariant('outline-secondary')
+                    ->setRoute('vendor_edit')                  
             )
             ->setSearchPlaceholder('Search vendors by name, contact, or email...')
             ->setEmptyState('No vendors found.')
@@ -97,7 +102,7 @@ final class VendorController extends AbstractController
         ]));
     }
 
-    #[Route('/vendor/{id}', name: 'vendor_show', requirements: ['id' => '\d+'])]
+    #[Route('/vendor/{id}', name: 'vendor_show')]
     public function show(Vendor $vendor): Response
     {
         return $this->render('katzen/vendor/show.html.twig', $this->dashboardContext->with([
