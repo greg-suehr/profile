@@ -7,6 +7,7 @@ use App\Katzen\Entity\Purchase;
 use App\Katzen\Form\PurchaseType;
 use App\Katzen\Repository\PurchaseRepository;
 use App\Katzen\Repository\VendorRepository;
+use App\Katzen\Service\PurchaseService;
 use App\Katzen\Service\Utility\DashboardContextService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +18,7 @@ final class PurchaseController extends AbstractController
 {
     public function __construct(
         private DashboardContextService $dashboardContext,
+        private PurchaseService $purchasing,
         private PurchaseRepository $purchaseRepo,
         private VendorRepository $vendorRepo,
     ) {}
@@ -26,31 +28,43 @@ final class PurchaseController extends AbstractController
     {
         $status = $request->query->get('status', 'all');
         $purchases = $status === 'all'
-            ? $this->purchaseRepo->findBy([], ['purchase_date' => 'DESC'])
-            : $this->purchaseRepo->findBy(['status' => $status], ['purchase_date' => 'DESC']);
+            ? $this->purchaseRepo->findBy([], ['order_date' => 'DESC'])
+            : $this->purchaseRepo->findBy(['status' => $status], ['order_date' => 'DESC']);
 
         $rows = [];
         foreach ($purchases as $purchase) {
             $rows[] = TableRow::create([
                 'id' => $purchase->getId(),
-                'purchase_number' => $purchase->getPurchaseNumber(),
+                'purchase_number' => $purchase->getPoNumber(),
                 'vendor' => $purchase->getVendor()?->getName() ?? '—',
-                'purchase_date' => $purchase->getPurchaseDate(),
-                'expected_delivery' => $purchase->getExpectedDeliveryDate() ?? '—',
+                'vendor_id' => $purchase->getVendor()?->getId() ?? '-',
+                'order_date' => $purchase->getOrderDate(),
+                'expected_delivery' => $purchase->getExpectedDelivery() ?? '—',
                 'total' => '$' . number_format((float)$purchase->getTotalAmount(), 2),
                 'status' => $purchase->getStatus(),
-            ]);
+            ])
+            ->setId($purchase->getId());
         }
 
         $table = TableView::create('Purchase Orders')
-            ->setFields([
-                TableField::create('purchase_number', 'PO Number')->setSortable(true),
-                TableField::create('vendor', 'Vendor')->setSortable(true),
-                TableField::create('purchase_date', 'Purchase Date')->setSortable(true)->setType('date'),
-                TableField::create('expected_delivery', 'Expected Delivery')->setType('date'),
-                TableField::create('total', 'Total')->setSortable(true),
-                TableField::create('status', 'Status')->setSortable(true),
-            ])
+            ->addField(
+              TableField::link('purchase_number', 'PO Number', 'purchase_show')->sortable()
+                )
+            ->addField(
+              TableField::link('vendor', 'Vendor', 'vendor_show')->setAltId('vendor_id')->sortable()
+                )
+            ->addField(
+              TableField::date('order_date', 'Purchase Date')->sortable()
+                )
+            ->addField(
+              TableField::date('expected_delivery', 'Expected Delivery')->sortable()
+                )
+            ->addField(
+              TableField::currency('total', 'Total')->sortable()
+                )
+            ->addField(
+              TableField::status('status', 'Status')->sortable()
+            )
             ->setRows($rows)
             ->setSelectable(true)
             ->addQuickAction(
@@ -87,9 +101,16 @@ final class PurchaseController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->purchaseRepo->save($purchase);
-            $this->addFlash('success', 'Purchase order created successfully.');
-            return $this->redirectToRoute('purchase_index');
+            $response = $this->purchasing->createPurchaseOrder($purchase);
+
+            if ($response->isSuccess()) {
+              $this->addFlash('success', $response->getMessage());
+              return $this->redirectToRoute('purchase_index');
+            }
+            
+            foreach ($response->getErrors() as $error) {
+              $this->addFlash('danger', $error);
+            }
         }
 
         return $this->render('katzen/purchase/create_purchase.html.twig', $this->dashboardContext->with([
@@ -104,7 +125,7 @@ final class PurchaseController extends AbstractController
     #[Route('/purchase/{id}', name: 'purchase_show', requirements: ['id' => '\d+'])]
     public function show(Purchase $purchase): Response
     {
-        return $this->render('katzen/purchase/show.html.twig', $this->dashboardContext->with([
+        return $this->render('katzen/purchase/show_purchase.html.twig', $this->dashboardContext->with([
             'activeDash' => 'katzen/dash-supply.html.twig',
             'activeItem' => 'purchase-view',
             'activeMenu' => 'purchase',
@@ -124,7 +145,7 @@ final class PurchaseController extends AbstractController
             return $this->redirectToRoute('purchase_show', ['id' => $purchase->getId()]);
         }
 
-        return $this->render('katzen/purchase/form.html.twig', $this->dashboardContext->with([
+        return $this->render('katzen/purchase/create_purchase.html.twig', $this->dashboardContext->with([
             'activeDash' => 'katzen/dash-supply.html.twig',
             'activeItem' => 'purchase-edit',
             'activeMenu' => 'purchase',

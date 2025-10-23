@@ -105,7 +105,7 @@ final class VendorController extends AbstractController
     #[Route('/vendor/{id}', name: 'vendor_show')]
     public function show(Vendor $vendor): Response
     {
-        return $this->render('katzen/vendor/show.html.twig', $this->dashboardContext->with([
+        return $this->render('katzen/vendor/show_vendor.html.twig', $this->dashboardContext->with([
             'activeDash' => 'katzen/dash-supply.html.twig',
             'activeItem' => 'vendor-view',
             'activeMenu' => 'vendor',

@@ -15,4 +15,21 @@ class PurchaseRepository extends ServiceEntityRepository
   {
     parent::__construct($registry, Purchase::class);
   }
+
+   public function flush(): void
+  {
+    $this->getEntityManager()->flush();
+  }
+
+  public function add(Purchase $purchase): void
+  {
+    $this->getEntityManager()->persist($purchase);
+  }
+
+  public function save(Purchase $purchase): void
+  {
+    $this->getEntityManager()->persist($purchase);
+    $this->getEntityManager()->flush();
+  }
+  
 }

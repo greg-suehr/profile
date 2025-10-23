@@ -35,15 +35,15 @@ class Purchase
     private ?string $status = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $subtotal = null;
+    private ?string $subtotal = '0.00';
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $tax_amount = null;
+    private ?string $tax_amount = '0.00';
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $total_amount = null;
+    private ?string $total_amount = '0.00';
 
-    #[ORM\OneToMany(targetEntity: PurchaseItem::class, mappedBy: 'purchase', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: PurchaseItem::class, mappedBy: 'purchase', orphanRemoval: true, cascade: ['persist'])]
     private Collection $purchaseItems;
 
     #[ORM\ManyToMany(targetEntity: StockReceipt::class, inversedBy: 'purchases')]

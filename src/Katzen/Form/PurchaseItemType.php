@@ -7,6 +7,7 @@ use App\Katzen\Entity\StockTarget;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -33,6 +34,9 @@ class PurchaseItemType extends AbstractType
                 'scale' => 2,
                 'required' => true,
                 'attr' => ['step' => '0.01', 'min' => '0'],
+            ])
+            ->add('submit', SubmitType::class, [
+              'label' => 'Add Item',
             ]);
     }
 

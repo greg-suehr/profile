@@ -24,16 +24,16 @@ class PurchaseItem
     private ?StockTarget $stockTarget = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $qty_ordered = null;
+    private ?string $qty_ordered = '0.00';
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $qty_received = null;
+    private ?string $qty_received = '0.00';
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $unit_price = null;
+    private ?string $unit_price = '0.00';
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $line_total = null;
+    private ?string $line_total = '0.00';
 
     /**
      * @var Collection<int, StockReceiptItem>
