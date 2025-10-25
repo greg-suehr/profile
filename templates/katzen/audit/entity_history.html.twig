@@ -1,0 +1,175 @@
+{% extends 'katzen/base.html.twig' %}
+
+{% block title %}Audit History - {{ entityType }} #{{ entityId }}{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>Change History</h2>
+                    <p class="text-muted">
+                        {{ entityType }} #{{ entityId }} 
+                        <span class="badge bg-info">{{ changeCount }} changes</span>
+                    </p>
+                </div>
+                <div>
+                    <a href="{{ path('audit_index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Audit Log
+                    </a>
+                </div>
+            </div>
+
+            {% if history is empty %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    No change history found for this entity.
+                </div>
+            {% else %}
+                <div class="card">
+                    <div class="card-body">
+                        <div class="timeline">
+                            {% for change in history %}
+                                <div class="timeline-item mb-4 pb-4 border-bottom">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            {# Action badge #}
+                                            <span class="badge bg-{{ change.action == 'insert' ? 'success' : (change.action == 'delete' ? 'danger' : 'warning') }} me-2">
+                                                {{ change.action|upper }}
+                                            </span>
+
+                                            {# Timestamp #}
+                                            <small class="text-muted">
+                                                {{ change.changedAt|date('Y-m-d H:i:s') }}
+                                            </small>
+
+                                            {# User #}
+                                            <div class="mt-2">
+                                                <strong>Changed by:</strong>
+                                                {% if change.userId %}
+                                                    <a href="{{ path('audit_user_activity', {userId: change.userId}) }}">
+                                                        User #{{ change.userId }}
+                                                    </a>
+                                                {% else %}
+                                                    <span class="text-muted">System</span>
+                                                {% endif %}
+                                            </div>
+
+                                            {# Context #}
+                                            {% if change.context %}
+                                                <div class="mt-1">
+                                                    <small class="text-muted">
+                                                        {% if change.context.route %}
+                                                            Route: <code>{{ change.context.route }}</code>
+                                                        {% endif %}
+                                                        {% if change.context.ip %}
+                                                            | IP: {{ change.context.ip }}
+                                                        {% endif %}
+                                                    </small>
+                                                </div>
+                                            {% endif %}
+
+                                            {# Changes diff #}
+                                            <div class="mt-3">
+                                                {% if change.action == 'insert' %}
+                                                    <h6>New values:</h6>
+                                                    <div class="diff-table">
+                                                        {% for field, value in change.diff %}
+                                                            <div class="diff-row">
+                                                                <strong>{{ field }}:</strong>
+                                                                <span class="text-success">{{ value }}</span>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+
+                                                {% elseif change.action == 'update' %}
+                                                    <h6>Changed fields:</h6>
+                                                    <div class="diff-table">
+                                                        {% for field, values in change.diff %}
+                                                            <div class="diff-row mb-2">
+                                                                <strong>{{ field }}:</strong>
+                                                                <div class="ms-3">
+                                                                    {% if values is iterable and values|length == 2 %}
+                                                                        <div>
+                                                                            <span class="text-danger">
+                                                                                <del>{{ values[0] }}</del>
+                                                                            </span>
+                                                                        </div>
+                                                                        <div>
+                                                                            <span class="text-success">
+                                                                                {{ values[1] }}
+                                                                            </span>
+                                                                        </div>
+                                                                    {% else %}
+                                                                        {{ values|json_encode }}
+                                                                    {% endif %}
+                                                                </div>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+
+                                                {% elseif change.action == 'delete' %}
+                                                    <h6>Final values before deletion:</h6>
+                                                    <div class="diff-table">
+                                                        {% for field, value in change.diff %}
+                                                            <div class="diff-row">
+                                                                <strong>{{ field }}:</strong>
+                                                                <span class="text-muted">{{ value }}</span>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+
+                                            {# Request ID for bulk operations #}
+                                            <div class="mt-2">
+                                                <small>
+                                                    <a href="{{ path('audit_request_changes', {requestId: change.requestId}) }}" 
+                                                       class="text-muted">
+                                                        Request: {{ change.requestId|slice(0, 16) }}...
+                                                    </a>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline-item {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #6c757d;
+}
+
+.diff-table {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+.diff-row {
+    padding: 0.25rem 0;
+}
+</style>
+{% endblock %}

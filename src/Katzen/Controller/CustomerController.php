@@ -141,7 +141,7 @@ final class CustomerController extends AbstractController
     {
         $statement = $this->accountingService->getCustomerStatement($customer);
 
-        return $this->render('katzen/customer/show.html.twig', $this->dashboardContext->with([
+        return $this->render('katzen/customer/show_customer.html.twig', $this->dashboardContext->with([
             'activeItem' => 'customer-view',
             'activeMenu' => 'customer',
             'customer' => $customer,
@@ -161,8 +161,8 @@ final class CustomerController extends AbstractController
             return $this->redirectToRoute('customer_show', ['id' => $customer->getId()]);
         }
 
-        return $this->render('katzen/customer/form.html.twig', $this->dashboardContext->with([
-            'activeItem' => 'customer-create',
+        return $this->render('katzen/customer/create_customer.html.twig', $this->dashboardContext->with([
+            'activeItem' => 'customer-edit',
             'activeMenu' => 'customer',
             'form' => $form->createView(),
             'customer' => $customer,

@@ -78,7 +78,7 @@ class Customer
   private Collection $payments;
 
   #[ORM\Column(length: 50)]
-  private ?string $payment_terms = null;
+  private ?string $payment_terms = 'on_receipt';
 
   #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
   private ?string $ar_balance = '0.00';

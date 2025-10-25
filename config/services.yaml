@@ -49,6 +49,35 @@ services:
         arguments:
             $taskExecutors: !tagged_iterator app.async_task_executor
 
+    App\Katzen\Service\Audit\AuditService:
+        arguments:
+            $changeLogRepo: '@App\Katzen\Repository\ChangeLogRepository'
+            $db: '@doctrine.dbal.default_connection'
+            $security: '@security.helper'
+            $requestStack: '@request_stack'
+
+    App\Katzen\Service\Audit\AuditConfig:
+        # Singleton - config is loaded once
+        shared: true
+
+    App\Katzen\Service\Audit\EntityIdExtractor:
+        arguments:
+            $em: '@doctrine.orm.entity_manager'
+
+    App\Katzen\EventListener\AuditSubscriber:
+        arguments:
+            $db: '@doctrine.dbal.default_connection'
+            $security: '@security.helper'
+            $requests: '@request_stack'
+            $ids: '@App\Katzen\Service\Audit\EntityIdExtractor'
+            $cfg: '@App\Katzen\Service\Audit\AuditConfig'
+        tags:
+            - { name: 'doctrine.event_subscriber', connection: 'default' }
+
+    App\Katzen\Repository\ChangeLogRepository:
+        class: App\Katzen\Repository\ChangeLogRepository
+        tags: ['doctrine.repository_service']
+
     App\Katzen\Service\Cook\RecipeImportService:
         arguments:
             $adapters: !tagged_iterator recipe.adapter
