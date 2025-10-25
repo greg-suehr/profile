@@ -12,10 +12,14 @@ final class AlertService
     ) {}
     
     public function getAlertsForContext(
-        KatzenUser $user, 
+        ?KatzenUser $user, 
         string $route, 
         ?array $routeParams = null
     ): array {
+        if (!$user) {
+            return [];
+        }
+
         $metrics = $this->metrics->getMetrics($user);
         
         return match(true) {

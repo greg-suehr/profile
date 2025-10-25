@@ -6,6 +6,8 @@ use App\Katzen\Service\Utility\AlertService;
 use App\Katzen\Service\Utility\EncouragementEngine;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class DashboardContextService
 {
@@ -14,16 +16,53 @@ class DashboardContextService
       private RequestStack $requestStack,
       private AlertService $alertService,
       private EncouragementEngine $encouragementEngine,
+      private UrlGeneratorInterface $urlGenerator,
 #        private TaskRepository $taskRepo,
 #        private NotificationRepository $notificationRepo
 #        private OrderRepository $orderRepo,
 #        private StockRepository $stockRepo,
     ) {}
 
+  /**
+   * Check if user is authenticated, redirect to login if not
+   * 
+   * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+   */
+  private function ensureAuthenticated(): void
+  {
+    if (!$this->security->getUser()) {
+      $request = $this->requestStack->getCurrentRequest();
+      $currentUrl = $request ? $request->getUri() : null;
+      
+      $loginUrl = $this->urlGenerator->generate('app_login');
+      if ($currentUrl) {
+        $loginUrl .= '?_target_path=' . urlencode($currentUrl);
+      }
+       
+      throw new \Symfony\Component\HttpKernel\Exception\HttpException(
+        302,
+        'Authentication required',
+        null,
+        ['Location' => $loginUrl]
+      );
+    }
+  }
+      
     public function getBaseContext(): array
     {        
-        # TODO: implement DashboardContextService
+        $this->ensureAuthenticated();
         $user = $this->security->getUser();
+
+        if (!$user) {
+          return [
+            'user' => $this->buildUserContext(null),
+            'encouragement' => ['header_message' => 'Please log in to continue'],
+            'alerts' => [],
+            'notifications' => [],
+            'requires_authentication' => true,
+          ];
+        }
+        
         $request = $this->requestStack->getCurrentRequest();
         $route = $request?->attributes->get('_route', 'unknown');
 

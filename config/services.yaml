@@ -35,6 +35,10 @@ services:
         arguments:
             $widgets: !tagged_iterator app.dashboard_widget
 
+    App\Katzen\EventSubscriber\AuthenticationExceptionSubscriber:
+        tags:
+            - { name: kernel.event_subscriber }
+
     App\Katzen\Messenger\TaskExecutor\:
         resource: '../src/Katzen/Messenger/TaskExecutor'
         tags: ['app.async_task_executor']
