@@ -4,20 +4,33 @@ namespace App\Katzen\Service;
 
 use App\Katzen\Entity\StockCount;
 use App\Katzen\Entity\StockCountItem;
+use App\Katzen\Entity\StockLot;
+use App\Katzen\Entity\StockLotAllocation;
+use App\Katzen\Entity\StockLotLocationBalance;
 use App\Katzen\Entity\StockTarget;
 use App\Katzen\Entity\StockTransaction;
 use App\Katzen\Repository\StockCountRepository;
 use App\Katzen\Repository\StockCountItemRepository;
+use App\Katzen\Repository\StockLotRepository;
+use App\Katzen\Repository\StockLotLocationBalanceRepository;
+use App\Katzen\Repository\StockLocationRepository;
+use App\Katzen\Repository\StockLotAllocationRepository;
 use App\Katzen\Repository\StockTargetRepository;
 use App\Katzen\Repository\StockTransactionRepository;
 use App\Katzen\Service\AccountingService;
 use App\Katzen\Service\Response\ServiceResponse;
+use Doctrine\ORM\EntityManagerInterface;
 
 final class InventoryService
 {
     public function __construct(
+      private EntityManagerInterface $em,
       private StockCountRepository $countRepo,
-      private StockCountItemRepository $countItemRepo,      
+      private StockCountItemRepository $countItemRepo,
+      private StockLotRepository $lotRepo,
+      private StockLotLocationBalanceRepository $balanceRepo,
+      private StockLocationRepository $locationRepo,
+      private StockLotAllocationRepository $allocationRepo,
       private StockTargetRepository $targetRepo,
       private StockTransactionRepository $txnRepo,
       private AccountingService $accounting,
@@ -193,20 +206,29 @@ final class InventoryService
   }
 
   /**
-   * Consume stock from a StockTarget and record a transaction.
+   * Consume stock for a StockTarget, auto-Prep from components as needed.
    *
-   * Decrements on-hand by `$quantity` (must be positive), persisting a
-   * `StockTransaction` with negative qty, useType `consumption`, and timestamps.
-   * Fails if consumption would drive quantity below zero.
+   * A 'consumption' event might pulls from many StockLots to fulfill the needed quantity,
+   * and creates one StockLotAllocation that moves units out of the system (to a customer,
+   * waste, etc).
+   * 
+   * If the StockTarget has no units available, but an active Recipe for the StockTarget
+   * exists with all components available, this method automatically records a 'production'
+   * event and all ancillary stock consumptions to create and immediately consume the
+   * required units.
    *
    * * @param int $stockTargetId The StockTarget ID to consume from
    * * @param float $quantity Positive quantity to consume
+   * * @param int $locationId
+   * * @param string $method 'FEFO', 'FIFO', 'LIFO'
    * * @param ?string $reason Optional human-readable reason/memo
    * * @return ServiceResponse Success with new quantity; failure on insufficiency/errors
    */
   public function consumeStock(
     int $stockTargetId,
     float $quantity,
+    int $locationId = null,
+    string $method = 'FEFO',
     ?string $reason = null
   ): ServiceResponse
   {
@@ -217,72 +239,113 @@ final class InventoryService
           message: 'Consume stock failed.'
         );
       }
-
+      
       $target = $this->requireTarget($stockTargetId);
-      $newQty = $target->getCurrentQty() - $quantity;
-    
-      if ($newQty < 0) {
-        # TODO: check retryability on message queue
+      $location = $locationId ? $this->locationRepo->find($locationId) : null;
+      
+      $qb = $this->balanceRepo->createQueryBuilder('b')
+        ->join('b.stock_lot', 'l')
+        ->andWhere('l.stock_target = :target')
+        ->setParameter('target', $target);
+
+      if ($location) {
+        $qb->andWhere('b.location = :loc')->setParameter('loc', $location);
+      }
+
+      if ($method === 'FIFO') {
+        $qb->orderBy('l.received_date', 'ASC')->addOrderBy('l.id', 'ASC');
+      }
+      elseif ($method === 'LIFO') {
+        $qb->orderBy('l.received_date', 'DESC')->addOrderBy('l.id', 'ASC');        
+      }
+      else{
+        $qb->orderBy('l.expiration_date', 'DESC')->addOrderBy('l.id', 'ASC');
+      }
+
+      $balances  = $qb->getQuery()->getResult();
+      $remaining = $quantity;
+      $cogsTotal = 0.0;
+
+      $allocation = (new StockLotAllocation())
+        ->setAllocationType('consumption')
+        ->setQty((string)$quantity)
+        ->setAllocatedAt(new \DateTime());      
+
+      $this->em->persist($allocation);
+
+      foreach ($balances as $bal) {
+        if ($remaining <= 0) break;
+        
+        $available = (float)$bal->getQty() - (float)$bal->getReservedQty();
+        if ($available <= 0) continue;
+
+        $take = min($remaining, $available);
+
+        $bal->setQty((string)($available + (float)$bal->getReservedQty() - $take));
+        $bal->setUpdatedAt(new \DateTime());
+
+        $lot = $bal->getStockLot();
+        $lot->setCurrentQty($lot->getCurrentQty() - $take);
+
+        $cogsTotal += $lot->getUnitCost() * $take;
+        
+        $txn = (new StockTransaction())
+            ->setStockTarget($target)
+            ->setQty(-$take)
+            ->setUnitCost($lot->getUnitCost())
+            ->setUseType('consumption')
+            ->setReason($reason)
+            ->setRecordedAt(new \DateTimeImmutable())
+            ->setEffectiveDate(new \DateTime())
+            ->setStatus('completed')
+            ->setLotNumber($lot->getLotNumber())
+            ->setExpirationDate($lot->getExpirationDate())
+            ->setStockLotAllocation($allocation);
+
+        $this->em->persist($txn);
+        $remaining -= $take;
+      }
+
+      if ($remaining > 0) {        
         return ServiceResponse::failure(
-          errors: [sprintf('Insufficient stock: need %.3f more.', abs($newQty))],
+          errors: [sprintf('Insufficient stock: short %.3f.', abs($remaining))],
           message: 'Consume stock failed.',
           data: ['stock_target_id' => $stockTargetId, 'available' => (float)$target->getCurrentQty()]
         );
       }
-      
-      $transaction = new StockTransaction();
-      $transaction->setStockTarget($target);
-      $transaction->setQty(-$quantity);
-      $transaction->setReason($reason);
-      $transaction->setUseType('consumption');
-      $transaction->setEffectiveDate(new \DateTime); 
-      $transaction->setRecordedAt(new \DateTimeImmutable);
-      $transaction->setStatus('pending');
-      $transaction->setStockTarget($target);
 
-      $unitCost = $this->getUnitCostForTarget($target);
-      if ($unitCost !== null) {
-        $transaction->setUnitCost((string)$unitCost);
-      }
-      
-      $target->setCurrentQty($newQty);
-      
-      $this->txnRepo->save($transaction);
+      $allocation->setTotalCost($cogsTotal);
 
-      $cogsRecorded = false;
-      $cogsTotal = 0.0;
-      
-      if ($unitCost !== null && $unitCost > 0) {
-        $cogsTotal = $quantity * $unitCost;
-        $cogsResult = $this->accounting->recordEvent(
-          templateName: 'cogs_on_fulfillment',
-          amounts: [
-            'cogs_total' => $cogsTotal,
-          ],
-          referenceType: 'stock_transaction',
-          referenceId: (string)$transaction->getId(),
-          metadata: [
-            'stock_target_id' => $stockTargetId,
-            'quantity' => $quantity,
-            'unit_cost' => $unitCost,
-          ]
-        );
+      $this->em->flush();
+            
+      $cogsResult = $this->accounting->recordEvent(
+        templateName: 'cogs_on_fulfillment',
+        amounts: [
+          'cogs_total' => $cogsTotal,
+        ],
+        referenceType: 'stock_lot_allocation',
+        referenceId: (string)$allocation->getId(),
+        metadata: [
+          'stock_target_id' => $stockTargetId,
+          'quantity' => $quantity,
+          'unit_cost' => $cogsTotal / $quantity,
+        ]
+      );
         
-        $cogsRecorded = $cogsResult->isSuccess();
+      $cogsRecorded = $cogsResult->isSuccess();
       
-        if ($cogsResult->isFailure()) {
-          // Soft fail accounting errors
-          // # TODO: document retry/backoff and blocking error handling for MQ events
-          error_log("Failed to record COGS for stock transaction {$transaction->getId()}: " 
-                    . $cogsResult->getFirstError());
-        }
+      if ($cogsResult->isFailure()) {
+        // Soft fail accounting errors
+        // # TODO: document retry/backoff and blocking error handling for MQ events
+        error_log("Failed to record COGS for stock transaction {$transaction->getId()}: " 
+                  . $cogsResult->getFirstError());
       }
-      
+    
       return ServiceResponse::success(
         data: [
           'stock_target_id' => $stockTargetId,
+          'location_id'     => $locationId,
           'delta'           => -$quantity,
-          'new_qty'         => $newQty,
           'cogs_total' => $cogsTotal,
           'cogs_recorded' => $cogsRecorded,
         ],

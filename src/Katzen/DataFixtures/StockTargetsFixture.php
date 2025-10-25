@@ -26,11 +26,27 @@ class StockTargetsFixture extends Fixture implements DependentFixtureInterface
         ['item' => 'milk', 'unit' => 'ml', 'reorder_point' => '500.00'],
         ['item' => 'chocolate', 'unit' => 'g', 'reorder_point' => '250.00'],
         ['item' => 'salt', 'unit' => 'g', 'reorder_point' => '50.00'],
+        ['item' => 'espresso_beans', 'unit' => 'g', 'reorder_point' => '2000.00'],
+        ['item' => 'drip_coffee_beans', 'unit' => 'g', 'reorder_point' => '3000.00'],
+        ['item' => 'whole_milk', 'unit' => 'ml', 'reorder_point' => '2000.00'],
+        ['item' => 'oat_milk', 'unit' => 'ml', 'reorder_point' => '1000.00'],
+        ['item' => 'heavy_cream', 'unit' => 'ml', 'reorder_point' => '500.00'],
+        ['item' => 'vanilla_syrup', 'unit' => 'ml', 'reorder_point' => '500.00'],
+        ['item' => 'caramel_syrup', 'unit' => 'ml', 'reorder_point' => '500.00'],
+        ['item' => 'cocoa_powder', 'unit' => 'g', 'reorder_point' => '300.00'],
+        ['item' => 'cinnamon', 'unit' => 'g', 'reorder_point' => '100.00'],
         
         // Packaging
+        ['item' => '8oz_paper_cup', 'unit' => 'ea', 'reorder_point' => '50.00'],
+        ['item' => '12oz_paper_cup', 'unit' => 'ea', 'reorder_point' => '100.00'],
+        ['item' => '16oz_paper_cup', 'unit' => 'ea', 'reorder_point' => '100.00'],
+        ['item' => 'cup_sleeve', 'unit' => 'ea', 'reorder_point' => '100.00'],
+        ['item' => 'hot_drink_lid', 'unit' => 'ea', 'reorder_point' => '150.00'],
         ['item' => '12oz_clear_cup', 'unit' => 'ea', 'reorder_point' => '20.00'],
-        ['item' => 'dome_lid', 'unit' => 'ea', 'reorder_point' => '20.00'],
+        ['item' => '16oz_clear_cup', 'unit' => 'ea', 'reorder_point' => '20.00'],        
+        ['item' => 'dome_lid', 'unit' => 'ea', 'reorder_point' => '20.00'],        
         ['item' => 'muffin_liner', 'unit' => 'ea', 'reorder_point' => '40.00'],
+        
     ];
 
     public function load(ObjectManager $manager): void

@@ -18,139 +18,8 @@ use Doctrine\Persistence\ObjectManager;
 
 class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
 {
-    // ========== NEW COFFEE SHOP ITEMS ==========
-    private const NEW_ITEMS = [
-        // Coffee & Espresso Base Items
-        [
-            'name' => 'Espresso Coffee Beans',
-            'ref' => 'espresso_beans',
-            'category' => 'ingredient',
-            'base_unit' => 'g',
-            'description' => 'Premium dark roast espresso beans',
-        ],
-        [
-            'name' => 'Drip Coffee Beans',
-            'ref' => 'drip_coffee_beans',
-            'category' => 'ingredient',
-            'base_unit' => 'g',
-            'description' => 'Medium roast coffee beans for drip brewing',
-        ],
-        [
-            'name' => 'Whole Milk',
-            'ref' => 'whole_milk',
-            'category' => 'ingredient',
-            'base_unit' => 'ml',
-            'description' => 'Full-fat dairy milk',
-        ],
-        [
-            'name' => 'Oat Milk',
-            'ref' => 'oat_milk',
-            'category' => 'ingredient',
-            'base_unit' => 'ml',
-            'description' => 'Non-dairy oat milk alternative',
-        ],
-        [
-            'name' => 'Heavy Cream',
-            'ref' => 'heavy_cream',
-            'category' => 'ingredient',
-            'base_unit' => 'ml',
-            'description' => 'Whipping cream for beverages',
-        ],
-        [
-            'name' => 'Vanilla Syrup',
-            'ref' => 'vanilla_syrup',
-            'category' => 'ingredient',
-            'base_unit' => 'ml',
-            'description' => 'Flavored syrup for coffee drinks',
-        ],
-        [
-            'name' => 'Caramel Syrup',
-            'ref' => 'caramel_syrup',
-            'category' => 'ingredient',
-            'base_unit' => 'ml',
-            'description' => 'Caramel flavored syrup',
-        ],
-        [
-            'name' => 'Cocoa Powder',
-            'ref' => 'cocoa_powder',
-            'category' => 'ingredient',
-            'base_unit' => 'g',
-            'description' => 'Unsweetened cocoa powder for mochas',
-        ],
-        [
-            'name' => 'Cinnamon',
-            'ref' => 'cinnamon',
-            'category' => 'ingredient',
-            'base_unit' => 'g',
-            'description' => 'Ground cinnamon spice',
-        ],
-        [
-            'name' => 'Ice',
-            'ref' => 'ice',
-            'category' => 'ingredient',
-            'base_unit' => 'g',
-            'description' => 'Ice cubes for cold beverages',
-        ],
-        
-        // Packaging for Coffee Drinks
-        [
-            'name' => '8oz Paper Cup',
-            'ref' => '8oz_paper_cup',
-            'category' => 'packaging',
-            'base_unit' => 'ea',
-            'description' => 'Small hot beverage cup',
-        ],
-        [
-            'name' => '12oz Paper Cup',
-            'ref' => '12oz_paper_cup',
-            'category' => 'packaging',
-            'base_unit' => 'ea',
-            'description' => 'Medium hot beverage cup',
-        ],
-        [
-            'name' => '16oz Paper Cup',
-            'ref' => '16oz_paper_cup',
-            'category' => 'packaging',
-            'base_unit' => 'ea',
-            'description' => 'Large hot beverage cup',
-        ],
-        [
-            'name' => 'Cup Sleeve',
-            'ref' => 'cup_sleeve',
-            'category' => 'packaging',
-            'base_unit' => 'ea',
-            'description' => 'Insulating sleeve for hot cups',
-        ],
-        [
-            'name' => 'Plastic Lid',
-            'ref' => 'plastic_lid',
-            'category' => 'packaging',
-            'base_unit' => 'ea',
-            'description' => 'Lid for paper cups',
-        ],
-    ];
 
-    // ========== NEW STOCK TARGETS ==========
-    private const NEW_STOCK_TARGETS = [
-        ['item' => 'espresso_beans', 'unit' => 'g', 'reorder_point' => '2000.00'],
-        ['item' => 'drip_coffee_beans', 'unit' => 'g', 'reorder_point' => '3000.00'],
-        ['item' => 'whole_milk', 'unit' => 'ml', 'reorder_point' => '2000.00'],
-        ['item' => 'oat_milk', 'unit' => 'ml', 'reorder_point' => '1000.00'],
-        ['item' => 'heavy_cream', 'unit' => 'ml', 'reorder_point' => '500.00'],
-        ['item' => 'vanilla_syrup', 'unit' => 'ml', 'reorder_point' => '500.00'],
-        ['item' => 'caramel_syrup', 'unit' => 'ml', 'reorder_point' => '500.00'],
-        ['item' => 'cocoa_powder', 'unit' => 'g', 'reorder_point' => '300.00'],
-        ['item' => 'cinnamon', 'unit' => 'g', 'reorder_point' => '100.00'],
-        ['item' => 'ice', 'unit' => 'g', 'reorder_point' => '5000.00'],
-        ['item' => '8oz_paper_cup', 'unit' => 'ea', 'reorder_point' => '50.00'],
-        ['item' => '12oz_paper_cup', 'unit' => 'ea', 'reorder_point' => '100.00'],
-        ['item' => '16oz_paper_cup', 'unit' => 'ea', 'reorder_point' => '100.00'],
-        ['item' => 'cup_sleeve', 'unit' => 'ea', 'reorder_point' => '100.00'],
-        ['item' => 'plastic_lid', 'unit' => 'ea', 'reorder_point' => '150.00'],
-    ];
-
-    // ========== NEW COFFEE RECIPES ==========
-    private const NEW_RECIPES = [
+    private const RECIPES = [
         'Espresso' => [
             'serving_min' => 1,
             'serving_max' => 1,
@@ -162,7 +31,6 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
             'ingredients' => [
                 ['item' => 'espresso_beans', 'qty' => '18', 'unit' => 'g'],
                 ['item' => '8oz_paper_cup', 'qty' => '1', 'unit' => 'ea'],
-                ['item' => 'plastic_lid', 'qty' => '1', 'unit' => 'ea'],
             ],
         ],
         'Americano' => [
@@ -176,7 +44,7 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
             'ingredients' => [
                 ['item' => 'espresso_beans', 'qty' => '18', 'unit' => 'g'],
                 ['item' => '12oz_paper_cup', 'qty' => '1', 'unit' => 'ea'],
-                ['item' => 'plastic_lid', 'qty' => '1', 'unit' => 'ea'],
+                ['item' => 'hot_drink_lid', 'qty' => '1', 'unit' => 'ea'],
                 ['item' => 'cup_sleeve', 'qty' => '1', 'unit' => 'ea'],
             ],
         ],
@@ -192,7 +60,7 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
                 ['item' => 'espresso_beans', 'qty' => '18', 'unit' => 'g'],
                 ['item' => 'whole_milk', 'qty' => '180', 'unit' => 'ml'],
                 ['item' => '12oz_paper_cup', 'qty' => '1', 'unit' => 'ea'],
-                ['item' => 'plastic_lid', 'qty' => '1', 'unit' => 'ea'],
+                ['item' => 'hot_drink_lid', 'qty' => '1', 'unit' => 'ea'],
                 ['item' => 'cup_sleeve', 'qty' => '1', 'unit' => 'ea'],
             ],
         ],
@@ -208,7 +76,7 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
                 ['item' => 'espresso_beans', 'qty' => '18', 'unit' => 'g'],
                 ['item' => 'whole_milk', 'qty' => '240', 'unit' => 'ml'],
                 ['item' => '12oz_paper_cup', 'qty' => '1', 'unit' => 'ea'],
-                ['item' => 'plastic_lid', 'qty' => '1', 'unit' => 'ea'],
+                ['item' => 'hot_drink_lid', 'qty' => '1', 'unit' => 'ea'],
                 ['item' => 'cup_sleeve', 'qty' => '1', 'unit' => 'ea'],
             ],
         ],
@@ -225,7 +93,7 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
                 ['item' => 'whole_milk', 'qty' => '240', 'unit' => 'ml'],
                 ['item' => 'vanilla_syrup', 'qty' => '20', 'unit' => 'ml'],
                 ['item' => '12oz_paper_cup', 'qty' => '1', 'unit' => 'ea'],
-                ['item' => 'plastic_lid', 'qty' => '1', 'unit' => 'ea'],
+                ['item' => 'hot_drink_lid', 'qty' => '1', 'unit' => 'ea'],
                 ['item' => 'cup_sleeve', 'qty' => '1', 'unit' => 'ea'],
             ],
         ],
@@ -242,7 +110,7 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
                 ['item' => 'whole_milk', 'qty' => '240', 'unit' => 'ml'],
                 ['item' => 'caramel_syrup', 'qty' => '20', 'unit' => 'ml'],
                 ['item' => '12oz_paper_cup', 'qty' => '1', 'unit' => 'ea'],
-                ['item' => 'plastic_lid', 'qty' => '1', 'unit' => 'ea'],
+                ['item' => 'hot_drink_lid', 'qty' => '1', 'unit' => 'ea'],
                 ['item' => 'cup_sleeve', 'qty' => '1', 'unit' => 'ea'],
             ],
         ],
@@ -260,7 +128,7 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
                 ['item' => 'cocoa_powder', 'qty' => '15', 'unit' => 'g'],
                 ['item' => 'chocolate', 'qty' => '10', 'unit' => 'g'],
                 ['item' => '12oz_paper_cup', 'qty' => '1', 'unit' => 'ea'],
-                ['item' => 'plastic_lid', 'qty' => '1', 'unit' => 'ea'],
+                ['item' => 'hot_drink_lid', 'qty' => '1', 'unit' => 'ea'],
                 ['item' => 'cup_sleeve', 'qty' => '1', 'unit' => 'ea'],
             ],
         ],
@@ -277,7 +145,7 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
                 ['item' => 'whole_milk', 'qty' => '200', 'unit' => 'ml'],
                 ['item' => 'ice', 'qty' => '150', 'unit' => 'g'],
                 ['item' => '16oz_paper_cup', 'qty' => '1', 'unit' => 'ea'],
-                ['item' => 'plastic_lid', 'qty' => '1', 'unit' => 'ea'],
+                ['item' => 'hot_drink_lid', 'qty' => '1', 'unit' => 'ea'],
             ],
         ],
         'Iced Mocha' => [
@@ -295,7 +163,7 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
                 ['item' => 'chocolate', 'qty' => '10', 'unit' => 'g'],
                 ['item' => 'ice', 'qty' => '150', 'unit' => 'g'],
                 ['item' => '16oz_paper_cup', 'qty' => '1', 'unit' => 'ea'],
-                ['item' => 'plastic_lid', 'qty' => '1', 'unit' => 'ea'],
+                ['item' => 'hot_drink_lid', 'qty' => '1', 'unit' => 'ea'],
             ],
         ],
         'Drip Coffee - Small' => [
@@ -309,7 +177,7 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
             'ingredients' => [
                 ['item' => 'drip_coffee_beans', 'qty' => '15', 'unit' => 'g'],
                 ['item' => '12oz_paper_cup', 'qty' => '1', 'unit' => 'ea'],
-                ['item' => 'plastic_lid', 'qty' => '1', 'unit' => 'ea'],
+                ['item' => 'hot_drink_lid', 'qty' => '1', 'unit' => 'ea'],
                 ['item' => 'cup_sleeve', 'qty' => '1', 'unit' => 'ea'],
             ],
         ],
@@ -324,13 +192,12 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
             'ingredients' => [
                 ['item' => 'drip_coffee_beans', 'qty' => '22', 'unit' => 'g'],
                 ['item' => '16oz_paper_cup', 'qty' => '1', 'unit' => 'ea'],
-                ['item' => 'plastic_lid', 'qty' => '1', 'unit' => 'ea'],
+                ['item' => 'hot_drink_lid', 'qty' => '1', 'unit' => 'ea'],
                 ['item' => 'cup_sleeve', 'qty' => '1', 'unit' => 'ea'],
             ],
         ],
     ];
 
-    // ========== CUSTOMERS ==========
     private const CUSTOMERS = [
         [
             'name' => 'Sarah Mitchell',
@@ -379,7 +246,6 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
         ],
     ];
 
-    // ========== VENDORS ==========
     private const VENDORS = [
         [
             'name' => 'Premium Coffee Roasters',
@@ -442,63 +308,10 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
     {
         $author = $this->getReference(KatzenUserFixture::ADMIN_USER_REFERENCE, KatzenUser::class);
         
-        // ========== CREATE NEW ITEMS ==========
-        foreach (self::NEW_ITEMS as $itemData) {
-            $existing = $manager->getRepository(Item::class)
-                ->findOneBy(['name' => $itemData['name']]);
-            
-            if (!$existing) {
-                $item = new Item();
-                $item->setName($itemData['name']);
-                $item->setCategory($itemData['category']);
-                $item->setDescription($itemData['description']);
-                
-                $baseUnit = $manager->getRepository(Unit::class)
-                    ->findOneBy(['abbreviation' => $itemData['base_unit']]);
-                
-                $item->setCreatedAt(new \DateTimeImmutable());
-                $item->setUpdatedAt(new \DateTime());
-                
-                $manager->persist($item);
-                $this->addReference('item_' . $itemData['ref'], $item);
-            } else {
-                $this->addReference('item_' . $itemData['ref'], $existing);
-            }
-        }
-        
-        $manager->flush();
-
-        // ========== CREATE NEW STOCK TARGETS ==========
-        foreach (self::NEW_STOCK_TARGETS as $targetData) {
-            $item = $this->getReference('item_' . $targetData['item'], Item::class);
-            
-            $existing = $manager->getRepository(StockTarget::class)
-                ->findOneBy(['item' => $item]);
-            
-            if (!$existing) {
-                $stockTarget = new StockTarget();
-                $stockTarget->setItem($item);
-                $stockTarget->setName($item->getName());
-                
-                $baseUnit = $manager->getRepository(Unit::class)
-                    ->findOneBy(['abbreviation' => $targetData['unit']]);
-                $stockTarget->setBaseUnit($baseUnit);
-                
-                $stockTarget->setCurrentQty('0.00');
-                $stockTarget->setReorderPoint($targetData['reorder_point']);
-                $stockTarget->setStatus('active');
-                
-                $manager->persist($stockTarget);
-            }
-        }
-        
-        $manager->flush();
-
-        // ========== CREATE NEW RECIPES ==========
-        foreach (self::NEW_RECIPES as $title => $recipeData) {
+        foreach (self::RECIPES as $title => $recipeData) {
             $existing = $manager->getRepository(Recipe::class)
                 ->findOneBy(['title' => $title]);
-            
+          
             if (!$existing) {
                 $recipe = new Recipe();
                 $recipe->setTitle($title);
@@ -522,7 +335,6 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
                 
                 $manager->persist($recipe);
                 
-                // Add ingredients
                 foreach ($recipeData['ingredients'] as $ingredientData) {
                     $item = $this->getReference('item_' . $ingredientData['item'], Item::class);
                     $unit = $manager->getRepository(Unit::class)
@@ -539,7 +351,6 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
                     $manager->persist($ingredient);
                 }
                 
-                // Store reference
                 $recipeRef = strtolower(str_replace([' ', '-'], '_', $title));
                 $this->addReference('recipe_' . $recipeRef, $recipe);
             }
@@ -557,23 +368,22 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
             $menu->setCreatedAt(new \DateTimeImmutable());
             $menu->setUpdatedAt(new \DateTime());
             
-            // Add all recipes to the menu
             $allRecipes = [];
-            foreach (self::NEW_RECIPES as $title => $data) {
+            foreach (self::RECIPES as $title => $data) {
                 $recipeRef = strtolower(str_replace([' ', '-'], '_', $title));
                 $allRecipes[] = $this->getReference('recipe_' . $recipeRef, Recipe::class);
             }
             
             // Also add existing pastry recipes if they exist
-            $existingPastries = ['Yogurt Parfait', 'Blueberry Muffin', 'Pain au Chocolat'];
-            foreach ($existingPastries as $title) {
+            $recipeAdds = ['Fruit Parfait', 'Blueberry Muffin', 'Chocolate Croissant'];
+            foreach ($recipeAdds as $title) {
                 try {
                     $recipe = $manager->getRepository(Recipe::class)->findOneBy(['title' => $title]);
                     if ($recipe) {
                         $allRecipes[] = $recipe;
                     }
                 } catch (\Exception $e) {
-                    // Recipe doesn't exist, skip it
+                  // skip
                 }
             }
             
@@ -584,7 +394,7 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
             $manager->persist($menu);
             $manager->flush();
             
-            // Create tags for active menu
+            // Create active menu tags
             $statusTag = new Tag();
             $statusTag->setObj('recipe_list');
             $statusTag->setObjId($menu->getId());
@@ -612,7 +422,6 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
             $manager->flush();
         }
 
-        // ========== CREATE CUSTOMERS ==========
         foreach (self::CUSTOMERS as $customerData) {
             $existing = $manager->getRepository(Customer::class)
                 ->findOneBy(['email' => $customerData['email']]);
@@ -630,7 +439,6 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
                 $customer->setAccountBalance('0.00');
                 $customer->setArBalance('0.00');
                 $customer->setPaymentTerms('Net 15');
-                // Note: created_at and updated_at are set automatically via PrePersist/PreUpdate callbacks
                 
                 $manager->persist($customer);
             }
@@ -638,9 +446,6 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
         
         $manager->flush();
 
-        // ========== CREATE VENDORS ==========
-        // Note: The Vendor entity currently only has an 'id' field
-        // Creating simple vendor records for future expansion
         foreach (self::VENDORS as $vendorData) {
             $vendor = new Vendor();
             $vendor->setVendorCode($vendorData['tax_id']);

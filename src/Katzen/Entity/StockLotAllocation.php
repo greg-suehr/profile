@@ -23,9 +23,6 @@ class StockLotAllocation
     #[ORM\Column(length: 50)]
     private ?string $allocation_type = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $direction = null;
-
     /**
      * @var Collection<int, StockTransaction>
      */
