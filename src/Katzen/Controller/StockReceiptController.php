@@ -5,20 +5,25 @@ namespace App\Katzen\Controller;
 use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableAction};
 use App\Katzen\Entity\StockReceipt;
 use App\Katzen\Form\StockReceiptType;
-use App\Katzen\Repository\StockReceiptRepository;
 use App\Katzen\Repository\PurchaseRepository;
+use App\Katzen\Repository\StockReceiptRepository;
+use App\Katzen\Repository\StockLocationRepository;
+use App\Katzen\Service\Inventory\StockReceiptService;
 use App\Katzen\Service\Utility\DashboardContextService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class StockReceiptController extends AbstractController
 {
     public function __construct(
         private DashboardContextService $dashboardContext,
-        private StockReceiptRepository $receiptRepo,
+        private StockReceiptService $receiptService,
         private PurchaseRepository $purchaseRepo,
+        private StockReceiptRepository $receiptRepo,
+        private StockLocationRepository $locationRepo,
     ) {}
 
     #[Route('/receipts', name: 'receipt_index')]
@@ -26,8 +31,8 @@ final class StockReceiptController extends AbstractController
     {
         $status = $request->query->get('status', 'all');
         $receipts = $status === 'all'
-            ? $this->receiptRepo->findBy([], ['received_date' => 'DESC'])
-            : $this->receiptRepo->findBy(['status' => $status], ['received_date' => 'DESC']);
+            ? $this->receiptRepo->findBy([], ['received_at' => 'DESC'])
+            : $this->receiptRepo->findBy(['status' => $status], ['received_at' => 'DESC']);
 
         $rows = [];
         foreach ($receipts as $receipt) {
@@ -36,21 +41,31 @@ final class StockReceiptController extends AbstractController
                 'receipt_number' => $receipt->getReceiptNumber(),
                 'purchase' => $receipt->getPurchase()?->getPurchaseNumber() ?? '—',
                 'vendor' => $receipt->getPurchase()?->getVendor()?->getName() ?? '—',
-                'received_date' => $receipt->getReceivedDate(),
+                'received_at' => $receipt->getReceivedDate(),
                 'received_by' => $receipt->getReceivedBy() ?? '—',
                 'status' => $receipt->getStatus(),
-            ]);
+            ])->setId($receipt->getId());             
         }
 
         $table = TableView::create('Receipts')
-            ->setFields([
-                TableField::create('receipt_number', 'Receipt #')->setSortable(true),
-                TableField::create('purchase', 'PO Number')->setSortable(true),
-                TableField::create('vendor', 'Vendor')->setSortable(true),
-                TableField::create('received_date', 'Received Date')->setSortable(true)->setType('date'),
-                TableField::create('received_by', 'Received By'),
-                TableField::create('status', 'Status')->setSortable(true),
-            ])
+            ->addField(
+              TableField::text('receipt_number', 'Receipt #')->sortable()
+                )
+            ->addField(
+              TableField::text('purchase', 'PO Number')->sortable()
+                )
+            ->addField(
+              TableField::text('vendor', 'Vendor')->sortable()
+                )
+            ->addField(
+              TableField::date('received_at', 'Received Date')->sortable()
+                )
+            ->addField(
+              TableField::text('received_by', 'Received By')
+                )
+            ->addField(
+              TableField::badge('status', 'Status')->sortable()
+                )
             ->setRows($rows)
             ->setSelectable(true)
             ->addQuickAction(
@@ -79,49 +94,176 @@ final class StockReceiptController extends AbstractController
         ]));
     }
 
-    #[Route('/receipt/create', name: 'receipt_create')]
-    public function create(Request $request): Response
-    {
-        $receipt = new StockReceipt();
+  #[Route('/stock/receipt/create', name: 'receipt_create')]
+  public function create(Request $request, SessionInterface $session): Response
+  {
+    $receipt = new StockReceipt();
+    
+    $defaultLocation = $this->receiptService->getDefaultLocation();
+    if ($defaultLocation) {
+      $receipt->setLocation($defaultLocation);
+    }
+    
+    $form = $this->createForm(StockReceiptType::class, $receipt);
+    $form->handleRequest($request);
+    
+    if ($form->isSubmitted() && $form->isValid()) {
+      $session->set('receipt_data', [
+        'purchase_id' => $receipt->getPurchase()->getId(),
+        'location_id' => $receipt->getLocation()->getId(),
+        'received_at' => $receipt->getReceivedAt()->format('Y-m-d H:i:s'),
+        'notes' => $receipt->getNotes(),
+      ]);
+      
+      return $this->redirectToRoute('receipt_items', [
+        'id' => $receipt->getPurchase()->getId(),
+      ]);
+    }
+    
+    return $this->render('katzen/receipt/create.html.twig', $this->dashboardContext->with([
+      'activeItem' => 'stock-receipt',
+      'activeMenu' => 'inventory',
+      'form' => $form->createView(),
+    ]));
+  }
+
+  #[Route('/stock/receipt/items/{id}', name: 'receipt_items')]
+  public function receiveItems(
+    int $id,
+    Request $request,
+    SessionInterface $session
+  ): Response {
+    $receiptData = $session->get('receipt_data');
+    if (!$receiptData || $receiptData['purchase_id'] !== $id) {
+      $this->addFlash('danger', 'Please start the receiving process again.');
+      return $this->redirectToRoute('receipt_create');
+    }
+    
+    $purchase = $this->purchaseRepo->find($id);
+    if (!$purchase) {
+      throw $this->createNotFoundException('Purchase order not found.');
+    }
+    
+    if ($request->isMethod('POST')) {
+      $items = $request->request->all('items');
+      
+      if (empty($items)) {
+        $this->addFlash('warning', 'Please enter quantities for at least one item.');
+        return $this->redirectToRoute('stock_receipt_items', ['id' => $id]);
+      }
+      
+      $itemsData = [];
+      foreach ($items as $itemId => $itemData) {
+        $qtyReceived = $itemData['qty_received'] ?? null;
         
-        // If a purchase ID is provided, pre-populate the receipt
-        $purchaseId = $request->query->get('purchase');
-        if ($purchaseId) {
-            $purchase = $this->purchaseRepo->find($purchaseId);
-            if ($purchase) {
-                $receipt->setPurchase($purchase);
+        if ($qtyReceived && (float)$qtyReceived > 0) {
+          $purchaseItem = null;
+          foreach ($purchase->getPurchaseItems() as $pi) {
+            if ($pi->getId() === (int)$itemId) {
+              $purchaseItem = $pi;
+              break;
             }
+          }
+          
+          if ($purchaseItem) {
+            $itemsData[] = [
+              'purchase_item' => $purchaseItem,
+              'qty_received' => $qtyReceived,
+              'lot_number' => $itemData['lot_number'] ?? null,
+              'expiration_date' => !empty($itemData['expiration_date']) 
+                                ? new \DateTime($itemData['expiration_date']) 
+                                : null,
+              'production_date' => !empty($itemData['production_date']) 
+                                ? new \DateTime($itemData['production_date']) 
+                                : null,
+              'notes' => $itemData['notes'] ?? null,
+            ];
+          }
         }
+      }
+      
+      if (empty($itemsData)) {
+        $this->addFlash('warning', 'Please enter valid quantities for at least one item.');
+        return $this->redirectToRoute('stock_receipt_items', ['id' => $id]);
+      }
+      
+      $location = $receiptData['location_id']
+        ? $this->locationRepo->find($receiptData['location_id'])
+        : $this->receiptService->getDefaultLocation();
 
-        $form = $this->createForm(StockReceiptType::class, $receipt);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->receiptRepo->save($receipt);
-            $this->addFlash('success', 'Receipt created successfully.');
-            return $this->redirectToRoute('receipt_index');
+      $result = $this->receiptService->createReceipt($purchase, [
+        'received_at' => new \DateTime($receiptData['received_at']),
+        'notes' => $receiptData['notes'] ?? null,
+        'location' => $location,
+        'items' => $itemsData,
+      ]);
+      
+      if ($result->isSuccess()) {
+        $session->remove('receipt_data');
+        $this->addFlash('success', $result->getMessage());
+        return $this->redirectToRoute('stock_receipt_show', [
+          'id' => $result->getData()['receipt_id'],
+        ]);
+      } else {
+        $this->addFlash('danger', $result->getMessage());
+        foreach ($result->getErrors() as $error) {
+          $this->addFlash('warning', $error);
         }
-
-        return $this->render('katzen/receipt/create_receipt.html.twig', $this->dashboardContext->with([
-            'activeDash' => 'katzen/dash-supply.html.twig',
-            'activeItem' => 'receipt-create',
-            'activeMenu' => 'receipt',
-            'form' => $form->createView(),
-            'receipt' => null,
-        ]));
+      }
+    }
+    
+    return $this->render('katzen/receipt/receive_items.html.twig', $this->dashboardContext->with([
+      'activeItem' => 'stock-receipt',
+      'activeMenu' => 'inventory',
+      'purchase' => $purchase,
+      'receiptData' => $receiptData,
+    ]));    
     }
 
-    #[Route('/receipt/{id}', name: 'receipt_show', requirements: ['id' => '\d+'])]
-    public function show(StockReceipt $receipt): Response
+    #[Route('/stock/receipt/{id}', name: 'stock_receipt_show')]
+    public function show(int $id): Response
     {
-        return $this->render('katzen/receipt/show.html.twig', $this->dashboardContext->with([
-            'activeDash' => 'katzen/dash-supply.html.twig',
-            'activeItem' => 'receipt-view',
-            'activeMenu' => 'receipt',
-            'receipt' => $receipt,
-        ]));
+        $receipt = $this->receiptRepo->find($id);
+        
+        if (!$receipt) {
+            throw $this->createNotFoundException('Receipt not found.');
+        }
+
+        return $this->render('katzen/receipt/show_receipt.html.twig',
+            $this->dashboardContext->with([
+                'activeItem' => 'stock-receipt',
+                'activeMenu' => 'inventory',
+                'receipt' => $receipt,
+            ])
+        );
     }
 
+    #[Route('/receipt/from_po/{po_id}', name: 'receipt_from_po')]
+    public function createFromPo(int $po_id, SessionInterface $session): Response
+    {
+      $purchase = $this->purchaseRepo->find($po_id);
+        
+      if (!$purchase) {
+        throw $this->createNotFoundException('Purchase order not found.');
+      }
+
+      if (!in_array($purchase->getStatus(), ['pending', 'partial'])) {
+        $this->addFlash('warning', 'This purchase order is not available for receiving.');
+        return $this->redirectToRoute('receipt_index');
+      }
+      
+      $defaultLocation = $this->receiptService->getDefaultLocation();
+      
+      $session->set('receipt_data', [
+        'purchase_id' => $purchase->getId(),
+        'location_id' => $defaultLocation?->getId(),
+        'received_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+        'notes' => null,
+      ]);
+      
+      return $this->redirectToRoute('receipt_items', ['id' => $po_id]);
+  }
+  
     #[Route('/receipt/edit/{id}', name: 'receipt_edit')]
     public function edit(Request $request, StockReceipt $receipt): Response
     {
@@ -134,7 +276,7 @@ final class StockReceiptController extends AbstractController
             return $this->redirectToRoute('receipt_show', ['id' => $receipt->getId()]);
         }
 
-        return $this->render('katzen/receipt/form.html.twig', $this->dashboardContext->with([
+        return $this->render('katzen/receipt/create_receipt.html.twig', $this->dashboardContext->with([
             'activeDash' => 'katzen/dash-supply.html.twig',
             'activeItem' => 'receipt-edit',
             'activeMenu' => 'receipt',

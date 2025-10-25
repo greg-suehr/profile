@@ -1,0 +1,125 @@
+{% extends 'katzen/dash-supply.html.twig' %}
+
+{% block title %}Receive Items{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid my-4">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title mb-4">Receive Stock</h2>
+
+      <div class="alert alert-primary mb-4">
+        <div class="row">
+          <div class="col-md-6">
+            <strong>PO Number:</strong> {{ purchase.poNumber }}<br>
+            <strong>Vendor:</strong> {{ purchase.vendor.name }}
+          </div>
+          <div class="col-md-6">
+            <strong>Location:</strong> {{ receiptData.location_id }}<br>
+            <strong>Received Date:</strong> {{ receiptData.received_at|date('Y-m-d H:i') }}
+          </div>
+        </div>
+      </div>
+
+      <form method="post">
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 25%;">Item</th>
+                <th style="width: 10%;" class="text-center">Ordered</th>
+                <th style="width: 10%;" class="text-center">Previously Received</th>
+                <th style="width: 10%;" class="text-center">Qty Receiving *</th>
+                <th style="width: 15%;">Lot Number</th>
+                <th style="width: 12%;">Expiration Date</th>
+                <th style="width: 12%;">Production Date</th>
+                <th style="width: 6%;">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in purchase.purchaseItems %}
+              {% set qtyRemaining = item.qtyOrdered - (item.qtyReceived ?? 0) %}
+              <tr>
+                <td>
+                  <strong>{{ item.stockTarget.name }}</strong>
+                  <div class="text-muted small">
+                    Unit: {{ item.stockTarget.baseUnit.abbreviation }}<br>
+                    Cost: ${{ item.unitPrice|number_format(2) }}
+                  </div>
+                </td>
+                <td class="text-center">{{ item.qtyOrdered }}</td>
+                <td class="text-center">
+                  {{ item.qtyReceived ?? 0 }}
+                  {% if item.qtyReceived > 0 %}
+                    <span class="badge bg-info">Partial</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <input 
+                    type="number" 
+                    name="items[{{ item.id }}][qty_received]" 
+                    class="form-control" 
+                    step="0.01" 
+                    min="0"
+                    max="{{ qtyRemaining }}"
+                    placeholder="0.00"
+                    {% if qtyRemaining > 0 %}value="{{ qtyRemaining }}"{% endif %}
+                  >
+                </td>
+                <td>
+                  <input 
+                    type="text" 
+                    name="items[{{ item.id }}][lot_number]" 
+                    class="form-control form-control-sm" 
+                    placeholder="Auto-generate"
+                  >
+                </td>
+                <td>
+                  <input 
+                    type="date" 
+                    name="items[{{ item.id }}][expiration_date]" 
+                    class="form-control form-control-sm"
+                  >
+                </td>
+                <td>
+                  <input 
+                    type="date" 
+                    name="items[{{ item.id }}][production_date]" 
+                    class="form-control form-control-sm"
+                  >
+                </td>
+                <td>
+                  <input 
+                    type="text" 
+                    name="items[{{ item.id }}][notes]" 
+                    class="form-control form-control-sm" 
+                    placeholder="Optional"
+                  >
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="alert alert-warning mt-3">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <strong>Lot Tracking:</strong> Leave lot number blank to auto-generate. 
+          Expiration and production dates are optional but recommended for perishables.
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <a href="{{ path('receipt_create') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back
+          </a>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-circle me-2"></i>Complete Receipt
+          </button>
+        </div>
+
+        <input type="hidden" name="_token" value="{{ csrf_token('stock_receipt') }}">
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

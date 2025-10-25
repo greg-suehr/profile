@@ -38,11 +38,25 @@ class StockReceiptItem
     private ?string $notes = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    private ?StockTransaction $stockTransactions = null;
+    private ?StockTransaction $stockTransaction = null;
+
+    #[ORM\ManyToOne]
+    private ?StockTarget $stock_target = null;
+
+    /**
+     * @var Collection<int, StockLot>
+     */
+    #[ORM\OneToMany(targetEntity: StockLot::class, mappedBy: 'stockReceiptItem')]
+    private Collection $stock_lots;
+
+    #[ORM\ManyToOne(inversedBy: 'stock_receipt_items')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?StockReceipt $stock_receipt = null;
 
     public function __construct()
     {
         $this->purchaseItem = new ArrayCollection();
+        $this->stock_lots = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -73,6 +87,18 @@ class StockReceiptItem
 
         return $this;
     }
+
+    public function getUnitCost(): ?string
+    {
+        # TODO: not this
+        $costSource = $this->purchaseItem[0];
+        return $costSource->getUnitPrice();
+    }
+
+  public function getLineTotal(): ?string
+  {
+    return $this->qty_received * $this->getUnitCost();
+  }
 
     public function getQtyReceived(): ?string
     {
@@ -134,14 +160,68 @@ class StockReceiptItem
         return $this;
     }
 
-    public function getStockTransactions(): ?StockTransaction
+    public function getStockTransaction(): ?StockTransaction
     {
-        return $this->stockTransactions;
+        return $this->stockTransaction;
     }
 
-    public function setStockTransactions(?StockTransaction $stockTransactions): static
+    public function setStocktransaction(?StockTransaction $stockTransaction): static
     {
-        $this->stockTransactions = $stockTransactions;
+        $this->stockTransaction = $stockTransaction;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, StockLot>
+     */
+    public function getStockLots(): Collection
+    {
+        return $this->stock_lots;
+    }
+
+    public function addStockLot(StockLot $stockLot): static
+    {
+        if (!$this->stock_lots->contains($stockLot)) {
+            $this->stock_lots->add($stockLot);
+            $stockLot->setStockReceiptItem($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStockLot(StockLot $stockLot): static
+    {
+        if ($this->stock_lots->removeElement($stockLot)) {
+            // set the owning side to null (unless already changed)
+            if ($stockLot->getStockReceiptItem() === $this) {
+                $stockLot->setStockReceiptItem(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getStockTarget(): ?StockTarget
+    {
+        return $this->stock_target;
+    }
+
+    public function setStockTarget(?StockTarget $stock_target): static
+    {
+        $this->stock_target = $stock_target;
+
+        return $this;
+    }
+
+    public function getStockReceipt(): ?StockReceipt
+    {
+        return $this->stock_receipt;
+    }
+
+    public function setStockReceipt(?StockReceipt $stock_receipt): static
+    {
+        $this->stock_receipt = $stock_receipt;
 
         return $this;
     }

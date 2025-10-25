@@ -74,9 +74,16 @@ class Vendor
     #[ORM\OneToMany(targetEntity: Purchase::class, mappedBy: 'vendor')]
     private Collection $purchases;
 
+    /**
+     * @var Collection<int, StockLot>
+     */
+    #[ORM\OneToMany(targetEntity: StockLot::class, mappedBy: 'vendor')]
+    private Collection $stockLots;
+
     public function __construct()
     {
         $this->purchases = new ArrayCollection();
+        $this->stockLots = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -268,7 +275,7 @@ class Vendor
 
         return $this;
     }
-
+  
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->created_at;
@@ -320,6 +327,36 @@ class Vendor
             // set the owning side to null (unless already changed)
             if ($purchase->getVendor() === $this) {
                 $purchase->setVendor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, StockLot>
+     */
+    public function getStockLots(): Collection
+    {
+        return $this->stockLots;
+    }
+
+    public function addStockLot(StockLot $stockLot): static
+    {
+        if (!$this->stockLots->contains($stockLot)) {
+            $this->stockLots->add($stockLot);
+            $stockLot->setVendor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStockLot(StockLot $stockLot): static
+    {
+        if ($this->stockLots->removeElement($stockLot)) {
+            // set the owning side to null (unless already changed)
+            if ($stockLot->getVendor() === $this) {
+                $stockLot->setVendor(null);
             }
         }
 

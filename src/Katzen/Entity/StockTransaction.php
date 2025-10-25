@@ -35,6 +35,12 @@ class StockTransaction
     #[ORM\Column]
     private ?\DateTimeImmutable $recorded_at = null;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $expiration_date = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $lot_number = null; 
+
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
     private ?string $unit_cost = null;
 
@@ -46,6 +52,9 @@ class StockTransaction
 
     #[ORM\ManyToOne]
     private ?LedgerEntry $ledger_entry = null;
+
+    #[ORM\ManyToOne(inversedBy: 'transactions')]
+    private ?StockLotAllocation $stockLotAllocation = null;
 
     public function getId(): ?int
     {
@@ -124,6 +133,29 @@ class StockTransaction
         return $this;
     }
 
+    public function getExpirationDate(): ?\DateTimeInterface
+    {
+        return $this->expiration_date;
+    }
+
+    public function setExpirationDate(?\DateTimeInterface $expiration_date): static
+    {
+        $this->expiration_date = $expiration_date;
+
+        return $this;
+    }
+
+  public function getLotNumber(): ?string
+  {
+      return $this->lot_number;
+  }
+
+  public function setLotNumber(?string $lot_number): static
+  {
+      $this->lot_number = $lot_number;
+      return $this;
+  }
+
   public function getRecordedAt(): ?\DateTimeImmutable
   {
     return $this->recorded_at;
@@ -180,6 +212,18 @@ class StockTransaction
     public function setLedgerEntry(?LedgerEntry $ledger_entry): static
     {
         $this->ledger_entry = $ledger_entry;
+
+        return $this;
+    }
+
+    public function getStockLotAllocation(): ?StockLotAllocation
+    {
+        return $this->stockLotAllocation;
+    }
+
+    public function setStockLotAllocation(?StockLotAllocation $stockLotAllocation): static
+    {
+        $this->stockLotAllocation = $stockLotAllocation;
 
         return $this;
     }

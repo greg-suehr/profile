@@ -24,6 +24,67 @@ final class InventoryService
     ) {}
 
   /**
+   * Get lots expiring within a date range
+   * 
+   * @param \DateTimeInterface $from Start date
+   * @param \DateTimeInterface $to End date
+   * @return array Array of StockLot entities
+   */
+  public function getExpiringLots(
+    \DateTimeInterface $from,
+    \DateTimeInterface $to
+  ): array {
+    return $this->em->createQueryBuilder()
+        ->select('l')
+        ->from(StockLot::class, 'l')
+        ->where('l.expiration_date >= :from')
+        ->andWhere('l.expiration_date <= :to')
+        ->andWhere('l.current_qty > 0')
+        ->orderBy('l.expiration_date', 'ASC')
+        ->setParameter('from', $from)
+        ->setParameter('to', $to)
+        ->getQuery()
+        ->getResult();
+  }
+
+  /**
+   * Find lots by lot number (for recall management)
+   * 
+   * @param string $lotNumber Lot number to search for
+   * @return array Array of StockLot entities
+   */
+  public function findLotsByNumber(string $lotNumber): array
+  {
+    return $this->em->createQueryBuilder()
+        ->select('l')
+        ->from(StockLot::class, 'l')
+        ->where('l.lot_number = :lotNumber')
+        ->setParameter('lotNumber', $lotNumber)
+        ->orderBy('l.received_date', 'DESC')
+        ->getQuery()
+        ->getResult();
+  }
+  
+  /**
+   * Get lot consumption history for traceability
+   * 
+   * @param StockLot $lot The lot to trace
+   * @return array Array of StockTransaction records
+   */
+  public function getLotConsumptionHistory(StockLot $lot): array
+  {
+    return $this->em->createQueryBuilder()
+        ->select('t')
+        ->from(StockTransaction::class, 't')
+        ->where('t.lot_number = :lotNumber')
+        ->andWhere('t.qty < 0')
+        ->orderBy('t.recorded_at', 'DESC')
+        ->setParameter('lotNumber', $lot->getLotNumber())
+        ->getQuery()
+        ->getResult();
+  }
+
+  /**
    * Add stock to a specific StockTarget and record a transaction.
    *
    * Increments the target’s current quantity by `$qty` and persists a

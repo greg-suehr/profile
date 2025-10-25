@@ -46,9 +46,16 @@ class StockTarget
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?float $reorder_point = 0.00;
 
+    /**
+     * @var Collection<int, StockLot>
+     */
+    #[ORM\OneToMany(targetEntity: StockLot::class, mappedBy: 'stock_target')]
+    private Collection $stockLots;
+
     public function __construct()
     {
         $this->stockTransactions = new ArrayCollection();
+        $this->stockLots = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -188,6 +195,36 @@ class StockTarget
     public function setReorderPoint(string $reorder_point): static
     {
         $this->reorder_point = $reorder_point;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, StockLot>
+     */
+    public function getStockLots(): Collection
+    {
+        return $this->stockLots;
+    }
+
+    public function addStockLot(StockLot $stockLot): static
+    {
+        if (!$this->stockLots->contains($stockLot)) {
+            $this->stockLots->add($stockLot);
+            $stockLot->setStockTarget($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStockLot(StockLot $stockLot): static
+    {
+        if ($this->stockLots->removeElement($stockLot)) {
+            // set the owning side to null (unless already changed)
+            if ($stockLot->getStockTarget() === $this) {
+                $stockLot->setStockTarget(null);
+            }
+        }
 
         return $this;
     }

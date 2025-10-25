@@ -53,10 +53,27 @@ class Purchase
     #[ORM\JoinColumn(nullable: false)]
     private ?Vendor $vendor = null;
 
+    /**
+     * @var Collection<int, StockLot>
+     */
+    #[ORM\OneToMany(targetEntity: StockLot::class, mappedBy: 'purchase')]
+    private Collection $stockLots;
+
+    #[ORM\ManyToOne(inversedBy: 'purchases')]
+    private ?StockLocation $location = null;
+
+    /**
+     * @var Collection<int, StockReceipt>
+     */
+    #[ORM\OneToMany(targetEntity: StockReceipt::class, mappedBy: 'purchase')]
+    private Collection $stock_receipts;
+
     public function __construct()
     {
         $this->purchaseItems = new ArrayCollection();
         $this->stockReceipts = new ArrayCollection();
+        $this->stockLots = new ArrayCollection();
+        $this->stock_receipts = new ArrayCollection();
     }
 
     public function __toString()
@@ -236,6 +253,48 @@ class Purchase
     public function setVendor(?Vendor $vendor): static
     {
         $this->vendor = $vendor;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, StockLot>
+     */
+    public function getStockLots(): Collection
+    {
+        return $this->stockLots;
+    }
+
+    public function addStockLot(StockLot $stockLot): static
+    {
+        if (!$this->stockLots->contains($stockLot)) {
+            $this->stockLots->add($stockLot);
+            $stockLot->setPurchase($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStockLot(StockLot $stockLot): static
+    {
+        if ($this->stockLots->removeElement($stockLot)) {
+            // set the owning side to null (unless already changed)
+            if ($stockLot->getPurchase() === $this) {
+                $stockLot->setPurchase(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getLocation(): ?StockLocation
+    {
+        return $this->location;
+    }
+
+    public function setLocation(?StockLocation $location): static
+    {
+        $this->location = $location;
 
         return $this;
     }

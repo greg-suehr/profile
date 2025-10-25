@@ -15,4 +15,22 @@ class StockReceiptItemRepository extends ServiceEntityRepository
   {
     parent::__construct($registry, StockReceiptItem::class);
   }
+
+  public function save(StockReceiptItem $entity, bool $flush = true): void
+  {
+    $this->getEntityManager()->persist($entity);
+
+    if ($flush) {
+      $this->getEntityManager()->flush();
+    }
+  }
+
+  public function remove(StockReceiptItem $entity, bool $flush = true): void
+  {
+    $this->getEntityManager()->remove($entity);
+
+    if ($flush) {
+      $this->getEntityManager()->flush();
+    }
+  }
 }
