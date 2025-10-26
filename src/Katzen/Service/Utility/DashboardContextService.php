@@ -2,6 +2,7 @@
 
 namespace App\Katzen\Service\Utility;
 
+use App\Kazten\Attribute\DashboardLayout;
 use App\Katzen\Service\Utility\AlertService;
 use App\Katzen\Service\Utility\EncouragementEngine;
 use Symfony\Component\Security\Core\Security;
@@ -38,7 +39,7 @@ class DashboardContextService
       if ($currentUrl) {
         $loginUrl .= '?_target_path=' . urlencode($currentUrl);
       }
-       
+      
       throw new \Symfony\Component\HttpKernel\Exception\HttpException(
         302,
         'Authentication required',
@@ -47,47 +48,47 @@ class DashboardContextService
       );
     }
   }
-      
-    public function getBaseContext(): array
-    {        
-        $this->ensureAuthenticated();
-        $user = $this->security->getUser();
-
-        if (!$user) {
-          return [
-            'user' => $this->buildUserContext(null),
-            'encouragement' => ['header_message' => 'Please log in to continue'],
-            'alerts' => [],
-            'notifications' => [],
-            'requires_authentication' => true,
-          ];
-        }
-        
-        $request = $this->requestStack->getCurrentRequest();
-        $route = $request?->attributes->get('_route', 'unknown');
-
-        return [
-            'user' => $this->buildUserContext($user),
-            'encouragement' => $this->generateEncouragement($user, $route),
-            'alerts' => $this->getAlertBanner($user),
-            'notifications' => $this->getNotifications($user),
-        ];
+  
+  public function getBaseContext(): array
+  {        
+    $this->ensureAuthenticated();
+    $user = $this->security->getUser();
+    
+    if (!$user) {
+      return [
+        'user' => $this->buildUserContext(null),
+        'encouragement' => ['header_message' => 'Please log in to continue'],
+        'alerts' => [],
+        'notifications' => [],
+        'requires_authentication' => true,
+      ];
     }
+    
+    $request = $this->requestStack->getCurrentRequest();
+    $route = $request?->attributes->get('_route', 'unknown');
+    
+    return [
+      'user' => $this->buildUserContext($user),
+      'encouragement' => $this->generateEncouragement($user, $route),
+      'alerts' => $this->getAlertBanner($user),
+      'notifications' => $this->getNotifications($user),
+    ];
+  }
 
-    private function buildUserContext($user): array
-    {
-        return $user ? [
-            'firstName' => explode(" ", $user->getName())[0],
-            'lastName' => explode(" ", $user->getName())[1],
-            'role' => 'Cook',
-            'profileImage' => 'https://cdn.freecodecamp.org/curriculum/cat-photo-app/relaxing-cat.jpg',
-        ] : [
-            'firstName' => 'Greg',
-            'lastName' => 'Suehr',
-            'role' => 'Captain',
-            'profileImage' => 'https://cdn.freecodecamp.org/curriculum/cat-photo-app/relaxing-cat.jpg',
-        ];
-    }
+  private function buildUserContext($user): array
+  {
+    return $user ? [
+      'firstName' => explode(" ", $user->getName())[0],
+      'lastName' => explode(" ", $user->getName())[1],
+      'role' => 'Cook',
+      'profileImage' => 'https://cdn.freecodecamp.org/curriculum/cat-photo-app/relaxing-cat.jpg',
+    ] : [
+      'firstName' => 'Curious',
+      'lastName' => 'Cat',
+      'role' => 'Guest',
+      'profileImage' => 'https://cdn.freecodecamp.org/curriculum/cat-photo-app/relaxing-cat.jpg',
+    ];
+  }
 
   private function generateEncouragement($user, string $route): array
   {
@@ -148,8 +149,185 @@ class DashboardContextService
         return false;
     }
 
-    public function with(array $overrides): array
-    {
-        return array_merge($this->getBaseContext(), $overrides);
+  private function buildLayoutContext(string $context, string $section, ?string $item = null): array
+  {
+    $layouts = [
+      'service' => [
+        'template' => 'katzen/dash-service.html.twig',
+        'sections' => [
+          [
+            'key' => 'service_dashboard',
+            'label' => 'Dashboard',
+            'icon' => 'columns-gap',
+            'route' => 'service_dashboard',
+          ],              
+          [            
+            'key' => 'customer',
+            'label' => 'Customers',
+            'icon' => 'people',
+            'items' => [
+              ['key' => 'customer-create', 'label' => 'Add Customer', 'route' => 'customer_create'],
+              ['key' => 'customer-panel', 'label' => 'Customer Panel', 'route' => 'customer_index'],              
+              ['key' => 'customer-table', 'label' => 'Manage Customers', 'route' => 'customer_table'],
+            ]
+          ],
+          [
+            'key' => 'order',
+            'label' => 'Orders',
+            'icon' => 'cart',
+            'items' => [
+              ['key' => 'order-create', 'label' => 'Create Order', 'route' => 'order_create'],
+              ['key' => 'order-table', 'label' => 'Manage Orders', 'route' => 'order_index']
+            ]
+          ],
+          [
+            'key' => 'current_menu',
+            'label' => 'Menu',
+            'icon' => 'fork-knife',
+            'route' => 'stock_index', # TODO: "View Current Menu" page
+          ],
+          [
+            'key' => 'stock',
+            'label' => 'Stock',
+            'icon' => 'boxes',
+            'route' => 'stock_index'
+          ],
+        ],
+      ],
+      'kitchen' => [
+        
+      ],
+      'supply' => [
+        'template' => 'katzen/dash-supply.html.twig',
+        'sections' => [
+          [
+            'key' => 'supply_dashboard',
+            'label' => 'Dashboard',
+            'icon' => 'columns-gap',
+            'route' => 'stock_index',
+          ],
+          [            
+            'key' => 'vendor',
+            'label' => 'Vendors',
+            'icon' => 'building',
+            'items' => [
+              ['key' => 'vendor-create', 'label' => 'Add Vendor', 'route' => 'vendor_create'],
+              ['key' => 'vendor-list', 'label' => 'Manage Vendors', 'route' => 'vendor_index'],
+            ]
+          ],
+          [
+            'key' => 'purchase',
+            'label' => 'Purchases',
+            'icon' => 'cart',
+            'items' => [
+              ['key' => 'purchase-create', 'label' => 'Create Purchase', 'route' => 'purchase_create'],
+              ['key' => 'purchase-table', 'label' => 'Manage Purchases', 'route' => 'purchase_index']
+            ]
+          ],
+          [
+            'key' => 'receipt',
+            'label' => 'Receipts',
+            'icon' => 'inbox',
+            'items' => [
+              ['key' => 'receipt-table', 'label' => 'Manage Receipts', 'route' => 'receipt_index'],
+              ['key' => 'receipt-create', 'label' => 'Receive Items', 'route' => 'receipt_create'],
+            ]
+          ],
+          [
+            'key' => 'stock',
+            'label' => 'Stock',
+            'icon' => 'boxes',
+            'items' => [
+              ['key' => 'stock-panel', 'label' => 'Current Stock', 'route' => 'stock_index'],              
+              ['key' => 'stock-table', 'label' => 'Manage Stock', 'route' => 'stock_table'],
+              ['key' => 'count-create', 'label' => 'Start Count', 'route' => 'stock_count_create'],
+            ]
+          ],
+          [
+            'key' => 'location',
+            'label' => 'Locations',
+            'icon' => 'geo-alt',
+            'items' => [
+              ]
+          ],
+        ],
+      ],
+      'finance' => [
+        'template' => 'katzen/dash-admin.html.twig',
+        'sections' => [
+          [
+            'key' => 'customer',
+            'label' => 'Customers',
+            'icon' => 'people',
+            'items' => [
+              ['key' => 'customer-list', 'label' => 'All Customers', 'route' => 'customer_index'],
+            ]
+          ],
+        ]
+      ],
+      // Add more contexts
+    ];
+    
+    $layoutConfig = $layouts[$context] ?? null;
+    
+    if (!$layoutConfig) {
+      return [];
     }
+    
+    return [
+      'activeDash' => $layoutConfig['template'],
+      'activeMenu' => $section,
+      'activeItem' => $item,
+      'layout' => $layoutConfig,
+    ];
+  }
+
+  public function with(array $data = []): array
+  {
+    $base = $this->getBaseContext();
+    
+    // Controller override
+    if (isset($data['layout'])) {
+      $layoutData = $this->buildLayoutContext(
+        $data['layout']['context'],
+        $data['layout']['section'],
+        $data['layout']['item'] ?? null
+      );
+      unset($data['layout']);
+    } 
+    else {
+      $request = $this->requestStack->getCurrentRequest();
+      
+      if ($request) {
+        $controller = $request->attributes->get('_controller');
+        
+        if ($controller && str_contains($controller, '::')) {
+          [$class, $method] = explode('::', $controller);
+          
+          try {
+            $reflection = new \ReflectionMethod($class, $method);
+            $attributes = $reflection->getAttributes('App\Katzen\Attribute\DashboardLayout');
+            
+            if (!empty($attributes)) {
+              $layoutAttr = $attributes[0]->newInstance();
+              $layoutData = $this->buildLayoutContext(
+                $layoutAttr->context,
+                $layoutAttr->section,
+                $layoutAttr->item
+              );
+            }
+          } catch (\ReflectionException $e) {
+            // no DashboardLayout attribute, no problem
+            // (but pls add a DashboardLayout to your Route)
+          }
+        }
+      }
+    }
+    
+    if (isset($layoutData)) {
+      $base = array_merge($base, $layoutData);
+    }
+    
+    return array_merge($base, $data);
+  }
 }

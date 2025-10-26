@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Katzen Dashboard{% endblock %}</title>
+
+    {% block stylesheets %}
+    <link type="text/css" rel="stylesheet" href="{{ asset('bundles/craueformflow/css/buttons.css') }}" />
+    {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+</head>
+<body class="d-flex h-100 bg-light">
+  <aside class="d-flex flex-column flex-shrink-0 border-end bg-white" style="width: 16rem;">
+    <div class="p-3 border-bottom">
+      <h1 class="h4 mb-0 text-primary">Katzen</h1>
+    </div>
+    {% include 'katzen/partials/_profile_block.html.twig' %}
+    <nav class="flex-grow-1 px-3 py-2">
+      <ul class="nav nav-pills flex-column mb-auto">
+        {% for section in layout.sections %}
+        {% if section.route is defined %}
+        <li class="nav-item">
+          <a href="{{ path(section.route) }}"
+             data-item="{{ section.key }}"
+             class="nav-link {{ activeItem == section.key ? 'active' : 'text-secondary' }}"
+             >
+            <i class="bi bi-{{ section.icon }} me-2"></i>{{ section.label }}
+          </a>
+        </li>        
+        {% else %}        
+        <li>
+          <a href="#{{ section.key }}Sub"
+             data-bs-toggle="collapse"
+             data-item="{{ section.key }}-container"
+             class="nav-link d-flex justify-content-between align-items-center
+                    {{ activeMenu == section.key ? 'border border-primary text-secondary' : 'text-secondary' }}"
+             >
+            <span>
+              <i class="bi bi-{{ section.icon }} me-2"></i>{{ section.label }}
+            </span>
+             <i class="bi bi-chevron-{{ activeMenu == section.key ? 'down' : 'right' }}"></i>
+          </a>
+          <div class="collapse {{ activeMenu == section.key ? 'show' : '' }}"
+               id="{{ section.key }}Sub"
+               >              
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+              {% for item in section.items %}
+              <li>
+                <a href="{{ path(item.route) }}"
+                   data-item="{{ item.key }}"
+                   class="nav-link ps-4
+                          {{ activeItem == item.key ? 'active' : '' }}">
+                  {{ item.label }}
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </li>
+        {% endif %}
+        {% endfor %}
+      </ul>
+    </nav>
+  </aside>
+  <div class="d-flex flex-column flex-grow-1">
+    {% include 'katzen/partials/_header.html.twig' %}
+    <main class="flex-grow-1 overflow-auto p-4" id="main-content">
+      {% include 'katzen/partials/_flashes.html.twig' %}
+      {% block main_content %}
+      <div>Loading...</div>
+      {% endblock %}
+    </main>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      function updateActiveStates(activeElement) {
+        document.querySelectorAll('a[data-item]').forEach(item => {
+          item.classList.remove('active');
+          item.classList.add('text-secondary');
+        });
+        
+        activeElement.classList.remove('text-secondary');
+        activeElement.classList.add('active');
+        
+        const menuToggle = document.querySelector('a[href="#menuSub"]');
+        const item = activeElement.dataset.item;
+        
+        function showLoading() {
+          const mainContent = document.getElementById('main-content');
+          mainContent.innerHTML = '<div class="d-flex justify-content-center align-items-center" style="min-height: 200px;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden>Loading...</span></div></div>'
+	}
+        
+        function hideLoading() {
+          const spinner = document.querySelector('.spinner-border');
+          if (spinner) {
+            spinner.remove();
+          }
+	}
+        
+        // Main navigation handler
+        document.querySelectorAll('a[data-item]').forEach(el => {
+          el.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            const item = el.dataset.item;
+            const href = el.getAttribute('href');
+            
+            // Skip if no href or just a hash
+            if (!href || href === '#') {
+              return;
+            }
+            
+            updateActiveStates(el);
+            
+            try {
+              showLoading();
+              
+              const response = await fetch(href, {
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest',
+                  'Accept': 'text/html'
+                }
+              });
+              
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+              }
+              
+              const html = await response.text();
+              document.getElementById('main-content').innerHTML = html;
+              
+              // Update URL without reload
+              history.pushState({ item }, '', href);
+              
+              // Initialize any JavaScript that might be needed for the new content
+              if (window.initializePageSpecificJS) {
+                window.initializePageSpecificJS();
+              }
+              
+            } catch (error) {
+              console.error('Navigation failed:', error);
+              hideLoading();
+              
+              // Fallback to full page load
+              window.location.href = href;
+            }
+          });
+        });
+
+        {% for section in layout.sections %}
+        document.querySelector('a[href="#{{ section.key }}Sub"]').addEventListener('click', (e) => {
+          e.preventDefault();
+          const submenu = document.getElementById('{{ section.key }}Sub');
+          const chevron = e.target.closest('a').querySelector('i.bi-chevron-right, i.bi-chevron-down');
+          
+          if (submenu.classList.contains('show')) {
+            submenu.classList.remove('show');
+            chevron.className = 'bi bi-chevron-right';
+          }
+          else {
+            submenu.classList.add('show');
+            chevron.className = 'bi bi-chevron-down';
+          }
+          });
+        {% endfor %}
+            
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function(event) {
+          if (event.state && event.state.item) {
+            // Find the corresponding navigation item and trigger a click
+            const navItem = document.querySelector(`a[data-item="${event.state.item}"]`);
+            if (navItem) {
+              navItem.click();
+            }
+          } else {
+            window.location.reload();
+          }
+        });
+        
+        function initializePageSpecificJS() {
+          const modals = document.querySelectorAll('.modal');
+          modals.forEach(modalEl => {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+              new bootstrap.Modal(modalEl);
+            }
+          });
+          // TODO: something here, or something is broke
+        }
+        
+        initializePageSpecificJS();
+        window.initializePageSpecificJS = initializePageSpecificJS;
+      }
+    });
+  </script>
+  {% block javascripts %}
+  {{ encore_entry_script_tags('app') }}
+  {{ encore_entry_script_tags('table-view') }}
+  {{ encore_entry_script_tags('panel-view') }}  
+  {% endblock %}
+</body>
+</html>

@@ -2,6 +2,7 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Attribute\DashboardLayout;
 use App\Katzen\Component\PanelView\{PanelView, PanelCard, PanelField, PanelGroup, PanelAction};
 use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableAction};
 use App\Katzen\Entity\Customer;
@@ -23,6 +24,7 @@ final class CustomerController extends AbstractController
   ) {}
   
   #[Route('/customers', name: 'customer_index')]
+  #[DashboardLayout('service', 'customer', 'customer-panel')]
   public function index(Request $request): Response
   {
         $activeGroup = $request->query->get('group');
@@ -116,6 +118,7 @@ final class CustomerController extends AbstractController
     }
 
     #[Route('/customer/create', name: 'customer_create')]
+    #[DashboardLayout('service', 'customer', 'customer-create')]
     public function create(Request $request): Response
     {
         $customer = new Customer();
@@ -137,6 +140,7 @@ final class CustomerController extends AbstractController
     }
 
     #[Route('/customer/{id}', name: 'customer_show')]
+    #[DashboardLayout('service', 'customer', 'customer-show')]
     public function show(Request $request, Customer $customer): Response
     {
         $statement = $this->accountingService->getCustomerStatement($customer);
@@ -150,6 +154,7 @@ final class CustomerController extends AbstractController
     }
 
     #[Route('/customer/edit/{id}', name: 'customer_edit')]
+    #[DashboardLayout('service', 'customer', 'customer-edit')]
     public function edit(Request $request, Customer $customer): Response
     {
         $form = $this->createForm(CustomerType::class, $customer);
@@ -223,6 +228,7 @@ final class CustomerController extends AbstractController
     }
   
   #[Route('/customers/manage', name: 'customer_table')]
+  #[DashboardLayout('service', 'customer', 'customer-table')]  
   public function list(Request $request): Response
   {
     $customers = $this->customerRepo->findBy(['status' => ['active','suspended']]);

@@ -2,6 +2,7 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Attribute\DashboardLayout;
 use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableAction};
 use App\Katzen\Entity\Vendor;
 use App\Katzen\Form\VendorType;
@@ -20,6 +21,7 @@ final class VendorController extends AbstractController
     ) {}
 
     #[Route('/vendors', name: 'vendor_index')]
+    #[DashboardLayout('supply', 'vendor', 'vendor-list')]
     public function index(Request $request): Response
     {
         $status = $request->query->get('status', 'all');
@@ -71,12 +73,9 @@ final class VendorController extends AbstractController
             ->build();
 
         return $this->render('katzen/component/table_view.html.twig', $this->dashboardContext->with([
-            'activeDash' => 'katzen/dash-supply.html.twig',
-            'activeItem' => 'vendor-list',
-            'activeMenu' => 'vendor',
-            'table' => $table,
-            'bulkRoute' => 'vendor_bulk',
-            'csrfSlug' => 'vendor_bulk',
+          'table' => $table,
+          'bulkRoute' => 'vendor_bulk',
+          'csrfSlug' => 'vendor_bulk',
         ]));
     }
 

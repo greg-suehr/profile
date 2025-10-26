@@ -104,7 +104,7 @@ final class OrderController extends AbstractController
     ]));
   }
 
-  #[Route('/order/create', name: 'order_create_form')]
+  #[Route('/order/create', name: 'order_create')]
   public function orderCreate(Request $request): Response
   {
     $order = new Order();
