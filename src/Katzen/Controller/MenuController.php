@@ -2,12 +2,8 @@
 
 namespace App\Katzen\Controller;
 
-use App\Katzen\Component\TableView\TableView;
-use App\Katzen\Component\TableView\TableAction;
-use App\Katzen\Component\TableView\TableField;
-use App\Katzen\Component\TableView\TableFilter;
-use App\Katzen\Component\TableView\TableRow;
-use App\Katzen\Dashboard\Widget\WidgetRegistry;
+use App\Katzen\Attribute\DashboardLayout;
+use App\Katzen\Component\TableView\{TableAction, TableField, TableFilter, TableRow, TableView};
 use App\Katzen\Entity\Items;
 use App\Katzen\Entity\Recipe;
 use App\Katzen\Entity\RecipeList;
@@ -18,6 +14,7 @@ use App\Katzen\Repository\RecipeRepository;
 use App\Katzen\Repository\RecipeListRepository;
 use App\Katzen\Repository\TagRepository;
 use App\Katzen\Service\Cook\RecipeImportService;
+use App\Katzen\Service\Order\DefaultMenuPlanner;
 use App\Katzen\Service\Utility\DashboardContextService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Form;
@@ -27,102 +24,27 @@ use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Seld\JsonLint\JsonParser;
 
-final class ManagerController extends AbstractController
+final class MenuController extends AbstractController
 {
   public function __construct(
     private DashboardContextService $dashboardContext,
-    private WidgetRegistry $widgets,
+    private DefaultMenuPlanner $menus,
   ) {}
-  
-  #[Route('/katzen', name: 'service_dashboard')]
-  public function index(): Response
-  {
-      # TODO: per context, role, user Dashboard Widget selection
-      $views = array_map(fn($v) => $v->toArray(), $this->widgets->all());
 
-      return $this->render('katzen/manager/dashboard.html.twig', $this->dashboardContext->with([
-        'activeItem' => 'dashboard',                    
-        'activeMenu' => null,
-        'widgets' => $views,
-      ]));
+  #[Route('/menu', name: 'menu_index')]
+  #[DashboardLayout('service', 'menu', 'menu-index')]
+  public function menuCurrent(Request $request): Response
+  {
+    $currentMenu = $this->menus->getActiveMenu();
+
+    return $this->render('katzen/menu/view_menu.html.twig',  $this->dashboardContext->with([
+      'menu' => $currentMenu,
+      'items' => $currentMenu->getRecipes(),
+    ]));     
   }
 
-
-  #[Route('/menus/bulk', name: 'menu_bulk', methods: ['POST'])]
-  public function menuBulk(Request $request, EntityManagerInterface $em, TagRepository $tagRepo): Response
-  {
-    $payload = json_decode($request->getContent(), true) ?? [];
-    if (!$this->isCsrfTokenValid('menu_bulk', $payload['_token'] ?? '')) {
-      return $this->json(['ok' => false, 'error' => 'Bad CSRF'], 400);
-    }
-    
-    $action = $payload['action'] ?? null;
-    $ids    = array_map('intval', $payload['ids'] ?? []);
-
-    if (!$action || empty($ids)) {
-      return $this->json(['ok' => false, 'error' => 'Missing action or ids'], 400);
-    }
-    
-    switch ($action) {
-    case 'archive':
-      foreach ($ids as $id) {
-        $menu = $em->getRepository(\App\Katzen\Entity\RecipeList::class)->find($id);
-        if (!$menu) continue;
-        // reuse your tag helper
-        $this->setMenuTags($menu, 'status', 'archived', $em, $tagRepo);
-      }
-      $em->flush();
-      break;
-      
-    case 'delete':
-      foreach ($ids as $id) {
-        $menu = $em->getRepository(\App\Katzen\Entity\RecipeList::class)->find($id);
-        if ($menu) $em->remove($menu);
-      }
-      $em->flush();
-      break;
-      
-    default:
-      return $this->json(['ok' => false, 'error' => 'Unknown action'], 400);
-    }
-    
-    return $this->json(['ok' => true]);
-  }
-
-
-  // TODO: port tag logic to a shared TagManager service
-  private function setMenuTags(RecipeList $menu, string $tag_type, string $value, EntityManagerInterface $em, TagRepository $tagRepo): void
-  {
-    $tag = $tagRepo->findOneByType('recipe_list', $menu->getId(), $tag_type);
-    if ($tag) {
-      $tag->setValue($value);
-    }
-    else {
-      $tag = (new Tag())
-        ->setObj('recipe_list')
-        ->setObjId($menu->getId())
-        ->setType($tag_type)
-        ->setValue($value)
-        ->setCreatedAt(new \DateTimeImmutable());
-      $em->persist($tag);      
-    }
-  }
-  
-  private function updateMenuTags(RecipeList $menu, Form $form, EntityManagerInterface $em, TagRepository $tagRepo): void
-  {
-      $menuTags = ['menu', 'meal_type', 'status' ];
-      foreach ($menuTags as $tag_type) {
-        if ( $tag_type === 'menu' ) {
-          $value = $form->get('current')->getData() ? 'current' : '';
-        }
-        else {
-          $value = $form->get($tag_type)->getData();
-        }
-        $this->setMenuTags($menu, $tag_type, $value, $em, $tagRepo);
-      }
-  }
-
-  #[Route('/menus/create', name: 'menu_create_form')]
+  #[Route('/menu/create', name: 'menu_create')]
+  #[DashboardLayout('kitchen', 'menu', 'menu_create')]
   public function menuCreate(Request $request, EntityManagerInterface $em, RecipeRepository $recipeRepo, TagRepository $tagRepo): Response
   {
     $menu = new RecipeList();
@@ -137,29 +59,28 @@ final class ManagerController extends AbstractController
         $em->flush();
         
         $this->addFlash('success', 'Menu and tag created!');
-        return $this->redirectToRoute('menu_index');
+        return $this->redirectToRoute('menu_table');
     }
 
     $recipes = $recipeRepo->findAll();
 
     # TODO: fix Ajax routing, smooth out page flashes
     if ($request->isXmlHttpRequest()) {
-      return $this->render('katzen/manager/_menu_form.html.twig', [
+      return $this->render('katzen/menu/_menu_form.html.twig', [
         'form'    => $form->createView(),
         'recipes' => $recipes,
       ]);
     }
     
-    return $this->render('katzen/manager/menu_form.html.twig', $this->dashboardContext->with([
-        'activeItem' => 'menu-create',
-        'activeMenu' => 'menu',
+    return $this->render('katzen/menu/menu_form.html.twig', $this->dashboardContext->with([
         'form'         => $form->createView(),
         'recipes'    => $recipes,        
     ]));
   }
 
-  #[Route('/menus', name: 'menu_index')]
-  public function menus(Request $request, EntityManagerInterface $em, TagRepository $tagRepo): Response
+  #[Route('/menus/list', name: 'menu_table')]
+  #[DashboardLayout('kitchen', 'menu', 'menu_table')]
+  public function menu_table(Request $request, EntityManagerInterface $em, TagRepository $tagRepo): Response
   {
        $statusFilter = $request->query->get('status', 'active');
        $mealFilter = $request->query->get('meal_type');
@@ -251,7 +172,7 @@ final class ManagerController extends AbstractController
             )
             ->setRows($rows)
             ->setSelectable(true)
-            ->addQuickAction(TableAction::edit('menu_edit_form'))
+            ->addQuickAction(TableAction::edit('menu_edit'))
             ->addQuickAction(TableAction::view('menu_view'))
             ->addBulkAction(
               TableAction::create('archive', 'Archive Selected')
@@ -269,16 +190,15 @@ final class ManagerController extends AbstractController
             ->setEmptyState('No menus found. Create your first menu to get started!')
             ->build();
        
-       return $this->render('katzen/component/table_view.html.twig',  $this->dashboardContext->with([         
-         'activeItem' => 'menu-list',
-         'activeMenu' => 'menu',
+       return $this->render('katzen/component/table_view.html.twig',  $this->dashboardContext->with([
          'table' => $table,
          'bulkRoute' => 'menu_bulk',
          'csrfSlug' => 'menu_bulk'
        ]));
     }
 
-  #[Route('/menus/edit/{id}', name: 'menu_edit_form')]
+  #[Route('/menu/edit/{id}', name: 'menu_edit')]
+  #[DashboardLayout('kitchen', 'menu', 'menu_edit')]
   public function menuEdit(int $id, Request $request, EntityManagerInterface $em, RecipeRepository $recipeRepo, RecipeListRepository $menuRepo, TagRepository $tagRepo): Response
   {
     $menu = $menuRepo->find($id);
@@ -309,47 +229,107 @@ final class ManagerController extends AbstractController
         $em->flush();
 
         $this->addFlash('success', 'Menu updated!');
-        return $this->redirectToRoute('menu_index');
+        return $this->redirectToRoute('menu_table');
     }
 
     $recipes = $recipeRepo->findAll();
 
     if ($request->isXmlHttpRequest()) {
-        return $this->render('katzen/manager/_menu_form.html.twig', [
+        return $this->render('katzen/menu/_menu_form.html.twig', [
           'form'    => $form->createView(),
           'recipes' => $recipes,
           'menu'    => $menu,
         ]);
     }
 
-    return $this->render('katzen/manager/menu_form.html.twig', $this->dashboardContext->with([
-      'active'     => 'menu-edit',
-      'activeItem' => 'menu-create',
-      'activeMenu' => null,
+    return $this->render('katzen/menu/menu_form.html.twig', $this->dashboardContext->with([
       'form'    => $form->createView(),
       'recipes' => $recipes,
       'menu'    => $menu,
     ]));
   }                
 
-  #[Route('/menus/view/{id}', name: 'menu_view')]
+  #[Route('/menu/view/{id}', name: 'menu_view')]
+  #[DashboardLayout('kitchen', 'menu', 'menu_view')]
   public function menuView(Request $request, RecipeList $menu): Response
   {
-    return $this->render('katzen/manager/view_menu.html.twig',  $this->dashboardContext->with([
-      'active'     => 'home',
-      'activeItem' => 'home',
-      'activeMenu' => 'home',
+    return $this->render('katzen/menu/view_menu.html.twig',  $this->dashboardContext->with([
       'menu' => $menu,
       'items' => $menu->getRecipes(),
 	]));
+  }
+
+  #[Route('/menus/bulk', name: 'menu_bulk', methods: ['POST'])]
+  public function menuBulk(Request $request, EntityManagerInterface $em, TagRepository $tagRepo): Response
+  {
+    $payload = json_decode($request->getContent(), true) ?? [];
+    if (!$this->isCsrfTokenValid('menu_bulk', $payload['_token'] ?? '')) {
+      return $this->json(['ok' => false, 'error' => 'Bad CSRF'], 400);
     }
     
-  #[Route('/notifications', name: 'notifications')]
-  public function notifications(Request $request): Response
-  {
-        return $this->render('katzen/manager/dashboard.html.twig', [
-          'active' => 'coming_soon',
-          'description' => 'Notifications coming soon!'
-        ]);
+    $action = $payload['action'] ?? null;
+    $ids    = array_map('intval', $payload['ids'] ?? []);
+
+    if (!$action || empty($ids)) {
+      return $this->json(['ok' => false, 'error' => 'Missing action or ids'], 400);
     }
+    
+    switch ($action) {
+    case 'archive':
+      foreach ($ids as $id) {
+        $menu = $em->getRepository(\App\Katzen\Entity\RecipeList::class)->find($id);
+        if (!$menu) continue;
+        // reuse your tag helper
+        $this->setMenuTags($menu, 'status', 'archived', $em, $tagRepo);
+      }
+      $em->flush();
+      break;
+      
+    case 'delete':
+      foreach ($ids as $id) {
+        $menu = $em->getRepository(\App\Katzen\Entity\RecipeList::class)->find($id);
+        if ($menu) $em->remove($menu);
+      }
+      $em->flush();
+      break;
+      
+    default:
+      return $this->json(['ok' => false, 'error' => 'Unknown action'], 400);
+    }
+    
+    return $this->json(['ok' => true]);
+  }
+
+
+  // TODO: port tag logic to a shared TagManager service
+  private function setMenuTags(RecipeList $menu, string $tag_type, string $value, EntityManagerInterface $em, TagRepository $tagRepo): void
+  {
+    $tag = $tagRepo->findOneByType('recipe_list', $menu->getId(), $tag_type);
+    if ($tag) {
+      $tag->setValue($value);
+    }
+    else {
+      $tag = (new Tag())
+        ->setObj('recipe_list')
+        ->setObjId($menu->getId())
+        ->setType($tag_type)
+        ->setValue($value)
+        ->setCreatedAt(new \DateTimeImmutable());
+      $em->persist($tag);      
+    }
+  }
+  
+  private function updateMenuTags(RecipeList $menu, Form $form, EntityManagerInterface $em, TagRepository $tagRepo): void
+  {
+      $menuTags = ['menu', 'meal_type', 'status' ];
+      foreach ($menuTags as $tag_type) {
+        if ( $tag_type === 'menu' ) {
+          $value = $form->get('current')->getData() ? 'current' : '';
+        }
+        else {
+          $value = $form->get($tag_type)->getData();
+        }
+        $this->setMenuTags($menu, $tag_type, $value, $em, $tagRepo);
+      }
+  } 
 }

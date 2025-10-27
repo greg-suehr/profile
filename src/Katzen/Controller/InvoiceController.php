@@ -2,6 +2,7 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Attribute\DashboardLayout;
 use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableAction};
 use App\Katzen\Entity\Customer;
 use App\Katzen\Entity\Invoice;
@@ -29,7 +30,8 @@ final class InvoiceController extends AbstractController
         private AccountingService $accountingService,
     ) {}
 
-    #[Route('/invoices', name: 'invoice_index')]
+  #[Route('/invoices', name: 'invoice_index')]
+  #[DashboardLayout('finance', 'invoice', 'invoice-table')]
     public function index(Request $request): Response
     {
         $status = $request->query->get('status', 'all');
@@ -93,16 +95,14 @@ final class InvoiceController extends AbstractController
             ->build();
 
         return $this->render('katzen/component/table_view.html.twig', $this->dashboardContext->with([
-            'activeDash' => 'katzen/dash-admin.html.twig',
-            'activeItem' => 'invoice-table',
-            'activeMenu' => 'invoices',
             'table' => $table,
             'bulkRoute' => 'invoice_bulk',
             'csrfSlug' => 'invoice_bulk',
         ]));
     }
 
-    #[Route('/invoice/create', name: 'invoice_create')]
+  #[Route('/invoice/create', name: 'invoice_create')]
+  #[DashboardLayout('finance', 'invoice', 'invoice-create')]  
     public function create(Request $request): Response
     {
         $orderId = $request->query->get('order_id');
@@ -137,24 +137,22 @@ final class InvoiceController extends AbstractController
         }
 
         return $this->render('katzen/invoice/create_invoice.html.twig', $this->dashboardContext->with([
-            'activeItem' => 'invoice-create',
-            'activeMenu' => 'invoices',
             'form' => $form->createView(),
             'invoice' => null,
         ]));
     }
 
-    #[Route('/invoice/{id}', name: 'invoice_show')]
-    public function show(Request $request, Invoice $invoice): Response
-    {
+  #[Route('/invoice/{id}', name: 'invoice_show')]
+  #[DashboardLayout('finance', 'invoice', 'invoice-show')]  
+  public function show(Request $request, Invoice $invoice): Response
+  {
         return $this->render('katzen/invoice/show.html.twig', $this->dashboardContext->with([
-          'activeItem' => 'invoices-view',
-          'activeMenu' => 'invoices',
           'invoice' => $invoice,
         ]));
     }
 
-    #[Route('/invoice/edit/{id}', name: 'invoice_edit')]
+  #[Route('/invoice/edit/{id}', name: 'invoice_edit')]
+  #[DashboardLayout('finance', 'invoice', 'invoice-create')]  
     public function edit(Request $request, Invoice $invoice): Response
     {
         if (in_array($invoice->getStatus(), ['paid', 'cancelled'], true)) {
@@ -173,8 +171,6 @@ final class InvoiceController extends AbstractController
         }
 
         return $this->render('katzen/invoice/form.html.twig', $this->dashboardContext->with([
-          'activeItem' => 'invoice-create',
-          'activeMenu' => 'invoices',
           'form' => $form->createView(),
           'invoice' => $invoice,
         ]));
@@ -201,7 +197,8 @@ final class InvoiceController extends AbstractController
         return $this->redirectToRoute('invoice_show', ['id' => $invoice->getId()]);
     }
 
-    #[Route('/invoice/{id}/cancel', name: 'invoice_cancel', methods: ['POST'])]
+  #[Route('/invoice/{id}/cancel', name: 'invoice_cancel', methods: ['POST'])]
+  #[DashboardLayout('finance', 'invoice', 'invoice-cancel')]  
     public function cancel(Request $request, Invoice $invoice): Response
     {
         if (!$this->isCsrfTokenValid('invoice_cancel_' . $invoice->getId(), $request->request->get('_token'))) {

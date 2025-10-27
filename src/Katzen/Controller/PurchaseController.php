@@ -2,6 +2,7 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Attribute\DashboardLayout;
 use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableAction};
 use App\Katzen\Entity\Purchase;
 use App\Katzen\Form\PurchaseType;
@@ -23,7 +24,8 @@ final class PurchaseController extends AbstractController
         private VendorRepository $vendorRepo,
     ) {}
 
-    #[Route('/purchases', name: 'purchase_index')]
+  #[Route('/purchases', name: 'purchase_index')]
+  #[DashboardLayout('supply', 'purchase', 'purchase-table')]
     public function index(Request $request): Response
     {
         $status = $request->query->get('status', 'all');
@@ -84,16 +86,14 @@ final class PurchaseController extends AbstractController
             ->build();
 
         return $this->render('katzen/component/table_view.html.twig', $this->dashboardContext->with([
-            'activeDash' => 'katzen/dash-supply.html.twig',
-            'activeItem' => 'purchase-list',
-            'activeMenu' => 'purchase',
             'table' => $table,
             'bulkRoute' => 'purchase_bulk',
             'csrfSlug' => 'purchase_bulk',
         ]));
     }
 
-    #[Route('/purchase/create', name: 'purchase_create')]
+  #[Route('/purchase/create', name: 'purchase_create')]
+  #[DashboardLayout('supply', 'purchase', 'purchase-create')]  
     public function create(Request $request): Response
     {
         $purchase = new Purchase();
@@ -114,26 +114,22 @@ final class PurchaseController extends AbstractController
         }
 
         return $this->render('katzen/purchase/create_purchase.html.twig', $this->dashboardContext->with([
-            'activeDash' => 'katzen/dash-supply.html.twig',
-            'activeItem' => 'purchase-create',
-            'activeMenu' => 'purchase',
             'form' => $form->createView(),
             'purchase' => null,
         ]));
     }
 
-    #[Route('/purchase/{id}', name: 'purchase_show', requirements: ['id' => '\d+'])]
+  #[Route('/purchase/{id}', name: 'purchase_show', requirements: ['id' => '\d+'])]
+  #[DashboardLayout('supply', 'purchase', 'purchase-show')]
     public function show(Purchase $purchase): Response
     {
         return $this->render('katzen/purchase/show_purchase.html.twig', $this->dashboardContext->with([
-            'activeDash' => 'katzen/dash-supply.html.twig',
-            'activeItem' => 'purchase-view',
-            'activeMenu' => 'purchase',
             'purchase' => $purchase,
         ]));
     }
 
-    #[Route('/purchase/edit/{id}', name: 'purchase_edit')]
+  #[Route('/purchase/edit/{id}', name: 'purchase_edit')]
+  #[DashboardLayout('supply', 'purchase', 'purchase-create')]
     public function edit(Request $request, Purchase $purchase): Response
     {
         $form = $this->createForm(PurchaseType::class, $purchase);
@@ -146,9 +142,6 @@ final class PurchaseController extends AbstractController
         }
 
         return $this->render('katzen/purchase/create_purchase.html.twig', $this->dashboardContext->with([
-            'activeDash' => 'katzen/dash-supply.html.twig',
-            'activeItem' => 'purchase-edit',
-            'activeMenu' => 'purchase',
             'form' => $form->createView(),
             'purchase' => $purchase,
         ]));

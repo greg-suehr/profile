@@ -80,6 +80,7 @@ final class VendorController extends AbstractController
     }
 
     #[Route('/vendor/create', name: 'vendor_create')]
+    #[DashboardLayout('supply', 'vendor', 'vendor-create')]  
     public function create(Request $request): Response
     {
         $vendor = new Vendor();
@@ -93,26 +94,22 @@ final class VendorController extends AbstractController
         }
 
         return $this->render('katzen/vendor/create_vendor.html.twig', $this->dashboardContext->with([
-            'activeDash' => 'katzen/dash-supply.html.twig',
-            'activeItem' => 'vendor-create',
-            'activeMenu' => 'vendor',
             'form' => $form->createView(),
             'vendor' => null,
         ]));
     }
 
     #[Route('/vendor/{id}', name: 'vendor_show')]
+    #[DashboardLayout('supply', 'vendor', 'vendor-show')]  
     public function show(Vendor $vendor): Response
     {
         return $this->render('katzen/vendor/show_vendor.html.twig', $this->dashboardContext->with([
-            'activeDash' => 'katzen/dash-supply.html.twig',
-            'activeItem' => 'vendor-view',
-            'activeMenu' => 'vendor',
             'vendor' => $vendor,
         ]));
     }
 
-    #[Route('/vendor/edit/{id}', name: 'vendor_edit')]
+    #[Route('/vendor/edit/{id}', name: 'vendor_edit')] 
+    #[DashboardLayout('supply', 'vendor', 'vendor-create')] 
     public function edit(Request $request, Vendor $vendor): Response
     {
         $form = $this->createForm(VendorType::class, $vendor);
@@ -125,9 +122,6 @@ final class VendorController extends AbstractController
         }
 
         return $this->render('katzen/vendor/form.html.twig', $this->dashboardContext->with([
-            'activeDash' => 'katzen/dash-supply.html.twig',
-            'activeItem' => 'vendor-edit',
-            'activeMenu' => 'vendor',
             'form' => $form->createView(),
             'vendor' => $vendor,
         ]));

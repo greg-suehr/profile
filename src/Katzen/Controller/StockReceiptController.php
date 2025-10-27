@@ -2,6 +2,7 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Attribute\DashboardLayout;
 use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableAction};
 use App\Katzen\Entity\StockReceipt;
 use App\Katzen\Form\StockReceiptType;
@@ -26,7 +27,8 @@ final class StockReceiptController extends AbstractController
         private StockLocationRepository $locationRepo,
     ) {}
 
-    #[Route('/receipts', name: 'receipt_index')]
+  #[Route('/receipts', name: 'receipt_index')]
+  #[DashboardLayout('supply', 'receipt', 'receipt-table')]
     public function index(Request $request): Response
     {
         $status = $request->query->get('status', 'all');
@@ -85,9 +87,6 @@ final class StockReceiptController extends AbstractController
             ->build();
 
         return $this->render('katzen/component/table_view.html.twig', $this->dashboardContext->with([
-            'activeDash' => 'katzen/dash-supply.html.twig',
-            'activeItem' => 'receipt-list',
-            'activeMenu' => 'receipt',
             'table' => $table,
             'bulkRoute' => 'receipt_bulk',
             'csrfSlug' => 'receipt_bulk',
@@ -95,6 +94,7 @@ final class StockReceiptController extends AbstractController
     }
 
   #[Route('/stock/receipt/create', name: 'receipt_create')]
+  #[DashboardLayout('supply', 'receipt', 'receipt-create')]
   public function create(Request $request, SessionInterface $session): Response
   {
     $receipt = new StockReceipt();
@@ -121,13 +121,12 @@ final class StockReceiptController extends AbstractController
     }
     
     return $this->render('katzen/receipt/create.html.twig', $this->dashboardContext->with([
-      'activeItem' => 'stock-receipt',
-      'activeMenu' => 'inventory',
       'form' => $form->createView(),
     ]));
   }
 
   #[Route('/stock/receipt/items/{id}', name: 'receipt_items')]
+  #[DashboardLayout('supply', 'receipt', 'receipt-create')]
   public function receiveItems(
     int $id,
     Request $request,
@@ -213,14 +212,13 @@ final class StockReceiptController extends AbstractController
     }
     
     return $this->render('katzen/receipt/receive_items.html.twig', $this->dashboardContext->with([
-      'activeItem' => 'stock-receipt',
-      'activeMenu' => 'inventory',
       'purchase' => $purchase,
       'receiptData' => $receiptData,
     ]));    
     }
 
-    #[Route('/stock/receipt/{id}', name: 'stock_receipt_show')]
+    #[Route('/stock/receipt/{id}', name: 'stock_receipt_show')] 
+    #[DashboardLayout('supply', 'receipt', 'receipt-show')]   
     public function show(int $id): Response
     {
         $receipt = $this->receiptRepo->find($id);
@@ -231,14 +229,13 @@ final class StockReceiptController extends AbstractController
 
         return $this->render('katzen/receipt/show_receipt.html.twig',
             $this->dashboardContext->with([
-                'activeItem' => 'stock-receipt',
-                'activeMenu' => 'inventory',
                 'receipt' => $receipt,
             ])
         );
     }
 
     #[Route('/receipt/from_po/{po_id}', name: 'receipt_from_po')]
+    #[DashboardLayout('supply', 'receipt', 'receipt-create')]
     public function createFromPo(int $po_id, SessionInterface $session): Response
     {
       $purchase = $this->purchaseRepo->find($po_id);
@@ -265,6 +262,7 @@ final class StockReceiptController extends AbstractController
   }
   
     #[Route('/receipt/edit/{id}', name: 'receipt_edit')]
+      #[DashboardLayout('supply', 'receipt', 'receipt-create')]      
     public function edit(Request $request, StockReceipt $receipt): Response
     {
         $form = $this->createForm(StockReceiptType::class, $receipt);
@@ -277,9 +275,6 @@ final class StockReceiptController extends AbstractController
         }
 
         return $this->render('katzen/receipt/create_receipt.html.twig', $this->dashboardContext->with([
-            'activeDash' => 'katzen/dash-supply.html.twig',
-            'activeItem' => 'receipt-edit',
-            'activeMenu' => 'receipt',
             'form' => $form->createView(),
             'receipt' => $receipt,
         ]));

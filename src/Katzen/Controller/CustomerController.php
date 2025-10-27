@@ -107,9 +107,6 @@ final class CustomerController extends AbstractController
         $view = $panel->build();
 
         return $this->render('katzen/component/panel_view.html.twig', $this->dashboardContext->with([
-            'activeDash' => 'katzen/dash-admin.html.twig',
-            'activeItem' => 'customer-panel',
-            'activeMenu' => 'customer',
             'view' => $view,
             'q' => $q,
             'activeGroup' => $activeGroup ?? 'all',
@@ -132,8 +129,6 @@ final class CustomerController extends AbstractController
         }
 
         return $this->render('katzen/customer/create_customer.html.twig', $this->dashboardContext->with([
-            'activeItem' => 'customer-create',
-            'activeMenu' => 'customer',
             'form' => $form->createView(),
             'customer' => null,
         ]));
@@ -146,8 +141,6 @@ final class CustomerController extends AbstractController
         $statement = $this->accountingService->getCustomerStatement($customer);
 
         return $this->render('katzen/customer/show_customer.html.twig', $this->dashboardContext->with([
-            'activeItem' => 'customer-view',
-            'activeMenu' => 'customer',
             'customer' => $customer,
             'statement' => $statement->getData(),
         ]));
@@ -167,8 +160,6 @@ final class CustomerController extends AbstractController
         }
 
         return $this->render('katzen/customer/create_customer.html.twig', $this->dashboardContext->with([
-            'activeItem' => 'customer-edit',
-            'activeMenu' => 'customer',
             'form' => $form->createView(),
             'customer' => $customer,
         ]));
@@ -271,9 +262,6 @@ final class CustomerController extends AbstractController
       ->build();
 
     return $this->render('katzen/component/table_view.html.twig', $this->dashboardContext->with([
-      'activeDash' => 'katzen/dash-admin.html.twig',
-      'activeItem' => 'customer-list',
-      'activeMenu' => 'customer',
       'table' => $table,
       'bulkRoute' => 'customer_bulk',
       'csrfSlug' => 'customer_bulk',

@@ -2,6 +2,7 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Attribute\DashboardLayout;
 use App\Katzen\Component\PanelView\{PanelView, PanelCard, PanelField, PanelGroup, PanelAction};
 use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableFilter, TableAction};
 use App\Katzen\Entity\StockCount;
@@ -29,6 +30,7 @@ final class StockController extends AbstractController
   ) {}
   
   #[Route('/stock', name: 'stock_index')]
+  #[DashboardLayout('supply', 'stock', 'stock-index')]
   public function index(Request $request): Response
   {
     $activeGroup = $request->query->get('group');
@@ -156,6 +158,7 @@ final class StockController extends AbstractController
   }
 
   #[Route('stock/manage', name: 'stock_table')]
+  #[DashboardLayout('supply', 'stock', 'stock-table')]
   public function manage(Request $request): Response
   {
     $targets = $this->stockRepo->findBy([]);
@@ -236,6 +239,7 @@ final class StockController extends AbstractController
    } 
   
   #[Route('/stock/count/{ids?}', name: 'stock_count_create')]
+  #[DashboardLayout('supply', 'stock', 'stock-count')]
   public function stock_count_create(
     ?string $ids,
     Request $request,
@@ -284,6 +288,7 @@ final class StockController extends AbstractController
   }
 
   #[Route('/stock/show/{id}', name: 'stock_target_view')]
+  #[DashboardLayout('supply', 'stock', 'stock-view')]
   public function stock_target_view(
     Request $request,
     int $id,
@@ -312,6 +317,7 @@ final class StockController extends AbstractController
   }
 
   #[Route('/stock/adjust/{id}', name: 'stock_target_adjust')]
+  #[DashboardLayout('supply', 'stock', 'stock-adjust')]
   public function stock_target_adjust(
     Request $request,
     int $id,

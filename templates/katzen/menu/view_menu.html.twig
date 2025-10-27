@@ -1,4 +1,4 @@
-{% extends 'katzen/base.html.twig' %}
+{% extends 'katzen/_dashboard_base.html.twig' %}
 {% block main_content %}
 <div class="card">
   <div class="card-body">
@@ -13,7 +13,7 @@
         <li class="list-group-item text-muted">No recipes on this menu.</li>
       {% endfor %}
     </ul>
-    <a href="{{ path('menu_index') }}" class="btn btn-secondary mt-3">Back to Menus</a>
+    <a href="{{ path('menu_table') }}" class="btn btn-secondary mt-3">Back to Menus</a>
   </div>
 </div>
 {% endblock %}

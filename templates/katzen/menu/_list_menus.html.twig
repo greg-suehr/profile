@@ -42,11 +42,11 @@
           <td>{{ menu.updatedAt ? menu.updatedAt|date('Y-m-d') : 'never' }}</td>
           <td>
             {% if tags.status in ['active', 'current', 'draft'] %}
-              <a href="{{ path('menu_edit_form', { id: menu.id }) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
-              <a href="{{ path('menu_edit_form', { id: menu.id }) }}" class="btn btn-sm btn-outline-warning">Archive</a>
+              <a href="{{ path('menu_edit', { id: menu.id }) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+              <a href="{{ path('menu_edit', { id: menu.id }) }}" class="btn btn-sm btn-outline-warning">Archive</a>
             {% elseif tags.status == 'archived' %}
-              <a href="{{ path('menu_edit_form', { id: menu.id }) }}" class="btn btn-sm btn-outline-success">Restore</a>
-              <a href="{{ path('menu_edit_form', { id: menu.id }) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+              <a href="{{ path('menu_edit', { id: menu.id }) }}" class="btn btn-sm btn-outline-success">Restore</a>
+              <a href="{{ path('menu_edit', { id: menu.id }) }}" class="btn btn-sm btn-outline-danger">Delete</a>
             {% endif %}
           </td>
         </tr>

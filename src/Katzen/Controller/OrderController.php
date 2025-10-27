@@ -2,12 +2,10 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Attribute\DashboardLayout;
 use App\Katzen\Component\PanelView\{PanelView, PanelCard, PanelField, PanelGroup, PanelAction};
-use App\Katzen\Entity\Order;
-use App\Katzen\Entity\OrderItem;
-use App\Katzen\Entity\Recipe;
-use App\Katzen\Entity\RecipeList;
-use App\Katzen\Entity\Tag;
+use App\Katzen\Entity\{Order, OrderItem};
+use App\Katzen\Entity\{Recipe, RecipeList, Tag};
 use App\Katzen\Form\OrderType;
 use App\Katzen\Repository\OrderRepository;
 use App\Katzen\Repository\TagRepository;
@@ -33,6 +31,7 @@ final class OrderController extends AbstractController
   ) {}
   
   #[Route('/orders', name: 'order_index')]
+  #[DashboardLayout('service', 'order', 'order-panel')] 
   public function index(Request $request): Response  
   {
     $activeGroup = $request->query->get('group');
@@ -95,8 +94,6 @@ final class OrderController extends AbstractController
     $view = $panel->build();
     
     return $this->render('katzen/component/panel_view.html.twig', $this->dashboardContext->with([
-      'activeItem' => 'orders',
-      'activeMenu' => null,
       'view' => $view,
       'q'    => $q,
       'activeGroup' => $activeGroup ?? 'all',
@@ -105,6 +102,7 @@ final class OrderController extends AbstractController
   }
 
   #[Route('/order/create', name: 'order_create')]
+  #[DashboardLayout('service', 'order', 'order-create')] 
   public function orderCreate(Request $request): Response
   {
     $order = new Order();
@@ -135,8 +133,6 @@ final class OrderController extends AbstractController
     }
 
     return $this->render('katzen/order/create_order.html.twig', $this->dashboardContext->with([
-        'activeItem' => 'orders',
-        'activeMenu' => 'order',
         'menuInterface' => $menu,
         'form'       => $form,
         'recipes'    => $menu->getRecipes(),
@@ -144,6 +140,7 @@ final class OrderController extends AbstractController
   }
 
   #[Route('/order/edit/{id}', name: 'order_edit_form')]
+  #[DashboardLayout('service', 'order', 'order-create')]
   public function orderEdit(int $id, Request $request): Response
   {
     $order = $this->orderRepo->find($id);
@@ -181,8 +178,6 @@ final class OrderController extends AbstractController
     }
 
     return $this->render('katzen/order/create_order.html.twig', $this->dashboardContext->with([
-      'activeItem' => 'orders',
-      'activeMenu' => 'order',
       'menuInterface' => $menu,
       'form'       => $form,
       'recipes'    => $menu->getRecipes(),
@@ -191,6 +186,7 @@ final class OrderController extends AbstractController
   }
   
   #[Route('/order/complete/{id}', name: 'order_complete', methods: ['POST'])]
+  #[DashboardLayout('service', 'order', 'order-complete')]  
   public function orderMarkReady(Order $order, Request $request): Response
   {
     # TODO: test and fix CSRF

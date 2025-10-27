@@ -2,6 +2,7 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Attribute\DashboardLayout;
 use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableAction};
 use App\Katzen\Entity\Customer;
 use App\Katzen\Entity\Invoice;
@@ -27,7 +28,8 @@ final class PaymentController extends AbstractController
         private AccountingService $accountingService,
     ) {}
 
-    #[Route('/payments', name: 'payment_index')]
+  #[Route('/payments', name: 'payment_table')]
+  #[DashboardLayout('finance', 'payment', 'payment-table')]
     public function index(Request $request): Response
     {
         $payments = $this->paymentRepo->findBy([], ['payment_date' => 'DESC'], 100);
@@ -79,13 +81,12 @@ final class PaymentController extends AbstractController
             ->build();
 
         return $this->render('katzen/component/table_view.html.twig', $this->dashboardContext->with([
-            'activeItem' => 'payments',
-            'activeMenu' => 'accounting',
             'table' => $table,
         ]));
     }
 
-    #[Route('/payment/create', name: 'payment_create')]
+  #[Route('/payment/create', name: 'payment_create')]
+  #[DashboardLayout('finance', 'payment', 'payment-create')]
     public function create(Request $request): Response
     {
         $invoiceId = $request->query->get('invoice_id');
@@ -132,20 +133,17 @@ final class PaymentController extends AbstractController
         }
 
         return $this->render('katzen/payment/form.html.twig', $this->dashboardContext->with([
-            'activeItem' => 'payments',
-            'activeMenu' => 'accounting',
             'form' => $form->createView(),
             'payment' => null,
             'invoice' => $invoice,
         ]));
     }
 
-    #[Route('/payment/{id}', name: 'payment_show')]
+  #[Route('/payment/{id}', name: 'payment_show')]
+  #[DashboardLayout('finance', 'payment', 'payment-show')]  
     public function show(Request $request, Payment $payment): Response
     {
         return $this->render('katzen/payment/show.html.twig', $this->dashboardContext->with([
-            'activeItem' => 'payments',
-            'activeMenu' => 'accounting',
             'payment' => $payment,
         ]));
     }

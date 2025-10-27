@@ -116,10 +116,9 @@ class DashboardContextService
     return $result;
 
     return match ($route) {
-      'menu_create_form' => ['header_message' => 'Build something delicious!'],
-      'menu_index'       => ['header_message' => 'Review your menu legacy'],
+      'menu_create'      => ['header_message' => 'Build something delicious!'],
       'dashboard_home'   => ['header_message' => 'Ready to crush it?'],
-      default            => ['header_message' => 'Keep going — you got this!'],
+      default            => ['header_message' => 'Keep going, you got this!'],
     };
   }
 
@@ -153,10 +152,10 @@ class DashboardContextService
   {
     $layouts = [
       'service' => [
-        'template' => 'katzen/dash-service.html.twig',
+        'template' => 'katzen/_dashboard_base.html.twig',
         'sections' => [
           [
-            'key' => 'service_dashboard',
+            'key' => 'service-dashboard',
             'label' => 'Dashboard',
             'icon' => 'columns-gap',
             'route' => 'service_dashboard',
@@ -176,15 +175,15 @@ class DashboardContextService
             'label' => 'Orders',
             'icon' => 'cart',
             'items' => [
+              ['key' => 'order-panel', 'label' => 'Open Orders', 'route' => 'order_index'],              
               ['key' => 'order-create', 'label' => 'Create Order', 'route' => 'order_create'],
-              ['key' => 'order-table', 'label' => 'Manage Orders', 'route' => 'order_index']
             ]
           ],
           [
-            'key' => 'current_menu',
+            'key' => 'menu-index',
             'label' => 'Menu',
             'icon' => 'fork-knife',
-            'route' => 'stock_index', # TODO: "View Current Menu" page
+            'route' => 'menu_index', # TODO: "View Current Menu" page
           ],
           [
             'key' => 'stock',
@@ -194,79 +193,116 @@ class DashboardContextService
           ],
         ],
       ],
-      'kitchen' => [
-        
-      ],
-      'supply' => [
-        'template' => 'katzen/dash-supply.html.twig',
-        'sections' => [
-          [
-            'key' => 'supply_dashboard',
-            'label' => 'Dashboard',
-            'icon' => 'columns-gap',
-            'route' => 'stock_index',
-          ],
-          [            
-            'key' => 'vendor',
-            'label' => 'Vendors',
-            'icon' => 'building',
-            'items' => [
-              ['key' => 'vendor-create', 'label' => 'Add Vendor', 'route' => 'vendor_create'],
-              ['key' => 'vendor-list', 'label' => 'Manage Vendors', 'route' => 'vendor_index'],
-            ]
-          ],
-          [
-            'key' => 'purchase',
-            'label' => 'Purchases',
-            'icon' => 'cart',
-            'items' => [
-              ['key' => 'purchase-create', 'label' => 'Create Purchase', 'route' => 'purchase_create'],
-              ['key' => 'purchase-table', 'label' => 'Manage Purchases', 'route' => 'purchase_index']
-            ]
-          ],
-          [
-            'key' => 'receipt',
-            'label' => 'Receipts',
-            'icon' => 'inbox',
-            'items' => [
-              ['key' => 'receipt-table', 'label' => 'Manage Receipts', 'route' => 'receipt_index'],
-              ['key' => 'receipt-create', 'label' => 'Receive Items', 'route' => 'receipt_create'],
-            ]
-          ],
-          [
-            'key' => 'stock',
-            'label' => 'Stock',
-            'icon' => 'boxes',
-            'items' => [
-              ['key' => 'stock-panel', 'label' => 'Current Stock', 'route' => 'stock_index'],              
-              ['key' => 'stock-table', 'label' => 'Manage Stock', 'route' => 'stock_table'],
-              ['key' => 'count-create', 'label' => 'Start Count', 'route' => 'stock_count_create'],
-            ]
-          ],
-          [
-            'key' => 'location',
-            'label' => 'Locations',
-            'icon' => 'geo-alt',
-            'items' => [
-              ]
+    'kitchen' => [
+      'template' => 'katzen/_dashboard_base.html.twig',
+      'sections' => [
+        [
+          'key' => 'menu',
+          'label' => 'Menus',
+          'icon' => 'fork-knife',
+          'items' => [
+            ['key' => 'menu-create', 'label' => 'Add Menu', 'route' => 'menu_create'],
+            ['key' => 'menu-table', 'label' => 'Manage Menus', 'route' => 'menu_table'],
           ],
         ],
-      ],
-      'finance' => [
-        'template' => 'katzen/dash-admin.html.twig',
-        'sections' => [
-          [
-            'key' => 'customer',
-            'label' => 'Customers',
-            'icon' => 'people',
-            'items' => [
-              ['key' => 'customer-list', 'label' => 'All Customers', 'route' => 'customer_index'],
-            ]
+        [
+          'key' => 'recipe',
+          'label' => 'Recipes',
+          'icon' => 'egg',
+          'items' => [
+            ['key' => 'recipe-create', 'label' => 'Add Recipe', 'route' => 'recipe_create'],
+            ['key' => 'recipe-table', 'label' => 'Manage Recipes', 'route' => 'recipe_table'],
           ],
+        ],        
+      ],
+    ],
+    'supply' => [
+      'template' => 'katzen/_dashboard_base.html.twig',
+      'sections' => [
+        [
+          'key' => 'stock-index',
+          'label' => 'Dashboard',
+          'icon' => 'columns-gap',
+          'route' => 'stock_index',
+        ],
+        [            
+          'key' => 'vendor',
+          'label' => 'Vendors',
+          'icon' => 'building',
+          'items' => [
+            ['key' => 'vendor-create', 'label' => 'Add Vendor', 'route' => 'vendor_create'],
+            ['key' => 'vendor-list', 'label' => 'Manage Vendors', 'route' => 'vendor_index'],
+          ]
+        ],
+        [
+          'key' => 'purchase',
+          'label' => 'Purchases',
+          'icon' => 'cart',
+          'items' => [
+            ['key' => 'purchase-create', 'label' => 'Create Purchase', 'route' => 'purchase_create'],
+            ['key' => 'purchase-table', 'label' => 'Manage Purchases', 'route' => 'purchase_index']
+          ]
+        ],
+        [
+          'key' => 'receipt',
+          'label' => 'Receipts',
+          'icon' => 'inbox',
+          'items' => [
+            ['key' => 'receipt-table', 'label' => 'Manage Receipts', 'route' => 'receipt_index'],
+            ['key' => 'receipt-create', 'label' => 'Receive Items', 'route' => 'receipt_create'],
+          ]
+        ],
+        [
+          'key' => 'stock',
+          'label' => 'Stock',
+          'icon' => 'boxes',
+          'items' => [
+            ['key' => 'stock-panel', 'label' => 'Current Stock', 'route' => 'stock_index'],              
+            ['key' => 'stock-table', 'label' => 'Manage Stock', 'route' => 'stock_table'],
+            ['key' => 'count-create', 'label' => 'Start Count', 'route' => 'stock_count_create'],
+          ]
+        ],
+        [
+          'key' => 'location',
+          'label' => 'Locations',
+          'icon' => 'geo-alt',
+          'items' => [
+          ]
+        ],
+      ],
+    ],
+  'finance' => [
+    'template' => 'katzen/_dashboard_base.html.twig',
+    'sections' => [
+      [
+        'key' => 'customer',
+        'label' => 'Customers',
+        'icon' => 'people',
+        'items' => [
+          ['key' => 'customer-panel', 'label' => 'All Customers', 'route' => 'customer_index'],
+          ['key' => 'customer-table', 'label' => 'Manage Customers', 'route' => 'customer_table'],          
         ]
       ],
-      // Add more contexts
-    ];
+      [
+        'key' => 'invoice',
+        'label' => 'Invoices',
+        'icon' => 'envelope',
+        'items' => [
+          ['key' => 'invoice-create', 'label' => 'Create Invoice', 'route' => 'invoice_create'],
+          ['key' => 'invoice-table', 'label' => 'Manage Invoices', 'route' => 'invoice_index'],
+        ]
+      ],
+      [
+        'key' => 'payment',
+        'label' => 'Payments',
+        'icon' => 'cash',
+        'items' => [
+          ['key' => 'payment-table', 'label' => 'All Payments', 'route' => 'payment_table'],
+        ]
+      ],
+    ],
+  ]
+  ];
     
     $layoutConfig = $layouts[$context] ?? null;
     

@@ -2,9 +2,8 @@
 
 namespace App\Katzen\Controller;
 
-use App\Katzen\Component\TableView\{
-  TableView, TableRow, TableField, TableFilter, TableAction
-    };
+use App\Katzen\Attribute\DashboardLayout;
+use App\Katzen\Component\TableView\{TableAction, TableField, TableFilter, TableRow, TableView};
 use App\Katzen\Entity\Recipe;
 use App\Katzen\Form\ImportRecipeType;
 use App\Katzen\Form\RecipeBuilderType;
@@ -28,12 +27,11 @@ final class RecipeController extends AbstractController
   ){}
   
   #[Route('/recipe', name: 'recipe_index')]
+  #[DashboardLayout('kitchen', 'recipe', 'recipe-index')]
   public function index(): Response
   {
     $recipes = $this->recipeRepo->findBy([]);
     return $this->render('katzen/recipe/index.html.twig',  $this->dashboardContext->with([
-      'activeItem' => 'recipe',
-      'activeMenu' => 'menu',
       'recipes'    => $recipes,
     ]));
   }  
@@ -69,6 +67,7 @@ final class RecipeController extends AbstractController
   }
 
   #[Route('/recipe/manage', name: 'recipe_table')]
+  #[DashboardLayout('kitchen', 'recipe', 'recipe-table')]
   public function list(Request $request): Response
   {
     $recipes = $this->recipeRepo->findBy([]);
@@ -130,8 +129,6 @@ final class RecipeController extends AbstractController
       ->build();
     
     return $this->render('katzen/component/table_view.html.twig', $this->dashboardContext->with([
-      'activeItem' => 'recipe-list',
-      'activeMenu' => 'menu',
       'table'      => $table,
       'bulkRoute'  => 'recipe_bulk',
       'csrfSlug'   => 'recipe_bulk',
@@ -139,6 +136,7 @@ final class RecipeController extends AbstractController
   }
   
   #[Route('/recipe/view/{id}', name: 'recipe_view')]
+  #[DashboardLayout('kitchen', 'recipe', 'recipe-show')]
   public function view(Request $request, Recipe $recipe): Response
     {
         $recipe_ingredients = array();
@@ -162,7 +160,8 @@ final class RecipeController extends AbstractController
     }
 
   #[Route('/recipe/build', name: 'recipe_build')]
-    public function build(Request $request): Response
+  #[DashboardLayout('kitchen', 'recipe', 'recipe-build')]
+  public function build(Request $request): Response
     {
 
     $recipe = new Recipe();
@@ -194,13 +193,12 @@ final class RecipeController extends AbstractController
     }
     
 	return $this->render('katzen/recipe/build.html.twig', $this->dashboardContext->with([
-      'activeItem' => 'recipe-list',
-      'activeMenu' => 'menu',
       'recipe_form'     => $form,
 	]));
     }
 
-   #[Route('/recipe/create', name: 'recipe_create')]
+  #[Route('/recipe/create', name: 'recipe_create')]
+  #[DashboardLayout('kitchen', 'recipe', 'recipe-create')]
   public function create(Request $request, CreateRecipeFlow $flow): Response
   {
     $recipe = new Recipe();
@@ -221,14 +219,13 @@ final class RecipeController extends AbstractController
 	}
 
     return $this->render('katzen/recipe/create_recipe_flow.html.twig', $this->dashboardContext->with([
-      'activeItem' => 'recipe-list',
-      'activeMenu' => 'menu',
       'form' => $form->createView(),
       'flow' => $flow,
     ]));
   }
   
   #[Route('/recipe/import', name: 'recipe_import', methods: ['GET', 'POST'])]
+  #[DashboardLayout('kitchen', 'recipe', 'recipe-import')]
   public function import(Request $request, RecipeImportService $recipeImportService): Response
   {
         $form = $this->createForm(ImportRecipeType::class);
