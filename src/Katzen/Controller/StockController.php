@@ -3,17 +3,25 @@
 namespace App\Katzen\Controller;
 
 use App\Katzen\Attribute\DashboardLayout;
+use App\Katzen\Service\Utility\DashboardContextService;
+use App\Katzen\Service\Utility\LocationContextService;
+use App\Katzen\ValueObject\LocationScope;
+
 use App\Katzen\Component\PanelView\{PanelView, PanelCard, PanelField, PanelGroup, PanelAction};
 use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableFilter, TableAction};
+use App\Katzen\Form\StockAdjustType;
+
 use App\Katzen\Entity\StockCount;
 use App\Katzen\Entity\StockTarget;
 use App\Katzen\Entity\StockTransaction;
 use App\Katzen\Entity\Recipe;
-use App\Katzen\Form\StockAdjustType;
 use App\Katzen\Repository\RecipeRepository;
+use App\Katzen\Repository\StockLocationRepository;
 use App\Katzen\Repository\StockTargetRepository;
+
 use App\Katzen\Service\InventoryService;
-use App\Katzen\Service\Utility\DashboardContextService;
+use App\Katzen\Service\Inventory\StockQueryService;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +33,10 @@ final class StockController extends AbstractController
 {
   public function __construct(
     private DashboardContextService $dashboardContext,
+    private LocationContextService $locationContext,
     private InventoryService $inventoryService,
+    private StockQueryService $stockQuery,
+    private StockLocationRepository $locationRepo,    
     private StockTargetRepository $stockRepo,
   ) {}
   
@@ -33,29 +44,41 @@ final class StockController extends AbstractController
   #[DashboardLayout('supply', 'stock', 'stock-index')]
   public function index(Request $request): Response
   {
+    $location = null;
+    $scope = $this->locationContext->resolveFor($request, 'service');
+
+    if ($scope->isSingle()) {
+      $location = $this->locationRepo->find($scope->getSingleLocationId());
+    }
+
     $activeGroup = $request->query->get('group');
     $q = $request->query->get('q');
     $targets = $this->stockRepo->findBy([]);
 
+    $targetIds = array_map(fn($t) => $t->getId(), $targets);
+    $quantities = $this->stockQuery->getBulkQty($targetIds, $scope);
+
     $cards = [];
     foreach ($targets as $t) {
+      $targetId = $t->getId();
+      $qty = $quantities[$targetId] ?? ['total' => 0, 'reserved' => 0, 'available' => 0];
+      
       $data = [
-        'id'            => (string) $t->getId(),
+        'id'            => (string) $targetId,
         'name'          => $t->getName(),                           // e.g. "Rice"
         'item_name'     => $t->getItem()?->getName(),
         'source_type'   => $t->getItem() ? 'item' : 'recipe',
-      #  'location'      => $t->getLocation()?->getLabel() ?? null,
-        'qty'           => $t->getCurrentQty(),                       // float
+        'qty'           => $qty['available'],
         'unit'          => $t->getBaseUnit()?->getAbbreviation() ?? null,     // "g", "kg", etc.
         'min_qty'       => $t->getReorderPoint() ?? 0,
-        'status'        => $t->getCurrentQty() <= 0 ? 'out'
-          : ($t->getCurrentQty() <= ($t->getReorderPoint() ?? 0) ? 'low' : 'ok'),
+        'status'        => $qty['available'] <= 0 ? 'out'
+          : ($qty['available'] <= ($t->getReorderPoint() ?? 0) ? 'low' : 'ok'),
       #  'last_count'    => $t->getLastCountedAt(),
       #  'updated_at'    => $t->getUpdatedAt(),
       ];
 
       $card = PanelCard::create($data['id'])
-                ->setTitle($data['name'] ?? $data['item_name'] ?? 'Untitled')
+                ->setTitle($data['name'] ?? $data['item_name'] ?? 'Unknown')
                 ->setData($data)
                 ->addBadge(strtoupper($data['status']), match ($data['status']) {
                     'out' => 'danger', 'low' => 'warning', default => 'success'
@@ -80,6 +103,10 @@ final class StockController extends AbstractController
 
       if ($data['status'] === 'out') { $card->setBorderColor('var(--color-error)'); }
       elseif ($data['status'] === 'low') { $card->setBorderColor('var(--color-warning)'); }
+
+      if ($location) {
+        $card->setMeta('Location: ' . $location->getName());
+      }
       
       $cards[] = $card;
     }
@@ -351,5 +378,51 @@ final class StockController extends AbstractController
       'activeMenu' => 'stock',
       'form' => $form->createView(),
     ]));
+  }
+
+  #[Route('/api/stock/location-preference', name: 'stock_set_location_pref', methods: ['POST'])]
+  public function setLocationPreference(Request $request): Response
+  {
+    $data = json_decode($request->getContent(), true);
+    
+    $dashboard = $data['dashboard'] ?? null;
+    $mode = $data['mode'] ?? null;
+    $locationIds = $data['location_ids'] ?? [];
+    
+    if (!$dashboard || !$mode) {
+      return $this->json(['ok' => false, 'error' => 'Missing parameters'], 400);
+    }
+    
+    try {
+      $scope = new LocationScope($mode, $locationIds);
+      $this->locationContext->persistScope($dashboard, $scope);
+      
+      return $this->json(['ok' => true]);
+    } catch (\InvalidArgumentException $e) {
+      return $this->json(['ok' => false, 'error' => $e->getMessage()], 400);
+    }
+  }
+
+  /**
+   * Format location breakdown for table display
+   * 
+   * Example: "Kitchen (12.5), Bar (4.0), Freezer (0)"
+   */
+  private function formatLocationSummary(array $byLocation): string
+  {
+    if (empty($byLocation)) {
+      return '—';
+    }
+    
+    $parts = array_map(
+      fn($loc) => sprintf('%s (%.1f)', $loc['location_name'], $loc['qty']),
+      array_slice($byLocation, 0, 3)
+        );
+    
+    if (count($byLocation) > 3) {
+      $parts[] = '+' . (count($byLocation) - 3) . ' more';
+    }
+    
+    return implode(', ', $parts);
   }
 }

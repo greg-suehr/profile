@@ -1,0 +1,181 @@
+<div class="location-filter-toolbar mb-3">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">Filter by Location:</label>
+            <div class="btn-group" role="group">
+                <input type="radio" class="btn-check" name="loc-mode" id="loc-all" 
+                       autocomplete="off" 
+                       {% if locationScope.isAll() %}checked{% endif %}
+                       data-url="{{ path('stock_table', {loc: 'all'}) }}">
+                <label class="btn btn-outline-primary" for="loc-all">
+                    <i class="bi bi-globe"></i> All Locations
+                </label>
+
+                <button type="button" class="btn btn-outline-primary dropdown-toggle" 
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-pin-map"></i>
+                    {% if locationScope.isSingle() %}
+                        {{ allLocations|filter(l => l.id == locationScope.singleLocationId)|first.name ?? 'Select Location' }}
+                    {% elseif locationScope.isMulti() %}
+                        {{ locationScope.locationIds|length }} Locations
+                    {% else %}
+                        Select Locations
+                    {% endif %}
+                </button>
+                <ul class="dropdown-menu">
+                    <li><h6 class="dropdown-header">Single Location</h6></li>
+                    {% for location in allLocations %}
+                    <li>
+                        <a class="dropdown-item" 
+                           href="{{ path('stock_table', {loc_id: location.id}) }}">
+                            <i class="bi bi-{{ locationScope.isSingle() and locationScope.singleLocationId == location.id ? 'check-circle-fill' : 'circle' }}"></i>
+                            {{ location.name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#multiLocationModal">
+                            <i class="bi bi-ui-checks"></i> Select Multiple...
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        {% if not locationScope.isAll() %}
+        <div class="col-md-6 text-end">
+            <a href="{{ path('stock_table', {loc: 'all'}) }}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-x-circle"></i> Clear Filter
+            </a>
+            <button type="button" 
+                    class="btn btn-sm btn-success"
+                    data-action="save-location-pref"
+                    data-dashboard="supply"
+                    data-mode="{{ locationScope.mode }}"
+                    data-location-ids="{{ locationScope.locationIds|json_encode }}">
+                <i class="bi bi-bookmark-check"></i> Remember This View
+            </button>
+        </div>
+        {% endif %}
+    </div>
+
+    {# Current scope indicator #}
+    {% if locationScope.isSingle() %}
+    <div class="alert alert-info alert-sm mt-2 mb-0">
+        <i class="bi bi-info-circle"></i>
+        Showing stock for: <strong>{{ allLocations|filter(l => l.id == locationScope.singleLocationId)|first.name }}</strong>
+    </div>
+    {% elseif locationScope.isMulti() %}
+    <div class="alert alert-info alert-sm mt-2 mb-0">
+        <i class="bi bi-info-circle"></i>
+        Showing stock for <strong>{{ locationScope.locationIds|length }}</strong> selected locations
+    </div>
+    {% endif %}
+</div>
+
+{# Multi-location selection modal #}
+<div class="modal fade" id="multiLocationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Multiple Locations</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="multiLocationForm">
+                    {% for location in allLocations %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" 
+                               name="loc[]" 
+                               value="{{ location.id }}" 
+                               id="loc-{{ location.id }}"
+                               {% if location.id in locationScope.locationIds %}checked{% endif %}>
+                        <label class="form-check-label" for="loc-{{ location.id }}">
+                            {{ location.name }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="applyMultiLocation">
+                    Apply Filter
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle "All Locations" radio button
+    document.querySelectorAll('[name="loc-mode"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked && this.dataset.url) {
+                window.location.href = this.dataset.url;
+            }
+        });
+    });
+
+    // Handle multi-location modal
+    const applyBtn = document.getElementById('applyMultiLocation');
+    if (applyBtn) {
+        applyBtn.addEventListener('click', function() {
+            const form = document.getElementById('multiLocationForm');
+            const checked = Array.from(form.querySelectorAll('input:checked'));
+            
+            if (checked.length === 0) {
+                alert('Please select at least one location');
+                return;
+            }
+
+            const params = checked.map(cb => `loc[]=${cb.value}`).join('&');
+            window.location.href = `{{ path('stock_table') }}?${params}`;
+        });
+    }
+
+    // Handle "Remember This View" button
+    document.querySelectorAll('[data-action="save-location-pref"]').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const dashboard = this.dataset.dashboard;
+            const mode = this.dataset.mode;
+            const locationIds = JSON.parse(this.dataset.locationIds);
+
+            try {
+                const response = await fetch('{{ path('stock_set_location_pref') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ dashboard, mode, location_ids: locationIds })
+                });
+
+                if (response.ok) {
+                    // Show success feedback
+                    this.innerHTML = '<i class="bi bi-check-circle"></i> Saved!';
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-outline-success');
+                    
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="bi bi-bookmark-check"></i> Remember This View';
+                        this.classList.add('btn-success');
+                        this.classList.remove('btn-outline-success');
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Failed to save preference:', error);
+                alert('Failed to save location preference');
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.alert-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+</style>

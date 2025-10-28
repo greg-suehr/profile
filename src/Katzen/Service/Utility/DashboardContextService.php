@@ -268,6 +268,8 @@ class DashboardContextService
           'label' => 'Locations',
           'icon' => 'geo-alt',
           'items' => [
+            ['key' => 'location-create', 'label' => 'Add Location', 'route' => 'location_create'],
+            ['key' => 'location-table', 'label' => 'Manage Locations', 'route' => 'location_index'],            
           ]
         ],
       ],

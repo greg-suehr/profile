@@ -67,6 +67,22 @@ class StockLocation
         $this->purchases = new ArrayCollection();
     }
 
+  # TODO: design StockLocation status
+    public function getStatus(): string
+    {
+        return 'ok';
+    }
+
+    public function getNextExpectedDelivery(): \DateTimeInterface
+    {
+        return new \DateTime()->modify('+4 days');
+    }  
+
+    public function getReconciledAt(): \DateTimeInterface
+    {
+        return new \DateTime();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
