@@ -23,7 +23,7 @@ final class ServiceDashController extends AbstractController
       # TODO: per context, role, user Dashboard Widget selection
       $views = array_map(fn($v) => $v->toArray(), $this->widgets->all());
 
-      return $this->render('katzen/menu/dashboard.html.twig', $this->dashboardContext->with([
+      return $this->render('katzen/widgets/dashboard.html.twig', $this->dashboardContext->with([
         'widgets' => $views,
       ]));
   } 

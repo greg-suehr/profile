@@ -1,0 +1,33 @@
+{# templates/katzen/widgets/messenger_health.html.twig #}
+<div class="card">
+  <div class="card-header d-flex justify-content-between">
+    <span>Queue Health</span>
+    {% if widget.data.failed > 0 %}
+      <span class="badge bg-danger">{{ widget.data.failed }} failed</span>
+    {% else %}
+      <span class="badge bg-success">OK</span>
+    {% endif %}
+  </div>
+  <div class="card-body">
+    <table class="table table-sm mb-2">
+      <thead><tr><th>Queue</th><th class="text-end">Ready</th><th class="text-end">Delayed</th><th class="text-end">In Progress</th></tr></thead>
+      <tbody>
+        {% for q in widget.data.queues %}
+          <tr>
+            <td>{{ q.queue_name }}</td>
+            <td class="text-end">{{ q.ready }}</td>
+            <td class="text-end">{{ q.delayed }}</td>
+            <td class="text-end">{{ q.in_progress }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if widget.data.oldest_ready_lag_sec is not null %}
+      <div class="text-muted small">Oldest ready message age: {{ widget.data.oldest_ready_lag_sec }}s</div>
+    {% endif %}
+    <div class="mt-2 d-flex gap-2">
+      <a class="btn btn-outline-primary btn-sm" href="{{ path('messenger_failed_list') }}">View Failed</a>
+      <a class="btn btn-outline-secondary btn-sm" href="{{ path('dashboard_home') }}">Refresh</a>
+    </div>
+  </div>
+</div>

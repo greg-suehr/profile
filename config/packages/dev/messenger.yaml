@@ -1,4 +1,0 @@
-framework:
-  messenger:
-    routing:
-      'App\Katzen\Messenger\Message\AsyncTaskMessage': sync
