@@ -175,8 +175,9 @@ class DashboardContextService
             'label' => 'Orders',
             'icon' => 'cart',
             'items' => [
-              ['key' => 'order-panel', 'label' => 'Open Orders', 'route' => 'order_index'],              
               ['key' => 'order-create', 'label' => 'Create Order', 'route' => 'order_create'],
+              ['key' => 'order-panel', 'label' => 'Open Orders', 'route' => 'order_index'],
+              ['key' => 'order-table', 'label' => 'Manage Orders', 'route' => 'order_table'],
             ]
           ],
           [

@@ -43,7 +43,7 @@ final class PurchaseService
       $purchase->setUpdatedAt($now);
       
       if (!$purchase->getStatus()) {
-        $purchase->setStatus('draft');
+        $purchase->setStatus('pending');
       }
 
       $subtotal = 0.0;

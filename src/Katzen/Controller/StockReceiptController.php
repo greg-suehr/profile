@@ -41,9 +41,9 @@ final class StockReceiptController extends AbstractController
             $rows[] = TableRow::create([
                 'id' => $receipt->getId(),
                 'receipt_number' => $receipt->getReceiptNumber(),
-                'purchase' => $receipt->getPurchase()?->getPurchaseNumber() ?? '—',
+                'purchase' => $receipt->getPurchase()?->getPoNumber() ?? '—',
                 'vendor' => $receipt->getPurchase()?->getVendor()?->getName() ?? '—',
-                'received_at' => $receipt->getReceivedDate(),
+                'received_at' => $receipt->getReceivedAt(),
                 'received_by' => $receipt->getReceivedBy() ?? '—',
                 'status' => $receipt->getStatus(),
             ])->setId($receipt->getId());             
@@ -148,7 +148,7 @@ final class StockReceiptController extends AbstractController
       
       if (empty($items)) {
         $this->addFlash('warning', 'Please enter quantities for at least one item.');
-        return $this->redirectToRoute('stock_receipt_items', ['id' => $id]);
+        return $this->redirectToRoute('receipt_items', ['id' => $id]);
       }
       
       $itemsData = [];
@@ -183,7 +183,7 @@ final class StockReceiptController extends AbstractController
       
       if (empty($itemsData)) {
         $this->addFlash('warning', 'Please enter valid quantities for at least one item.');
-        return $this->redirectToRoute('stock_receipt_items', ['id' => $id]);
+        return $this->redirectToRoute('receipt_items', ['id' => $id]);
       }
       
       $location = $receiptData['location_id']
@@ -200,7 +200,7 @@ final class StockReceiptController extends AbstractController
       if ($result->isSuccess()) {
         $session->remove('receipt_data');
         $this->addFlash('success', $result->getMessage());
-        return $this->redirectToRoute('stock_receipt_show', [
+        return $this->redirectToRoute('receipt_show', [
           'id' => $result->getData()['receipt_id'],
         ]);
       } else {
@@ -217,7 +217,7 @@ final class StockReceiptController extends AbstractController
     ]));    
     }
 
-    #[Route('/stock/receipt/{id}', name: 'stock_receipt_show')] 
+    #[Route('/stock/receipt/{id}', name: 'receipt_show')] 
     #[DashboardLayout('supply', 'receipt', 'receipt-show')]   
     public function show(int $id): Response
     {

@@ -4,6 +4,7 @@ namespace App\Katzen\Controller;
 
 use App\Katzen\Attribute\DashboardLayout;
 use App\Katzen\Component\PanelView\{PanelView, PanelCard, PanelField, PanelGroup, PanelAction};
+use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableAction};
 use App\Katzen\Entity\{Order, OrderItem};
 use App\Katzen\Entity\{Recipe, RecipeList, Tag};
 use App\Katzen\Form\OrderType;
@@ -38,7 +39,7 @@ final class OrderController extends AbstractController
     $q = $request->query->get('q');
     # TODO: Add ['created_at' => 'DESC']) to Order entity
     $orders = $this->orderRepo->findBy([
-      'status' => ['pending', 'ready', 'waiting'],
+      'status' => ['unfulfilled', 'pending', 'ready', 'waiting'],
     ]);
 
     $cards = [];
@@ -99,6 +100,121 @@ final class OrderController extends AbstractController
       'activeGroup' => $activeGroup ?? 'all',
       'groupSlug' => 'order_index',
     ]));
+  }
+
+  #[Route('/order/list', name: 'order_table')]
+  #[DashboardLayout('service', 'order', 'order-table')] 
+  public function table(Request $request): Response  
+  {
+    $orders = $this->orderRepo->findBy([
+      'status' => ['unfulfilled', 'pending', 'ready', 'waiting'],
+    ]);
+    
+    $rows = [];
+    foreach ($orders as $o) {
+       $row = TableRow::create([
+         'customer' => $o->getCustomerEntity() ?  $o->getCustomerEntity()->getName() : $o->getCustomer(),
+         'id'       => (string) $o->getId(),
+         'numItems' => $o->getOrderItems()->count(),
+         'total'    => $o->getTotalAmount(),
+         'status'   => $o->getStatus(),
+       ])
+       ->setId($o->getId());
+       
+       $rows[] = $row;
+    }
+
+    $table = TableView::create('order-table')
+      ->addField(
+        TableField::text('customer', 'Customer Name')
+          ->sortable()
+          )
+      ->addField(
+        TableField::amount('numItems', 'Items')
+          ->sortable()
+          )
+      ->addField(
+        TableField::currency('total', 'Total')
+          ->sortable()
+          )
+      ->addField(
+        TableField::status('status', 'Status')
+          )
+      ->setRows($rows)
+      ->setSelectable(true)
+      ->addQuickAction(TableAction::view('order_show'))
+      ->addBulkAction(
+        TableAction::create('order_stock_check', 'Check Stock')
+                    ->setIcon('bi-clipboard-check')
+                    ->setVariant('outline-primary')
+            )
+      ->setSearchPlaceholder('Search by item, customer name (e.g. "tiramisu, ranch")')
+      ->setEmptyState('No matching order.')
+      ->build();
+
+    return $this->render('katzen/component/table_view.html.twig', $this->dashboardContext->with([
+      'table' => $table,
+      'bulkRoute' => 'order_bulk',
+      'csrfSlug' => 'order_bulk',
+    ]));
+  }
+
+  #[Route('/orders/bulk', name: 'order_bulk', methods: ['POST'])]
+  public function bulk(Request $request): Response
+  {
+    $payload = json_decode($request->getContent(), true) ?? [];
+    if (!$this->isCsrfTokenValid('order_bulk', $payload['_token'] ?? '')) {
+      return $this->json(['ok' => false, 'error' => 'Bad CSRF'], 400);
+    }
+    
+    $action = $payload['action'] ?? null;
+    $ids = array_map('intval', $payload['ids'] ?? []);
+    
+    if (!$action || empty($ids)) {
+      return $this->json(['ok' => false, 'error' => 'Missing action or ids'], 400);
+	}
+    
+    switch ($action) {
+      case 'order_stock_check':
+        return $this->orderStockCheck();
+        break;
+        
+    default:
+      return $this->json(['ok' => false, 'error' => 'Unknown action'], 400);
+	}
+    
+    return $this->json(['ok' => true]);
+  }
+
+  #[Route('/order/{id}', name: 'order_show', requirements: ['id' => '\d+'])]
+  #[DashboardLayout('service', 'order', 'order-show')]
+  public function show(Order $order): Response
+  {
+    return $this->render('katzen/order/show_order.html.twig', $this->dashboardContext->with([
+      'order' => $order,
+    ]));
+  }
+
+  #[Route('/order/cancel/{id}', name: 'order_cancel', methods: ['POST'])]
+  #[DashboardLayout('finance', 'order', 'order-cancel')]
+  public function cancel(Request $request, Order $order): Response
+  {
+    if (!$this->isCsrfTokenValid('order_cancel_' . $order->getId(), $request->request->get('_token'))) {
+      $this->addFlash('danger', 'Invalid CSRF token.');
+      return $this->redirectToRoute('order_show', ['id' => $order->getId()]);
+    }
+
+    # TODO: design order lifecycle
+    if ($order->getStatus() === 'paid') {
+      $this->addFlash('warning', 'Cannot cancel paid orders.');
+      return $this->redirectToRoute('order_show', ['id' => $order->getId()]);
+    }
+    
+    $order->setStatus('cancelled');
+    $this->orderRepo->save($order);
+    $this->addFlash('success', 'Order cancelled.');
+    
+    return $this->redirectToRoute('order_index');
   }
 
   #[Route('/order/create', name: 'order_create')]

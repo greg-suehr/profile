@@ -47,7 +47,7 @@ final class StockController extends AbstractController
       #  'location'      => $t->getLocation()?->getLabel() ?? null,
         'qty'           => $t->getCurrentQty(),                       // float
         'unit'          => $t->getBaseUnit()?->getAbbreviation() ?? null,     // "g", "kg", etc.
-      #  'min_qty'       => $t->getMinQuantity() ?? 0,
+        'min_qty'       => $t->getReorderPoint() ?? 0,
         'status'        => $t->getCurrentQty() <= 0 ? 'out'
           : ($t->getCurrentQty() <= ($t->getReorderPoint() ?? 0) ? 'low' : 'ok'),
       #  'last_count'    => $t->getLastCountedAt(),
@@ -230,8 +230,6 @@ final class StockController extends AbstractController
             ->build();
 
         return $this->render('katzen/component/table_view.html.twig', $this->dashboardContext->with([
-          'activeItem' => 'items',
-          'activeMenu' => 'stock',
           'table' => $table,
           'bulkRoute' => 'stock_bulk',
           'csrfSlug' => 'stock_bulk',

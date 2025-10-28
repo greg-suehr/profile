@@ -264,6 +264,7 @@ final class OrderService
           continue;
         }
         
+#        $this->mq->send(new AsyncTaskMessage(
         $this->bus->dispatch(new AsyncTaskMessage(
           taskType: 'consume_stock',
           payload: [

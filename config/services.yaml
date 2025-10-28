@@ -39,6 +39,11 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
+    App\Katzen\Messenger\TaskDispatcher:
+        arguments:
+          - '@messenger.default_bus'
+        public: true
+    
     App\Katzen\Messenger\TaskExecutor\:
         resource: '../src/Katzen/Messenger/TaskExecutor'
         tags: ['app.async_task_executor']

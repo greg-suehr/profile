@@ -1,5 +1,7 @@
 framework:
     messenger:
+        default_bus: messenger.bus.default
+
         failure_transport: failed
 
         transports:
@@ -13,9 +15,7 @@ framework:
                     max_retries: 3
                     multiplier: 2
             failed: 'doctrine://default?queue_name=failed'
-            # sync: 'sync://'
-
-        default_bus: messenger.bus.default
+            sync: 'sync://'
 
         buses:
             messenger.bus.default: []
@@ -25,7 +25,5 @@ framework:
             Symfony\Component\Notifier\Message\ChatMessage: async
             Symfony\Component\Notifier\Message\SmsMessage: async
 
-            # Route your messages to the transports
-            # 'App\Message\YourMessage': async
             'App\Profile\Message\ProvisionSiteSchema': async
             'App\Katzen\Messenger\Message\AsyncTaskMessage': async
