@@ -188,8 +188,18 @@ final class StockController extends AbstractController
   #[DashboardLayout('supply', 'stock', 'stock-table')]
   public function manage(Request $request): Response
   {
+    $location = null;
+    $scope = $this->locationContext->resolveFor($request, 'service');
+    
+    if ($scope->isSingle()) {
+      $location = $this->locationRepo->find($scope->getSingleLocationId());
+    }
+
     $targets = $this->stockRepo->findBy([]);
-        
+
+    $targetIds = array_map(fn($t) => $t->getId(), $targets);
+    $quantities = $this->stockQuery->getBulkQty($targetIds, $scope);
+
     $rows = [];
     foreach ($targets as $target) {
       $sourceName = '';
@@ -198,15 +208,18 @@ final class StockController extends AbstractController
       } elseif ($target->getRecipe()) {
         $sourceName = 'Recipe: ' . $target->getRecipe()->getTitle();
       }
+
+      $targetId = $target->getId();
+      $qty = $quantities[$targetId] ?? ['total' => 0, 'reserved' => 0, 'available' => 0];
       
       $row = TableRow::create([
         'name' => $target->getName(),
         'status' => $target->getStatus() ?? 'OK',
-        'available' => $target->getCurrentQty() . ' ' . ($target->getBaseUnit()?->getName() ?? 'units'),
+        'available' => $qty['available'] . ' ' . ($target->getBaseUnit()?->getName() ?? 'units'),
         'source' => $sourceName,
       ])
-      ->setId($target->getId());
-      
+      ->setId($targetId);
+
       $status = $target->getStatus();
       if ($status === 'Out') {
         $row->setStyleClass('table-danger');

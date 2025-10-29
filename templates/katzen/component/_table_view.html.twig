@@ -151,7 +151,7 @@
             ${{ value|number_format(2) }}
             
             {% elseif field.type == 'date' %}
-            {{ value|date(field.format ?? 'Y-m-d') }}
+            {{ value == '-' ? '-' :  value|date(field.format ?? 'Y-m-d') }}
             
             {% else %}
             {{ value }}

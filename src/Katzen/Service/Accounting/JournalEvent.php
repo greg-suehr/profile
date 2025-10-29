@@ -25,7 +25,7 @@ final class JournalEvent
   public function buildLines(array $amounts, array $metadata = []): array
   {
     $lines = [];
-        
+
     foreach ($this->rules as $rule) {
 
       if (isset($rule['when'])) {
@@ -49,7 +49,7 @@ final class JournalEvent
         'memo' => $rule['memo'] ?? null,
       ];
     }
-    
+
     return $lines;
   }
 
@@ -58,6 +58,10 @@ final class JournalEvent
    */
   private function evaluateExpression(string $expr, array $amounts): float
   {
+    if (!empty($amounts) && isset($amounts[0]) && is_array($amounts[0]) && array_key_exists('expr_key', $amounts[0])) {
+      $amounts = array_column($amounts, 'amount', 'expr_key');
+    }
+
     $expr = preg_replace_callback('/\$\{(\w+)\}/', function($m) use ($amounts) {
         return $amounts[$m[1]] ?? '0';
     }, $expr);

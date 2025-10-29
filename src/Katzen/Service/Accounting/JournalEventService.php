@@ -117,7 +117,7 @@ final class JournalEventService
         transactionType: 'stock_receipt',
         rules: [
           ['account' => '1400', 'name' => 'INVENTORY',      'side'=>'debit',  'expr'=>'${receipt_total}'],
-          ['account' => '2100', 'name' => 'ACCOUNTS_PAYABLE','side'=>'credit', 'expr'=>'${receipt_total}'],
+          ['account' => '1350', 'name' => 'GOODS_RECEIVED_NOT_INVOICED','side'=>'credit', 'expr'=>'${receipt_total}'],
         ]
       ),
 
@@ -126,7 +126,7 @@ final class JournalEventService
       'vendor_invoice_matched' => new JournalEvent(
         transactionType: 'invoice_match',
         rules: [
-          ['account' => '2100', 'name' => 'ACCOUNTS_PAYABLE','side'=>'debit',  'expr'=>'${gr_total}'],
+          ['account' => '1350', 'name' => 'GOODS_RECEIVED_NOT_INVOICED','side'=>'debit',  'expr'=>'${gr_total}'],
           ['account' => '2100', 'name' => 'ACCOUNTS_PAYABLE','side'=>'credit', 'expr'=>'${invoice_total}'],
           ['account' => '5300', 'name' => 'PURCHASE_VARIANCE','side'=>'debit', 'expr'=>'${variance}', 'when'=>'${variance} != 0'],
         ]

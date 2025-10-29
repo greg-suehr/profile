@@ -3,14 +3,18 @@
 namespace App\Katzen\Controller;
 
 use App\Katzen\Attribute\DashboardLayout;
+use App\Katzen\Service\Utility\DashboardContextService;
+
 use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableAction};
-use App\Katzen\Entity\StockReceipt;
 use App\Katzen\Form\StockReceiptType;
+
+use App\Katzen\Entity\StockReceipt;
 use App\Katzen\Repository\PurchaseRepository;
 use App\Katzen\Repository\StockReceiptRepository;
 use App\Katzen\Repository\StockLocationRepository;
+
 use App\Katzen\Service\Inventory\StockReceiptService;
-use App\Katzen\Service\Utility\DashboardContextService;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -154,7 +158,9 @@ final class StockReceiptController extends AbstractController
       $itemsData = [];
       foreach ($items as $itemId => $itemData) {
         $qtyReceived = $itemData['qty_received'] ?? null;
-        
+
+        # TODO: move this logic into StockReceiptService, as it needs more robust
+        # comparisons to handle split-line purchases for the same Item, and more
         if ($qtyReceived && (float)$qtyReceived > 0) {
           $purchaseItem = null;
           foreach ($purchase->getPurchaseItems() as $pi) {
@@ -163,7 +169,8 @@ final class StockReceiptController extends AbstractController
               break;
             }
           }
-          
+
+          # TODO: handle mismatches more explicitly
           if ($purchaseItem) {
             $itemsData[] = [
               'purchase_item' => $purchaseItem,
@@ -248,9 +255,11 @@ final class StockReceiptController extends AbstractController
         $this->addFlash('warning', 'This purchase order is not available for receiving.');
         return $this->redirectToRoute('receipt_index');
       }
-      
+
+      # TODO: move this responsibility to LocationScope?
       $defaultLocation = $this->receiptService->getDefaultLocation();
-      
+
+      # TODO: definitely move this into a ValueObject over session data
       $session->set('receipt_data', [
         'purchase_id' => $purchase->getId(),
         'location_id' => $defaultLocation?->getId(),

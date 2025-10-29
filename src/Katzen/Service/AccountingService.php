@@ -93,7 +93,15 @@ final class AccountingService
     $this->em->persist($entry);
     $this->em->flush();
 
-    return ServiceResponse::success("Journal entry {$entry->getId()} recorded");
+    return ServiceResponse::success(
+       data: [
+          'ledger_entry_id' => $entry->getId(),
+          'lines' => $lines,
+          'total_debit' => $totalDebit,
+          'total_credit' => $totalCredit,
+        ],
+        message: "Journal entry {$entry->getId()} recorded"
+    );
   }
 
   /**
@@ -116,7 +124,7 @@ final class AccountingService
         string $referenceId,
         array $metadata = []
     ): ServiceResponse {
-        $template = $this->journalEvents->get($templateName);
+        $template = $this->journalEvents->get($templateName);        
         $lines = $template->buildLines($amounts, $metadata);
         
         return $this->record(

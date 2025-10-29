@@ -1,0 +1,115 @@
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4>Price History</h4>
+    <div>
+      <select id="time-range" class="form-select form-select-sm">
+        <option value="30">Last 30 Days</option>
+        <option value="90" selected>Last 90 Days</option>
+        <option value="365">Last Year</option>
+        <option value="all">All Time</option>
+      </select>
+    </div>
+  </div>
+  <div class="card-body">
+    
+    {# Search/Filter #}
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <input type="text" class="form-control" placeholder="Search items..." id="item-search">
+      </div>
+      <div class="col-md-3">
+        <select class="form-select" id="vendor-filter">
+          <option value="">All Vendors</option>
+          {% for vendor in vendors %}
+          <option value="{{ vendor.id }}">{{ vendor.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select class="form-select" id="trend-filter">
+          <option value="">All Trends</option>
+          <option value="increase">Increasing</option>
+          <option value="decrease">Decreasing</option>
+          <option value="stable">Stable</option>
+        </select>
+      </div>
+    </div>
+    
+    {# Price Chart Cards #}
+    <div class="row">
+      {% for item in priceHistoryItems %}
+      <div class="col-md-6 mb-3">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6>{{ item.stockTarget.name }}</h6>
+                <p class="text-muted mb-1">{{ item.vendor.name }}</p>
+              </div>
+              <div class="text-end">
+                <h5>${{ item.currentPrice|number_format(4) }}</h5>
+                <span class="badge bg-{{ item.trendClass }}">
+                  {{ item.trendPct > 0 ? '+' : '' }}{{ item.trendPct|number_format(1) }}%
+                </span>
+              </div>
+            </div>
+            
+            {# Sparkline Chart #}
+            <canvas id="price-chart-{{ item.id }}" 
+                    class="mt-2" 
+                    height="60"
+                    data-prices="{{ item.prices|json_encode|e('html_attr') }}"></canvas>
+            
+            <div class="mt-2 d-flex justify-content-between text-muted small">
+              <span>Min: ${{ item.minPrice|number_format(4) }}</span>
+              <span>Avg: ${{ item.avgPrice|number_format(4) }}</span>
+              <span>Max: ${{ item.maxPrice|number_format(4) }}</span>
+            </div>
+            
+            <div class="mt-2">
+              <a href="{{ path('costing_price_detail', {id: item.stockTarget.id}) }}" 
+                 class="btn btn-sm btn-outline-primary">
+                View Details
+              </a>
+              <button type="button" 
+                      class="btn btn-sm btn-outline-secondary"
+                      data-create-alert="{{ item.stockTarget.id }}">
+                <i class="bi bi-bell"></i> Set Alert
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+// Initialize sparkline charts
+document.querySelectorAll('[id^="price-chart-"]').forEach(canvas => {
+  const prices = JSON.parse(canvas.dataset.prices);
+  new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: prices.map(p => p.date),
+      datasets: [{
+        data: prices.map(p => p.price),
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1,
+        pointRadius: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { display: false },
+        y: { display: false }
+      }
+    }
+  });
+});
+</script>

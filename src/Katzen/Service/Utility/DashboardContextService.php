@@ -2,7 +2,7 @@
 
 namespace App\Katzen\Service\Utility;
 
-use App\Kazten\Attribute\DashboardLayout;
+use App\Katzen\Attribute\DashboardLayout;
 use App\Katzen\Service\Utility\AlertService;
 use App\Katzen\Service\Utility\EncouragementEngine;
 use Symfony\Component\Security\Core\Security;
@@ -301,6 +301,25 @@ class DashboardContextService
         'icon' => 'cash',
         'items' => [
           ['key' => 'payment-table', 'label' => 'All Payments', 'route' => 'payment_table'],
+        ]
+      ],
+      [
+        'key' => 'costing',
+        'label' => 'Costing',
+        'icon' => 'currency',
+        'items' => [
+          ['key' => 'costing-dashboard', 'label' => 'Costs Dashboard', 'route' => 'costing_dashboard'],
+          ['key' => 'price-alerts', 'label' => 'Manage Price Alerts', 'route' => 'costing_price_alerts'],
+          ['key' => 'alert-create', 'label' => 'Create Price Alert', 'route' => 'costing_alert_create'],
+        ]
+      ],
+      [
+        'key' => 'vendor-invoice',
+        'label' => 'Vendor Invoices',
+        'icon' => 'envelope',
+        'items' => [
+          ['key' => 'vendor-invoice-create', 'label' => 'Create Vendor Invoice', 'route' => 'vendor_invoice_create'],
+          ['key' => 'vendor-invoice-table', 'label' => 'Manage Vendor Invoices', 'route' => 'vendor_invoice_index'],
         ]
       ],
     ],

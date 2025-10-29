@@ -1,0 +1,38 @@
+{# vendor_invoice/create_step1.html.twig #}
+<div class="card">
+  <div class="card-header">
+    <h4>New Vendor Invoice - Step 1: Header</h4>
+  </div>
+  <div class="card-body">
+    {{ form_start(form) }}
+    
+    <div class="row">
+      <div class="col-md-6">
+        {{ form_row(form.vendor) }}
+        {{ form_row(form.invoice_number) }}
+      </div>
+      <div class="col-md-6">
+        {{ form_row(form.invoice_date) }}
+        {{ form_row(form.due_date) }}
+      </div>
+    </div>
+    
+    <div class="row mt-3">
+      <div class="col-md-12">
+        <label>Link to Purchase Order (optional)</label>
+        {{ form_row(form.purchase, {label: false}) }}
+        <small class="text-muted">
+          Linking to a PO allows automatic variance detection and 3-way matching
+        </small>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <button type="submit" class="btn btn-primary">
+        Next: Line Items <i class="bi bi-arrow-right"></i>
+      </button>
+    </div>
+    
+    {{ form_end(form) }}
+  </div>
+</div>

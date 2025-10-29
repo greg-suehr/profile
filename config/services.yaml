@@ -21,6 +21,10 @@ services:
     ########################################################################
     App\Katzen\:
         resource: '../src/Katzen/'
+        exclude:
+          - '../src/Katzen/Entity/'
+          - '../src/Katzen/DataFixtures/'
+          - '../src/Katzen/Kernel.php'
 
     App\Katzen\Dashboard\Widget\:
         resource: '../src/Katzen/Dashboard/Widget/*'

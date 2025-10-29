@@ -22,7 +22,7 @@ final class SupplyDashController extends AbstractController
         // TODO: Filter widgets by supply domain context
         $views = array_map(fn($v) => $v->toArray(), $this->widgets->all());
 
-        return $this->render('katzen/manager/dashboard.html.twig', $this->dashboardContext->with([
+        return $this->render('katzen/widgets/dashboard.html.twig', $this->dashboardContext->with([
             'activeDash' => 'katzen/dash-supply.html.twig',
             'activeItem' => 'dashboard',                    
             'activeMenu' => null,

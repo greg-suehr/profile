@@ -1,0 +1,88 @@
+{# vendor_invoice/create_step2.html.twig #}
+<div class="card">
+  <div class="card-header d-flex justify-content-between">
+    <h4>New Vendor Invoice - Step 2: Line Items</h4>
+    <button type="button" class="btn btn-sm btn-success" data-add-line>
+      <i class="bi bi-plus-circle"></i> Add Line
+    </button>
+  </div>
+  <div class="card-body">
+    <table class="table table-sm" id="invoice-items">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Description</th>
+          <th>Qty</th>
+          <th>Unit</th>
+          <th>Price</th>
+          <th>Account</th>
+          <th>Total</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody data-prototype="{{ form_widget(form.items.vars.prototype)|e }}">
+        {% for item in form.items %}
+          {{ include('vendor_invoice/_line_item_row.html.twig', {item: item}) }}
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="table-light">
+          <td colspan="6" class="text-end"><strong>Subtotal:</strong></td>
+          <td id="calc-subtotal">$0.00</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td colspan="6" class="text-end">Tax:</td>
+          <td>{{ form_widget(form.tax_amount, {attr: {class: 'form-control form-control-sm'}}) }}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td colspan="6" class="text-end">Shipping:</td>
+          <td>{{ form_widget(form.shipping_amount, {attr: {class: 'form-control form-control-sm'}}) }}</td>
+          <td></td>
+        </tr>
+        <tr class="table-primary">
+          <td colspan="6" class="text-end"><strong>Total:</strong></td>
+          <td id="calc-total"><strong>$0.00</strong></td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+    
+    <div class="mt-4 d-flex justify-content-between">
+      <a href="{{ path('vendor_invoice_create') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+      </a>
+      <button type="submit" class="btn btn-primary">
+        Next: Review <i class="bi bi-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Auto-calculation logic
+document.getElementById('invoice-items').addEventListener('input', function(e) {
+  if (e.target.matches('[name*="[quantity]"], [name*="[unit_price]"]')) {
+    recalculateLineTotals();
+  }
+});
+
+function recalculateLineTotals() {
+  let subtotal = 0;
+  document.querySelectorAll('#invoice-items tbody tr').forEach(row => {
+    const qty = parseFloat(row.querySelector('[name*="[quantity]"]').value) || 0;
+    const price = parseFloat(row.querySelector('[name*="[unit_price]"]').value) || 0;
+    const lineTotal = qty * price;
+    row.querySelector('.line-total').textContent = '$' + lineTotal.toFixed(2);
+    subtotal += lineTotal;
+  });
+  
+  const tax = parseFloat(document.querySelector('[name*="[tax_amount]"]').value) || 0;
+  const shipping = parseFloat(document.querySelector('[name*="[shipping_amount]"]').value) || 0;
+  const total = subtotal + tax + shipping;
+  
+  document.getElementById('calc-subtotal').textContent = '$' + subtotal.toFixed(2);
+  document.getElementById('calc-total').innerHTML = '<strong>$' + total.toFixed(2) + '</strong>';
+}
+</script>

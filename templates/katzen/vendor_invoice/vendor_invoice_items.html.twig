@@ -1,0 +1,118 @@
+{% extends 'katzen/dash-supply.html.twig' %}
+
+{% block title %}Create Vendor Invoice{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid my-4">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title mb-4">Create Vendor Invoice</h2>
+
+      <div class="alert alert-primary mb-4">
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Vendor:</strong> {{ invoice.vendor.name }}
+            {% if invoice.purchase %}
+            <strong>PO Number:</strong> {{ invoice.purchase.poNumber }}<br>
+            {% endif %}
+          </div>
+          {% if invoice.stockReceipts %}
+          {% for receiptData in invoice.stockReceipts %}
+          <div class="col-md-6">
+            <strong>Location:</strong> {{ receiptData.location_id }}<br>
+            <strong>Received Date:</strong> {{ receiptData.received_at|date('Y-m-d H:i') }}
+          </div>
+          {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+
+      <form method="post">
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 25%;">Item</th>
+                <th style="width: 10%;" class="text-center">Quantity</th>
+                <th style="width: 10%;" class="text-center">Qty Received *</th>                
+                <th style="width: 10%;" class="text-center">Unit Cost</th>
+                <th style="width: 45%;">Notes</th>
+              </tr>
+            </thead>
+            <tbody>              
+              {% for item in invoice.purchase.purchaseItems %}
+              <tr>
+                <td>
+                  <strong>{{ item.stockTarget.name }}</strong>
+                  <div class="text-muted small">
+                    Unit: {{ item.stockTarget.baseUnit.abbreviation }}<br>
+                    Cost: ${{ item.unitPrice|number_format(2) }}
+                  </div>
+                  <input
+                    type="hidden"
+                    name="items[{{ item.id }}][stock_target_id]"
+                    class="form-control"
+                    value={{ item.stockTarget.id }}
+                    >
+                  <input
+                    type="hidden"
+                    name="items[{{ item.id }}][unit_of_measure_id]"
+                    class="form-control"
+                    value={{ item.stockTarget.baseUnit.id }}
+                    >
+                  <input
+                    type="hidden"
+                    name="items[{{ item.id }}][description]"
+                    class="form-control"
+                    value={{ item.stockTarget.name }}
+                    >                  
+                </td>
+                <td class="text-center">{{ item.qtyOrdered }}</td>
+                <td>
+                  <input 
+                    type="number" 
+                    name="items[{{ item.id }}][quantity]" 
+                    class="form-control"
+                    placeholder="0.00"
+                    value={{ item.qtyOrdered }}
+                  >
+                </td>
+                <td>
+                  <input 
+                    type="number" 
+                    name="items[{{ item.id }}][unit_price]" 
+                    class="form-control form-control-sm"
+                    placeholder="0.00"
+                    value={{ item.unitPrice }}
+                    >
+                </td>
+                <td>
+                  <input 
+                    type="text" 
+                    name="items[{{ item.id }}][notes]" 
+                    class="form-control form-control-sm" 
+                    placeholder="Optional"
+                  >
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+
+        <div class="d-flex justify-content-between mt-4">
+          <a href="{{ path('vendor_invoice_index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back
+          </a>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-circle me-2"></i>Create Invoice
+          </button>
+        </div>
+
+        <input type="hidden" name="_token" value="{{ csrf_token('vendor_invoice') }}">
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

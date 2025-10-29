@@ -2,7 +2,7 @@
 
 namespace App\Katzen\Entity;
 
-use App\Repository\TagRepository;
+use App\Katzen\Repository\TagRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 

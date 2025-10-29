@@ -1,0 +1,170 @@
+{# costing/recipe_detail.html.twig #}
+<div class="row">
+  
+  {# Left: Cost Breakdown #}
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h4>{{ recipe.name }} - Cost Breakdown</h4>
+      </div>
+      <div class="card-body">
+        
+        {# Summary Metrics #}
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="text-center">
+              <h3 class="text-primary">${{ costData.totalCost|number_format(2) }}</h3>
+              <p class="text-muted">Total Cost</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center">
+              <h3>${{ costData.costPerServing|number_format(2) }}</h3>
+              <p class="text-muted">Per Serving</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center">
+              <h3>{{ recipe.servings }}</h3>
+              <p class="text-muted">Servings</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center">
+              <h3 class="{{ costData.variancePct > 10 ? 'text-danger' : 'text-success' }}">
+                {{ costData.variancePct > 0 ? '+' : '' }}{{ costData.variancePct|number_format(1) }}%
+              </h3>
+              <p class="text-muted">vs Standard</p>
+            </div>
+          </div>
+        </div>
+        
+        {# Ingredient Table #}
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Ingredient</th>
+              <th>Qty</th>
+              <th>Unit</th>
+              <th>Unit Cost</th>
+              <th class="text-end">Line Cost</th>
+              <th>Cost Method</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ingredient in costData.ingredients %}
+            <tr>
+              <td>{{ ingredient.name }}</td>
+              <td>{{ ingredient.quantity }}</td>
+              <td>{{ ingredient.unit }}</td>
+              <td>${{ ingredient.unitCost|number_format(4) }}</td>
+              <td class="text-end">${{ ingredient.lineCost|number_format(2) }}</td>
+              <td>
+                <span class="badge bg-secondary">{{ ingredient.costMethod }}</span>
+                {% if ingredient.priceAge > 30 %}
+                  <i class="bi bi-exclamation-triangle text-warning" 
+                     title="Price is {{ ingredient.priceAge }} days old"></i>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr class="table-light">
+              <td colspan="4" class="text-end"><strong>Ingredient Cost:</strong></td>
+              <td class="text-end"><strong>${{ costData.ingredientCost|number_format(2) }}</strong></td>
+              <td></td>
+            </tr>
+            {% if costData.laborCost > 0 %}
+            <tr>
+              <td colspan="4" class="text-end">Labor Cost:</td>
+              <td class="text-end">${{ costData.laborCost|number_format(2) }}</td>
+              <td></td>
+            </tr>
+            {% endif %}
+            {% if costData.overheadCost > 0 %}
+            <tr>
+              <td colspan="4" class="text-end">Overhead:</td>
+              <td class="text-end">${{ costData.overheadCost|number_format(2) }}</td>
+              <td></td>
+            </tr>
+            {% endif %}
+            <tr class="table-primary">
+              <td colspan="4" class="text-end"><strong>Total Recipe Cost:</strong></td>
+              <td class="text-end"><strong>${{ costData.totalCost|number_format(2) }}</strong></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        
+      </div>
+    </div>
+  </div>
+  
+  {# Right: Pricing & Targets #}
+  <div class="col-md-4">
+    
+    {# Current Plate Costing #}
+    <div class="card mb-3">
+      <div class="card-header bg-primary text-white">
+        <h5>Plate Costing</h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label>Current Menu Price:</label>
+          <input type="number" 
+                 class="form-control" 
+                 id="menu-price" 
+                 value="{{ plateCosting.currentPrice }}"
+                 step="0.01">
+        </div>
+        
+        <div class="mb-3">
+          <label>Target Food Cost %:</label>
+          <input type="number" 
+                 class="form-control" 
+                 id="target-food-cost" 
+                 value="{{ plateCosting.targetFoodCostPct }}"
+                 step="0.1">
+        </div>
+        
+        <div class="alert alert-info">
+          <strong>Current Food Cost:</strong><br>
+          <h4 class="mb-0">{{ plateCosting.currentFoodCostPct|number_format(1) }}%</h4>
+        </div>
+        
+        <div class="alert {{ plateCosting.costStatus == 'on_target' ? 'alert-success' : 'alert-warning' }}">
+          {% if plateCosting.costStatus == 'on_target' %}
+            <i class="bi bi-check-circle"></i> On Target
+          {% else %}
+            <i class="bi bi-exclamation-triangle"></i> 
+            {{ plateCosting.costStatus == 'warning' ? 'Approaching Limit' : 'Over Budget' }}
+          {% endif %}
+        </div>
+        
+        <hr>
+        
+        <div>
+          <strong>Suggested Price ({{ plateCosting.targetFoodCostPct }}%):</strong><br>
+          <h3 class="text-success">${{ suggestedPrice|number_format(2) }}</h3>
+        </div>
+        
+        <button type="button" class="btn btn-primary btn-sm mt-2" id="update-pricing">
+          Update Menu Price
+        </button>
+      </div>
+    </div>
+    
+    {# Cost History Chart #}
+    <div class="card">
+      <div class="card-header">
+        <h6>Cost Trend (90 Days)</h6>
+      </div>
+      <div class="card-body">
+        <canvas id="cost-trend-chart" height="200"></canvas>
+      </div>
+    </div>
+    
+  </div>
+  
+</div>

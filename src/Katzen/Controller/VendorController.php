@@ -3,11 +3,13 @@
 namespace App\Katzen\Controller;
 
 use App\Katzen\Attribute\DashboardLayout;
-use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableAction};
-use App\Katzen\Entity\Vendor;
-use App\Katzen\Form\VendorType;
-use App\Katzen\Repository\VendorRepository;
 use App\Katzen\Service\Utility\DashboardContextService;
+use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableAction};
+use App\Katzen\Form\VendorType;
+
+use App\Katzen\Entity\Vendor;
+use App\Katzen\Repository\VendorRepository;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

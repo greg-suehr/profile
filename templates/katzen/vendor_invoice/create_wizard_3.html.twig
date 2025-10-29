@@ -1,0 +1,84 @@
+{# vendor_invoice/create_step3.html.twig #}
+<div class="card">
+  <div class="card-header">
+    <h4>New Vendor Invoice - Step 3: Review & Post</h4>
+  </div>
+  <div class="card-body">
+    
+    {# Header Summary #}
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <h5>Vendor: {{ invoice.vendor.name }}</h5>
+        <p>
+          Invoice #: <strong>{{ invoice.invoiceNumber }}</strong><br>
+          Date: {{ invoice.invoiceDate|date('M d, Y') }}<br>
+          Due: {{ invoice.dueDate|date('M d, Y') }}
+        </p>
+      </div>
+      <div class="col-md-6 text-end">
+        <h3>Total: ${{ invoice.totalAmount|number_format(2) }}</h3>
+      </div>
+    </div>
+    
+    {# Line Items #}
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Account</th>
+          <th class="text-end">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in invoice.items %}
+        <tr>
+          <td>{{ item.description }}</td>
+          <td>{{ item.quantity }} {{ item.unitOfMeasure }}</td>
+          <td>${{ item.unitPrice|number_format(4) }}</td>
+          <td>{{ item.expenseAccount.code }} - {{ item.expenseAccount.name }}</td>
+          <td class="text-end">${{ item.lineTotal|number_format(2) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
+    {# Variance Warnings #}
+    {% if variances|length > 0 %}
+    <div class="alert alert-warning">
+      <h5><i class="bi bi-exclamation-triangle"></i> Price Variances Detected</h5>
+      <ul>
+        {% for variance in variances %}
+        <li>
+          {{ variance.item.description }}: 
+          Expected ${{ variance.expectedPrice|number_format(4) }}, 
+          Actual ${{ variance.actualPrice|number_format(4) }}
+          ({{ variance.pctChange > 0 ? '+' : '' }}{{ variance.pctChange|number_format(1) }}%)
+        </li>
+        {% endfor %}
+      </ul>
+      <p class="mb-0">
+        <input type="checkbox" name="approve_variances" id="approve-variances">
+        <label for="approve-variances">I acknowledge these variances</label>
+      </p>
+    </div>
+    {% endif %}
+    
+    {# Actions #}
+    <div class="mt-4 d-flex justify-content-between">
+      <a href="{{ path('vendor_invoice_create_step2', {id: invoice.id}) }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Line Items
+      </a>
+      <div>
+        <button type="submit" name="action" value="save_draft" class="btn btn-outline-primary">
+          Save as Draft
+        </button>
+        <button type="submit" name="action" value="post" class="btn btn-success">
+          Post Invoice
+        </button>
+      </div>
+    </div>
+    
+  </div>
+</div>

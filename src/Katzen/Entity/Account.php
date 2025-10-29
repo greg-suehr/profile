@@ -45,6 +45,11 @@ class Account
         $this->subledgerTransactions = new ArrayCollection();
     }
 
+  public function __toString()
+  {
+    return $this->code . " - " . $this->name;
+  }
+
     public function getId(): ?int
     {
         return $this->id;

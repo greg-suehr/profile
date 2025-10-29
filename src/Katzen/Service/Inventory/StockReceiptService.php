@@ -16,8 +16,11 @@ use App\Katzen\Repository\PurchaseItemRepository;
 use App\Katzen\Repository\StockLocationRepository;
 use App\Katzen\Repository\StockReceiptRepository;
 use App\Katzen\Repository\StockTransactionRepository;
+
 use App\Katzen\Service\AccountingService;
+use App\Katzen\Service\Accounting\ChartOfAccountsService;
 use App\Katzen\Service\Response\ServiceResponse;
+
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
 
@@ -32,6 +35,7 @@ final class StockReceiptService
         private StockLocationRepository $locationRepo,
         private StockTransactionRepository $txnRepo,
         private AccountingService $accounting,
+        private ChartOfAccountsService $coa,
     ) {}
 
     /**
@@ -39,7 +43,7 @@ final class StockReceiptService
      */
     public function getDefaultLocation(): ?StockLocation
     {
-        # TODO fetch from user preferences or system config
+        # TODO fetch from user preferences or system config through LocationScope
         return $this->locationRepo->findOneBy([]) ?? null;
     }
 
@@ -145,7 +149,7 @@ final class StockReceiptService
           'receipt_number' => $receipt->getReceiptNumber(),
         ]
       );
-      
+
       if (!$accountingResult->isSuccess()) {
         throw new \RuntimeException('Accounting entry failed: ' . $accountingResult->getMessage());
       }
