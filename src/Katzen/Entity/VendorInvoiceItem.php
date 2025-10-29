@@ -272,7 +272,7 @@ class VendorInvoiceItem
         }
     }
 
-    private function checkPriceVariance(): void
+    public function checkPriceVariance(): void
     {
         if (!$this->expected_unit_price || !$this->unit_price) {
             $this->price_variance_pct = null;

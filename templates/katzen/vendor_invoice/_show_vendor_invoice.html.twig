@@ -133,7 +133,6 @@
                 <th style="width: 5%">#</th>
                 <th style="width: 40%">Item</th>
                 <th style="width: 15%" class="text-end">Qty Ordered</th>
-                <th style="width: 15%" class="text-end">Qty Received</th>
                 <th style="width: 12%" class="text-end">Unit Price</th>
                 <th style="width: 13%" class="text-end">Line Total</th>
               </tr>
@@ -160,28 +159,7 @@
                     </div>
                   </td>
                   <td class="text-end">
-                    <span class="badge bg-light text-dark">{{ item.qtyOrdered }}</span>
-                  </td>
-                  <td class="text-end">
-                    {% set receivedPct = (item.qtyReceived / item.qtyOrdered * 100)|round %}
-                    {% if item.qtyReceived == item.qtyOrdered %}
-                      <span class="badge bg-success">{{ item.qtyReceived }}</span>
-                    {% elseif item.qtyReceived > 0 %}
-                      <span class="badge bg-warning text-dark">{{ item.qtyReceived }}</span>
-                    {% else %}
-                      <span class="badge bg-secondary">0</span>
-                    {% endif %}
-                    
-                    {% if item.qtyReceived != item.qtyOrdered %}
-                      <div class="progress mt-1" style="height: 4px;">
-                        <div class="progress-bar bg-{{ item.qtyReceived > 0 ? 'warning' : 'secondary' }}" 
-                             role="progressbar" 
-                             style="width: {{ receivedPct }}%"
-                             aria-valuenow="{{ receivedPct }}" 
-                             aria-valuemin="0" 
-                             aria-valuemax="100"></div>
-                      </div>
-                    {% endif %}
+                    <span class="badge bg-light text-dark">{{ item.quantity }}</span>
                   </td>
                   <td class="text-end">${{ item.unitPrice|number_format(2) }}</td>
                   <td class="text-end">

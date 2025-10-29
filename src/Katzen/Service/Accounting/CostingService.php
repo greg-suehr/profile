@@ -15,8 +15,8 @@ use App\Katzen\Repository\PriceHistoryRepository;
 use App\Katzen\Repository\PlateCostingRepository;
 use App\Katzen\Repository\RecipeCostSnapshotRepository;
 use App\Katzen\Repository\RecipeRepository;
+use App\Katzen\Repository\StockLotRepository;
 use App\Katzen\Repository\StockTargetRepository;
-use App\Katzen\Repository\StockTransactionRepository;
 
 use App\Katzen\Service\Cook\RecipeExpanderService;
 use App\Katzen\Service\Inventory\SupplyResolver;
@@ -34,8 +34,8 @@ final class CostingService
     private PlateCostingRepository $plateCostingRepo,
     private RecipeCostSnapshotRepository $snapshotRepo,
     private RecipeRepository $recipeRepo,
-    private StockTransactionRepository $txnRepo,
-    private StockTargetRepository $targetRepo,    
+    private StockTargetRepository $targetRepo,
+    private StockLotRepository $lotRepo,
     private RecipeExpanderService $expander,
     private SupplyResolver $supply,
     private ConversionHelper $converter,
@@ -86,26 +86,23 @@ final class CostingService
     }
 
     # Continue for FIFO costing
-    $transactions = $this->txnRepo->findStockMovements(
-      $target,
-      'inbound',
-      ordered: 'ASC'
-    );
+    $lots = $this->lotRepo->findLotsForCosting($target, 'FIFO', onlyAvailable: true);
     
     $breakdown = [];
     $remaining = $qty;
     
-    foreach ($transactions as $txn) {
+    foreach ($lots as $lot) {
       if ($remaining <= 0) break;
       
-      $available = $txn->getQuantity();
+      $available = $lot->getCurrentQty() - $lot->getReservedQty();
       $consumed = min($available, $remaining);
       
       $breakdown[] = [
-        'transaction_id' => $txn->getId(),
+        'lot_id' => $lot->getId(),
+        'lot_number' => $lot->getLotNumber(),
         'qty' => $consumed,
-        'unit_cost' => $txn->getUnitCost(),
-        'total' => $consumed * $txn->getUnitCost(),
+        'unit_cost' => $lot->getUnitCost(),
+        'total' => $consumed * $lot->getUnitCost(),
       ];
       
       $remaining -= $consumed;
@@ -119,24 +116,25 @@ final class CostingService
    */
   private function getWeightedAverageCostBreakdown(StockTarget $target, float $qty): array
   {
-    $transactions = $this->txnRepo->findStockMovements($target, 'receipt');
-        
-    $totalValue = 0.0;
-    $totalQty = 0.0;
+   $lots = $this->lotRepo->findLotsForCosting($target, 'FIFO', onlyAvailable: true);
+   
+   $totalValue = 0.0;
+   $totalQty = 0.0;
     
-    foreach ($transactions as $txn) {
-      $totalValue += $txn->getQuantity() * $txn->getUnitCost();
-      $totalQty += $txn->getQuantity();
+   foreach ($lots as $lot) {
+      $totalValue += $lot->getCurrentQty() * $lot->getUnitCost();
+      $totalQty += $lot->getCurrentQty();
     }
     
-    $avgCost = $totalQty > 0 ? $totalValue / $totalQty : 0.0;
-    
-    return [[
-      'transaction_id' => null,
-      'qty' => $qty,
-      'unit_cost' => $avgCost,
-      'total' => $qty * $avgCost,
-    ]];
+   $avgCost = $totalQty > 0 ? $totalValue / $totalQty : 0.0;
+   # also   = $this->lotRepo->getWeightedAverageCost($target);
+   
+   return [[
+     'transaction_id' => null,
+     'qty' => $qty,
+     'unit_cost' => $avgCost,
+     'total' => $qty * $avgCost,
+   ]];
   }
   
   /**

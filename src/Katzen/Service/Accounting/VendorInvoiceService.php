@@ -281,7 +281,7 @@ final class VendorInvoiceService
         if ($poItem) {
           $invoiceItem->setPurchaseItem($poItem);
           $invoiceItem->setExpectedUnitPrice($poItem->getUnitPrice());
-          $invoiceItem->calculatePriceVariance();
+          $invoiceItem->checkPriceVariance();
           
           $lineVariance = $invoiceItem->getLineTotalVariance();
           if (abs($lineVariance) > 0.01) {
@@ -391,7 +391,7 @@ final class VendorInvoiceService
     
     if ($avgPrice > 0) {
       $item->setExpectedUnitPrice((string)$avgPrice);
-      $item->calculatePriceVariance();
+      $item->checkPriceVariance();
       
       // Flag if variance exceeds 10%
       if (abs((float)$item->getPriceVariancePct()) > 10) {

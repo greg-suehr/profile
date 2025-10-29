@@ -231,8 +231,8 @@ final class VendorInvoiceController extends AbstractController
       } else {
         $session->remove('wizard_data_vendor_invoice_create');
         $this->addFlash('success', $result->getMessage());
-        return $this->redirectToRoute('receipt_show', [
-          'id' => $result->getData()['receipt_id'],
+        return $this->redirectToRoute('vendor_invoice_show', [
+          'id' => $result->getData()[$invoice->getId()],
         ]);
       }
     }

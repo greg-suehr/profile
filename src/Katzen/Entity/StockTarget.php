@@ -29,6 +29,9 @@ class StockTarget
     private ?Unit $base_unit = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
+    private ?float $standard_cost = 0.00;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
     private ?float $current_qty = 0.00;
 
     #[ORM\Column(length: 16, nullable: true)]
@@ -117,6 +120,18 @@ class StockTarget
         return $this;
     }
 
+    public function getStandardCost(): ?string
+    {
+        return $this->standard_cost;
+    }
+
+    public function setStandardCost(?string $standard_cost): static
+    {
+        $this->standard_cost = $standard_cost;
+
+        return $this;
+    }
+  
     public function getCurrentQty(): ?string
     {
         return $this->current_qty;
