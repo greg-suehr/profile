@@ -152,6 +152,7 @@ class DashboardContextService
   {
     $layouts = [
       'service' => [
+        'label' => 'Service',
         'template' => 'katzen/_dashboard_base.html.twig',
         'sections' => [
           [
@@ -195,6 +196,7 @@ class DashboardContextService
         ],
       ],
     'kitchen' => [
+      'label' => 'Prep',      
       'template' => 'katzen/_dashboard_base.html.twig',
       'sections' => [
         [
@@ -218,6 +220,7 @@ class DashboardContextService
       ],
     ],
     'supply' => [
+      'label' => 'Supply',
       'template' => 'katzen/_dashboard_base.html.twig',
       'sections' => [
         [
@@ -275,6 +278,7 @@ class DashboardContextService
       ],
     ],
   'finance' => [
+    'label' => 'Finance',
     'template' => 'katzen/_dashboard_base.html.twig',
     'sections' => [
       [
@@ -385,7 +389,7 @@ class DashboardContextService
     if (isset($layoutData)) {
       $base = array_merge($base, $layoutData);
     }
-    
+
     return array_merge($base, $data);
   }
 }

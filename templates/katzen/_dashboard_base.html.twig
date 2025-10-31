@@ -14,6 +14,25 @@
   <aside class="d-flex flex-column flex-shrink-0 border-end bg-white" style="width: 16rem;">
     <div class="p-3 border-bottom">
       <h1 class="h4 mb-0 text-primary">Katzen</h1>
+      <div class="dropdown">
+        <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          {{ layout.label }}
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item {{ activeDash == 'service' ? 'active' : '' }}" href="{{ path('service_dashboard') }}">
+              Service
+          </a></li>
+          <li><a class="dropdown-item {{ activeDash == 'supply' ? 'active' : '' }}" href="{{ path('supply_dashboard') }}">
+              Supply
+          </a></li>
+          <li><a class="dropdown-item {{ activeDash == 'prep' ? 'active' : '' }}" href="{{ path('prep_dashboard') }}">
+              Prep
+          </a></li>
+          <li><a class="dropdown-item {{ activeDash == 'finance' ? 'active' : '' }}" href="{{ path('finance_dashboard') }}">
+              Finance
+          </a></li>
+        </ul>
+      </div>          
     </div>
     {% include 'katzen/partials/_profile_block.html.twig' %}
     <nav class="flex-grow-1 px-3 py-2">
