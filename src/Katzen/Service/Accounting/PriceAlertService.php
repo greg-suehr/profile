@@ -195,7 +195,7 @@ final class PriceAlertService
         
     if ($lastPrice === null) {
       // Get baseline price (30-day average)
-      $lastPrice = $this->costing->getAveragePrice($stockTarget, null, new \DateTime()->modify('-30 days'), new \DateTime());
+      $lastPrice = $this->costing->getAveragePrice($stockTarget, new \DateTime()->modify('-30 days'), new \DateTime(), null);
     }
 
     if ($lastPrice <= 0) {
@@ -228,7 +228,7 @@ final class PriceAlertService
     float $currentPrice
   ): bool
   {
-    $variance = $this->costing->getPriceVariance($stockTarget, $currentPrice, null, 30);
+    $variance = $this->costing->getPriceVariance($stockTarget, $currentPrice, new \DateTime()->modify('-30 days'), new \DateTime(), null);
         
     return $variance['price_trend'] === 'increasing' 
       && $variance['variance_pct'] > 10; // More than 10% above average
@@ -243,7 +243,7 @@ final class PriceAlertService
   ): bool
   {
     // Get historical max price
-    $stats = $this->priceHistoryRepo->getPriceStatistics($stockTarget, null, 365);
+    $stats = $this->priceHistoryRepo->getPriceStatistics($stockTarget, new \DateTime()->modify('-365 days'), new \DateTime(), null);
         
     if (!$stats) {
       return false;

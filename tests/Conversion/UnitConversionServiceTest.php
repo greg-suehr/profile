@@ -113,7 +113,7 @@ final class UnitConversionServiceTest extends TestCase
         $audit->expects($this->never())->method('log');
         
         $svc     = new UnitConversionService($planner, $rounding, $audit, new NullLogger());
-        $helper  = new ConversionHelper($svc, new NullLogger());
+        $helper  = new ConversionHelper($svc, new NullLogger());        
         $errors  = [];
         
         $val = $helper->tryConvert(

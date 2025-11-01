@@ -22,6 +22,7 @@ use App\Katzen\Service\Cook\RecipeExpanderService;
 use App\Katzen\Service\Inventory\SupplyResolver;
 use App\Katzen\Service\Response\ServiceResponse;
 use App\Katzen\Service\Utility\Conversion\ConversionHelper;
+use App\Katzen\Service\Utility\Conversion\ConversionContext;
 
 use Doctrine\ORM\EntityManagerInterface;
   
@@ -223,22 +224,32 @@ final class CostingService
   {
     $method = $method ?? $this->getDefaultCostingMethod();
     $lines = $this->expander->expandRecipe($recipe, $servings);
-    
+
+    $errors = [];
     $breakdown = [];
     foreach ($lines as $line) {
       $ingredient = $line->ingredient;
       
       // Resolve stock target from ingredient
-      $stockTarget = $this->supply->resolve($ingredient);
+      $stockTarget = $this->supply->getStockTarget($ingredient);
       if (!$stockTarget) {
         continue; // Skip if we can't resolve to inventory
       }
       
       // Convert ingredient quantity to stock target's base unit
-      $qty = $this->converter->convert(
+      $ctx = new ConversionContext(
+        $stockTarget->getItem(),
+        null,
+        null,
+        'CostingService->getRecipeCostBreakdown()',
+      );
+      
+      $qty = $this->converter->tryConvert(
         (float)$ingredient->getQuantity() * $servings,
         $ingredient->getUnit(),
-        $stockTarget->getBaseUnit()
+        $stockTarget->getBaseUnit(),
+        $ctx,
+        $errors,
        );
       
       $unitCost = $this->getUnitCost($stockTarget, $method);
@@ -547,9 +558,9 @@ final class CostingService
    */
   public function getPriceHistory(
     StockTarget $target,
-    ?Vendor $vendor = null,
     \DateTimeInterface $from,
-    \DateTimeInterface $to
+    \DateTimeInterface $to,
+    ?Vendor $vendor = null,      
   ): array
   {
      $qb = $this->priceHistoryRepo->createQueryBuilder('ph')
@@ -587,12 +598,12 @@ final class CostingService
    */
   public function getAveragePrice(
     StockTarget $stockTarget,
-    ?Vendor $vendor = null,
     \DateTimeInterface $from,
     \DateTimeInterface $to,
+    ?Vendor $vendor = null,    
   ): float
   {
-    $history = $this->getPriceHistory($stockTarget, $vendor, $from, $to);
+    $history = $this->getPriceHistory($stockTarget, $from, $to, $vendor);
         
     if (empty($history)) {
       return 0.0;
@@ -629,12 +640,12 @@ final class CostingService
   public function getPriceVariance(
     StockTarget $stockTarget,
     float $currentPrice,
-    ?Vendor $vendor = null,
     \DateTimeInterface $from,
-    \DateTimeInterface $to
+    \DateTimeInterface $to,
+    ?Vendor $vendor = null,    
   ): array
   {
-    $history = $this->getPriceHistory($stockTarget, $vendor, $from, $to);
+    $history = $this->getPriceHistory($stockTarget, $from, $to, $vendor);
     
     if (empty($history)) {
       return [

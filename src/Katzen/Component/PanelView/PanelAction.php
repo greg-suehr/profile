@@ -14,7 +14,8 @@ class PanelAction
     private string $variant = 'primary';
     private ?string $icon = null;
     private string $httpMethod = 'GET';
-    private ?array $route = null; // ['name' => ..., 'params' => ...]
+    private ?string $route = null;
+    private array $routeParams = [];
     private ?string $confirmMessage = null;
     private bool $isBulk = false;
     
@@ -22,6 +23,8 @@ class PanelAction
     {
         $this->action = $action;
         $this->label = $label;
+        $this->icon = '';
+        $this->variant = 'outline-secondary';
     }
     
     // === FACTORY METHODS ===
@@ -36,7 +39,7 @@ class PanelAction
         return new self($action, $label);
     }
     
-    public static function view(array $route): self
+    public static function view(string $route): self
     {
         return (new self('view', 'View'))
             ->setRoute($route)
@@ -44,7 +47,7 @@ class PanelAction
             ->setVariant('outline-primary');
     }
     
-    public static function edit(array $route): self
+    public static function edit(string $route): self
     {
         return (new self('edit', 'Edit'))
             ->setRoute($route)
@@ -52,7 +55,7 @@ class PanelAction
             ->setVariant('outline-secondary');
     }
     
-    public static function delete(array $route): self
+    public static function delete(string $route): self
     {
         return (new self('delete', 'Delete'))
             ->setRoute($route)
@@ -86,9 +89,10 @@ class PanelAction
         return $this->httpMethod;
     }
     
-    public function setRoute(array $route): self
+    public function setRoute(string $route, array $params = []): self
     {
         $this->route = $route;
+        $this->routeParams = $params;
         return $this;
     }
     
@@ -152,6 +156,7 @@ class PanelAction
             'icon' => $this->icon,
             'method' => $this->httpMethod,
             'route' => $this->route,
+            'routeParams' => $this->routeParams,
             'confirmMessage' => $this->confirmMessage,
             'isBulk' => $this->isBulk,
         ];

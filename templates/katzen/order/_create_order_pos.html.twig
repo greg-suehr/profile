@@ -1,0 +1,517 @@
+<div class="container-fluid">
+  <div class="row g-3">
+    
+    {# Left Side: Recipe Selection (60%) #}
+    <div class="col-lg-7">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white border-bottom">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>Menu Items
+            </h5>
+            <div class="input-group" style="max-width: 300px;">
+              <span class="input-group-text bg-white">
+                <i class="bi bi-search"></i>
+              </span>
+              <input 
+                type="text" 
+                class="form-control border-start-0" 
+                placeholder="Search items..." 
+                id="recipe-search"
+                autocomplete="off">
+            </div>
+          </div>
+        </div>
+        
+        <div class="card-body p-3" style="max-height: calc(100vh - 250px); overflow-y: auto;">
+          
+          {# Category Tabs #}
+          <ul class="nav nav-pills mb-3 flex-nowrap overflow-auto" id="category-tabs" role="tablist" style="flex-wrap: nowrap;">
+            <li class="nav-item" role="presentation">
+              <button 
+                class="nav-link active" 
+                id="all-tab" 
+                data-bs-toggle="pill" 
+                data-bs-target="#all" 
+                type="button" 
+                role="tab">
+                All Items
+              </button>
+            </li>
+            {% for tag in categories %}
+              <li class="nav-item" role="presentation">
+                <button 
+                  class="nav-link" 
+                  id="cat-{{ tag.value|replace({' ': '-'}) }}-tab" 
+                  data-bs-toggle="pill" 
+                  data-bs-target="#cat-{{ tag.value|replace({' ': '-'}) }}" 
+                  type="button" 
+                  role="tab">
+                  {{ tag.value|title }}
+                </button>
+              </li>
+            {% endfor %}
+          </ul>
+
+          {# Recipe Grid #}
+          <div class="tab-content" id="category-content">
+            
+            {# All Items Tab #}
+            <div class="tab-pane fade show active" id="all" role="tabpanel">
+              <div class="row g-2" id="recipe-grid">
+                {% for recipe in recipes %}
+                  <div class="col-6 col-md-4 col-xl-3 recipe-card-wrapper" data-recipe-id="{{ recipe.id }}" data-search-text="{{ recipe.title|lower }}">
+                    <div class="card h-100 recipe-card cursor-pointer border" 
+                         onclick="addToOrder({{ recipe.id }}, '{{ recipe.title|e('js') }}', {{ recipe.defaultPrice ?? 0 }})">
+                      <div class="card-body p-2 text-center">
+                        {% if false %} {# TODO: {% if recipe.imageUrl %} #}
+                          <img src="{{ recipe.imageUrl }}" alt="{{ recipe.title }}" class="img-fluid rounded mb-2" style="height: 80px; object-fit: cover; width: 100%;">
+                        {% else %}
+                          <div class="bg-light rounded d-flex align-items-center justify-content-center mb-2" style="height: 80px;">
+                            <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                          </div>
+                        {% endif %}
+                        <h6 class="mb-1 small text-truncate">{{ recipe.title }}</h6>
+                        <small class="text-muted">${{ recipe.defaultPrice ? recipe.defaultPrice|number_format(2, '.', ',') : '0.00' }}</small>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            {# Category-specific tabs #}
+            {% for tag in categories %}
+              <div class="tab-pane fade" id="cat-{{ tag.value|replace({' ': '-'}) }}" role="tabpanel">
+                <div class="row g-2">
+                  {% for recipe in recipes|filter(r => r.tags|filter(t => t.type == 'meal_type' and t.value == tag.value)|length > 0) %}
+                    <div class="col-6 col-md-4 col-xl-3 recipe-card-wrapper" data-recipe-id="{{ recipe.id }}">
+                      <div class="card h-100 recipe-card cursor-pointer border" 
+                           onclick="addToOrder({{ recipe.id }}, '{{ recipe.title|e('js') }}', {{ recipe.defaultPrice ?? 0 }})">
+                        <div class="card-body p-2 text-center">
+                          {% if recipe.imageUrl %}
+                            <img src="{{ recipe.imageUrl }}" alt="{{ recipe.title }}" class="img-fluid rounded mb-2" style="height: 80px; object-fit: cover; width: 100%;">
+                          {% else %}
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center mb-2" style="height: 80px;">
+                              <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                            </div>
+                          {% endif %}
+                          <h6 class="mb-1 small text-truncate">{{ recipe.title }}</h6>
+                          <small class="text-muted">${{ recipe.defaultPrice ? recipe.defaultPrice|number_format(2, '.', ',') : '0.00' }}</small>
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endfor %}
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Right Side: Order Summary & Customer Info (40%) #}
+    <div class="col-lg-5">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-cart-check me-2"></i>
+            {% if order is defined and order.id %}Edit Order #{{ order.id }}{% else %}New Order{% endif %}
+          </h5>
+        </div>
+        
+        <div class="card-body">
+          
+          {# Katzen Tip #}
+          {% if order is not defined or not order.id %}
+          <div class="alert alert-info border-info d-flex align-items-start mb-3">
+            <i class="bi bi-lightbulb text-info me-2 fs-5"></i>
+            <div class="small">
+              <strong>Quick Start:</strong> Select items from the menu on the left. Click an added item to adjust quantity or add notes.
+            </div>
+          </div>
+          {% endif %}
+
+          {{ form_start(form, {'attr': {'id': 'order-form'}}) }}
+          {{ form_errors(form) }}
+
+          {# Customer Selection #}
+          <div class="mb-3">
+            <label class="form-label fw-bold">
+              <i class="bi bi-person me-1"></i>Customer
+            </label>
+            {{ form_widget(form.customer_entity, {'attr': {'class': 'form-select'}}) }}
+          </div>
+
+          {# Scheduled Date/Time #}
+          {% if form.scheduled_at is defined %}
+          <div class="mb-3">
+            <label class="form-label fw-bold">
+              <i class="bi bi-calendar-event me-1"></i>Scheduled For
+            </label>
+            {{ form_widget(form.scheduled_at, {'attr': {'class': 'form-control'}}) }}
+          </div>
+          {% endif %}
+
+          {# Order Notes #}
+          {% if form.notes is defined %}
+          <div class="mb-3">
+            <label class="form-label fw-bold">
+              <i class="bi bi-chat-left-text me-1"></i>Order Notes
+            </label>
+            {{ form_widget(form.notes, {'attr': {'class': 'form-control', 'rows': 2, 'placeholder': 'Special instructions...'}}) }}
+          </div>
+          {% endif %}
+
+          <hr class="my-3">
+
+          {# Order Items List #}
+          <div class="mb-3">
+            <label class="form-label fw-bold">
+              <i class="bi bi-list-ul me-1"></i>Order Items
+              <span class="badge bg-secondary" id="item-count">0</span>
+            </label>
+            
+            <div id="order-items-list" class="border rounded p-2" style="min-height: 150px; max-height: 300px; overflow-y: auto;">
+              <div class="text-center text-muted py-4" id="empty-state">
+                <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                <p class="mb-0 mt-2">No items added yet</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-3">
+
+          {# Order Summary #}
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Subtotal:</span>
+              <span class="fw-bold" id="subtotal-display">$0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Tax (8.5%):</span>
+              <span id="tax-display">$0.00</span>
+            </div>
+            <div class="d-flex justify-content-between border-top pt-2">
+              <span class="fw-bold fs-5">Total:</span>
+              <span class="fw-bold fs-5 text-primary" id="total-display">$0.00</span>
+            </div>
+          </div>
+
+          {# Hidden field for order data #}
+          {{ form_widget(form.recipeIds, {'attr': {'id': 'order-data-field'}}) }}
+
+          {# Action Buttons #}
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg" id="save-order-btn" disabled>
+              <i class="bi bi-check-circle me-2"></i>
+              {% if order is defined and order.id %}Update Order{% else %}Create Order{% endif %}
+            </button>
+            <a href="{{ path('order_index') }}" class="btn btn-outline-secondary">
+              <i class="bi bi-x-circle me-2"></i>Cancel
+            </a>
+          </div>
+
+          {{ form_rest(form) }}
+          {{ form_end(form, {'render_rest': false}) }}
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{# Item Edit Modal #}
+<div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editItemModalLabel">Edit Item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label fw-bold">Item</label>
+          <input type="text" class="form-control" id="modal-item-name" readonly>
+        </div>
+        <div class="mb-3">
+          <label for="modal-quantity" class="form-label fw-bold">Quantity</label>
+          <div class="input-group">
+            <button class="btn btn-outline-secondary" type="button" onclick="adjustQuantity(-1)">
+              <i class="bi bi-dash"></i>
+            </button>
+            <input type="number" class="form-control text-center" id="modal-quantity" value="1" min="1">
+            <button class="btn btn-outline-secondary" type="button" onclick="adjustQuantity(1)">
+              <i class="bi bi-plus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="modal-unit-price" class="form-label fw-bold">Unit Price</label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="number" class="form-control" id="modal-unit-price" step="0.01" min="0">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="modal-notes" class="form-label fw-bold">Special Instructions</label>
+          <textarea class="form-control" id="modal-notes" rows="3" placeholder="e.g., No onions, extra sauce..."></textarea>
+        </div>
+        <div class="mb-3">
+          <div class="d-flex justify-content-between">
+            <span class="fw-bold">Line Total:</span>
+            <span class="fw-bold fs-5 text-primary" id="modal-line-total">$0.00</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" onclick="removeItem()">
+          <i class="bi bi-trash me-1"></i>Remove Item
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="saveItemChanges()">
+          <i class="bi bi-check-circle me-1"></i>Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.recipe-card {
+  transition: all 0.2s ease;
+}
+
+.recipe-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-color: var(--bs-primary) !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.order-item-card {
+  transition: background-color 0.2s ease;
+}
+
+.order-item-card:hover {
+  background-color: #f8f9fa;
+}
+
+#order-items-list:empty::before {
+  content: '';
+}
+</style>
+
+<script>
+// Order state management
+const orderState = {
+  items: {},  // { recipeId: { name, quantity, unitPrice, notes } }
+  taxRate: 0.085,
+  currentEditingId: null
+};
+
+// Initialize with existing order items if editing
+{% if order is defined and order.orderItems|length > 0 %}
+document.addEventListener('DOMContentLoaded', function() {
+  {% for item in order.orderItems %}
+    orderState.items[{{ item.recipeListRecipeId.id }}] = {
+      name: '{{ item.recipeListRecipeId.title|e('js') }}',
+      quantity: {{ item.quantity }},
+      unitPrice: {{ item.unitPrice }},
+      notes: '{{ item.notes|default('')|e('js') }}'
+    };
+  {% endfor %}
+  updateOrderDisplay();
+});
+{% endif %}
+
+// Add item to order
+function addToOrder(recipeId, recipeName, defaultPrice) {
+  if (orderState.items[recipeId]) {
+    // Item already exists, increment quantity
+    orderState.items[recipeId].quantity++;
+  } else {
+    // New item
+    orderState.items[recipeId] = {
+      name: recipeName,
+      quantity: 1,
+      unitPrice: defaultPrice,
+      notes: ''
+    };
+  }
+  
+  updateOrderDisplay();
+  
+  // Visual feedback
+  const card = document.querySelector(`[data-recipe-id="${recipeId}"] .recipe-card`);
+  if (card) {
+    card.classList.add('border-success', 'border-2');
+    setTimeout(() => {
+      card.classList.remove('border-success', 'border-2');
+    }, 300);
+  }
+}
+
+// Update order display
+function updateOrderDisplay() {
+  const container = document.getElementById('order-items-list');
+  const emptyState = document.getElementById('empty-state');
+  const itemCount = document.getElementById('item-count');
+  const saveBtn = document.getElementById('save-order-btn');
+  
+    const itemIds = Object.keys(orderState.items);
+    console.log(orderState);
+  
+  if (itemIds.length === 0) {
+    emptyState.style.display = 'block';
+    itemCount.textContent = '0';
+    saveBtn.disabled = true;
+    updateTotals();
+    return;
+  }
+  
+  itemCount.textContent = itemIds.length;
+  saveBtn.disabled = false;
+  
+  // Build items list
+  let html = '';
+  itemIds.forEach(recipeId => {
+    const item = orderState.items[recipeId];
+    const lineTotal = item.quantity * item.unitPrice;
+    
+    html += `
+      <div class="order-item-card border-bottom py-2 px-2 cursor-pointer" onclick="editItem(${recipeId})">
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="flex-grow-1">
+            <div class="fw-bold">${item.name}</div>
+            <div class="small text-muted">
+              Qty: ${item.quantity} × $${item.unitPrice.toFixed(2)} = $${lineTotal.toFixed(2)}
+            </div>
+            ${item.notes ? `<div class="small text-info"><i class="bi bi-chat-left-dots me-1"></i>${item.notes}</div>` : ''}
+          </div>
+          <div class="text-end">
+            <span class="badge bg-primary">${item.quantity}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+  
+  updateTotals();
+  updateHiddenField();
+}
+
+// Update totals
+function updateTotals() {
+  let subtotal = 0;
+  
+  Object.values(orderState.items).forEach(item => {
+    subtotal += item.quantity * item.unitPrice;
+  });
+  
+  const tax = subtotal * orderState.taxRate;
+  const total = subtotal + tax;
+  
+  document.getElementById('subtotal-display').textContent = '$' + subtotal.toFixed(2);
+  document.getElementById('tax-display').textContent = '$' + tax.toFixed(2);
+  document.getElementById('total-display').textContent = '$' + total.toFixed(2);
+}
+
+// Update hidden field with order data
+function updateHiddenField() {
+  const data = Object.keys(orderState.items).map(recipeId => {
+    const item = orderState.items[recipeId];
+    return {
+      recipe_id: parseInt(recipeId),
+      quantity: item.quantity,
+      unit_price: item.unitPrice,
+      notes: item.notes
+    };
+  });
+
+  document.getElementById('order_pos_recipeIds').value = JSON.stringify(data);
+}
+
+// Edit item - open modal
+function editItem(recipeId) {
+  orderState.currentEditingId = recipeId;
+  const item = orderState.items[recipeId];
+  
+  document.getElementById('modal-item-name').value = item.name;
+  document.getElementById('modal-quantity').value = item.quantity;
+  document.getElementById('modal-unit-price').value = item.unitPrice;
+  document.getElementById('modal-notes').value = item.notes;
+  
+  updateModalLineTotal();
+  
+  const modal = new bootstrap.Modal(document.getElementById('editItemModal'));
+  modal.show();
+}
+
+// Adjust quantity in modal
+function adjustQuantity(delta) {
+  const input = document.getElementById('modal-quantity');
+  const newValue = parseInt(input.value) + delta;
+  if (newValue >= 1) {
+    input.value = newValue;
+    updateModalLineTotal();
+  }
+}
+
+// Update line total in modal
+function updateModalLineTotal() {
+  const qty = parseInt(document.getElementById('modal-quantity').value);
+  const price = parseFloat(document.getElementById('modal-unit-price').value);
+  const total = qty * price;
+  document.getElementById('modal-line-total').textContent = '$' + total.toFixed(2);
+}
+
+// Save item changes from modal
+function saveItemChanges() {
+  const recipeId = orderState.currentEditingId;
+  
+  orderState.items[recipeId].quantity = parseInt(document.getElementById('modal-quantity').value);
+  orderState.items[recipeId].unitPrice = parseFloat(document.getElementById('modal-unit-price').value);
+  orderState.items[recipeId].notes = document.getElementById('modal-notes').value;
+  
+  updateOrderDisplay();
+  
+  bootstrap.Modal.getInstance(document.getElementById('editItemModal')).hide();
+}
+
+// Remove item
+function removeItem() {
+  const recipeId = orderState.currentEditingId;
+  delete orderState.items[recipeId];
+  
+  updateOrderDisplay();
+  
+  bootstrap.Modal.getInstance(document.getElementById('editItemModal')).hide();
+}
+
+// Listen for changes in modal fields
+document.getElementById('modal-quantity')?.addEventListener('input', updateModalLineTotal);
+document.getElementById('modal-unit-price')?.addEventListener('input', updateModalLineTotal);
+
+// Recipe search functionality
+document.getElementById('recipe-search')?.addEventListener('input', function(e) {
+  const searchTerm = e.target.value.toLowerCase();
+  const cards = document.querySelectorAll('.recipe-card-wrapper');
+  
+  cards.forEach(card => {
+    const searchText = card.dataset.searchText || '';
+    if (searchText.includes(searchTerm)) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+});
+</script>

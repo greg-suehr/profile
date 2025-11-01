@@ -2,19 +2,20 @@
 
 namespace App\Katzen\Service;
 
-use App\Katzen\Entity\Order;
-use App\Katzen\Entity\OrderItem;
+use App\Katzen\Entity\{Order, OrderItem};
 use App\Katzen\Entity\Recipe;
-use App\Katzen\Messenger\Message\AsyncTaskMessage;
-use App\Katzen\Repository\OrderRepository;
-use App\Katzen\Repository\OrderItemRepository;
+use App\Katzen\Repository\{OrderRepository, OrderItemRepository};
 use App\Katzen\Repository\RecipeRepository;
+
 use App\Katzen\Service\AccountingService;
+use App\Katzen\Service\Accounting\CostingService;
 use App\Katzen\Service\Cook\RecipeExpanderService;
 use App\Katzen\Service\InventoryService;
 use App\Katzen\Service\Inventory\StockTargetAutogenerator;
 use App\Katzen\Service\Order\RequirementsPlanner;
+
 use App\Katzen\Service\Response\ServiceResponse;
+use App\Katzen\Messenger\Message\AsyncTaskMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class OrderService
@@ -25,6 +26,7 @@ final class OrderService
     private RecipeRepository $recipeRepo,
     private RequirementsPlanner $requirements,
     private AccountingService $accounting,
+    private CostingService $costing,
     private InventoryService $inventoryService,
     private StockTargetAutogenerator $autogenerator,
     private RecipeExpanderService $expander,
@@ -34,87 +36,137 @@ final class OrderService
   /**   
    * Create a new order and order items.
    *
-   * Consumes an Order entity from a form and a recipe => quantity array,
-   * creates OrderItem entities and persists everything.
+   * Handles recipe lookup, COGS estimation, price defaults, and validation.
    *
-   * * @param Order $order The order to modify
-   * * @param array<int,int|float> $recipeQuantities
+   * * @param Order $order The hydrated order entity
+   * * @param array $itemData [
+   * *   ['recipe_id' => int, 'quantity' => int, 'unit_price' => float, 'notes' => string],
+   * *   ...
+   * * ]
+   * @param array $options Optional configuration:
+   *   - 'calculate_cogs' => bool (default: true) - Whether to estimate COGS
+   *   - 'use_recipe_prices' => bool (default: false) - Override with recipe default prices
+   *   - 'apply_customer_pricing' => bool (default: false) - Apply customer-specific pricing rules
+   *
+   * @return ServiceResponse
    */
-  public function createOrder(Order $order, array $recipeQuantities): ServiceResponse
+  public function createOrder(
+    Order $order,
+    array $itemsData,
+    array $options = []
+  ): ServiceResponse
   {
      try {
-       if (empty($recipeQuantities)) {
+       if (empty($itemsData)) {
          return ServiceResponse::failure(
-           errors: ['No recipes provided.'],
-           message: 'Order not created: empty recipe list.',
+           errors: ['No items provided'],
+           message: 'Order must have at least one item',
            data: ['order_id' => $order->getId()]
          );
        }
        
-       $recipes = $this->recipeRepo->findBy(['id' => array_keys($recipeQuantities)]);
+       $calculateCogs = $options['calculate_cogs'] ?? true;
+       $useRecipePrices = $options['use_recipe_prices'] ?? false;
+       $applyCustomerPricing = $options['apply_customer_pricing'] ?? false;
 
-       if (empty($recipes)) {
+       $recipeIds = array_column($itemsData, 'recipe_id');
+       $recipes = $this->recipeRepo->findBy(['id' => $recipeIds]);
+
+       if (count($recipes) !== count($recipeIds)) {
+         $foundIds = array_map(fn($r) => $r->getId(), $recipes);
+         $missingIds = array_diff($recipeIds, $foundIds);
+         
          return ServiceResponse::failure(
-           errors: ['No matching recipes found for provided IDs.'],
-           message: 'Order not created: invalid recipe IDs.',
+           errors: [sprintf('Invalid recipe IDs: %s', implode(', ', $missingIds))],
+           message: 'Some recipes could not be found',
            data: ['order_id' => $order->getId()]
          );
        }
 
-       $missingIds = array_diff(array_keys($recipeQuantities), array_map(fn($r) => $r->getId(), $recipes));
-       $errors = [];
-       if (!empty($missingIds)) {
-         $errors[] = sprintf('Unknown recipe IDs: %s', implode(', ', $missingIds));
-       }
-
-       $orderSubtotal = 0.00;
-       $orderTaxAmount = 0.00;
-       # TODO: sort out Order, Menu, Recipe, Item, StockTarget associations...
+       $recipeMap = [];
        foreach ($recipes as $recipe) {
-         $this->autogenerator->ensureExistsForRecipe($recipe);
+         $recipeMap[$recipe->getId()] = $recipe;
+       }
+       
+       # TODO: design a Sellable or Product entity and clarify the
+       #       Order, Menu, Recipe, Item, StockTarget associations
+       $errors = [];
+       foreach ($itemsData as $itemData) {
+         $recipeId = $itemData['recipe_id'];
+         $recipe = $recipeMap[$recipeId];
 
-         $qty = (float) ($recipeQuantities[$recipe->getId()] ?? 1);
-         if ($qty <= 0) {
-           $errors[] = sprintf('Quantity must be positive for recipe %d.', $recipe->getId());
+         $quantity = (int)($itemData['quantity'] ?? 1);
+         if ($quantity < 1) {
+           $errors[] = sprintf('Invalid quantity for recipe %s', $recipe->getTitle());
            continue;
          }
-      
-         $item = new OrderItem();
-         $item->setRecipeListRecipeId($recipe);
-         $item->setQuantity($qty);
-         $item->setUnitPrice(1.00); # TODO: initialize OrderItem Price from pricing service
-         $item->setCogs(0.00);      # TODO: initialize expected COGS from costing service         
-         $item->setOrderId($order);
-         $order->addOrderItem($item);
-         $orderSubtotal += $item->getItemSubtotal();
-         $orderTaxAmount += 0.00; # TODO: design OrderItem level tax rules
+
+         # TODO: initialize OrderItem Price from pricing service
+         # TODO: design OrderItem level tax rules          
+         $unitPrice = $this->resolveUnitPrice(
+           $itemData,
+           $recipe,
+           $order->getCustomerEntity(),
+           $useRecipePrices,
+           $applyCustomerPricing
+         );
+
+         $cogs = '0.00';
+         if ($calculateCogs) {
+           try {
+             $cogs = $this->costing->getRecipeCost($recipe, $quantity);
+           } catch (\Exception $e) {
+             // Soft fail on COGS issues
+             $errors[] = sprintf(
+               'Could not estimate COGS for %s: %s',
+               $recipe->getTitle(),
+               $e->getMessage()
+             );
+           }
+         }
+
+         $orderItem = new OrderItem();
+         $orderItem->setRecipeListRecipeId($recipe);
+         $orderItem->setQuantity($quantity);
+         $orderItem->setUnitPrice($unitPrice);
+         $orderItem->setCogs($cogs);
+         
+         if (!empty($itemData['notes'])) {
+           $orderItem->setNotes($itemData['notes']);
+         }
+         
+         $order->addOrderItem($orderItem);
        }
 
+       $order->calculateTotals();
+
+       $this->orderRepo->save($order, true);
+
+       $response = ServiceResponse::success(
+         data: [
+           'order_id' => $order->getId(),
+           'item_count' => count($order->getOrderItems()),
+           'subtotal' => $order->getSubtotal(),
+           'tax_amount' => $order->getTaxAmount(),
+           'total_amount' => $order->getTotalAmount(),
+         ],
+         message: 'Order created successfully'
+       );
+       
        if (!empty($errors)) {
-         return ServiceResponse::failure(
-           errors: $errors,
-           message: 'Order not created due to validation errors.',
-           data: ['order_id' => $order->getId()]
+         return ServiceResponse::success(
+           data: $response->getData(),
+           message: $response->getMessage(),
+           metadata: ['warnings' => $errors]
          );
        }
-       $order->setSubtotal($orderSubtotal);
-       $order->setTaxAmount($orderTaxAmount);
-       $order->setFulfillmentStatus('unfulfilled');
-       $order->setStatus('pending');
-       $this->orderRepo->save($order);
 
-       return ServiceResponse::success(
-         data: [
-           'order_id'   => $order->getId(),
-           'item_count' => count($order->getOrderItems()),
-           'status'     => 'pending',
-         ],
-         message: 'Order created.'
-       );
+       return $response;
+      
      } catch (\Throwable $e) {
        return ServiceResponse::failure(
-         errors: ['Failed to create order: ' . $e->getMessage()],
-         message: 'Unhandled exception while creating order.',
+         errors: [$e->getMessage()],
+         message: 'Failed to create order',
          data: ['order_id' => $order->getId()],
          metadata: [
            'exception' => get_class($e),
@@ -122,93 +174,190 @@ final class OrderService
          ]
        );
      }
-  }     
-
+  }  
 
   /**
-   * Replace the order’s recipes with the provided list (default qty = 1 for new items).
+   * Update an existing order with new items
+   * 
+   * Replaces all order items with new data. Validates that order can be modified.
    *
-   * Removes OrderItems whose recipes are not in `$recipeIds`, keeps those that are,
-   * and creates new OrderItems (qty=1) for any additional recipe IDs found. Validates
-   * that all provided IDs exist before mutating the order, then saves with status
-   * reset to `pending`.
-   *
-   * * @param Order $order The order to modify
-   * * @param int[] $recipeIds List of recipe IDs to be the full contents of the order
-   * * @return ServiceResponse Returns success with counts or failure with validation errors
+   * @param Order $order The order to update
+   * @param array $itemsData Same format as createOrder()
+   * @param array $options Same options as createOrder()
+   * @return ServiceResponse
    */
-  public function updateOrder(Order $order, array $recipeIds): ServiceResponse
+  public function updateOrder(Order $order, array $itemsData, array $options): ServiceResponse
   {
     try {
-      $existingItems = $order->getOrderItems();
-      $existingRecipeIds = [];
-    
-      foreach ($existingItems as $item) {
-        $existingId = $item->getRecipeListRecipeId()->getId();
-
-        if ($existingId === null) {
-          $order->removeOrderItem($item);
-          $this->itemRepo->remove($item);
-          continue;
-        }
-        
-        if (!in_array($existingId, $recipeIds, true)) {
-          $order->removeOrderItem($item);
-          $this->itemRepo->remove($item);
-        } else {
-          $existingRecipeIds[] = $existingId;
-        }
+      if (!$order->canBeModified()) {
+        return ServiceResponse::failure(
+          errors: ['Order cannot be modified in its current state'],
+          message: sprintf('Cannot edit order in %s status', $order->getStatus()),
+          data: ['order_id' => $order->getId()]
+        );
       }
-    
-      $newRecipeIds = array_values(array_diff($recipeIds, $existingRecipeIds));
-      if (!empty($newRecipeIds)) {
-        $newRecipes = $this->recipeRepo->findBy(['id' => $newRecipeIds]);
-        
-        $foundIds = array_map(fn($r) => $r->getId(), $newRecipes);
-        $invalidIds = array_diff($newRecipeIds, $foundIds);
-        
-        if (!empty($invalidIds)) {
-          return ServiceResponse::failure(
-            errors: [sprintf('Unknown recipe IDs: %s', implode(', ', $invalidIds))],
-            message: 'Order not updated due to invalid recipe IDs.',
-            data: ['order_id' => $order->getId()]
-          );
-        }
-        
-        foreach ($newRecipes as $recipe) {
-          # TODO: remove shim after shoring up input data validation
-          $this->autogenerator->ensureExistsForRecipe($recipe);
-        
-          $item = new OrderItem();
-          $item->setRecipeListRecipeId($recipe);
-          $item->setQuantity(1);
-          $item->setOrderId($order);
-          $order->addOrderItem($item);
-        }
-      }
-    
-      $order->setStatus('pending');
-      $this->orderRepo->save($order);
 
+      if (empty($itemsData)) {
+        return ServiceResponse::failure(
+          errors: ['No items provided'],
+          message: 'Order must have at least one item'
+        );
+      }
+
+      foreach ($order->getOrderItems()->toArray() as $item) {
+        $order->removeOrderItem($item);
+      }
+      
+      $result = $this->buildOrderItems($order, $itemsData, $options);
+            
+      if ($result->isFailure()) {
+        return $result;
+      }
+
+      $this->orderRepo->save($order, true);
+      
       return ServiceResponse::success(
         data: [
-          'order_id'   => $order->getId(),
+          'order_id' => $order->getId(),
           'item_count' => count($order->getOrderItems()),
-          'status'     => 'pending',
+          'subtotal' => $order->getSubtotal(),
+          'tax_amount' => $order->getTaxAmount(),
+          'total_amount' => $order->getTotalAmount(),
         ],
-        message: 'Order updated.'
+        message: 'Order updated successfully'
       );
+      
     } catch (\Throwable $e) {
       return ServiceResponse::failure(
-        errors: ['Failed to update order: ' . $e->getMessage()],
-        message: 'Unhandled exception while updating order.',
-        data: ['order_id' => $order->getId()],
+        errors: [$e->getMessage()],
+        message: 'Failed to update order',
         metadata: [
           'exception' => get_class($e),
-          'code'      => (int) $e->getCode(),
+          'order_id' => $order->getId(),
         ]
       );
     }
+  }
+
+  /**
+   * Build OrderItem entities and add to order
+   * 
+   * Extracted for reuse between create and update
+   */
+  private function buildOrderItems(Order $order, array $itemsData, array $options): ServiceResponse
+  {
+    $calculateCogs = $options['calculate_cogs'] ?? true;
+    $useRecipePrices = $options['use_recipe_prices'] ?? false;
+    $applyCustomerPricing = $options['apply_customer_pricing'] ?? false;
+    
+    $recipeIds = array_column($itemsData, 'recipe_id');
+    $recipes = $this->recipeRepo->findBy(['id' => $recipeIds]);
+    
+    if (count($recipes) !== count($recipeIds)) {
+      $foundIds = array_map(fn($r) => $r->getId(), $recipes);
+      $missingIds = array_diff($recipeIds, $foundIds);
+      
+      return ServiceResponse::failure(
+        errors: [sprintf('Invalid recipe IDs: %s', implode(', ', $missingIds))],
+        message: 'Some items could not be found',
+        metadata: [
+          'order_id' => $order->getId(),
+        ]
+      );
+    }
+
+    $recipeMap = [];
+    foreach ($recipes as $recipe) {
+      $recipeMap[$recipe->getId()] = $recipe;
+    }
+
+    $errors = [];
+    foreach ($itemsData as $itemData) {
+      $recipeId = $itemData['recipe_id'];
+      $recipe = $recipeMap[$recipeId];
+      
+      $quantity = (int)($itemData['quantity'] ?? 1);
+      if ($quantity < 1) {
+        $errors[] = sprintf('Invalid quantity for recipe %s', $recipe->getTitle());
+        continue;
+      }
+      
+      $unitPrice = $this->resolveUnitPrice(
+        $itemData,
+        $recipe,
+        $order->getCustomerEntity(),
+        $useRecipePrices,
+        $applyCustomerPricing
+      );
+
+      $cogs = '0.00';
+      if ($calculateCogs) {
+        try {
+          $cogs = $this->costing->getRecipeCost($recipe, $quantity);
+        } catch (\Exception $e) {
+          $errors[] = sprintf(
+            'Could not estimate COGS for %s: %s',
+            $recipe->getTitle(),
+            $e->getMessage(),
+          );
+        }
+      }
+
+      $orderItem = new OrderItem();
+      $orderItem->setRecipeListRecipeId($recipe);
+      $orderItem->setQuantity($quantity);
+      $orderItem->setUnitPrice($unitPrice);
+      $orderItem->setCogs($cogs);
+      
+      if (!empty($itemData['notes'])) {
+        $orderItem->setNotes($itemData['notes']);
+      }
+      
+      $order->addOrderItem($orderItem);
+    }
+
+    if (!empty($errors)) {
+      return ServiceResponse::success(
+        data: [],
+        message: 'Items added with warnings',
+        metadata: ['warnings' => $errors]
+      );
+    }
+    
+    return ServiceResponse::success(data: []);
+  }
+
+  /**
+   * Resolve the unit price for an order item
+   * 
+   * Priority:
+   * 1. Explicit price from form data (user override)
+   * 2. Customer-specific pricing (if enabled)
+   * 3. Recipe default price (if enabled)
+   * 4. Fallback to 0.00
+   */
+  private function resolveUnitPrice(
+    array $itemData,
+    Recipe $recipe,
+    $customer,
+    bool $useRecipePrices,
+    bool $applyCustomerPricing
+  ): string {
+    if (isset($itemData['unit_price'])) {
+      return number_format((float)$itemData['unit_price'], 2, '.', '');
+    }
+    
+    if ($applyCustomerPricing && $customer) {
+      // TODO: Implement customer pricing lookup
+      // $customPrice = $this->pricingService->getPriceForCustomer($customer, $recipe);
+      // if ($customPrice) return $customPrice;
+    }
+
+    if ($useRecipePrices && $recipe->getDefaultPrice()) {
+      return $recipe->getDefaultPrice();
+    }
+
+    return '0.00';
   }
 
   /**

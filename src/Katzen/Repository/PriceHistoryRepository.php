@@ -33,7 +33,7 @@ class PriceHistoryRepository extends ServiceEntityRepository
     StockTarget $stockTarget,
     ?Vendor $vendor = null,
     ?\DateTimeInterface $since = null,
-    int $limit = 100
+    ?int $limit = 100
   ): array
   {
     $qb = $this->createQueryBuilder('ph')
@@ -76,18 +76,19 @@ class PriceHistoryRepository extends ServiceEntityRepository
    */
   public function getAveragePrice(
     StockTarget $stockTarget,
+    \DateTimeInterface $from,
+    \DateTimeInterface $to,
     ?Vendor $vendor = null,
-    int $days = 30
   ): ?float
   {
-    $since = (new \DateTime())->modify("-{$days} days");
-
     $qb = $this->createQueryBuilder('ph')
             ->select('AVG(ph.unit_price) as avg_price')
             ->where('ph.stock_target = :target')
-            ->andWhere('ph.effective_date >= :since')
+            ->andWhere('ph.effective_date >= :from')
+            ->andWhere('ph.effective_date < :to')      
             ->setParameter('target', $stockTarget)
-            ->setParameter('since', $since);
+            ->setParameter('from', $from)
+            ->setParameter('to', $to);
 
     if ($vendor) {
       $qb->andWhere('ph.vendor = :vendor')
@@ -106,12 +107,11 @@ class PriceHistoryRepository extends ServiceEntityRepository
    */
   public function getPriceStatistics(
     StockTarget $stockTarget,
-    ?Vendor $vendor = null,
-    int $days = 90
+    \DateTimeInterface $from,
+    \DateTimeInterface $to,
+    ?Vendor $vendor = null,    
   ): ?array
   {
-    $since = (new \DateTime())->modify("-{$days} days");
-
     $qb = $this->createQueryBuilder('ph')
             ->select(
                 'MIN(ph.unit_price) as min_price',
@@ -120,9 +120,11 @@ class PriceHistoryRepository extends ServiceEntityRepository
                 'COUNT(ph.id) as price_count'
             )
             ->where('ph.stock_target = :target')
-            ->andWhere('ph.effective_date >= :since')
+            ->andWhere('ph.effective_date >= :from')
+            ->andWhere('ph.effective_date < :to')      
             ->setParameter('target', $stockTarget)
-            ->setParameter('since', $since);
+            ->setParameter('from', $from)
+            ->setParameter('to', $to);
 
     if ($vendor) {
       $qb->andWhere('ph.vendor = :vendor')

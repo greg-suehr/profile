@@ -295,7 +295,7 @@ class Vendor
     }
 
     #[ORM\PrePersist]
-    #[ORM\PostPersist]  
+    #[ORM\PreUpdate]  
     public function setUpdatedAt(): static
     {
         $this->updated_at = new \DateTime();

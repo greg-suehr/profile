@@ -30,5 +30,18 @@ final class SupplyResolver implements SupplyResolverInterface
       'recipe' => $this->em->getRepository(Recipe::class)->find($id),
       default => throw new UnexpectedValueException("Unknown supply type: $type"),
     } ?? throw new \RuntimeException("Supply of type '$type' with ID $id not found");
-    }
+  }
+
+  public function getStockTarget(RecipeIngredient $ingredient): object
+  {
+    $type = $ingredient->getSupplyType();
+    $id = $ingredient->getSupplyId();
+     
+    return match ($type) {
+      'item' => $this->em->getRepository(StockTarget::class)->findOneByItemId($id),
+      'recipe' => $this->em->getRepository(StockTarget::class)->findOneByRecipeId($id),
+      default => throw new UnexpectedValueException("Unknown supply type: $type"),
+    } ?? throw new \RuntimeException("Supply of type '$type' with ID $id not found");
+  }
+
 }

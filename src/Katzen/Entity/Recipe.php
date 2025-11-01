@@ -60,6 +60,9 @@ class Recipe
     #[ORM\Column]
     private ?bool $is_public = false;
 
+    #[ORM\Column(type: Types::DECIMAL, precision: 18, scale: 6)]
+    private ?string $default_price = '0.00';
+
     /**
      * @var Collection<int, RecipeIngredient>
      */
@@ -248,6 +251,17 @@ class Recipe
         $this->is_public = $is_public;
 
         return $this;
+    }
+
+    public function getDefaultPrice(): ?string
+    {
+      return $this->default_price;
+    }
+
+    public function setDefaultPrice(string $default_price): static
+    {
+      $this->default_price = $default_price;
+      return $this;
     }
 
     /**

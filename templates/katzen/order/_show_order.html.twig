@@ -212,15 +212,15 @@
       
       <div class="btn-group" role="group">
         {% if order.status == 'pending' or order.status == 'ready' %}
-          <a href="{{ path('order_edit_form', {'id': order.id}) }}" class="btn btn-primary">
+          <a href="{{ path('order_edit', {'id': order.id}) }}" class="btn btn-primary">
             <i class="bi bi-pencil me-1"></i>Edit Order
           </a>
         {% endif %}
         
         {% if order.status == 'pending' or order.status == 'ready' %}
-          <form action="{{ path('order_complete', {'id': order.id}) }}" method="post" style="display:inline" 
+          <form action="{{ path('order_fulfill_all', {'id': order.id}) }}" method="post" style="display:inline" 
                 onsubmit="return confirm('Mark this order as complete?');">
-            <input type="hidden" name="_token" value="{{ csrf_token('order_complete_' ~ order.id) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('order_fulfill_all_' ~ order.id) }}">
             <button type="submit" class="btn btn-success">
               <i class="bi bi-check-circle me-1"></i>Mark as Complete
             </button>
@@ -234,7 +234,7 @@
         {% endif %}
         
         <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
-          <i class="bi bi-x-circle me-1"></i>Cancel Order
+          <i class="bi bi-x-circle me-1"></i>Void Order
         </button>
       </div>
     </div>
@@ -258,10 +258,10 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Order</button>
-        <form action="{{ path('order_cancel', {'id': order.id}) }}" method="post" style="display:inline">
-          <input type="hidden" name="_token" value="{{ csrf_token('order_cancel_' ~ order.id) }}">
+        <form action="{{ path('order_void', {'id': order.id}) }}" method="post" style="display:inline">
+          <input type="hidden" name="_token" value="{{ csrf_token('order_void_' ~ order.id) }}">
           <button type="submit" class="btn btn-danger">
-            <i class="bi bi-x-circle me-1"></i>Yes, Cancel Order
+            <i class="bi bi-x-circle me-1"></i>Yes, Void Order
           </button>
         </form>
       </div>

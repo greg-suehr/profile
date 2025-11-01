@@ -40,6 +40,12 @@ class DependencyPurger
         'App\Katzen\Entity\StockLocation',
         'App\Katzen\Entity\Account',
         'App\Katzen\Entity\Unit',
+
+        //Level 5 - System logs
+        'App\Katzen\Entity\PriceHistory',
+        'App\Katzen\Entity\UnitConversionLog',
+        'App\Katzen\Entity\Tag',        
+        'App\Katzen\Entity\ChangeLog',
     ];
 
     public function __construct(private EntityManagerInterface $em)

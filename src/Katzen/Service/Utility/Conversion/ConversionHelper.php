@@ -3,6 +3,7 @@
 namespace App\Katzen\Service\Utility\Conversion;
 
 use App\Katzen\Entity\Unit;
+use App\Katzen\Service\Utility\Conversion\ConversionResult;
 use Psr\Log\LoggerInterface;
 
 final class ConversionHelper
@@ -11,6 +12,23 @@ final class ConversionHelper
     private UnitConversionService $svc,
     private LoggerInterface $logger
   ) {}
+
+  /**
+   * Don't use this.
+   * If you're feeling lazy, it can be helpful for debugging in the UI.
+   * But you shouldn't be debugging in the UI, so don't use this.
+   */  
+  public function dangerConvert(
+    float $qty,
+    Unit $from,
+    Unit $to,
+    ?ConversionContext $ctx,
+    ?array &$errors,
+    ?array $trigger = [],
+  ): ConversionResult
+  {
+    return $this->svc->convert($qty, $from, $to, $ctx, $trigger);
+  }
   
   /**
    * Convert or return null and push a human message to $errors[].
@@ -21,17 +39,15 @@ final class ConversionHelper
     float $qty,
     Unit $from,
     Unit $to,
-      ?ConversionContext $ctx,
+    ?ConversionContext $ctx,
     array &$errors,
-    array $trigger = [],
+    ?array $trigger = [],
   ): ?float {
     try {
-      
       $res = $this->svc->convert($qty, $from, $to, $ctx, $trigger);
       return $res->value;
       
     } catch (UnitConversionException $e) {
-      
       $msg = $this->humanizeError($e, $from, $to);
       $errors[] = $msg;
       $this->logger->notice('Conversion failed', ['msg' => $msg, 'ctx' => $e->getContext()]);

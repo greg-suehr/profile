@@ -227,8 +227,8 @@ final class InventoryService
   public function consumeStock(
     int $stockTargetId,
     float $quantity,
-    int $locationId = null,
-    string $method = 'FEFO',
+    ?int $locationId = null,
+    ?string $method = 'FEFO',
     ?string $reason = null
   ): ServiceResponse
   {

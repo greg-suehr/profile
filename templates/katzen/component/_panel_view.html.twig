@@ -26,8 +26,9 @@
             {% for a in view.bulkActions %}
               <button class="dropdown-item panel-bulk-action"
                       data-action="{{ a.action }}"
-                      data-route-name="{{ a.route.name ?? '' }}"
-                      data-route-params='{{ a.route.params|default({})|json_encode }}'
+                      data-route-name="{{ a.route ?? '' }}"
+                      data-route-params='{{ a.routeParams|merge({id: c.id})|json_encode }}
+                      data-route-params='{{ a.routParams|default({})|json_encode }}'
                       {% if a.confirmMessage %} data-confirm="{{ a.confirmMessage }}"{% endif %}>
                 {% if a.icon %}<i class="bi {{ a.icon }} me-2"></i>{% endif %}
                 {{ a.label }}
@@ -109,15 +110,15 @@
             <div class="card-footer d-flex flex-wrap gap-2">
               {% for a in c.quickActions %}
               {% if a.method == 'POST' %}
-              <form method="post" action="{{ path(a.route.name, a.route.params|default({})) }}" class="d-inline">
-                <input type="hidden" name="_token" value="{{ csrf_token(a.route.name ~ '_' ~ c.id) }}">
+              <form method="post" action="{{ path(a.route, a.routeParams|merge({id: c.id})) }}" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token(a.route ~ '_' ~ c.id) }}">
                 <button type="submit" class="btn btn-{{ a.variant }}">
                   {% if a.icon %}<i class="bi {{ a.icon }}"></i>{% endif %} {{ a.label }}
                 </button>
               </form>
               {% else %}              
               <a class="btn btn-sm btn-{{ a.variant }}"
-                 href="{{ a.route ? path(a.route.name, a.route.params|default({})) : '#' }}"
+                 href="{{ a.route ? path(a.route, a.routeParams|merge({id: c.id})) : '#' }}"
                  {% if a.confirmMessage %} data-confirm="{{ a.confirmMessage }}"{% endif %}>
                 {% if a.icon %}<i class="bi {{ a.icon }} me-1"></i>{% endif %}
                 {{ a.label }}

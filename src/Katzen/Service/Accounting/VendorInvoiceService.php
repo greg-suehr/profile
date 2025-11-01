@@ -384,9 +384,9 @@ final class VendorInvoiceService
     // Get recent average price
     $avgPrice = $this->costing->getAveragePrice(
       $item->getStockTarget(),
-      $item->getVendorInvoice()->getVendor(),
       new \DateTime()->modify('-30 days'),
-      new \DateTime()
+      new \DateTime(),
+      $item->getVendorInvoice()->getVendor(),      
     );
     
     if ($avgPrice > 0) {

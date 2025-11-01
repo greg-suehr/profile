@@ -22,17 +22,17 @@ class OrderItem
     #[ORM\ManyToOne]
     private ?Recipe $recipe_list_recipe_id = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $quantity = null;
-
+    #[ORM\Column(type: Types::DECIMAL, precision: 18, scale: 6)]
+    private ?string $quantity = '1.00';
+      
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notes = null;
+      
+    #[ORM\Column(type: Types::DECIMAL, precision: 18, scale: 6)]
+    private ?string $unit_price = '0.00';
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
-    private ?string $unit_price = null;
-
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $cogs = null;
+    #[ORM\Column(type: Types::DECIMAL, precision: 18, scale: 6)]
+    private ?string $cogs = '0.00';
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $fulfilled_at = null;
@@ -73,9 +73,11 @@ class OrderItem
 
     public function setQuantity(?int $quantity): static
     {
-        $this->quantity = $quantity;
-
-        return $this;
+      if ($quantity <= 0) {
+        throw new \InvalidArgumentException('Quantity must be greater than 0.');
+      }
+      $this->quantity = $quantity;
+      return $this;
     }
 
     public function getNotes(): ?string
@@ -125,9 +127,76 @@ class OrderItem
 
         return $this;
     }
-
+  
   public function getItemSubtotal(): float
   {
     return $this->quantity * $this->unit_price;
+  }
+
+  /**
+   * Calculate line total
+   */
+  public function getLineTotal(): float
+  {
+    return (float)$this->unit_price * $this->quantity;
+  }
+
+  /**
+   * Calculate gross profit for this line
+   */
+  public function getGrossProfit(): float
+  {
+    $revenue = $this->getLineTotal();
+    $cost = (float)$this->cogs * $this->quantity;
+    return $revenue - $cost;
+  }
+
+  /**
+   * Calculate gross margin percentage
+   */
+  public function getGrossMarginPercent(): float
+  {
+    $total = $this->getLineTotal();
+    if ($total <= 0) {
+      return 0.0;
+    }
+    return ($this->getGrossProfit() / $total) * 100;
+  }
+
+  public function __toString(): string
+  {
+    $recipeName = $this->recipe_list_recipe_id?->getName() ?? 'Unknown Item';
+    return sprintf('%s (x%d)', $recipeName, $this->quantity);
+  }
+
+  public function isFulfilled(): bool
+  {
+    return $this->fulfilled_at !== null;
+  }
+
+  /**
+   * Mark this item as fulfilled
+   */
+  public function fulfill(): void
+  {
+    $this->fulfilled_at = new \DateTime();
+
+    # TODO: investigate how Doctrine handles many-line order fulfillments
+    # when calling $oi->fulfill in loop, then design bulk fulfillment workflows
+    if ($this->order_id) {
+      $this->order_id->updateFulfillmentStatus();
+    }
+  }
+
+  /**
+   * Unfulfill this item, which makes it available again to fulfillmetn workflows.
+   */
+  public function unfulfill(): void
+  {
+    $this->fulfilled_at = null;
+
+    if ($this->order_id) {
+      $this->order_id->updateFulfillmentStatus();
+    }
   }
 }

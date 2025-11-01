@@ -16,15 +16,16 @@ final class ServiceDashController extends AbstractController
         private WidgetRegistry $widgets,
     ) {}
 
-  #[Route('/service', name: 'service_dashboard')]
-  #[DashboardLayout('service', 'dashboard', 'service-dashboard')]
-  public function index(): Response
-  {
-      # TODO: per context, role, user Dashboard Widget selection
-      $views = array_map(fn($v) => $v->toArray(), $this->widgets->all());
+    #[Route('/service', name: 'service_dashboard')]
+    #[DashboardLayout('service', 'dashboard', 'service-dashboard')]
+    public function index(): Response
+    {
+        // Get widgets relevant to supply operations
+        // TODO: Filter widgets by supply domain context
+        $views = array_map(fn($v) => $v->toArray(), $this->widgets->all());
 
-      return $this->render('katzen/widgets/dashboard.html.twig', $this->dashboardContext->with([
-        'widgets' => $views,
-      ]));
-  } 
+        return $this->render('katzen/widgets/dashboard.html.twig', $this->dashboardContext->with([
+            'widgets' => $views,
+        ]));
+    }
 }

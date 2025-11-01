@@ -28,8 +28,8 @@ class PriceHistory
     #[ORM\JoinColumn(nullable: false)]
     private ?StockTarget $stock_target = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 4)]
-    private ?string $unit_price = '0.0000';
+    #[ORM\Column(type: Types::DECIMAL, precision: 18, scale: 6)]
+    private ?string $unit_price = '0.000000';
 
     #[ORM\Column(length: 50)]
     private ?string $unit_of_measure = null;
@@ -43,7 +43,7 @@ class PriceHistory
     #[ORM\Column(nullable: true)]
     private ?int $source_id = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 3, nullable: true)]
+    #[ORM\Column(type: Types::DECIMAL, precision: 18, scale: 6, nullable: true)]
     private ?string $quantity_purchased = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

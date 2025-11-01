@@ -3,16 +3,21 @@
 namespace App\Katzen\Controller;
 
 use App\Katzen\Attribute\DashboardLayout;
+use App\Katzen\Service\Utility\DashboardContextService;
+
 use App\Katzen\Component\PanelView\{PanelView, PanelCard, PanelField, PanelGroup, PanelAction};
 use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableAction};
+use App\Katzen\Form\OrderPosType;
+
 use App\Katzen\Entity\{Order, OrderItem};
 use App\Katzen\Entity\{Recipe, RecipeList, Tag};
-use App\Katzen\Form\OrderType;
 use App\Katzen\Repository\OrderRepository;
 use App\Katzen\Repository\TagRepository;
-use App\Katzen\Service\Order\DefaultMenuPlanner;
+
 use App\Katzen\Service\OrderService;
-use App\Katzen\Service\Utility\DashboardContextService;
+use App\Katzen\Service\Order\DefaultMenuPlanner;
+use App\Katzen\Service\Order\OrderActionProvider;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,17 +26,19 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 
+#[Route('/order', name: 'order_')]
 final class OrderController extends AbstractController
 {
   public function __construct(
     private DashboardContextService $dashboardContext,
     private DefaultMenuPlanner $menuPlanner,
     private OrderService $orderService,
+    private OrderActionProvider $actionProvider,
     private OrderRepository $orderRepo,
     private TagRepository $tagRepo,    
   ) {}
   
-  #[Route('/orders', name: 'order_index')]
+  #[Route('/all', name: 'index')]
   #[DashboardLayout('service', 'order', 'order-panel')] 
   public function index(Request $request): Response  
   {
@@ -39,9 +46,9 @@ final class OrderController extends AbstractController
     $q = $request->query->get('q');
     # TODO: Add ['created_at' => 'DESC']) to Order entity
     $orders = $this->orderRepo->findBy([
-      'status' => ['unfulfilled', 'pending', 'ready', 'waiting'],
+      'status' => ['open', 'pending', 'prep', 'ready'],
     ]);
-
+    
     $cards = [];
     foreach ($orders as $o) {
       $data = [
@@ -54,10 +61,62 @@ final class OrderController extends AbstractController
       $card = PanelCard::create($data['id'])
         ->setTitle($data['customer'] ?? $data['customer'] ?? sprintf('Order #%d', $data['id']))
         ->setData($data)
-        ->addBadge(strtoupper($data['status']), match ($data['status']) {
-            'waiting' => 'danger', 'ready' => 'success', default => 'warning'
-          })
-        ->addPrimaryField(PanelField::number('numItems', 'Items', 0)->icon('bi-box'))
+        ->addBadge($o->getStatusLabel(), $o->getStatusBadgeClass())
+        ->addPrimaryField(PanelField::number('numItems', 'Items', 0)->icon('bi-box'));
+
+      $items = [];
+      foreach ($o->getOrderItems() as $item) {
+        $i = PanelField::text(
+          'item_' . $item->getId(),
+          ($item->isFulfilled() ? '✓ ' : '○ ') . 
+            $item->getRecipeListRecipeId()->getTitle() .
+            ' x' . $item->getQuantity()
+            );
+
+        $items[] = $i;
+        $card->addContextField($i);
+      }
+      # TODO: implement a more explicit field grouping for no-template PanelCards, like:
+      # $card->addFieldGroup(
+      #  PanelGroup::create('items', 'Items')->addFields($items)
+      # );
+      
+      $actions = $this->actionProvider->getAvailableActions($o);
+
+      # TODO: standardize ActionProviders - should Show be explicit?
+      $card->addQuickAction(
+        PanelAction::view('order_show')
+      );
+      
+      if (isset($actions['edit'])) {
+        $card->addQuickAction(
+          PanelAction::edit('order_edit')
+        );
+      }
+      
+      $priority = ['open', 'mark_ready', 'fulfill_all', 'create_invoice', 'close'];
+      
+      foreach ($priority as $key) {        
+        if (isset($actions[$key])) {
+          $primaryAction = $actions[$key];
+
+          $card->addQuickAction(
+            PanelAction::custom(
+              $primaryAction['route'],              
+              $primaryAction['label'],
+            )
+            ->setRoute($primaryAction['route'])
+            ->setMethod($primaryAction['method'])
+            ->setIcon($primaryAction['icon'])
+            ->setVariant($primaryAction['variant']));
+#            ->setCsrfToken($primaryAction['csrf_token'])
+#            ->setConfirm($primaryAction['confirm'])
+         
+          break;
+        }
+      }
+      
+      /*
         ->addQuickAction(
           PanelAction::edit([ 'name' => 'order_edit_form', 'params' => ['id' => $data['id']]])
           )
@@ -68,8 +127,7 @@ final class OrderController extends AbstractController
              ->setMethod('POST')
              ->setRoute([ 'name' => 'order_complete', 'params' => ['id' => $data['id']]])
           );
-      
-      if ($data['status'] === 'waiting') { $card->setBorderColor('var(--color-error)'); }
+        */      
 
       $cards[] = $card;
     }
@@ -102,7 +160,7 @@ final class OrderController extends AbstractController
     ]));
   }
 
-  #[Route('/order/list', name: 'order_table')]
+  #[Route('/list', name: 'table')]
   #[DashboardLayout('service', 'order', 'order-table')] 
   public function table(Request $request): Response  
   {
@@ -159,7 +217,7 @@ final class OrderController extends AbstractController
     ]));
   }
 
-  #[Route('/orders/bulk', name: 'order_bulk', methods: ['POST'])]
+  #[Route('/bulk', name: 'bulk', methods: ['POST'])]
   public function bulk(Request $request): Response
   {
     $payload = json_decode($request->getContent(), true) ?? [];
@@ -186,7 +244,7 @@ final class OrderController extends AbstractController
     return $this->json(['ok' => true]);
   }
 
-  #[Route('/order/{id}', name: 'order_show', requirements: ['id' => '\d+'])]
+  #[Route('/{id}', name: 'show', requirements: ['id' => '\d+'])]
   #[DashboardLayout('service', 'order', 'order-show')]
   public function show(Order $order): Response
   {
@@ -195,51 +253,43 @@ final class OrderController extends AbstractController
     ]));
   }
 
-  #[Route('/order/cancel/{id}', name: 'order_cancel', methods: ['POST'])]
-  #[DashboardLayout('finance', 'order', 'order-cancel')]
-  public function cancel(Request $request, Order $order): Response
-  {
-    if (!$this->isCsrfTokenValid('order_cancel_' . $order->getId(), $request->request->get('_token'))) {
-      $this->addFlash('danger', 'Invalid CSRF token.');
-      return $this->redirectToRoute('order_show', ['id' => $order->getId()]);
-    }
-
-    # TODO: design order lifecycle
-    if ($order->getStatus() === 'paid') {
-      $this->addFlash('warning', 'Cannot cancel paid orders.');
-      return $this->redirectToRoute('order_show', ['id' => $order->getId()]);
-    }
-    
-    $order->setStatus('cancelled');
-    $this->orderRepo->save($order);
-    $this->addFlash('success', 'Order cancelled.');
-    
-    return $this->redirectToRoute('order_index');
-  }
-
-  #[Route('/order/create', name: 'order_create')]
+  #[Route('/create', name: 'create')]
   #[DashboardLayout('service', 'order', 'order-create')] 
-  public function orderCreate(Request $request): Response
+  public function create(Request $request): Response
   {
     $order = new Order();
-    $form = $this->createForm(OrderType::class, $order);
+    $form = $this->createForm(OrderPosType::class, $order);
     $form->handleRequest($request);
 
     if ($form->isSubmitted() && $form->isValid()) {
-      $order = $form->getData();
+      $itemsJson = $form->get('recipeIds')->getData();
+      $itemsData = json_decode($itemsJson, true);
 
-      $recipeIdsCsv = $form->get('recipeIds')->getData();
-      $recipeIds = array_filter(array_map('intval', explode(',', $recipeIdsCsv)));
+      if (empty($itemsData)) {
+        $this->addFlash('warning', 'Please add at least one item to the order');
+        return $this->redirectToRoute('order_create');
+      }
 
-      $recipeQuantities = [];
-        foreach ($recipeIds as $rid) {
-            $recipeQuantities[$rid] = 1; # TODO: read recipeQuantities from Form
+      $result = $this->orderService->createOrder($order, $itemsData, [
+        'calculate_cogs' => true,
+        'use_recipe_prices' => false,
+        'apply_customer_pricing' => false,
+      ]);
+
+      if ($result->isFailure()) {
+        foreach ($result->getErrors() as $error) {
+          $this->addFlash('error', $error);
         }
+        return $this->redirectToRoute('order_create');
+      }
 
-      $response = $this->orderService->createOrder($order, $recipeQuantities);
-      
+      $warnings = $result->getMetadata()['warnings'] ?? [];
+      foreach ($warnings as $warning) {
+        $this->addFlash('warning', $warning);
+      }      
+
       $this->addFlash('success', 'Order created!');
-      return $this->redirectToRoute('order_index');
+      return $this->redirectToRoute('order_show', ['id' => $result->getData()['order_id']]);
     }
 
     $menu = $this->menuPlanner->getActiveMenu();
@@ -251,11 +301,12 @@ final class OrderController extends AbstractController
     return $this->render('katzen/order/create_order.html.twig', $this->dashboardContext->with([
         'menuInterface' => $menu,
         'form'       => $form,
+        'categories' => [], # TODO: generate categories from source RecipeList or Recipe attributet
         'recipes'    => $menu->getRecipes(),
     ]));
   }
 
-  #[Route('/order/edit/{id}', name: 'order_edit_form')]
+  #[Route('/edit/{id}', name: 'edit')]
   #[DashboardLayout('service', 'order', 'order-create')]
   public function orderEdit(int $id, Request $request): Response
   {
@@ -264,87 +315,186 @@ final class OrderController extends AbstractController
       throw $this->createNotFoundException('Order not found.');
     }
 
-    if ($order->getOrderItems()->isEmpty()) {      
-      $order->addOrderItem(new OrderItem());
-    }
-    $form = $this->createForm(OrderType::class, $order);   
+    $form = $this->createForm(OrderPosType::class, $order);   
     $form->handleRequest($request);
 
     if ($form->isSubmitted() && $form->isValid()) {
-      $order = $form->getData();
-      
-      $recipeIdsCsv = $form->get('recipeIds')->getData();
-      $recipeIds = array_filter(array_map('intval', explode(',', $recipeIdsCsv)));
+      $itemsJson = $form->get('recipeIds')->getData();
+      $itemsData = json_decode($itemsJson, true);
 
-      $this->orderService->updateOrder($order, $recipeIds);
+      $result = $this->orderService->updateOrder($order, $itemsData, [
+        'calculate_cogs' => true,
+        'use_recipe_prices' => false,
+        'apply_customer_pricing' => false,
+      ]);
+
+      if ($result->isFailure()) {
+        foreach ($result->getErrors() as $error) {
+          $this->addFlash('error', $error);
+        }
+        return $this->redirectToRoute('order_edit', ['id' => $id]);
+      }
       
-      $this->addFlash('success', 'Order updated!');
-      return $this->redirectToRoute('order_index');
+      $warnings = $result->getMetadata()['warnings'] ?? [];
+      foreach ($warnings as $warning) {
+        $this->addFlash('warning', $warning);
+      }
+      
+      $this->addFlash('success', $result->getMessage());
+      return $this->redirectToRoute('order_show', ['id' => $order->getId()]);
     }
 
     $menu = $this->menuPlanner->getActiveMenu();
+    $categories = [];
     
-    if (!$menu) {
-      throw $this->createNotFoundException('No active menu found.');
-    }
-
-    $existingRecipeIds = [];
-    foreach ($order->getOrderItems() as $item) {
-      $existingRecipeIds[] = $item->getRecipeListRecipeId()->getId();
-    }
-
     return $this->render('katzen/order/create_order.html.twig', $this->dashboardContext->with([
-      'menuInterface' => $menu,
-      'form'       => $form,
-      'recipes'    => $menu->getRecipes(),
-      'selectedRecipeIds' => implode(',', $existingRecipeIds),
+      'form' => $form,
+      'order' => $order,
+      'recipes' => $menu->getRecipes(),
+      'categories' => $categories,
     ]));
   }
-  
-  #[Route('/order/complete/{id}', name: 'order_complete', methods: ['POST'])]
-  #[DashboardLayout('service', 'order', 'order-complete')]  
-  public function orderMarkReady(Order $order, Request $request): Response
+
+  #[Route('/open/{id}', name: 'open', methods: ['POST'])]
+  public function open(int $id, Request $request): Response
   {
-    # TODO: test and fix CSRF
-    $this->denyAccessUnlessGranted('ROLE_USER');
-    if (!$this->isCsrfTokenValid('order_complete_'.$order->getId(), (string) $request->request->get('_token'))) {
-      $this->addFlash('danger', 'Invalid request token.');
-      return $this->redirectToRoute('order_index');
+    if (!$this->isCsrfTokenValid('order_open_' . $id, $request->request->get('_token'))) {
+      $this->addFlash('danger', 'Invalid CSRF token');
+      return $this->redirectToRoute('order_show', ['id' => $id]);
+    }
+
+    $order = $this->orderRepo->find($id);
+    
+    if (!$order) {
+      throw $this->createNotFoundException('Order not found');
     }
     
-    $response = $this->orderService->completeOrder($order);
+    try {
+      $order->open();
+      $this->orderRepo->save($order);
+      $this->addFlash('success', 'Order opened successfully');
+    } catch (\Exception $e) {
+      $this->addFlash('error', $e->getMessage());
+    }
+    
+    return $this->redirectToRoute('order_show', ['id' => $id]);
+  }
 
-    if ($response->isSuccess()) {
-      $msg = $response->message ?? 'Order complete!';
-      $status = $response->getData()['status'] ?? 'complete';
-      $this->addFlash($status === 'already_complete' ? 'info' : 'success', $msg);
-      return $this->redirectToRoute('order_index');
+  #[Route('/ready/{id}', name: 'ready', methods: ['POST'])]
+  public function markReady(int $id, Request $request): Response
+  {
+    if (!$this->isCsrfTokenValid('order_ready_' . $id, $request->request->get('_token'))) {
+      $this->addFlash('danger', 'Invalid CSRF token');
+      return $this->redirectToRoute('order_show', ['id' => $id]);
+    }
+    
+    $order = $this->orderRepo->find($id);
+    
+    if (!$order) {
+      throw $this->createNotFoundException('Order not found');
+    }
+    
+    try {
+      $order->markReady();
+      $this->orderRepo->save($order);
+      $this->addFlash('success', 'Order marked as ready');
+    } catch (\Exception $e) {
+      $this->addFlash('error', $e->getMessage());
+    }
+    
+    return $this->redirectToRoute('order_show', ['id' => $id]);
+  }
+
+  #[Route('/fulfill/{id}', name: 'fulfill_all', methods: ['POST'])]
+  public function fulfillAll(int $id, Request $request): Response
+  {
+    if (!$this->isCsrfTokenValid('order_fulfill_all_' . $id, $request->request->get('_token'))) {
+      $this->addFlash('danger', 'Invalid CSRF token');
+      return $this->redirectToRoute('order_show', ['id' => $id]);
     }
 
-    $msg = $response->message ?? 'Unable to mark order complete.';
-    $first = $response->getFirstError();
-    $this->addFlash('danger', $first ? $msg.' '.$first : $msg);
+    $order = $this->orderRepo->find($id);
+    
+    if (!$order) {
+      throw $this->createNotFoundException('Order not found');
+    }
+    
+    try {
+      $order->fulfillAll();
+      $this->orderRepo->save($order);
+      $this->addFlash('success', 'All items fulfilled');
+    } catch (\Exception $e) {
+      $this->addFlash('error', $e->getMessage());
+    }
+    
+    return $this->redirectToRoute('order_show', ['id' => $id]);
+  }
+
+  #[Route('fulfill/{orderId}/item/{itemId}', name: 'item_fulfill', methods: ['POST'])]
+  public function fulfillItem(int $orderId, int $itemId, Request $request): Response
+  {
+    if (!$this->isCsrfTokenValid('order_item_fulfill_' . $itemId, $request->request->get('_token'))) {
+      $this->addFlash('danger', 'Invalid CSRF token');
+      return $this->redirectToRoute('order_show', ['id' => $orderId]);
+    }
+    
+    $order = $this->orderRepo->find($orderId);
+    
+    if (!$order) {
+      throw $this->createNotFoundException('Order not found');
+    }
+    
+    $item = $order->getOrderItems()->filter(fn($i) => $i->getId() === $itemId)->first();
+    
+    if (!$item) {
+      $this->addFlash('error', 'Item not found');
+      return $this->redirectToRoute('order_show', ['id' => $orderId]);
+    }
+    
+    try {
+      $item->fulfill();
+      $this->orderRepo->save($order);
+      $this->addFlash('success', 'Item fulfilled');
+    } catch (\Exception $e) {
+      $this->addFlash('error', 'Failed to fulfill item');
+    }
+    
+    return $this->redirectToRoute('order_show', ['id' => $orderId]);
+  }
+
+  #[Route('/void/{id}', name: 'void', methods: ['POST'])]
+  public function void(int $id, Request $request): Response
+  {
+    if (!$this->isCsrfTokenValid('order_void_' . $id, $request->request->get('_token'))) {
+      $this->addFlash('danger', 'Invalid CSRF token');
+      return $this->redirectToRoute('order_show', ['id' => $id]);
+    }
+    
+    $order = $this->orderRepo->find($id);
+    
+    if (!$order) {
+      throw $this->createNotFoundException('Order not found');
+    }
+
+    $reason = $request->request->get('reason');
+        
+    if (!$reason) {
+      $this->addFlash('error', 'Void reason is required');
+      return $this->redirectToRoute('order_show', ['id' => $id]);
+    }
+    
+    try {
+      $order->void($reason);
+      $this->orderRepo->save($order);
+      $this->addFlash('warning', 'Order voided');
+    } catch (\Exception $e) {
+      $this->addFlash('error', $e->getMessage());
+    }
     
     return $this->redirectToRoute('order_index');
   }
-
-  #[Route('/api/orders/{id}/schedule', name: 'order_schedule_update', methods: ['PATCH'])]
-  public function updateSchedule(int $id, Request $req): Response
-  {
-    $order = $this->orderRepo->findBy([ 'id' => $id ]);
-    if (!$order) { return $this->json(['error' => 'not found'], 404); }
-    
-    $data = json_decode($req->getContent(), true) ?? [];
-    if (isset($data['scheduledDate'])) {
-      $order->setScheduledDate(new \DateTimeImmutable($data['scheduledDate']));
-    }
-    if (isset($data['slot'])) { $order->setSlot($data['slot']); }
-    
-    $this->orderRepo->save($order);
-    return $this->json(['ok' => true]);
-  }
-
-  #[Route('/api/orders/stock_check', name: 'order_stock_check', methods: ['GET'])]
+  
+  #[Route('/api/orders/stock_check', name: 'stock_check', methods: ['GET'])]
   public function orderStockCheck(Request $request): JsonResponse {
       $response = $this->orderService->checkStockForOpenOrders();
       

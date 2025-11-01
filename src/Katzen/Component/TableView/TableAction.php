@@ -4,30 +4,33 @@ namespace App\Katzen\Component\TableView;
 
 /**
  * TableAction - Defines actions (quick actions per row, or bulk actions)
+ *
+ *
  */
 class TableAction
 {
     private string $name;
     private string $label;
-    private string $icon;
-    private string $variant;
+    private string $variant;  
+    private ?string $icon = null;
+    private string $httpMethod = 'GET';
     private ?string $route = null;
     private array $routeParams = [];
     private ?string $confirmMessage = null;
     private bool $requiresSelection = false;
     
-    private function __construct(string $name, string $label)
-    {
-        $this->name = $name;
-        $this->label = $label;
-        $this->icon = '';
-        $this->variant = 'outline-secondary';
-    }
+  private function __construct(string $name, string $label)
+  {
+    $this->name = $name;
+    $this->label = $label;
+    $this->icon = '';
+    $this->variant = 'outline-secondary';
+  }
     
-    public static function create(string $name, string $label): self
-    {
-        return new self($name, $label);
-    }
+  public static function create(string $name, string $label): self
+  {
+    return new self($name, $label);
+  }
     
   public static function view(?string $route): self
     {
@@ -99,8 +102,9 @@ class TableAction
         return [
             'name' => $this->name,
             'label' => $this->label,
+            'variant' => $this->variant,            
             'icon' => $this->icon,
-            'variant' => $this->variant,
+            'method' => $this->httpMethod,
             'route' => $this->route,
             'routeParams' => $this->routeParams,
             'confirmMessage' => $this->confirmMessage,
