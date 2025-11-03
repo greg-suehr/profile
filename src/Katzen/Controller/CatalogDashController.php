@@ -9,19 +9,19 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class PrepDashController extends AbstractController
+final class CatalogDashController extends AbstractController
 {
     public function __construct(
         private DashboardContextService $dashboardContext,
         private WidgetRegistry $widgets,
     ) {}
     
-    #[Route('/prep', name: 'prep_dashboard')]
-    #[DashboardLayout('prep', 'dashboard', 'prep-dashboard')]
+    #[Route('/catalog', name: 'catalog_dashboard')]
+    #[DashboardLayout('catalog', 'dashboard', 'catalog-dashboard')]
     public function index(): Response
     {
-        // Get widgets relevant to prep operations
-        // TODO: Filter widgets by prep domain context
+        // Get widgets relevant to catalog operations
+        // TODO: Filter widgets by catalog domain context
         $views = array_map(fn($v) => $v->toArray(), $this->widgets->all());
 
         return $this->render('katzen/widgets/dashboard.html.twig', $this->dashboardContext->with([

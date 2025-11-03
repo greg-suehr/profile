@@ -22,6 +22,17 @@ class OrderItem
     #[ORM\ManyToOne]
     private ?Recipe $recipe_list_recipe_id = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Sellable $sellable = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?SellableVariant $sellableVariant = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $modifiers = [];
+
     #[ORM\Column(type: Types::DECIMAL, precision: 18, scale: 6)]
     private ?string $quantity = '1.00';
       
@@ -66,14 +77,47 @@ class OrderItem
         return $this;
     }
 
-    public function getQuantity(): ?int
+    public function getSellable(): ?Sellable
+    {
+        return $this->sellable;
+    }
+
+    public function setSellable(?Sellable $sellable): static
+    {
+        $this->sellable = $sellable;
+        return $this;
+    }
+
+    public function getSellableVariant(): ?SellableVariant
+    {
+        return $this->sellableVariant;
+    }
+
+    public function setSellableVariant(?SellableVariant $sellableVariant): static
+    {
+        $this->sellableVariant = $sellableVariant;
+        return $this;
+    }
+
+    public function getModifiers(): ?array
+    {
+        return $this->modifiers;
+    }
+
+    public function setModifiers(?array $modifiers): static
+    {
+        $this->modifiers = $modifiers;
+        return $this;
+    }
+
+    public function getQuantity(): ?string
     {
         return $this->quantity;
     }
 
-    public function setQuantity(?int $quantity): static
+    public function setQuantity(?string $quantity): static
     {
-      if ($quantity <= 0) {
+      if ((float)$quantity <= 0.00) {
         throw new \InvalidArgumentException('Quantity must be greater than 0.');
       }
       $this->quantity = $quantity;

@@ -27,11 +27,18 @@ class DependencyPurger
         'App\Katzen\Entity\LedgerEntry',
         'App\Katzen\Entity\Recipe',
         'App\Katzen\Entity\RecipeList',
+        'App\Katzen\Entity\Sellable',
         
         // Level 3 - Depends on Level 2
         'App\Katzen\Entity\Purchase',
         'App\Katzen\Entity\VendorInvoice',
         'App\Katzen\Entity\StockTarget',
+        'App\Katzen\Entity\StockTargetRule',  
+        'App\Katzen\Entity\SellableVariant',
+        'App\Katzen\Entity\SellableComponent',
+        'App\Katzen\Entity\SellableModifierGroup',
+        'App\Katzen\Entity\PriceRule',
+        'App\Katzen\Entity\CustomerPriceOverride',
         
         // Level 4 - Core entities
         'App\Katzen\Entity\Item',

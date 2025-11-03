@@ -19,17 +19,20 @@
           {{ layout.label }}
         </button>
         <ul class="dropdown-menu">
+          <li><a class="dropdown-item {{ activeDash == 'catalog' ? 'active' : '' }}" href="{{ path('catalog_dashboard') }}">
+              Catalog
+          </a></li>          
+          <li><a class="dropdown-item {{ activeDash == 'finance' ? 'active' : '' }}" href="{{ path('finance_dashboard') }}">
+              Finance
+          </a></li>          
+          <li><a class="dropdown-item {{ activeDash == 'prep' ? 'active' : '' }}" href="{{ path('prep_dashboard') }}">
+              Prep
+          </a></li>          
           <li><a class="dropdown-item {{ activeDash == 'service' ? 'active' : '' }}" href="{{ path('service_dashboard') }}">
               Service
           </a></li>
           <li><a class="dropdown-item {{ activeDash == 'supply' ? 'active' : '' }}" href="{{ path('supply_dashboard') }}">
               Supply
-          </a></li>
-          <li><a class="dropdown-item {{ activeDash == 'prep' ? 'active' : '' }}" href="{{ path('prep_dashboard') }}">
-              Prep
-          </a></li>
-          <li><a class="dropdown-item {{ activeDash == 'finance' ? 'active' : '' }}" href="{{ path('finance_dashboard') }}">
-              Finance
           </a></li>
         </ul>
       </div>          

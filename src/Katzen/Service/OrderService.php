@@ -4,8 +4,10 @@ namespace App\Katzen\Service;
 
 use App\Katzen\Entity\{Order, OrderItem};
 use App\Katzen\Entity\Recipe;
+use App\Katzen\Entity\Sellable;
 use App\Katzen\Repository\{OrderRepository, OrderItemRepository};
 use App\Katzen\Repository\RecipeRepository;
+use App\Katzen\Repository\SellableRepository;
 
 use App\Katzen\Service\AccountingService;
 use App\Katzen\Service\Accounting\CostingService;
@@ -13,20 +15,28 @@ use App\Katzen\Service\Cook\RecipeExpanderService;
 use App\Katzen\Service\InventoryService;
 use App\Katzen\Service\Inventory\StockTargetAutogenerator;
 use App\Katzen\Service\Order\RequirementsPlanner;
+use App\Katzen\Service\Order\PricingService;
+use App\Katzen\ValueObject\PricingContext;
 
 use App\Katzen\Service\Response\ServiceResponse;
 use App\Katzen\Messenger\Message\AsyncTaskMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * The primary Order domain orchestrator.
+ *
+ */
 final class OrderService
 {
   public function __construct(
     private OrderRepository $orderRepo,
     private OrderItemRepository $itemRepo,
     private RecipeRepository $recipeRepo,
+    private SellableRepository $sellableRepo,
     private RequirementsPlanner $requirements,
     private AccountingService $accounting,
     private CostingService $costing,
+    private PricingService $pricing,    
     private InventoryService $inventoryService,
     private StockTargetAutogenerator $autogenerator,
     private RecipeExpanderService $expander,
@@ -40,12 +50,12 @@ final class OrderService
    *
    * * @param Order $order The hydrated order entity
    * * @param array $itemData [
-   * *   ['recipe_id' => int, 'quantity' => int, 'unit_price' => float, 'notes' => string],
+   * *   ['sellable_id' => int, 'quantity' => int, 'unit_price' => float, 'notes' => string],
    * *   ...
    * * ]
    * @param array $options Optional configuration:
    *   - 'calculate_cogs' => bool (default: true) - Whether to estimate COGS
-   *   - 'use_recipe_prices' => bool (default: false) - Override with recipe default prices
+   *   - 'use_recipe_prices' => bool (default: false) - Override with recipe default prices - DONT USE THIS
    *   - 'apply_customer_pricing' => bool (default: false) - Apply customer-specific pricing rules
    *
    * @return ServiceResponse
@@ -69,35 +79,35 @@ final class OrderService
        $useRecipePrices = $options['use_recipe_prices'] ?? false;
        $applyCustomerPricing = $options['apply_customer_pricing'] ?? false;
 
-       $recipeIds = array_column($itemsData, 'recipe_id');
-       $recipes = $this->recipeRepo->findBy(['id' => $recipeIds]);
+       $sellableIds = array_column($itemsData, 'sellable_id');
+       $sellables = $this->sellableRepo->findBy(['id' => $sellableIds]);
 
-       if (count($recipes) !== count($recipeIds)) {
-         $foundIds = array_map(fn($r) => $r->getId(), $recipes);
-         $missingIds = array_diff($recipeIds, $foundIds);
+       if (count($sellables) !== count($sellableIds)) {
+         $foundIds = array_map(fn($r) => $r->getId(), $sellables);
+         $missingIds = array_diff($sellableIds, $foundIds);
          
          return ServiceResponse::failure(
-           errors: [sprintf('Invalid recipe IDs: %s', implode(', ', $missingIds))],
-           message: 'Some recipes could not be found',
+           errors: [sprintf('Invalid sellable IDs: %s', implode(', ', $missingIds))],
+           message: 'Some items could not be found',
            data: ['order_id' => $order->getId()]
          );
        }
 
-       $recipeMap = [];
-       foreach ($recipes as $recipe) {
-         $recipeMap[$recipe->getId()] = $recipe;
+       $sellableMap = [];
+       foreach ($sellables as $sellable) {
+         $sellableMap[$sellable->getId()] = $sellable;
        }
        
        # TODO: design a Sellable or Product entity and clarify the
        #       Order, Menu, Recipe, Item, StockTarget associations
        $errors = [];
        foreach ($itemsData as $itemData) {
-         $recipeId = $itemData['recipe_id'];
-         $recipe = $recipeMap[$recipeId];
+         $sellableId = $itemData['sellable_id'];
+         $sellable = $sellableMap[$sellableId];
 
          $quantity = (int)($itemData['quantity'] ?? 1);
          if ($quantity < 1) {
-           $errors[] = sprintf('Invalid quantity for recipe %s', $recipe->getTitle());
+           $errors[] = sprintf('Invalid quantity for sellable %s', $sellable->getName());
            continue;
          }
 
@@ -105,28 +115,38 @@ final class OrderService
          # TODO: design OrderItem level tax rules          
          $unitPrice = $this->resolveUnitPrice(
            $itemData,
-           $recipe,
+           $sellable,
            $order->getCustomerEntity(),
            $useRecipePrices,
            $applyCustomerPricing
          );
 
-         $cogs = '0.00';
+         $cogs = 0.00;
          if ($calculateCogs) {
            try {
-             $cogs = $this->costing->getRecipeCost($recipe, $quantity);
+             # TODO: a more elegant costing, for a more elegant Product Catalog and Pricing model
+#             $cogs = $this->costing->getRecipeCost($recipe, $quantity);
+             $item_cogs = 0.00;
+             foreach ($sellable->getComponents() as $component) {
+               $item_cogs += $this->costing->getInventoryCost(
+                 $component->getTarget(),
+                 $component->getQuantityMultiplier() * $quantity,
+               );
+             }
+             $cogs += $item_cogs;
+             
            } catch (\Exception $e) {
              // Soft fail on COGS issues
              $errors[] = sprintf(
                'Could not estimate COGS for %s: %s',
-               $recipe->getTitle(),
+               $sellable->getName(),
                $e->getMessage()
              );
            }
          }
 
          $orderItem = new OrderItem();
-         $orderItem->setRecipeListRecipeId($recipe);
+         $orderItem->setSellable($sellable);
          $orderItem->setQuantity($quantity);
          $orderItem->setUnitPrice($unitPrice);
          $orderItem->setCogs($cogs);
@@ -250,15 +270,15 @@ final class OrderService
     $useRecipePrices = $options['use_recipe_prices'] ?? false;
     $applyCustomerPricing = $options['apply_customer_pricing'] ?? false;
     
-    $recipeIds = array_column($itemsData, 'recipe_id');
-    $recipes = $this->recipeRepo->findBy(['id' => $recipeIds]);
+    $sellableIds = array_column($itemsData, 'sellable_id');
+    $sellables = $this->sellableRepo->findBy(['id' => $sellableIds]);
     
-    if (count($recipes) !== count($recipeIds)) {
-      $foundIds = array_map(fn($r) => $r->getId(), $recipes);
-      $missingIds = array_diff($recipeIds, $foundIds);
+    if (count($sellables) !== count($sellableIds)) {
+      $foundIds = array_map(fn($r) => $r->getId(), $sellables);
+      $missingIds = array_diff($sellableIds, $foundIds);
       
       return ServiceResponse::failure(
-        errors: [sprintf('Invalid recipe IDs: %s', implode(', ', $missingIds))],
+        errors: [sprintf('Invalid sellable IDs: %s', implode(', ', $missingIds))],
         message: 'Some items could not be found',
         metadata: [
           'order_id' => $order->getId(),
@@ -266,45 +286,53 @@ final class OrderService
       );
     }
 
-    $recipeMap = [];
-    foreach ($recipes as $recipe) {
-      $recipeMap[$recipe->getId()] = $recipe;
+    $sellableMap = [];
+    foreach ($sellables as $sellable) {
+      $sellableMap[$sellable->getId()] = $sellable;
     }
 
     $errors = [];
     foreach ($itemsData as $itemData) {
-      $recipeId = $itemData['recipe_id'];
-      $recipe = $recipeMap[$recipeId];
+      $sellableId = $itemData['sellable_id'];
+      $sellable = $sellableMap[$sellableId];
       
       $quantity = (int)($itemData['quantity'] ?? 1);
       if ($quantity < 1) {
-        $errors[] = sprintf('Invalid quantity for recipe %s', $recipe->getTitle());
+        $errors[] = sprintf('Invalid quantity for sellable %s', $sellable->getName());
         continue;
       }
       
       $unitPrice = $this->resolveUnitPrice(
         $itemData,
-        $recipe,
+        $sellable,
         $order->getCustomerEntity(),
         $useRecipePrices,
         $applyCustomerPricing
       );
 
-      $cogs = '0.00';
+      $cogs = 0.00;
       if ($calculateCogs) {
         try {
-          $cogs = $this->costing->getRecipeCost($recipe, $quantity);
+          # TODO: a more elegant costing, for a more elegant Product Catalog and Pricing model
+          $item_cogs = 0.00;
+          foreach ($sellable->getComponents() as $component) {
+            $item_cogs += $this->costing->getInventoryCost(
+              $component->getTarget(),
+              $component->getQuantityMultiplier() * $quantity,
+            );
+          }
+          $cogs += $item_cogs;
         } catch (\Exception $e) {
           $errors[] = sprintf(
             'Could not estimate COGS for %s: %s',
-            $recipe->getTitle(),
+            $sellable->getName(),
             $e->getMessage(),
           );
         }
       }
 
       $orderItem = new OrderItem();
-      $orderItem->setRecipeListRecipeId($recipe);
+      $orderItem->setSellable($sellable);
       $orderItem->setQuantity($quantity);
       $orderItem->setUnitPrice($unitPrice);
       $orderItem->setCogs($cogs);
@@ -315,7 +343,7 @@ final class OrderService
       
       $order->addOrderItem($orderItem);
     }
-
+    
     if (!empty($errors)) {
       return ServiceResponse::success(
         data: [],
@@ -338,7 +366,7 @@ final class OrderService
    */
   private function resolveUnitPrice(
     array $itemData,
-    Recipe $recipe,
+    Sellable $sellable,
     $customer,
     bool $useRecipePrices,
     bool $applyCustomerPricing
@@ -353,72 +381,68 @@ final class OrderService
       // if ($customPrice) return $customPrice;
     }
 
-    if ($useRecipePrices && $recipe->getDefaultPrice()) {
-      return $recipe->getDefaultPrice();
+    if ($useRecipePrices && $sellable->getBasePrice()) {
+      return $recipe->getBasePrice();
     }
 
     return '0.00';
   }
 
   /**
-   * Complete an order, enqueue inventory consumption and accounting events.
+   * Close an order, enqueue inventory consumption and accounting events.
    *
    * Runs requirement planning to compute stock consumption per StockTarget and
    * enqueues asynchronous `consume_stock` tasks for each requirement.
    * If planning yields errors or invalid quantities/targets, returns a failure
-   * with warnings and does not complete the order.
+   * with warnings and does not close the order.
    * On success, enqueues the async  `unbilled_ar_on_fulfillment` journal event
-   * and marks the order `complete`.
+   * and marks the order `closed`.
    *
-   * * @param Order $order The order to complete
+   * * @param Order $order The order to close
    * * @return ServiceResponse Returns success with task counts or failure with details
    */
-  public function completeOrder(Order $order): ServiceResponse
+  public function closeOrder(Order $order): ServiceResponse
   {
     try {
-      if ($order->getStatus() === 'complete') {
+      if ($order->isClosed()) {
         return ServiceResponse::success(
           data: [
             'order_id'       => $order->getId(),
             'enqueued_tasks' => 0,
-            'status'         => 'already_complete',
+            'status'         => 'closed',
           ],
-          message: 'Order is already marked complete; no work performed.'
+          message: 'Order is already marked close; no work performed.'
         );
       }
-
+      
       $warnings      = [];
       $enqueuedTasks = 0;
       
       $plan = $this->requirements->plan(['orders'=>[$order]], purpose: 'consume', groupBy: 'stockTarget');
 
-      if ($plan['errors']) {
+      if ($plan->isFailure()) {
         return ServiceResponse::failure(
-          errors: $plan['errors'],
-          data: $plan,
-          message: 'Unit conversion failed for one or more ingredients.',
+          errors: $plan->getErrors(),
+          data: $plan->getData(),
+          message: $plan->getMesssage(),
           metadata: [
             'order_id' => $order->getId()
           ]
         );
       }
-
-      foreach ($plan['requirements'] as $req) {
-        if ($req->totalBaseQty <= 0) {
-          $warnings[] = 'No stock consumption record for order item: invalid quantity.';
+      
+      foreach ($plan->getData()['requirements'] as $target_id => $qty) {
+        if ($qty <= 0) {
+          $warnings[] = 'No stock consumption recorded for order item: invalid quantity.';
           continue;
-        }
-        if (!$req->target?->getId()) {
-          $warnings[] = 'No stock consumption record for order item %s: invalid stock target.';
-          continue;
-        }
+        }       
         
 #        $this->mq->send(new AsyncTaskMessage(
         $this->bus->dispatch(new AsyncTaskMessage(
           taskType: 'consume_stock',
           payload: [
-            'stock_target.id' => $req->target?->getId(),
-            'quantity' => $req->totalBaseQty,
+            'stock_target.id' => $target_id,
+            'quantity' => $qty,
             'reason'   => 'order#' . $order->getId(),
           ]
         ));
@@ -431,7 +455,7 @@ final class OrderService
       if (!empty($warnings)) {
         return ServiceResponse::failure(
           errors: $warnings,
-          message: 'Order not completed due to errors.',
+          message: 'Order not closed due to errors.',
           data: [
             'order_id'       => $order->getId(),
             'enqueued_tasks' => $enqueuedTasks,
@@ -463,21 +487,22 @@ final class OrderService
         ]
       ));
       */
-      
-      $order->setStatus('complete');
-      $this->orderRepo->flush();
+
+      $order->fulfillAll(); # TODO: not this
+      $order->close();
+      $this->orderRepo->save($order);
       
       return ServiceResponse::success(
         data: [
           'order_id'       => $order->getId(),
           'enqueued_tasks' => $enqueuedTasks,
-          'status'         => 'complete',
+          'status'         => 'closed',
         ],
         message: 'Order complete!',
       );
     } catch (\Throwable $e) {
       return ServiceResponse::failure(
-        errors: ['Failed to complete order: ' . $e->getMessage()],
+        errors: ['Failed to close order: ' . $e->getMessage()],
         message: 'Unhandled exception while completing order.',
         data: [
           'order_id' => $order->getId(),

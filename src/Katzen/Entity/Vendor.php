@@ -113,11 +113,23 @@ class Vendor
         return $this->vendor_code;
     }
 
-    public function setVendorCode(string $vendor_code): static
+    #[ORM\PrePersist]
+    public function setVendorCode(): static
     {
-        $this->vendor_code = $vendor_code;
-
+        $this->vendor_code =  $this->generateVendorCode(null,1);
+        
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    private function setGuaranteeVendorCode(): static
+    {
+      dd("dead");
+      if (is_null($this->vendor_code)) {
+        $this->vendor_code = $this->generateVendorCode();
+      }
+
+      return $this;
     }
 
     public function getEmail(): ?string
@@ -362,4 +374,33 @@ class Vendor
 
         return $this;
     }
+
+  public function generateVendorCode(
+    string $name=null,
+    int $sequence=1,
+  ): string
+  {
+    if (is_null($name)) {
+      if (is_null($this->name)) {
+        return sprintf('%06d', $this->id);
+      }
+      
+      $name = $this->name;
+    }
+    
+    $base = trim(preg_replace('/\s+/', ' ', strtoupper($name)));
+    $words = explode(' ', $base);
+    
+    if (count($words) === 1) {
+      $code = substr($words[0], 0, 6);
+    } else {
+      $code = substr($words[0], 0, 4) . substr($words[1], 0, 2);
+    }
+    
+    $code = str_pad(substr($code, 0, 6), 3, substr($words[0], -1), STR_PAD_RIGHT);
+    
+    $suffix = str_pad(base_convert($sequence, 10, 36), 2, '0', STR_PAD_LEFT);
+    
+    return $code . $suffix;
+  }
 }

@@ -1,7 +1,7 @@
 <div class="container-fluid">
   <div class="row g-3">
     
-    {# Left Side: Recipe Selection (60%) #}
+    {# Left Side: Sellable Selection (60%) #}
     <div class="col-lg-7">
       <div class="card shadow-sm h-100">
         <div class="card-header bg-white border-bottom">
@@ -17,7 +17,7 @@
                 type="text" 
                 class="form-control border-start-0" 
                 placeholder="Search items..." 
-                id="recipe-search"
+                id="sellable-search"
                 autocomplete="off">
             </div>
           </div>
@@ -53,26 +53,26 @@
             {% endfor %}
           </ul>
 
-          {# Recipe Grid #}
+          {# Sellable Grid #}
           <div class="tab-content" id="category-content">
             
             {# All Items Tab #}
             <div class="tab-pane fade show active" id="all" role="tabpanel">
-              <div class="row g-2" id="recipe-grid">
-                {% for recipe in recipes %}
-                  <div class="col-6 col-md-4 col-xl-3 recipe-card-wrapper" data-recipe-id="{{ recipe.id }}" data-search-text="{{ recipe.title|lower }}">
-                    <div class="card h-100 recipe-card cursor-pointer border" 
-                         onclick="addToOrder({{ recipe.id }}, '{{ recipe.title|e('js') }}', {{ recipe.defaultPrice ?? 0 }})">
+              <div class="row g-2" id="sellable-grid">
+                {% for sellable in sellables %}
+                  <div class="col-6 col-md-4 col-xl-3 sellable-card-wrapper" data-sellable-id="{{ sellable.id }}" data-search-text="{{ sellable.name|lower }}">
+                    <div class="card h-100 sellable-card cursor-pointer border" 
+                         onclick="addToOrder({{ sellable.id }}, '{{ sellable.name|e('js') }}', {{ sellable.basePrice ?? 0 }})">
                       <div class="card-body p-2 text-center">
-                        {% if false %} {# TODO: {% if recipe.imageUrl %} #}
-                          <img src="{{ recipe.imageUrl }}" alt="{{ recipe.title }}" class="img-fluid rounded mb-2" style="height: 80px; object-fit: cover; width: 100%;">
+                        {% if false %} {# TODO: {% if sellable.imageUrl %} #}
+                          <img src="{{ sellable.imageUrl }}" alt="{{ sellable.name }}" class="img-fluid rounded mb-2" style="height: 80px; object-fit: cover; width: 100%;">
                         {% else %}
                           <div class="bg-light rounded d-flex align-items-center justify-content-center mb-2" style="height: 80px;">
                             <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
                           </div>
                         {% endif %}
-                        <h6 class="mb-1 small text-truncate">{{ recipe.title }}</h6>
-                        <small class="text-muted">${{ recipe.defaultPrice ? recipe.defaultPrice|number_format(2, '.', ',') : '0.00' }}</small>
+                        <h6 class="mb-1 small text-truncate">{{ sellable.name }}</h6>
+                        <small class="text-muted">${{ sellable.basePrice ? sellable.basePrice|number_format(2, '.', ',') : '0.00' }}</small>
                       </div>
                     </div>
                   </div>
@@ -84,20 +84,20 @@
             {% for tag in categories %}
               <div class="tab-pane fade" id="cat-{{ tag.value|replace({' ': '-'}) }}" role="tabpanel">
                 <div class="row g-2">
-                  {% for recipe in recipes|filter(r => r.tags|filter(t => t.type == 'meal_type' and t.value == tag.value)|length > 0) %}
-                    <div class="col-6 col-md-4 col-xl-3 recipe-card-wrapper" data-recipe-id="{{ recipe.id }}">
-                      <div class="card h-100 recipe-card cursor-pointer border" 
-                           onclick="addToOrder({{ recipe.id }}, '{{ recipe.title|e('js') }}', {{ recipe.defaultPrice ?? 0 }})">
+                  {% for sellable in sellables|filter(r => r.tags|filter(t => t.type == 'meal_type' and t.value == tag.value)|length > 0) %}
+                    <div class="col-6 col-md-4 col-xl-3 sellable-card-wrapper" data-sellable-id="{{ sellable.id }}">
+                      <div class="card h-100 sellable-card cursor-pointer border" 
+                           onclick="addToOrder({{ sellable.id }}, '{{ sellable.name|e('js') }}', {{ sellable.basePrice ?? 0 }})">
                         <div class="card-body p-2 text-center">
-                          {% if recipe.imageUrl %}
-                            <img src="{{ recipe.imageUrl }}" alt="{{ recipe.title }}" class="img-fluid rounded mb-2" style="height: 80px; object-fit: cover; width: 100%;">
+                          {% if sellable.imageUrl %}
+                            <img src="{{ sellable.imageUrl }}" alt="{{ sellable.name }}" class="img-fluid rounded mb-2" style="height: 80px; object-fit: cover; width: 100%;">
                           {% else %}
                             <div class="bg-light rounded d-flex align-items-center justify-content-center mb-2" style="height: 80px;">
                               <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
                             </div>
                           {% endif %}
-                          <h6 class="mb-1 small text-truncate">{{ recipe.title }}</h6>
-                          <small class="text-muted">${{ recipe.defaultPrice ? recipe.defaultPrice|number_format(2, '.', ',') : '0.00' }}</small>
+                          <h6 class="mb-1 small text-truncate">{{ sellable.name }}</h6>
+                          <small class="text-muted">${{ sellable.basePrice ? sellable.basePrice|number_format(2, '.', ',') : '0.00' }}</small>
                         </div>
                       </div>
                     </div>
@@ -200,7 +200,7 @@
           </div>
 
           {# Hidden field for order data #}
-          {{ form_widget(form.recipeIds, {'attr': {'id': 'order-data-field'}}) }}
+          {{ form_widget(form.sellableIds, {'attr': {'id': 'order-data-field'}}) }}
 
           {# Action Buttons #}
           <div class="d-grid gap-2">
@@ -280,11 +280,11 @@
 </div>
 
 <style>
-.recipe-card {
+.sellable-card {
   transition: all 0.2s ease;
 }
 
-.recipe-card:hover {
+.sellable-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   border-color: var(--bs-primary) !important;
@@ -310,7 +310,7 @@
 <script>
 // Order state management
 const orderState = {
-  items: {},  // { recipeId: { name, quantity, unitPrice, notes } }
+  items: {},  // { sellableId: { name, quantity, unitPrice, notes } }
   taxRate: 0.085,
   currentEditingId: null
 };
@@ -319,8 +319,8 @@ const orderState = {
 {% if order is defined and order.orderItems|length > 0 %}
 document.addEventListener('DOMContentLoaded', function() {
   {% for item in order.orderItems %}
-    orderState.items[{{ item.recipeListRecipeId.id }}] = {
-      name: '{{ item.recipeListRecipeId.title|e('js') }}',
+    orderState.items[{{ item.sellable.id }}] = {
+      name: '{{ item.sellable.name|e('js') }}',
       quantity: {{ item.quantity }},
       unitPrice: {{ item.unitPrice }},
       notes: '{{ item.notes|default('')|e('js') }}'
@@ -331,16 +331,16 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endif %}
 
 // Add item to order
-function addToOrder(recipeId, recipeName, defaultPrice) {
-  if (orderState.items[recipeId]) {
+function addToOrder(sellableId, sellableName, basePrice) {
+  if (orderState.items[sellableId]) {
     // Item already exists, increment quantity
-    orderState.items[recipeId].quantity++;
+    orderState.items[sellableId].quantity++;
   } else {
     // New item
-    orderState.items[recipeId] = {
-      name: recipeName,
+    orderState.items[sellableId] = {
+      name: sellableName,
       quantity: 1,
-      unitPrice: defaultPrice,
+      unitPrice: basePrice,
       notes: ''
     };
   }
@@ -348,7 +348,7 @@ function addToOrder(recipeId, recipeName, defaultPrice) {
   updateOrderDisplay();
   
   // Visual feedback
-  const card = document.querySelector(`[data-recipe-id="${recipeId}"] .recipe-card`);
+  const card = document.querySelector(`[data-sellable-id="${sellableId}"] .sellable-card`);
   if (card) {
     card.classList.add('border-success', 'border-2');
     setTimeout(() => {
@@ -380,12 +380,12 @@ function updateOrderDisplay() {
   
   // Build items list
   let html = '';
-  itemIds.forEach(recipeId => {
-    const item = orderState.items[recipeId];
+  itemIds.forEach(sellableId => {
+    const item = orderState.items[sellableId];
     const lineTotal = item.quantity * item.unitPrice;
     
     html += `
-      <div class="order-item-card border-bottom py-2 px-2 cursor-pointer" onclick="editItem(${recipeId})">
+      <div class="order-item-card border-bottom py-2 px-2 cursor-pointer" onclick="editItem(${sellableId})">
         <div class="d-flex justify-content-between align-items-start">
           <div class="flex-grow-1">
             <div class="fw-bold">${item.name}</div>
@@ -426,23 +426,23 @@ function updateTotals() {
 
 // Update hidden field with order data
 function updateHiddenField() {
-  const data = Object.keys(orderState.items).map(recipeId => {
-    const item = orderState.items[recipeId];
+  const data = Object.keys(orderState.items).map(sellableId => {
+    const item = orderState.items[sellableId];
     return {
-      recipe_id: parseInt(recipeId),
+      sellable_id: parseInt(sellableId),
       quantity: item.quantity,
       unit_price: item.unitPrice,
       notes: item.notes
     };
   });
 
-  document.getElementById('order_pos_recipeIds').value = JSON.stringify(data);
+  document.getElementById('order_pos_sellableIds').value = JSON.stringify(data);
 }
 
 // Edit item - open modal
-function editItem(recipeId) {
-  orderState.currentEditingId = recipeId;
-  const item = orderState.items[recipeId];
+function editItem(sellableId) {
+  orderState.currentEditingId = sellableId;
+  const item = orderState.items[sellableId];
   
   document.getElementById('modal-item-name').value = item.name;
   document.getElementById('modal-quantity').value = item.quantity;
@@ -475,11 +475,11 @@ function updateModalLineTotal() {
 
 // Save item changes from modal
 function saveItemChanges() {
-  const recipeId = orderState.currentEditingId;
+  const sellableId = orderState.currentEditingId;
   
-  orderState.items[recipeId].quantity = parseInt(document.getElementById('modal-quantity').value);
-  orderState.items[recipeId].unitPrice = parseFloat(document.getElementById('modal-unit-price').value);
-  orderState.items[recipeId].notes = document.getElementById('modal-notes').value;
+  orderState.items[sellableId].quantity = parseInt(document.getElementById('modal-quantity').value);
+  orderState.items[sellableId].unitPrice = parseFloat(document.getElementById('modal-unit-price').value);
+  orderState.items[sellableId].notes = document.getElementById('modal-notes').value;
   
   updateOrderDisplay();
   
@@ -488,8 +488,8 @@ function saveItemChanges() {
 
 // Remove item
 function removeItem() {
-  const recipeId = orderState.currentEditingId;
-  delete orderState.items[recipeId];
+  const sellableId = orderState.currentEditingId;
+  delete orderState.items[sellableId];
   
   updateOrderDisplay();
   
@@ -500,10 +500,10 @@ function removeItem() {
 document.getElementById('modal-quantity')?.addEventListener('input', updateModalLineTotal);
 document.getElementById('modal-unit-price')?.addEventListener('input', updateModalLineTotal);
 
-// Recipe search functionality
-document.getElementById('recipe-search')?.addEventListener('input', function(e) {
+// Sellable search functionality
+document.getElementById('sellable-search')?.addEventListener('input', function(e) {
   const searchTerm = e.target.value.toLowerCase();
-  const cards = document.querySelectorAll('.recipe-card-wrapper');
+  const cards = document.querySelectorAll('.sellable-card-wrapper');
   
   cards.forEach(card => {
     const searchText = card.dataset.searchText || '';

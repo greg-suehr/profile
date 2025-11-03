@@ -1,0 +1,148 @@
+{% extends activeDash ?? 'katzen/_dashboard-base.html.twig' %}
+
+{% block title %}{{ sellable ? 'Edit' : 'Create' }} Sellable Item{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      {# Header #}
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2>
+            <i class="bi bi-box-seam me-2"></i>
+            {{ sellable ? 'Edit Sellable Item' : 'Create New Sellable Item' }}
+          </h2>
+          {% if sellable %}
+            <p class="text-muted mb-0">Editing: {{ sellable.name }}</p>
+          {% endif %}
+        </div>
+        <a href="{{ path('sellable_index') }}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Back to Items
+        </a>
+      </div>
+
+      {# Form Card #}
+      <div class="row">
+        <div class="col-lg-8 col-xl-7">
+          <div class="card shadow-sm">
+            <div class="card-header bg-light">
+              <h5 class="mb-0">Item Details</h5>
+            </div>
+            <div class="card-body">
+              {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+              
+              {# Basic Information #}
+              <div class="mb-4">
+                <h6 class="text-secondary border-bottom pb-2 mb-3">Basic Information</h6>
+                
+                <div class="mb-3">
+                  {{ form_row(form.name) }}
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    {{ form_row(form.sku) }}
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    {{ form_row(form.category) }}
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  {{ form_row(form.description) }}
+                </div>
+              </div>
+
+              {# Configuration #}
+              <div class="mb-4">
+                <h6 class="text-secondary border-bottom pb-2 mb-3">Configuration</h6>
+                
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    {{ form_row(form.type) }}
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    {{ form_row(form.portionMultiplier) }}
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  {{ form_row(form.parent) }}
+                </div>
+              </div>
+
+              {# Hidden fields #}
+              {{ form_rest(form) }}
+
+              {# Submit Buttons #}
+              <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                <a href="{{ path('sellable_index') }}" class="btn btn-outline-secondary">
+                  Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-check-circle me-1"></i>
+                  {{ sellable ? 'Update Item' : 'Create Item' }}
+                </button>
+              </div>
+
+              {{ form_end(form) }}
+            </div>
+          </div>
+        </div>
+
+        {# Help Sidebar #}
+        <div class="col-lg-4 col-xl-5 mt-4 mt-lg-0">
+          <div class="card bg-light shadow-sm">
+            <div class="card-body">
+              <h6 class="text-primary mb-3">
+                <i class="bi bi-info-circle me-2"></i>Item Types
+              </h6>
+              
+              <div class="mb-3">
+                <strong>Simple Item:</strong>
+                <p class="small text-muted mb-0">
+                  A single, straightforward menu item with no variations (e.g., "House Salad").
+                </p>
+              </div>
+
+              <div class="mb-3">
+                <strong>Configurable:</strong>
+                <p class="small text-muted mb-0">
+                  An item with multiple variants the customer can choose from (e.g., sizes, flavors).
+                </p>
+              </div>
+
+              <div class="mb-3">
+                <strong>Bundle:</strong>
+                <p class="small text-muted mb-0">
+                  A combination of multiple items sold as a package (e.g., "Lunch Combo").
+                </p>
+              </div>
+
+              <div class="mb-3">
+                <strong>Modifier:</strong>
+                <p class="small text-muted mb-0">
+                  Add-ons or customizations (e.g., "Extra Cheese", "Bacon").
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <datalist id="category-suggestions">
+            <option value="Appetizers">
+            <option value="Entrées">
+            <option value="Sides">
+            <option value="Desserts">
+            <option value="Beverages">
+            <option value="Salads">
+            <option value="Sandwiches">
+            <option value="Seafood">
+            <option value="Vegetarian">
+          </datalist>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

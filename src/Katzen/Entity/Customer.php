@@ -58,22 +58,16 @@ class Customer
   
   #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
   private ?\DateTimeInterface $last_order_at = null;
+
+  #[ORM\OneToMany(targetEntity: CustomerPriceOverride::class, mappedBy: 'customer', orphanRemoval: true)]
+  private Collection $priceOverrides;
   
-  /**
-   * @var Collection<int, Order>
-   */
   #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'customer_entity')]
   private Collection $orders;
 
-  /**
-   * @var Collection<int, Invoice>
-   */
   #[ORM\OneToMany(targetEntity: Invoice::class, mappedBy: 'customer')]
   private Collection $invoices;
   
-  /**
-   * @var Collection<int, Payment>
-   */
   #[ORM\OneToMany(targetEntity: Payment::class, mappedBy: 'customer')]
   private Collection $payments;
 
@@ -81,13 +75,14 @@ class Customer
   private ?string $payment_terms = 'on_receipt';
 
   #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-  private ?string $ar_balance = '0.00';
+  private ?string $ar_balance = '0.00';  
   
   public function __construct()
   {
     $this->orders = new ArrayCollection();
     $this->invoices = new ArrayCollection();
     $this->payments = new ArrayCollection();
+    $this->priceOverrides = new ArrayCollection();
   }
 
   public function __toString(): string
@@ -211,5 +206,32 @@ class Customer
       $this->ar_balance = $ar_balance;
 
       return $this;
+  }
+
+  /**
+   * @return Collection<int, CustomerPriceOverride>
+   */
+  public function getPriceOverrides(): Collection
+  {
+    return $this->priceOverrides;
+  }
+
+  public function addPriceOverride(CustomerPriceOverride $priceOverride): static
+  {
+    if (!$this->priceOverrides->contains($priceOverride)) {
+      $this->priceOverrides->add($priceOverride);
+        $priceOverride->setCustomer($this);
+    }
+    return $this;
+  }
+
+  public function removePriceOverride(CustomerPriceOverride $priceOverride): static
+  {
+    if ($this->priceOverrides->removeElement($priceOverride)) {
+        if ($priceOverride->getCustomer() === $this) {
+            $priceOverride->setCustomer(null);
+        }
+    }
+    return $this;
   }
 }

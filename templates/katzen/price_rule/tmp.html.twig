@@ -1,0 +1,126 @@
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      {# Header #}
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2>
+            <i class="bi bi-tag-fill me-2"></i>
+            {{ priceRule ? 'Edit Price Rule' : 'Create New Price Rule' }}
+          </h2>
+          {% if priceRule %}
+          <p class="text-muted mb-0">Editing: {{ priceRule.name }}</p>
+          {% endif %}
+        </div>
+        <a href="{{ path('price_rule_index') }}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Back to Rules
+        </a>
+      </div>
+
+      {# Form Card #}
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="card shadow-sm">
+            <div class="card-header bg-light">
+              <h5 class="mb-0">Rule Configuration</h5>
+            </div>
+            <div class="card-body">
+              {{ form_start(form) }}
+              {{ form_row(form.name) }}
+              {{ form_row(form.description) }}
+              {{ form_row(form.type) }}
+              {{ form_row(form.priority) }}
+              {{ form_widget(form.active) }} 
+              {{ form_label(form.active) }}
+              {{ form_widget(form.stackable) }}
+              {{ form_label(form.stackable) }}
+              {{ form.stackable.vars.help }}
+              {{ form_widget(form.exclusive) }}
+              {{ form_label(form.exclusive) }}
+              {{ form.exclusive.vars.help }}
+              {{ form_row(form.conditions) }}
+              {{ form_end(form, {render_rest:false}) }}
+            </div>
+          </div>
+        </div>
+
+        {# Help Sidebar #}
+        <div class="col-lg-4 mt-4 mt-lg-0">
+          <div class="card bg-light shadow-sm mb-3">
+            <div class="card-body">
+              <h6 class="text-primary mb-3">
+                <i class="bi bi-lightbulb me-2"></i>Condition Examples
+              </h6>
+              
+              <div class="mb-3">
+                <strong>Customer Segment:</strong>
+                <pre class="small bg-white p-2 rounded mb-0"><code>[{
+  "field": "customer.segment",
+  "operator": "in",
+  "value": ["wholesale", "vip"]
+}]</code></pre>
+              </div>
+
+              <div class="mb-3">
+                <strong>Minimum Order Amount:</strong>
+                <pre class="small bg-white p-2 rounded mb-0"><code>[{
+  "field": "order.subtotal",
+  "operator": ">=",
+  "value": 100
+}]</code></pre>
+              </div>
+
+              <div class="mb-0">
+                <strong>Time-based (Happy Hour):</strong>
+                <pre class="small bg-white p-2 rounded mb-0"><code>[{
+  "field": "time.hour",
+  "operator": "between",
+  "value": [14, 17]
+}]</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="card bg-light shadow-sm">
+            <div class="card-body">
+              <h6 class="text-primary mb-3">
+                <i class="bi bi-lightbulb me-2"></i>Action Examples
+              </h6>
+              
+              <div class="mb-3">
+                <strong>Percentage Discount:</strong>
+                <pre class="small bg-white p-2 rounded mb-0"><code>[{
+  "type": "percentage_discount",
+  "value": 15
+}]</code></pre>
+              </div>
+
+              <div class="mb-3">
+                <strong>Fixed Price:</strong>
+                <pre class="small bg-white p-2 rounded mb-0"><code>[{
+  "type": "fixed_price",
+  "value": 9.99
+}]</code></pre>
+              </div>
+
+              <div class="mb-0">
+                <strong>Fixed Amount Off:</strong>
+                <pre class="small bg-white p-2 rounded mb-0"><code>[{
+  "type": "fixed_discount",
+  "value": 5.00
+}]</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+pre code {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+</style>

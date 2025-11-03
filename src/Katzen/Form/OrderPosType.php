@@ -45,7 +45,7 @@ class OrderPosType extends AbstractType
                     'placeholder' => 'Special instructions...',
                 ],
             ])
-            ->add('recipeIds', HiddenType::class, [
+            ->add('sellableIds', HiddenType::class, [
                 'mapped' => false,
                 'required' => false,
                 'attr' => [

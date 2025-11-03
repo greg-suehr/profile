@@ -12,6 +12,7 @@ use App\Katzen\Form\OrderPosType;
 use App\Katzen\Entity\{Order, OrderItem};
 use App\Katzen\Entity\{Recipe, RecipeList, Tag};
 use App\Katzen\Repository\OrderRepository;
+use App\Katzen\Repository\SellableRepository;
 use App\Katzen\Repository\TagRepository;
 
 use App\Katzen\Service\OrderService;
@@ -35,6 +36,7 @@ final class OrderController extends AbstractController
     private OrderService $orderService,
     private OrderActionProvider $actionProvider,
     private OrderRepository $orderRepo,
+    private SellableRepository $sellableRepo,
     private TagRepository $tagRepo,    
   ) {}
   
@@ -69,7 +71,7 @@ final class OrderController extends AbstractController
         $i = PanelField::text(
           'item_' . $item->getId(),
           ($item->isFulfilled() ? '✓ ' : '○ ') . 
-            $item->getRecipeListRecipeId()->getTitle() .
+            $item->getSellable()->getName() .
             ' x' . $item->getQuantity()
             );
 
@@ -164,9 +166,7 @@ final class OrderController extends AbstractController
   #[DashboardLayout('service', 'order', 'order-table')] 
   public function table(Request $request): Response  
   {
-    $orders = $this->orderRepo->findBy([
-      'status' => ['unfulfilled', 'pending', 'ready', 'waiting'],
-    ]);
+    $orders = $this->orderRepo->findBy([]);
     
     $rows = [];
     foreach ($orders as $o) {
@@ -262,7 +262,7 @@ final class OrderController extends AbstractController
     $form->handleRequest($request);
 
     if ($form->isSubmitted() && $form->isValid()) {
-      $itemsJson = $form->get('recipeIds')->getData();
+      $itemsJson = $form->get('sellableIds')->getData();
       $itemsData = json_decode($itemsJson, true);
 
       if (empty($itemsData)) {
@@ -298,11 +298,14 @@ final class OrderController extends AbstractController
       throw $this->createNotFoundException('No active menu found.');
     }
 
+    # TODO: design Catalog domain services
+    $sellables = $this->sellableRepo->findBy([]);
+
     return $this->render('katzen/order/create_order.html.twig', $this->dashboardContext->with([
         'menuInterface' => $menu,
         'form'       => $form,
-        'categories' => [], # TODO: generate categories from source RecipeList or Recipe attributet
-        'recipes'    => $menu->getRecipes(),
+        'categories' => [], # TODO: generate categories from source Catalog
+        'sellables'  => $sellables,
     ]));
   }
 
@@ -319,7 +322,7 @@ final class OrderController extends AbstractController
     $form->handleRequest($request);
 
     if ($form->isSubmitted() && $form->isValid()) {
-      $itemsJson = $form->get('recipeIds')->getData();
+      $itemsJson = $form->get('sellableIds')->getData();
       $itemsData = json_decode($itemsJson, true);
 
       $result = $this->orderService->updateOrder($order, $itemsData, [
@@ -345,12 +348,13 @@ final class OrderController extends AbstractController
     }
 
     $menu = $this->menuPlanner->getActiveMenu();
+    $sellables = $this->sellableRepo->findBy([]);
     $categories = [];
     
     return $this->render('katzen/order/create_order.html.twig', $this->dashboardContext->with([
       'form' => $form,
       'order' => $order,
-      'recipes' => $menu->getRecipes(),
+      'sellables' => $sellables,
       'categories' => $categories,
     ]));
   }
@@ -461,6 +465,29 @@ final class OrderController extends AbstractController
     
     return $this->redirectToRoute('order_show', ['id' => $orderId]);
   }
+
+  #[Route('/close/{id}', name: 'close', methods: ['POST'])]
+  public function close(Order $order, Request $request): Response
+  {
+    if (!$this->isCsrfTokenValid('order_close_' . $order->getId(), $request->request->get('_token'))) {
+      $this->addFlash('danger', 'Invalid CSRF token');
+      return $this->redirectToRoute('order_show', ['id' => $order->getId()]);
+    }
+    
+    if (!$order) {
+      throw $this->createNotFoundException('Order not found');
+    }
+
+    $result = $this->orderService->closeOrder($order);
+
+    if ( $result->isFailure() ) {   
+      $this->addFlash('error', $result->getMessage());
+    }
+    
+    $this->addFlash('success', $result->getMessage());
+    return $this->redirectToRoute('order_index');
+  }
+
 
   #[Route('/void/{id}', name: 'void', methods: ['POST'])]
   public function void(int $id, Request $request): Response

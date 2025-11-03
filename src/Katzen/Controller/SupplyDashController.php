@@ -2,6 +2,7 @@
 
 namespace App\Katzen\Controller;
 
+use App\Katzen\Attribute\DashboardLayout;
 use App\Katzen\Dashboard\Widget\WidgetRegistry;
 use App\Katzen\Service\Utility\DashboardContextService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,6 +17,7 @@ final class SupplyDashController extends AbstractController
     ) {}
     
     #[Route('/supply', name: 'supply_dashboard')]
+    #[DashboardLayout('supply', 'dashboard', 'supply-dashboard')]
     public function index(): Response
     {
         // Get widgets relevant to supply operations
@@ -23,9 +25,6 @@ final class SupplyDashController extends AbstractController
         $views = array_map(fn($v) => $v->toArray(), $this->widgets->all());
 
         return $this->render('katzen/widgets/dashboard.html.twig', $this->dashboardContext->with([
-            'activeDash' => 'katzen/dash-supply.html.twig',
-            'activeItem' => 'dashboard',                    
-            'activeMenu' => null,
             'widgets' => $views,
         ]));
     }

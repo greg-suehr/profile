@@ -7,8 +7,6 @@ use App\Katzen\Entity\StockTarget;
 use App\Katzen\Entity\Recipe;
 use App\Katzen\Entity\RecipeIngredient;
 use App\Katzen\Entity\RecipeList;
-use App\Katzen\Entity\Customer;
-use App\Katzen\Entity\Vendor;
 use App\Katzen\Entity\Unit;
 use App\Katzen\Entity\KatzenUser;
 use App\Katzen\Entity\Tag;
@@ -198,112 +196,6 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
         ],
     ];
 
-    private const CUSTOMERS = [
-        [
-            'name' => 'Sarah Mitchell',
-            'email' => 'sarah.mitchell@email.com',
-            'phone' => '412-555-0123',
-            'type' => 'individual',
-            'billing_address' => '123 Main Street, Pittsburgh, PA 15213',
-            'shipping_address' => '123 Main Street, Pittsburgh, PA 15213',
-            'notes' => 'Regular customer, prefers oat milk',
-        ],
-        [
-            'name' => 'David Chen',
-            'email' => 'david.chen@email.com',
-            'phone' => '412-555-0456',
-            'type' => 'individual',
-            'billing_address' => '456 Forbes Avenue, Pittsburgh, PA 15213',
-            'shipping_address' => '456 Forbes Avenue, Pittsburgh, PA 15213',
-            'notes' => 'Likes extra hot drinks',
-        ],
-        [
-            'name' => 'TechStart Inc',
-            'email' => 'orders@techstart.com',
-            'phone' => '412-555-0789',
-            'type' => 'business',
-            'billing_address' => '789 Liberty Avenue, Pittsburgh, PA 15222',
-            'shipping_address' => '789 Liberty Avenue, Suite 500, Pittsburgh, PA 15222',
-            'notes' => 'Weekly office orders, 20+ drinks. Contact: Jennifer',
-        ],
-        [
-            'name' => 'Emily Rodriguez',
-            'email' => 'emily.r@email.com',
-            'phone' => '412-555-0234',
-            'type' => 'individual',
-            'billing_address' => '234 Oakland Avenue, Pittsburgh, PA 15213',
-            'shipping_address' => '234 Oakland Avenue, Pittsburgh, PA 15213',
-            'notes' => 'Rewards member since 2023',
-        ],
-        [
-            'name' => 'Green Valley Cafe',
-            'email' => 'wholesale@greenvalley.com',
-            'phone' => '412-555-0567',
-            'type' => 'wholesale',
-            'billing_address' => '567 Penn Avenue, Pittsburgh, PA 15222',
-            'shipping_address' => '567 Penn Avenue, Pittsburgh, PA 15222',
-            'notes' => 'Wholesale customer, buys pastries for resale',
-        ],
-    ];
-
-    private const VENDORS = [
-        [
-            'name' => 'Premium Coffee Roasters',
-            'email' => 'sales@premiumcoffee.com',
-            'phone' => '800-555-0100',
-            'type' => 'supplier',
-            'billing_address' => '1000 Roaster Way, Seattle, WA 98101',
-            'shipping_address' => '1000 Roaster Way, Seattle, WA 98101',
-            'notes' => 'Primary coffee bean supplier, weekly deliveries',
-            'payment_terms' => 'Net 30',
-            'tax_id' => '12-3456789',
-        ],
-        [
-            'name' => 'Dairy Fresh Distributors',
-            'email' => 'orders@dairyfresh.com',
-            'phone' => '412-555-0800',
-            'type' => 'supplier',
-            'billing_address' => '2500 Milk Road, Pittsburgh, PA 15220',
-            'shipping_address' => '2500 Milk Road, Pittsburgh, PA 15220',
-            'notes' => 'Dairy and alternative milk supplier, twice weekly delivery',
-            'payment_terms' => 'Net 15',
-            'tax_id' => '23-4567890',
-        ],
-        [
-            'name' => 'Sweet Supplies Co',
-            'email' => 'info@sweetsupplies.com',
-            'phone' => '412-555-0900',
-            'type' => 'supplier',
-            'billing_address' => '3000 Sugar Lane, Pittsburgh, PA 15212',
-            'shipping_address' => '3000 Sugar Lane, Pittsburgh, PA 15212',
-            'notes' => 'Syrups, chocolate, and baking supplies',
-            'payment_terms' => 'Net 30',
-            'tax_id' => '34-5678901',
-        ],
-        [
-            'name' => 'EcoPack Solutions',
-            'email' => 'sales@ecopack.com',
-            'phone' => '800-555-0200',
-            'type' => 'supplier',
-            'billing_address' => '4000 Green Street, Portland, OR 97201',
-            'shipping_address' => '4000 Green Street, Portland, OR 97201',
-            'notes' => 'Sustainable packaging supplier, monthly bulk orders',
-            'payment_terms' => 'Net 45',
-            'tax_id' => '45-6789012',
-        ],
-        [
-            'name' => 'Local Flour Mill',
-            'email' => 'orders@localflourmill.com',
-            'phone' => '412-555-1000',
-            'type' => 'supplier',
-            'billing_address' => '5000 Mill Road, Pittsburgh, PA 15235',
-            'shipping_address' => '5000 Mill Road, Pittsburgh, PA 15235',
-            'notes' => 'Local supplier for flour and baking ingredients',
-            'payment_terms' => 'Net 30',
-            'tax_id' => '56-7890123',
-        ],
-    ];
-
     public function load(ObjectManager $manager): void
     {
         $author = $this->getReference(KatzenUserFixture::ADMIN_USER_REFERENCE, KatzenUser::class);
@@ -421,47 +313,6 @@ class ExpandedDemoFixtures extends Fixture implements DependentFixtureInterface
             
             $manager->flush();
         }
-
-        foreach (self::CUSTOMERS as $customerData) {
-            $existing = $manager->getRepository(Customer::class)
-                ->findOneBy(['email' => $customerData['email']]);
-            
-            if (!$existing) {
-                $customer = new Customer();
-                $customer->setName($customerData['name']);
-                $customer->setEmail($customerData['email']);
-                $customer->setPhone($customerData['phone']);
-                $customer->setType($customerData['type']);
-                $customer->setBillingAddress($customerData['billing_address']);
-                $customer->setShippingAddress($customerData['shipping_address']);
-                $customer->setNotes($customerData['notes']);
-                $customer->setStatus('active');
-                $customer->setAccountBalance('0.00');
-                $customer->setArBalance('0.00');
-                $customer->setPaymentTerms('Net 15');
-                
-                $manager->persist($customer);
-            }
-        }
-        
-        $manager->flush();
-
-        foreach (self::VENDORS as $vendorData) {
-            $vendor = new Vendor();
-            $vendor->setVendorCode($vendorData['tax_id']);
-            $vendor->setName($vendorData['name']);
-            $vendor->setEmail($vendorData['email']);
-            $vendor->setPhone($vendorData['phone']);
-            $vendor->setBillingAddress($vendorData['billing_address']);
-            $vendor->setShippingAddress($vendorData['shipping_address']);
-            $vendor->setNotes($vendorData['notes']);
-            $vendor->setStatus('active');
-            $vendor->setCurrentBalance('0.00');
-            $vendor->setPaymentTerms('Net 15');
-            $manager->persist($vendor);
-        }
-        
-        $manager->flush();
     }
 
     public function getDependencies(): array

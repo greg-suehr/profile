@@ -44,6 +44,7 @@ final class OrderStateMachine
             self::STATUS_PREP,
             self::STATUS_CANCELLED,
             self::STATUS_VOIDED,
+            self::STATUS_CLOSED,
         ],
         self::STATUS_PREP => [
             self::STATUS_READY,
@@ -189,15 +190,7 @@ final class OrderStateMachine
       throw new OrderStateException(
         "Cannot close order until fulfillment is complete"
       );
-    }
-    
-    // Cannot close without being invoiced or paid
-    if ($newStatus === self::STATUS_CLOSED && 
-        !in_array($billingStatus, [self::BILLING_INVOICED, self::BILLING_PARTIAL, self::BILLING_PAID], true)) {
-      throw new OrderStateException(
-        "Cannot close order until it has been billed"
-      );
-    }
+    }    
         
     // Cannot void or cancel if already paid
     if (in_array($newStatus, [self::STATUS_VOIDED, self::STATUS_CANCELLED], true) &&

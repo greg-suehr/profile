@@ -11,7 +11,9 @@
      data-table-id="{{ tableId }}"
      data-selectable="{{ table.selectable ? 'true' : 'false' }}"
      data-server-side="{{ useServerSide ? 'true' : 'false' }}"
+     {% if table.hasBulkActions %}
      data-bulk-endpoint="{{ path(bulkRoute) }}"
+     {% endif %}
      data-csrf="{{ csrf_token(csrfSlug) }}"
      >
   

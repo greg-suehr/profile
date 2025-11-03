@@ -1,0 +1,125 @@
+{% extends 'katzen/dash-service.html.twig' %}
+
+{% block title %}{{ variant ? 'Edit' : 'Add' }} Variant - {{ sellable.name }}{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      {# Header #}
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2>
+            <i class="bi bi-tag me-2"></i>
+            {{ variant ? 'Edit Variant' : 'Add New Variant' }}
+          </h2>
+          <p class="text-muted mb-0">
+            For: <a href="{{ path('sellable_show', {'id': sellable.id}) }}">{{ sellable.name }}</a>
+          </p>
+        </div>
+        <a href="{{ path('sellable_show', {'id': sellable.id}) }}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Back to Item
+        </a>
+      </div>
+
+      {# Form Card #}
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="card shadow-sm">
+            <div class="card-header bg-light">
+              <h5 class="mb-0">Variant Details</h5>
+            </div>
+            <div class="card-body">
+              {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+              
+              {# Basic Information #}
+              <div class="mb-4">
+                <h6 class="text-secondary border-bottom pb-2 mb-3">Basic Information</h6>
+                
+                <div class="mb-3">
+                  {{ form_row(form.variantName) }}
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    {{ form_row(form.priceAdjustment) }}
+                  </div>
+                </div>
+              </div>
+
+              {# Display Settings #}
+              <div class="mb-4">
+                <h6 class="text-secondary border-bottom pb-2 mb-3">Display Settings</h6>
+                
+                <div class="mb-3">
+                  {{ form_row(form.sortOrder) }}
+                </div>
+
+              {# Hidden fields #}
+              {{ form_rest(form) }}
+
+              {# Submit Buttons #}
+              <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                <a href="{{ path('sellable_show', {'id': sellable.id}) }}" class="btn btn-outline-secondary">
+                  Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-check-circle me-1"></i>
+                  {{ variant ? 'Update Variant' : 'Add Variant' }}
+                </button>
+              </div>
+
+              {{ form_end(form) }}
+            </div>
+          </div>
+        </div>
+
+        {# Help Sidebar #}
+        <div class="col-lg-4 mt-4 mt-lg-0">
+          <div class="card bg-light shadow-sm">
+            <div class="card-body">
+              <h6 class="text-primary mb-3">
+                <i class="bi bi-info-circle me-2"></i>Variant Pricing
+              </h6>
+              
+              <div class="mb-3">
+                <strong>Price Adjustment:</strong>
+                <p class="small text-muted mb-0">
+                  An amount to add or subtract from a base price. Use positive numbers to add cost (e.g., +$2.00 for "Large") or negative to reduce.
+                </p>
+              </div>
+
+              <div class="mb-3">
+                <strong>Example:</strong>
+                <p class="small text-muted mb-1">For coffee sizes:</p>
+                <ul class="small text-muted mb-0">
+                  <li>Small: Base $3.00, Adjustment $0.00</li>
+                  <li>Medium: Base $3.00, Adjustment $1.00</li>
+                  <li>Large: Base $3.00, Adjustment $2.00</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="card bg-light shadow-sm mt-3">
+            <div class="card-body">
+              <h6 class="text-primary mb-3">
+                <i class="bi bi-info-circle me-2"></i>Stock Targets
+              </h6>
+              
+              <p class="small text-muted mb-2">
+                Link this variant to a recipe or item in your inventory system. This enables:
+              </p>
+              <ul class="small text-muted mb-0">
+                <li>Automatic stock depletion when sold</li>
+                <li>Cost tracking and margin analysis</li>
+                <li>Inventory alerts</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

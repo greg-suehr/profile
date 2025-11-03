@@ -129,9 +129,9 @@
                 <div class="d-flex align-items-center">
                   <i class="bi bi-box-seam text-muted me-2"></i>
                   <div>
-                    {% if item.recipeListRecipeId %}
-                      <a href="{{ path('recipe_view', {'id': item.recipeListRecipeId.id}) }}" class="text-decoration-none fw-medium">
-                        {{ item.recipeListRecipeId.title }}
+                    {% if item.sellable %}
+                      <a href="{{ path('recipe_view', {'id': item.sellable.id}) }}" class="text-decoration-none fw-medium">
+                        {{ item.sellable.name }}
                       </a>
                     {% else %}
                       <span class="text-muted">Unknown Item</span>
@@ -211,28 +211,28 @@
       </a>
       
       <div class="btn-group" role="group">
-        {% if order.status == 'pending' or order.status == 'ready' %}
+        {% if order.canBeModified %}
           <a href="{{ path('order_edit', {'id': order.id}) }}" class="btn btn-primary">
             <i class="bi bi-pencil me-1"></i>Edit Order
           </a>
         {% endif %}
         
-        {% if order.status == 'pending' or order.status == 'ready' %}
-          <form action="{{ path('order_fulfill_all', {'id': order.id}) }}" method="post" style="display:inline" 
-                onsubmit="return confirm('Mark this order as complete?');">
-            <input type="hidden" name="_token" value="{{ csrf_token('order_fulfill_all_' ~ order.id) }}">
+        {% if not order.isTerminal %}
+          <form action="{{ path('order_close', {'id': order.id}) }}" method="post" style="display:inline" 
+                onsubmit="return confirm('Close this order and mark all items fulfilled?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('order_close_' ~ order.id) }}">
             <button type="submit" class="btn btn-success">
-              <i class="bi bi-check-circle me-1"></i>Mark as Complete
+              <i class="bi bi-check-circle me-1"></i>Close
             </button>
           </form>
         {% endif %}
 
-        {% if order.invoices|length == 0 and (order.status == 'completed' or order.status == 'ready') %}
+        {% if order.isClosed %}
           <a href="{{ path('invoice_create_from_order', {'order_id': order.id}) }}" class="btn btn-info">
             <i class="bi bi-file-earmark-plus me-1"></i>Create Invoice
           </a>
         {% endif %}
-        
+          
         <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
           <i class="bi bi-x-circle me-1"></i>Void Order
         </button>

@@ -151,6 +151,36 @@ class DashboardContextService
   private function buildLayoutContext(string $context, string $section, ?string $item = null): array
   {
     $layouts = [
+      'catalog' => [
+        'label' => 'Catalog',
+        'template' => 'katzen/_dashboard_base.html.twig',
+        'sections' => [
+          [
+            'key' => 'catalog-dashboard',
+            'label' => 'Dashboard',
+            'icon' => 'columns-gap',
+            'route' => 'catalog_dashboard',
+          ],
+          [
+            'key' => 'price-rule',
+            'label' => 'Price Rules',
+            'icon' => 'calculator',
+            'items' => [
+              [ 'key' => 'price-rule-create', 'label' => 'Add Price Rule', 'route' => 'price_rule_create'],
+              [ 'key' => 'price-rule-table', 'label' => 'Manage Price Rules', 'route' => 'price_rule_index'],
+            ]
+          ],
+          [
+            'key' => 'sellables',
+            'label' => 'Products',
+            'icon' => 'burger',
+            'items' => [
+              [ 'key' => 'sellable-create', 'label' => 'Add Product', 'route' => 'sellable_create'],
+              [ 'key' => 'sellable-table', 'label' => 'Manage Products', 'route' => 'sellable_index'],
+            ]
+          ],
+        ],
+      ],
       'service' => [
         'label' => 'Service',
         'template' => 'katzen/_dashboard_base.html.twig',
@@ -195,7 +225,7 @@ class DashboardContextService
           ],
         ],
       ],
-    'kitchen' => [
+    'prep' => [
       'label' => 'Prep',      
       'template' => 'katzen/_dashboard_base.html.twig',
       'sections' => [

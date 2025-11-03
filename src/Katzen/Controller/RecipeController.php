@@ -137,7 +137,7 @@ final class RecipeController extends AbstractController
   
   #[Route('/recipe/view/{id}', name: 'recipe_view')]
   #[DashboardLayout('kitchen', 'recipe', 'recipe-show')]
-  public function view(Request $request, Recipe $recipe): Response
+  public function view(Recipe $recipe, Request $request): Response
     {
         $recipe_ingredients = array();
 

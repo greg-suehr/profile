@@ -1,0 +1,332 @@
+{% extends activeDash ?? 'katzen/_dashboard-base.html.twig' %}
+
+{% block title %}{{ sellable.name }}{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      {# Header #}
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2>
+            <i class="bi bi-box-seam me-2"></i>
+            {{ sellable.name }}
+          </h2>
+          <div class="mt-2">
+            <span class="badge bg-{{ sellable.status == 'active' ? 'success' : 'secondary' }} me-2">
+              {{ sellable.status == 'active' ? 'ACTIVE' : 'INACTIVE' }}
+            </span>
+            <span class="badge bg-info">{{ sellable.type|upper }}</span>
+            {% if sellable.category %}
+              <span class="badge bg-light text-dark">{{ sellable.category }}</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="btn-group">
+          <a href="{{ path('sellable_edit', {'id': sellable.id}) }}" class="btn btn-primary">
+            <i class="bi bi-pencil me-1"></i>Edit
+          </a>
+          <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" 
+                  data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <form action="{{ path('sellable_toggle_active', {'id': sellable.id}) }}" method="post" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('sellable_toggle_' ~ sellable.id) }}">
+                <button type="submit" class="dropdown-item">
+                  <i class="bi bi-{{ sellable.status == 'active' ? 'x-circle' : 'check-circle' }} me-2"></i>
+                  {{ sellable.status == 'active' ? 'Deactivate' : 'Activate' }}
+                </button>
+              </form>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row">
+        {# Main Information #}
+        <div class="col-lg-8">
+          {# Basic Details Card #}
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+              <h5 class="mb-0">Item Details</h5>
+            </div>
+            <div class="card-body">
+              <div class="row mb-3">
+                <div class="col-md-4">
+                  <small class="text-muted d-block">Name</small>
+                  <strong>{{ sellable.name }}</strong>
+                </div>
+                <div class="col-md-4">
+                  <small class="text-muted d-block">SKU</small>
+                  <strong>{{ sellable.sku ?? '-' }}</strong>
+                </div>
+                <div class="col-md-4">
+                  <small class="text-muted d-block">Category</small>
+                  <strong>{{ sellable.category ?? 'Uncategorized' }}</strong>
+                </div>
+              </div>
+
+              {% if sellable.description %}
+                <div class="mb-3">
+                  <small class="text-muted d-block">Description</small>
+                  <p class="mb-0">{{ sellable.description }}</p>
+                </div>
+              {% endif %}
+
+              <div class="row">
+                <div class="col-md-4">
+                  <small class="text-muted d-block">Type</small>
+                  <span class="badge bg-info">{{ sellable.type|upper }}</span>
+                </div>
+                {% if sellable.portionMultiplier %}
+                  <div class="col-md-4">
+                    <small class="text-muted d-block">Portion Multiplier</small>
+                    <strong>{{ sellable.portionMultiplier }}</strong>
+                  </div>
+                {% endif %}
+                {% if sellable.parent %}
+                  <div class="col-md-4">
+                    <small class="text-muted d-block">Parent Item</small>
+                    <a href="{{ path('sellable_show', {'id': sellable.parent.id}) }}">
+                      {{ sellable.parent.name }}
+                    </a>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          {# Variants Section #}
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">
+                <i class="bi bi-list me-2"></i>Variants
+                <span class="badge bg-secondary ms-2">{{ sellable.variants|length }}</span>
+              </h5>
+              <a href="{{ path('sellable_variant_add', {'id': sellable.id}) }}" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-circle me-1"></i>Add Variant
+              </a>
+            </div>
+            <div class="card-body">
+              {% if sellable.variants|length > 0 %}
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Variant Name</th>
+                        <th class="text-end">Base Price</th>
+                        <th class="text-end">Adjustment</th>
+                        <th class="text-center">Default</th>
+                        <th class="text-center">Active</th>
+                        <th class="text-end">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for variant in sellable.variants %}
+                        <tr>
+                          <td>
+                            <i class="bi bi-tag me-2 text-muted"></i>
+                            <strong>{{ variant.variantName }}</strong>
+                          </td>
+                          <td class="text-end">
+                            ${{ variant.basePrice|default('0.00')|number_format(2) }}
+                          </td>
+                          <td class="text-end">
+                            {% if variant.priceAdjustment %}
+                              <span class="text-{{ variant.priceAdjustment > 0 ? 'success' : 'danger' }}">
+                                {{ variant.priceAdjustment > 0 ? '+' : '' }}${{ variant.priceAdjustment|number_format(2) }}
+                              </span>
+                            {% else %}
+                              <span class="text-muted">-</span>
+                            {% endif %}
+                          </td>
+                          <td class="text-center">
+                            {% if variant.variantName ==  sellable.name %} {# TODO: not this #}
+                              <i class="bi bi-check-circle-fill text-success"></i>
+                            {% else %}
+                              <span class="text-muted">-</span>
+                            {% endif %}
+                          </td>
+                          <td class="text-center">
+                            <span class="badge bg-{{ variant.status == 'active' ? 'success' : 'secondary' }}">
+                              {{ variant.status == 'active' ? 'Yes' : 'No' }}
+                            </span>
+                          </td>
+                          <td class="text-end">
+                            <a href="{{ path('sellable_variant_edit', {'sellableId': sellable.id, 'variantId': variant.id}) }}" 
+                               class="btn btn-sm btn-outline-primary">
+                              <i class="bi bi-pencil"></i>
+                            </a>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <div class="alert alert-info mb-0">
+                  <i class="bi bi-info-circle me-2"></i>
+                  No variants defined yet. Click "Add Variant" to create the first one.
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          {# Components Section #}
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+              <h5 class="mb-0">
+                <i class="bi bi-puzzle me-2"></i>Components
+                <span class="badge bg-secondary ms-2">{{ sellable.components|length }}</span>
+              </h5>
+            </div>
+            <div class="card-body">
+              {% if sellable.components|length > 0 %}
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Stock Target</th>
+                        <th class="text-end">Quantity Multiplier</th>
+                        <th>Purpose</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for component in sellable.components %}
+                        <tr>
+                          <td>
+                            {% if component.target %}
+                              {% set targetName = component.target.recipe ? component.target.recipe.name : (component.target.item ? component.target.item.name : 'Unknown') %}
+                              {{ targetName }}
+                            {% else %}
+                              <span class="text-muted">Not linked</span>
+                            {% endif %}
+                          </td>
+                          <td class="text-end">
+                            {{ component.quantityMultiplier|default(1) }}
+                          </td>
+                          <td>
+                            <span class="badge bg-light text-dark">
+                              {{ component.purpose|default('primary')|upper }}
+                            </span>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <div class="alert alert-info mb-0">
+                  <i class="bi bi-info-circle me-2"></i>
+                  No components linked to stock targets.
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          {# Modifier Groups Section #}
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+              <h5 class="mb-0">
+                <i class="bi bi-plus-circle me-2"></i>Modifier Groups
+                <span class="badge bg-secondary ms-2">{{ sellable.modifierGroups|length }}</span>
+              </h5>
+            </div>
+            <div class="card-body">
+              {% if sellable.modifierGroups|length > 0 %}
+                <div class="list-group">
+                  {% for group in sellable.modifierGroups %}
+                    <div class="list-group-item">
+                      <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                          <h6 class="mb-1">{{ group.name }}</h6>
+                          <small class="text-muted">
+                            {% if group.required %}
+                              <span class="badge bg-warning">Required</span>
+                            {% endif %}
+                            Min: {{ group.minSelections ?? 0 }} / Max: {{ group.maxSelections ?? 'Unlimited' }}
+                          </small>
+                        </div>
+                        <span class="badge bg-info">{{ group.modifiers|length }} options</span>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="alert alert-info mb-0">
+                  <i class="bi bi-info-circle me-2"></i>
+                  No modifier groups configured.
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        {# Sidebar #}
+        <div class="col-lg-4">
+          {# Quick Stats Card #}
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Quick Stats</h6>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <small class="text-muted d-block">Status</small>
+                <span class="badge bg-{{ sellable.status == 'active' ? 'success' : 'secondary' }}">
+                  {{ sellable.status == 'active' ? 'Active' : 'Inactive' }}
+                </span>
+              </div>
+              <div class="mb-3">
+                <small class="text-muted d-block">Total Variants</small>
+                <strong>{{ sellable.variants|length }}</strong>
+              </div>
+              <div class="mb-3">
+                <small class="text-muted d-block">Modifier Groups</small>
+                <strong>{{ sellable.modifierGroups|length }}</strong>
+              </div>
+              <div class="mb-0">
+                <small class="text-muted d-block">Created</small>
+                <strong>{{ sellable.createdAt ? sellable.createdAt|date('M d, Y') : 'N/A' }}</strong>
+              </div>
+            </div>
+          </div>
+
+          {# Actions Card #}
+          <div class="card shadow-sm">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Actions</h6>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <a href="{{ path('sellable_edit', {'id': sellable.id}) }}" class="btn btn-primary">
+                  <i class="bi bi-pencil me-2"></i>Edit Details
+                </a>
+                <a href="{{ path('sellable_variant_add', {'id': sellable.id}) }}" class="btn btn-outline-primary">
+                  <i class="bi bi-plus-circle me-2"></i>Add Variant
+                </a>
+                <form action="{{ path('sellable_toggle_active', {'id': sellable.id}) }}" method="post">
+                  <input type="hidden" name="_token" value="{{ csrf_token('sellable_toggle_' ~ sellable.id) }}">
+                  <button type="submit" class="btn btn-outline-{{ sellable.status == 'active' ? 'warning' : 'success' }} w-100">
+                    <i class="bi bi-{{ sellable.status == 'active' ? 'x-circle' : 'check-circle' }} me-2"></i>
+                    {{ sellable.status == 'active' ? 'Deactivate' : 'Activate' }}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Back Button #}
+      <div class="mt-4">
+        <a href="{{ path('sellable_index') }}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Back to All Items
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
