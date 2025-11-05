@@ -27,8 +27,7 @@
               <button class="dropdown-item panel-bulk-action"
                       data-action="{{ a.action }}"
                       data-route-name="{{ a.route ?? '' }}"
-                      data-route-params='{{ a.routeParams|merge({id: c.id})|json_encode }}
-                      data-route-params='{{ a.routParams|default({})|json_encode }}'
+                      data-route-params='{{ a.routeParams|default({})|json_encode }}'
                       {% if a.confirmMessage %} data-confirm="{{ a.confirmMessage }}"{% endif %}>
                 {% if a.icon %}<i class="bi {{ a.icon }} me-2"></i>{% endif %}
                 {{ a.label }}

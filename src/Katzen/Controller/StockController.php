@@ -89,7 +89,7 @@ final class StockController extends AbstractController
 #                ->addContextField(PanelField::date('last_count', 'Last Count', 'Y-m-d'))
 #                ->addContextField(PanelField::date('updated_at', 'Updated', 'Y-m-d H:i'))
                 ->addQuickAction(
-                  PanelAction::view([ 'name' => 'stock_target_view', 'params' => ['id' => $data['id']]])
+                  PanelAction::view('stock_target_view')
                 )
 #                ->addQuickAction(
 #                  PanelAction::edit([ 'name' => 'stock_target_edit', 'params' => ['id' => $data['id']]])
@@ -98,7 +98,7 @@ final class StockController extends AbstractController
                   PanelAction::create('count', 'Count Now')
                         ->setIcon('bi-clipboard-check')
                         ->setVariant('outline-success')
-                        ->setRoute([ 'name' => 'stock_count_create', 'params' => ['ids' => $data['id']]])
+                        ->setRoute('stock_count_create',  ['ids' => $data['id']])
                 );
 
       if ($data['status'] === 'out') { $card->setBorderColor('var(--color-error)'); }
@@ -131,7 +131,7 @@ final class StockController extends AbstractController
               PanelAction::create('bulk_adjust', 'Adjust Quantities')->setIcon('bi-arrow-left-right')->setVariant('outline-secondary')
             )
             ->addBulkAction(
-              PanelAction::delete([ 'name' => 'stock_target_bulk_archive'])
+              PanelAction::delete('stock_target_bulk_archive')
             );
 
     foreach ($groups as $g) { $panel->addGroup($g); }

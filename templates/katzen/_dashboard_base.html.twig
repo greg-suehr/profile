@@ -9,6 +9,9 @@
     <link type="text/css" rel="stylesheet" href="{{ asset('bundles/craueformflow/css/buttons.css') }}" />
     {{ encore_entry_link_tags('app') }}
     {% endblock %}
+    {% block scripts %}
+    <script src="https://kit.fontawesome.com/fb6622f4bc.js" crossorigin="anonymous"></script>
+    {% endblock %}
 </head>
 <body class="d-flex h-100 bg-light">
   <aside class="d-flex flex-column flex-shrink-0 border-end bg-white" style="width: 16rem;">
@@ -43,11 +46,16 @@
         {% for section in layout.sections %}
         {% if section.route is defined %}
         <li class="nav-item">
-          <a href="{{ path(section.route) }}"
+          <a
+            {% if section.params is defined %}
+            href="{{ path(section.route, section.params) }}"            
+            {% else %}
+            href="{{ path(section.route) }}"
+            {% endif %}            
              data-item="{{ section.key }}"
              class="nav-link {{ activeItem == section.key ? 'active' : 'text-secondary' }}"
              >
-            <i class="bi bi-{{ section.icon }} me-2"></i>{{ section.label }}
+            <i class="{{ section.icon }} me-2"></i>{{ section.label }}
           </a>
         </li>        
         {% else %}        
@@ -59,7 +67,7 @@
                     {{ activeMenu == section.key ? 'border border-primary text-secondary' : 'text-secondary' }}"
              >
             <span>
-              <i class="bi bi-{{ section.icon }} me-2"></i>{{ section.label }}
+              <i class="{{ section.icon }} me-2"></i>{{ section.label }}
             </span>
              <i class="bi bi-chevron-{{ activeMenu == section.key ? 'down' : 'right' }}"></i>
           </a>

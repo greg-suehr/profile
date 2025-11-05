@@ -3,7 +3,10 @@
 namespace App\Katzen\Controller;
 
 use App\Katzen\Attribute\DashboardLayout;
+use App\Katzen\Service\Utility\DashboardContextService;
+
 use App\Katzen\Component\TableView\{TableAction, TableField, TableFilter, TableRow, TableView};
+
 use App\Katzen\Entity\Items;
 use App\Katzen\Entity\Recipe;
 use App\Katzen\Entity\RecipeList;
@@ -15,7 +18,7 @@ use App\Katzen\Repository\RecipeListRepository;
 use App\Katzen\Repository\TagRepository;
 use App\Katzen\Service\Cook\RecipeImportService;
 use App\Katzen\Service\Order\DefaultMenuPlanner;
-use App\Katzen\Service\Utility\DashboardContextService;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +27,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Seld\JsonLint\JsonParser;
 
+#[Route('/menu', name: 'menu_')]
 final class MenuController extends AbstractController
 {
   public function __construct(
@@ -31,7 +35,7 @@ final class MenuController extends AbstractController
     private DefaultMenuPlanner $menus,
   ) {}
 
-  #[Route('/menu', name: 'menu_index')]
+  #[Route('/', name: 'index')]
   #[DashboardLayout('service', 'menu', 'menu-index')]
   public function menuCurrent(Request $request): Response
   {
@@ -43,8 +47,8 @@ final class MenuController extends AbstractController
     ]));     
   }
 
-  #[Route('/menu/create', name: 'menu_create')]
-  #[DashboardLayout('kitchen', 'menu', 'menu_create')]
+  #[Route('/create', name: 'create')]
+  #[DashboardLayout('prep', 'menu', 'menu-create')]
   public function menuCreate(Request $request, EntityManagerInterface $em, RecipeRepository $recipeRepo, TagRepository $tagRepo): Response
   {
     $menu = new RecipeList();
@@ -78,8 +82,8 @@ final class MenuController extends AbstractController
     ]));
   }
 
-  #[Route('/menus/list', name: 'menu_table')]
-  #[DashboardLayout('kitchen', 'menu', 'menu_table')]
+  #[Route('/list', name: 'table')]
+  #[DashboardLayout('prep', 'menu', 'menu-table')]
   public function menu_table(Request $request, EntityManagerInterface $em, TagRepository $tagRepo): Response
   {
        $statusFilter = $request->query->get('status', 'active');
@@ -197,8 +201,8 @@ final class MenuController extends AbstractController
        ]));
     }
 
-  #[Route('/menu/edit/{id}', name: 'menu_edit')]
-  #[DashboardLayout('kitchen', 'menu', 'menu_edit')]
+  #[Route('/edit/{id}', name: 'edit')]
+  #[DashboardLayout('prep', 'menu', 'menu-edit')]
   public function menuEdit(int $id, Request $request, EntityManagerInterface $em, RecipeRepository $recipeRepo, RecipeListRepository $menuRepo, TagRepository $tagRepo): Response
   {
     $menu = $menuRepo->find($id);
@@ -249,8 +253,8 @@ final class MenuController extends AbstractController
     ]));
   }                
 
-  #[Route('/menu/view/{id}', name: 'menu_view')]
-  #[DashboardLayout('kitchen', 'menu', 'menu_view')]
+  #[Route('/view/{id}', name: 'view')]
+  #[DashboardLayout('prep', 'menu', 'menu-view')]
   public function menuView(Request $request, RecipeList $menu): Response
   {
     return $this->render('katzen/menu/view_menu.html.twig',  $this->dashboardContext->with([
@@ -259,7 +263,7 @@ final class MenuController extends AbstractController
 	]));
   }
 
-  #[Route('/menus/bulk', name: 'menu_bulk', methods: ['POST'])]
+  #[Route('/bulk', name: 'bulk', methods: ['POST'])]
   public function menuBulk(Request $request, EntityManagerInterface $em, TagRepository $tagRepo): Response
   {
     $payload = json_decode($request->getContent(), true) ?? [];
