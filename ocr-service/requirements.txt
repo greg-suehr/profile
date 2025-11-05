@@ -1,0 +1,28 @@
+# Python OCR Service Dependencies
+# Install with: pip install -r requirements.txt --break-system-packages
+
+# Web Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6  # Required for file uploads
+
+# OCR Core
+pytesseract==0.3.10
+ocrmypdf==16.0.3
+
+# Image Processing
+opencv-python==4.12.0.88
+Pillow==11.0
+numpy==1.26.3
+
+# PDF Processing
+PyMuPDF==1.23.21  # fitz for PDF handling
+pdf2image==1.17.0  # Convert PDFs to images
+
+# Optional: PaddleOCR (uncomment if needed)
+# paddlepaddle==2.6.0  # CPU version
+# paddleocr==2.7.0.3
+
+# Utilities
+pydantic==2.5.3
+pydantic-settings==2.1.0

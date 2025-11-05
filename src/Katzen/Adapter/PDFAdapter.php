@@ -2,9 +2,15 @@
 namespace App\Katzen\Adapter;
 
 use App\Katzen\Service\Cook\RecipeMappingService;
+
 use Smalot\PdfParser\Parser;
 
-class PDFAdapter implements RecipeAdapterInterface
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Psr\Log\LoggerInterface;
+
+class PDFAdapter implements AdapterInterface
 {
     private RecipeMappingService $mappingService;
 
@@ -19,7 +25,7 @@ class PDFAdapter implements RecipeAdapterInterface
         return $type === 'pdf';
     }
   
-    public function process($file)
+    public function process(UploadedFile $file)
     {
         $parser = new Parser();
         $pdf = $parser->parseFile($file->getPathname());

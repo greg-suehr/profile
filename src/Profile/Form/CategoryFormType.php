@@ -12,7 +12,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CategoryFormType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+  /**
+   * @return void
+   */
+  public function buildForm(FormBuilderInterface $builder, array $options)
     {
         // basic name/desc fields…
         $builder
@@ -28,7 +31,10 @@ class CategoryFormType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+  /**
+   * @return void
+   */
+  public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => Category::class,

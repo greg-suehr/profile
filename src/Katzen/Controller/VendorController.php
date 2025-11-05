@@ -90,9 +90,9 @@ final class VendorController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->vendorRepo->save($vendor);
-            $this->addFlash('success', 'Vendor created successfully.');
-            return $this->redirectToRoute('vendor_index');
+          $this->vendorRepo->save($vendor);
+          $this->addFlash('success', 'Vendor created successfully.');
+          return $this->redirectToRoute('vendor_index');
         }
 
         return $this->render('katzen/vendor/create_vendor.html.twig', $this->dashboardContext->with([

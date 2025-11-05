@@ -11,6 +11,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class FieldDefinitionType extends AbstractType
 {
+  /**
+   * @return void
+   */
     public function buildForm(FormBuilderInterface $builder, array $opts)
     {
         $builder
@@ -32,6 +35,9 @@ class FieldDefinitionType extends AbstractType
         ;
     }
 
+  /**
+   * @return void
+   */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([

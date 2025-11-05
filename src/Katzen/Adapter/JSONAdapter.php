@@ -3,7 +3,12 @@ namespace App\Katzen\Adapter;
 
 use App\Katzen\Service\Cook\RecipeMappingService;
 
-class JSONAdapter implements RecipeAdapterInterface
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Psr\Log\LoggerInterface;
+
+class JSONAdapter implements AdapterInterface
 {
     private RecipeMappingService $mappingService;
 
@@ -17,7 +22,7 @@ class JSONAdapter implements RecipeAdapterInterface
         return $type === 'json';
     }
 
-    public function process(mixed $file)
+    public function process(UploadedFile $file)
     {
         if (is_array($file)) {
             return $this->mappingService->mapAndStore($file);

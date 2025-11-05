@@ -1,0 +1,82 @@
+{% extends 'katzen/base.html.twig' %}
+
+{% block title %}Import Vendor Invoice{% endblock %}
+
+{% block main_content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2>Import Vendor Invoice</h2>
+            <p class="text-muted">
+                Upload a photo or PDF of your receipt/invoice. We'll automatically extract vendor, 
+                items, and totals using OCR technology.
+            </p>
+
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('warning') %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <div class="card">
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+                        
+                        <div class="mb-3">
+                            {{ form_row(form.file) }}
+                        </div>
+
+                        <div class="alert alert-info">
+                            <strong>Tips for best results:</strong>
+                            <ul class="mb-0">
+                                <li>Ensure the receipt is well-lit and in focus</li>
+                                <li>Capture the entire receipt including vendor name and totals</li>
+                                <li>Flatten curved or wrinkled receipts when possible</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            {{ form_row(form.submit) }}
+                        </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <a href="{{ path('vendor_invoice_index') }}" class="btn btn-outline-secondary">
+                    ← Back to Invoices
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control[type="file"] {
+    padding: 0.75rem;
+}
+
+.form-control[type="file"]::file-selector-button {
+    padding: 0.375rem 0.75rem;
+    margin: -0.375rem -0.75rem;
+    margin-inline-end: 0.75rem;
+    color: #fff;
+    background-color: #0d6efd;
+    border: 0;
+    border-radius: 0.25rem;
+}
+
+.form-control[type="file"]::file-selector-button:hover {
+    background-color: #0b5ed7;
+}
+</style>
+{% endblock %}

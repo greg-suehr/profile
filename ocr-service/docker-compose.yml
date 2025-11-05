@@ -1,0 +1,61 @@
+# docker-compose.yml for Katzen with OCR Service
+# Add this to your existing docker-compose or create new one
+
+version: '3.8'
+
+services:
+  # OCR Microservice
+  ocr-service:
+    build:
+      context: ./ocr-service
+      dockerfile: Dockerfile.ocr
+    container_name: katzen_ocr_service
+    ports:
+      - "5005:5005"  # Expose for development; remove in production
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Optional: mount for development hot-reload
+      - ./ocr-service:/app
+    networks:
+      - katzen_network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Your existing Katzen PHP/Symfony service
+  # (adjust this section to match your current setup)
+  katzen-app:
+    # ... your existing PHP/Symfony configuration ...
+    environment:
+      # Add this environment variable for OCR service URL
+      - OCR_SERVICE_URL=http://ocr-service:5005
+    depends_on:
+      ocr-service:
+        condition: service_healthy
+    networks:
+      - katzen_network
+
+  # Your other services (database, etc.)
+  # ...
+
+networks:
+  katzen_network:
+    driver: bridge
+
+# Optional: Volume for caching OCR results
+volumes:
+  ocr_cache:
+    driver: local

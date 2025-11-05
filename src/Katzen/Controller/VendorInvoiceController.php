@@ -6,6 +6,7 @@ use App\Katzen\Attribute\DashboardLayout;
 use App\Katzen\Service\Utility\DashboardContextService;
 
 use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableAction};
+use App\Katzen\Form\ImportVendorInvoiceType;
 use App\Katzen\Form\VendorInvoiceType;
 
 use App\Katzen\Entity\Purchase;
@@ -16,6 +17,9 @@ use App\Katzen\Repository\VendorInvoiceRepository;
 
 use App\Katzen\Service\Accounting\VendorInvoiceService;
 use App\Katzen\Service\Accounting\ChartOfAccountsService;
+use App\Katzen\Service\Import\ReceiptImportService;
+
+use App\Katzen\Adapter\OCRAdapter;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,6 +35,7 @@ final class VendorInvoiceController extends AbstractController
     private DashboardContextService $dashboardContext,
     private PurchaseRepository $purchaseRepo,
     private VendorInvoiceRepository $invoiceRepo,
+    private ReceiptImportService $import,
     private VendorInvoiceService $invoicing,
     private ChartOfAccountsService $coa,
   )
@@ -287,7 +292,7 @@ final class VendorInvoiceController extends AbstractController
      return $this->redirectToRoute('vendor_invoice_index');
   }    
 
-  #[Route('/{id}', name: 'show')]
+  #[Route('/view/{id}', name: 'show')]
   #[DashboardLayout('finance', 'vendor-invoice', 'invoice-detail')]
   public function show(VendorInvoice $invoice): Response
   {
@@ -296,39 +301,86 @@ final class VendorInvoiceController extends AbstractController
      ]));
   }    
 
-  #[Route('/{id}/approve', name: 'approve', methods: ['POST'])]
+  #[Route('/approve/{id}', name: 'approve', methods: ['POST'])]
   public function approve(VendorInvoice $invoice): Response
   {
     return $this->redirectToRoute('vendor_invoice_index');
   }    
 
-  #[Route('/{id}/void', name: 'void', methods: ['POST'])]
+  #[Route('/void/{id}', name: 'void', methods: ['POST'])]
   public function void(VendorInvoice $invoice): Response
   {
     return $this->redirectToRoute('vendor_invoice_index');
   }    
     
-  #[Route('/{id}/reconcile', name: 'reconcile')]
+  #[Route('/reconcile/{id}', name: 'reconcile')]
   public function reconcile(VendorInvoice $invoice): Response
   {
     return $this->redirectToRoute('vendor_invoice_index');
   }    
     
-  #[Route('/{id}/match-receipts', name: 'match_receipts', methods: ['POST'])]
+  #[Route('/match-receipts/{id}', name: 'match_receipts', methods: ['POST'])]
   public function matchReceipts(VendorInvoice $invoice, Request $request): Response
   {
     return $this->redirectToRoute('vendor_invoice_index');
   }    
 
-  #[Route('/{id}/variance', name: 'variance')]
+  #[Route('/variance/{id}', name: 'variance')]
   public function viewVariances(VendorInvoice $invoice): Response
   {
     return $this->redirectToRoute('vendor_invoice_index');
   }    
 
-  #[Route('/{id}/approve-variance', name: 'approve_variance', methods: ['POST'])]
+  #[Route('/variance/approve/{id}', name: 'approve_variance', methods: ['POST'])]
   public function approveVariance(VendorInvoice $invoice, Request $request): Response
   {
     return $this->redirectToRoute('vendor_invoice_index');
-  }    
+  }
+  
+  /**
+   * Import invoice via OCR scan
+   * Add this route to your VendorInvoiceController class
+   */
+  #[Route('/import', name: 'import', methods: ['GET', 'POST'])]
+  #[DashboardLayout('finance', 'vendor-invoice', 'vendor-invoice-import')]
+  public function importOCR(
+    Request $request,
+    OCRAdapter $ocrAdapter,
+  ): Response
+  {
+    $form = $this->createForm(ImportVendorInvoiceType::class);
+    $form->handleRequest($request);
+    
+    if ($form->isSubmitted() && $form->isValid()) {
+      /** @var UploadedFile $file */
+      $file = $form->get('file')->getData();
+
+      try {
+        $ocrData = $ocrAdapter->process($file);
+
+        $result = $this->import->processOCRResult(
+          $ocrData,
+          $this->getUser()->getId()
+        );
+            
+        if ($result->isSuccess()) {
+          $invoiceId = $result->getData()['invoice_id'];
+                
+          $this->addFlash('success', 'Invoice imported successfully!');
+          return $this->redirectToRoute('vendor_invoice_show', ['id' => $invoiceId]);
+        } else {
+          throw new \RuntimeException($result->getMessage());
+        }
+        
+      } catch (\Exception $e) {
+        $this->addFlash('error', 'Error importing invoice: ' . $e->getMessage());
+        // Log the error for debugging
+        // $this->logger->error('OCR import failed', ['exception' => $e, 'file' => $file->getClientOriginalName()]);
+      }
+    }
+    
+    return $this->render('katzen/vendor_invoice/import.html.twig', $this->dashboardContext->with([
+      'form' => $form->createView(),
+    ]));
+  }
 }

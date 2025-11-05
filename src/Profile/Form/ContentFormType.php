@@ -18,7 +18,10 @@ class ContentFormType extends AbstractType
     )
     {}
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+  /**
+   * @return void
+   */
+  public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $schema = $options['field_schema'];
         foreach ($schema as $name => $def) {
@@ -41,7 +44,10 @@ class ContentFormType extends AbstractType
         $builder->add('data', HiddenType::class, ['mapped'=>false]);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+  /**
+   * @return void
+   */
+  public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setRequired('field_schema');
         $resolver->setDefaults([

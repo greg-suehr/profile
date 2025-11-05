@@ -1,0 +1,9 @@
+# .env or .env.local
+# Add these environment variables to your Symfony project
+
+###> OCR Service Configuration ###
+# URL for the OCR microservice
+# Development: http://localhost:5005 (or http://ocr-service:5005 if in Docker)
+# Production: http://ocr-service:5005 (internal Docker network)
+OCR_SERVICE_URL=http://ocr-service:5005
+###< OCR Service Configuration ###

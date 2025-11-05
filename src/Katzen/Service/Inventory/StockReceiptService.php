@@ -22,7 +22,7 @@ use App\Katzen\Service\Accounting\ChartOfAccountsService;
 use App\Katzen\Service\Response\ServiceResponse;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 final class StockReceiptService
 {

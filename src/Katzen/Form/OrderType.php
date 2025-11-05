@@ -16,7 +16,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class OrderType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+  /**
+   * @return void
+   */
+  public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('customer', TextType::class, ['required' => false])          

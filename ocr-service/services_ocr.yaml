@@ -1,0 +1,41 @@
+# config/services.yaml
+# Add these service definitions to your existing services.yaml
+
+services:
+    # ... your existing services ...
+
+    # OCR Adapter Configuration
+    App\Katzen\Adapter\OCRAdapter:
+        arguments:
+            $httpClient: '@http_client'
+            $logger: '@monolog.logger'
+            $ocrServiceUrl: '%env(OCR_SERVICE_URL)%'
+        tags:
+            - { name: 'app.recipe_adapter' }
+
+    # HTTP Client specifically for OCR service
+    # (optional - for custom timeout/retry configuration)
+    ocr.http_client:
+        class: Symfony\Component\HttpClient\HttpClient
+        factory: ['Symfony\Component\HttpClient\HttpClient', 'create']
+        arguments:
+            -
+                timeout: 30
+                max_redirects: 0
+                retry_failed:
+                    max_retries: 2
+                    http_codes:
+                        500: ['GET', 'POST']
+                        502: ['GET', 'POST']
+                        503: ['GET', 'POST']
+                        504: ['GET', 'POST']
+
+    # Receipt Import Service (to be created)
+    App\Katzen\Service\Accounting\ReceiptImportService:
+        arguments:
+            $invoicing: '@App\Katzen\Service\Accounting\VendorInvoiceService'
+            # Add other dependencies as needed
+            # $upcRepo: '@App\Katzen\Repository\ItemUPCRepository'
+            # $itemRepo: '@App\Katzen\Repository\ItemRepository'
+            # $vendorRepo: '@App\Katzen\Repository\VendorRepository'
+            # $costing: '@App\Katzen\Service\Accounting\CostingService'

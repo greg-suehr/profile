@@ -9,6 +9,9 @@ use App\Form\RecipeBuilderType;
 
 class CreateRecipeFlow extends FormFlow {
 
+  /**
+   * @return array
+   */
 	protected function loadStepsConfig() {
 		return [
 			[

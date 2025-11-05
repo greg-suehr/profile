@@ -3,7 +3,12 @@ namespace App\Katzen\Adapter;
 
 use App\Katzen\Service\Cook\RecipeMappingService;
 
-class CSVAdapter implements RecipeAdapterInterface
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Psr\Log\LoggerInterface;
+
+class CSVAdapter implements AdapterInterface
 {
     public function supports(string $type): bool
     {
