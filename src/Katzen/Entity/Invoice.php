@@ -118,17 +118,6 @@ class Invoice
         return $this;
     }
 
-    public function getOrder(): ?Order
-    {
-        return $this->order;
-    }
-
-    public function setOrder(?Order $order): static
-    {
-        $this->order = $order;
-        return $this;
-    }
-
     public function getSubtotal(): ?string
     {
         return $this->subtotal;

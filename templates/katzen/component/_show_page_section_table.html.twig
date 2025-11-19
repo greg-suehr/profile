@@ -1,0 +1,16 @@
+{#
+  ShowPage Table Section
+  
+  Wraps a TableView component for display in show pages
+#}
+
+{% if section.tableView %}
+  {{ include('katzen/component/_table_view.html.twig', { table: section.tableView }) }}
+{% elseif section.content %}
+  {# Allow raw table HTML if needed #}
+  {{ section.content|raw }}
+{% else %}
+  <div class="alert alert-info">
+    No table data available
+  </div>
+{% endif %}

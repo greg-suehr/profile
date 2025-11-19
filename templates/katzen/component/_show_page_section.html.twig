@@ -1,0 +1,36 @@
+{#
+  ShowPage Section Router
+#}
+
+<div
+  class="show-page-section mb-4
+         {{ section.class ?? '' }}
+         {{ section.width ? 'col-md-' ~ section.width : '' }}
+         "
+         data-section-type="{{ section.type }}"
+  >
+  
+  {% if section.label %}
+  <h4 class="mb-3">{{ section.label }}</h4>
+  {% endif %}
+  
+  {# Route to specific section type template #}
+  {% if section.type == 'infobox' %}
+    {{ include('katzen/component/_show_page_section_infobox.html.twig', { section: section }) }}
+    
+  {% elseif section.type == 'table' %}
+    {{ include('katzen/component/_show_page_section_table.html.twig', { section: section }) }}
+    
+  {% elseif section.type == 'tabs' %}
+    {{ include('katzen/component/_show_page_section_tabs.html.twig', { section: section }) }}
+    
+  {% elseif section.type == 'html' %}
+    {{ section.content|raw }}
+    
+  {% else %}
+    <div class="alert alert-warning">
+      Unknown section type: {{ section.type }}
+    </div>
+  {% endif %}
+  
+</div>

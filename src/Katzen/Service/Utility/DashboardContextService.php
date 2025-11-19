@@ -377,9 +377,17 @@ class DashboardContextService
     'template' => 'katzen/_dashboard_base.html.twig',
     'sections' => [
       [
+        'key' => 'account',
+        'label' => 'Accounts',
+        'icon' => 'fas fa-bars',
+        'items' => [
+          ['key' => 'chart-of-accounts', 'label' => 'Chart of Accounts', 'route' => 'chart_of_accounts' ]            
+        ]
+      ],
+      [
         'key' => 'customer',
         'label' => 'Customers',
-        'icon' => 'bi bi-people',
+        'icon' => 'fas fa-users',
         'items' => [
           ['key' => 'customer-panel', 'label' => 'All Customers', 'route' => 'customer_index'],
           ['key' => 'customer-table', 'label' => 'Manage Customers', 'route' => 'customer_table'],          
@@ -388,7 +396,7 @@ class DashboardContextService
       [
         'key' => 'invoice',
         'label' => 'Invoices',
-        'icon' => 'bi bi-envelope',
+        'icon' => 'fas fa-file-export',
         'items' => [
           ['key' => 'invoice-create', 'label' => 'Create Invoice', 'route' => 'invoice_create'],
           ['key' => 'invoice-table', 'label' => 'Manage Invoices', 'route' => 'invoice_index'],
@@ -397,7 +405,7 @@ class DashboardContextService
       [
         'key' => 'payment',
         'label' => 'Payments',
-        'icon' => 'bi bi-cash',
+        'icon' => 'fas fa-credit-card',
         'items' => [
           ['key' => 'payment-table', 'label' => 'All Payments', 'route' => 'payment_table'],
         ]
@@ -405,7 +413,7 @@ class DashboardContextService
       [
         'key' => 'costing',
         'label' => 'Costing',
-        'icon' => 'bi bi-currency',
+        'icon' => 'fas fa-calculator', # 'fa-file-contract'
         'items' => [
           ['key' => 'costing-dashboard', 'label' => 'Costs Dashboard', 'route' => 'costing_dashboard'],
           ['key' => 'price-alerts', 'label' => 'Manage Price Alerts', 'route' => 'costing_price_alerts'],
@@ -415,14 +423,20 @@ class DashboardContextService
       [
         'key' => 'vendor-invoice',
         'label' => 'Vendor Invoices',
-        'icon' => 'bi bi-envelope',
+        'icon' => 'fas fa-file-import',
         'items' => [
           ['key' => 'vendor-invoice-create', 'label' => 'Create Vendor Invoice', 'route' => 'vendor_invoice_create'],
           ['key' => 'vendor-invoice-table', 'label' => 'Manage Vendor Invoices', 'route' => 'vendor_invoice_index'],
         ]
       ],
     ],
-  ]
+  ],
+  'system' => [
+    'label' => 'System',
+    'template' => 'katzen/_dashboard_base.html.twig',
+    'sections' => [
+    ]
+  ],
   ];
     
     $layoutConfig = $layouts[$context] ?? null;

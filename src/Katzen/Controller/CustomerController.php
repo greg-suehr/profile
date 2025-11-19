@@ -5,10 +5,12 @@ namespace App\Katzen\Controller;
 use App\Katzen\Attribute\DashboardLayout;
 use App\Katzen\Component\PanelView\{PanelView, PanelCard, PanelField, PanelGroup, PanelAction};
 use App\Katzen\Component\TableView\{TableView, TableRow, TableField, TableAction};
+use App\Katzen\Component\ShowPage\{ShowPage, ShowPageHeader, ShowPageFooter, PageSection, PageAction};
 use App\Katzen\Entity\Customer;
 use App\Katzen\Form\CustomerType;
 use App\Katzen\Repository\CustomerRepository;
 use App\Katzen\Service\AccountingService;
+use App\Katzen\Service\Audit\AuditService;
 use App\Katzen\Service\Utility\DashboardContextService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +23,7 @@ final class CustomerController extends AbstractController
     private DashboardContextService $dashboardContext,
     private CustomerRepository $customerRepo,
     private AccountingService $accountingService,
+    private AuditService $audit,
   ) {}
   
   #[Route('/customers', name: 'customer_index')]
@@ -64,8 +67,9 @@ final class CustomerController extends AbstractController
                 ->addPrimaryField(PanelField::currency('balance', 'Balance'))
                 ->addPrimaryField(PanelField::number('order_count', 'Orders', 0)->icon('bi-bag'))
                 ->addContextField(PanelField::text('last_order', 'Last Order')->muted())
-                ->addQuickAction(PanelAction::view(['name' => 'customer_show', 'params' => ['id' => $data['id']]]))
-                ->addQuickAction(PanelAction::edit(['name' => 'customer_edit', 'params' => ['id' => $data['id']]]));
+                ->addQuickAction(PanelAction::view('customer_show'))
+                ->addQuickAction(PanelAction::edit('customer_edit'))
+              ;
 
             if ($creditLimit > 0) {
                 $card->addContextField(
@@ -138,11 +142,95 @@ final class CustomerController extends AbstractController
     #[DashboardLayout('service', 'customer', 'customer-show')]
     public function show(Request $request, Customer $customer): Response
     {
-        $statement = $this->accountingService->getCustomerStatement($customer);
+        $statementResult = $this->accountingService->getCustomerStatement($customer);
+        $statement = $statementResult->getData();
+        
+        $ordersTable = $this->buildOrdersTable($customer);
+        $invoicesTable = $this->buildInvoicesTable($customer);
+        $activityTable = $this->buildActivityTable($customer);
 
-        return $this->render('katzen/customer/show_customer.html.twig', $this->dashboardContext->with([
+        $page = ShowPage::create('customer-show')
+          ->setHeader(
+            ShowPageHeader::create()
+                    ->setTitle($customer->getName())
+                    ->setSubtitle('Customer ID: ' . $customer->getId())
+                    ->setStatusBadge($customer->isActive() ? 'Active' : 'Inactive',
+                                     $customer->isActive() ? 'success' : 'secondary')
+                    ->addTab('info', 'Overview', 'bi-person')
+                    ->addTab('transactions', 'Transactions', 'bi-receipt')
+                    ->addTab('activity', 'Activity Log', 'bi-clock-history')
+                    ->addQuickAction(
+                      PageAction::edit('customer_edit')
+                        ->setRoute('customer_edit', ['id' => $customer->getId() ])
+                    )
+              )
+          ->addSection(
+            PageSection::createInfoBox('Contact Details')
+              ->setTab('info')
+              ->setWidth(6)
+              ->setColumns(2)
+              ->addItem('Name', $customer->getName())
+              ->addItem('Email', $customer->getEmail()) # TODO: 'link', 'mailto:' . $customer->getEmail()
+              ->addItem('Phone', $customer->getPhone())
+              ->addItem('Account #', $customer->getId())
+              )
+          ->addSection(
+            PageSection::createInfoBox('Address')
+              ->setTab('info')
+              ->setWidth(4)
+              ->setColumns(1)
+              ->addItem('Shipping Address', $customer->getShippingAddress())
+              ->addItem('Billing Address', $customer->getBillingAddress())
+              )
+          ->addSection(
+            PageSection::createInfoBox('Financial Details')
+              ->setTab('info')
+              ->setWidth(6)
+              ->setColumns(2)
+              ->addItem('Account Balance', $customer->getAccountBalance())
+              ->addItem('Invoiced Balance', $customer->getArBalance())
+              ->addItem('Credit Limit', $customer->getCreditLimit())
+              ->addItem('Credit Status', $customer->getStatus() == 'suspended' ? 'Over Limit' : 'OK') # TODO: not this
+              ->addItem('Payment Terms', $customer->getPaymentTerms())
+              )
+          ->addSection(
+            PageSection::createInfoBox('Customer Segment')
+              ->setTab('info')
+              ->setWidth(4)
+              ->setColumns(1)
+              ->addItem('Customer Type', $customer->getType())
+              ->addItem('Notes', $customer->getNotes())
+              )
+          ->addSection(
+            PageSection::createTable('Recent Orders')
+              ->setTab('transactions')
+              ->setTableView($ordersTable)
+              )
+          ->addSection(
+            PageSection::createTable('Recent Invoices')
+              ->setTab('transactions')
+              ->setTableView($invoicesTable)
+              )
+          ->addSection(
+            PageSection::createTable('Recent Activity')
+              ->setTab('activity')
+              ->setTableView($activityTable)
+              )
+          ->setFooter(
+            ShowPageFooter::create()
+              ->addSummary('Total Invoiced (period)',
+                           '$' . number_format($statement['summary']['total_invoiced'], 2))
+              ->addSummary('Total Paid (period)',
+                           '$' . number_format($statement['summary']['total_invoiced'], 2))
+              ->addSummary('Outstanding Balance', 
+                           '$' . number_format($customer->getAccountBalance(), 2),
+                           'text-danger')
+            )
+            ->build();
+
+        return $this->render('katzen/component/show_page.html.twig', $this->dashboardContext->with([
             'customer' => $customer,
-            'statement' => $statement->getData(),
+            'page' => $page,
         ]));
     }
 
@@ -223,22 +311,24 @@ final class CustomerController extends AbstractController
   public function list(Request $request): Response
   {
     $customers = $this->customerRepo->findBy(['status' => ['active','suspended']]);
+    
     $rows = [];
     foreach ($customers as $customer) {
       $row = TableRow::create([
         'name' => $customer->getName(),
         'type' =>  $customer->getType(),        
         'numOrders' => $customer->getOrders()->count(),
-        'balance' => 0.0,
+        'balance' => $customer->getAccountBalance(),
         'status' =>  $customer->getStatus(),
-      ]);
+      ])
+      ->setId($customer->getId());
 
       $rows[] = $row;
     }
     
     $table = TableView::create('customer-table')
       ->addField(
-        TableField::text('name', 'Customer Name')
+        TableField::link('name', 'Customer Name', 'customer_show')
           ->sortable()          
           )
       ->addField(
@@ -257,6 +347,7 @@ final class CustomerController extends AbstractController
           )
       ->setRows($rows)
       ->setSelectable(true)
+      ->addQuickAction(TableAction::edit('customer_edit'))
       ->setSearchPlaceholder('Type customer names, comma-separated (e.g. "Arnold, coffee, corp")')
       ->setEmptyState('No matching customers.')
       ->build();
@@ -266,5 +357,102 @@ final class CustomerController extends AbstractController
       'bulkRoute' => 'customer_bulk',
       'csrfSlug' => 'customer_bulk',
 	]));                    
-  } 
+  }
+
+  private function buildOrdersTable(Customer $customer): array
+  {        
+    $rows = [];
+        
+    foreach ($customer->getOrders() as $o) {
+      $row = TableRow::create([
+        'order_number' => $o->getId(),
+        'order_date' => $o->getCreatedAt(),
+        'order_total' => $o->getTotalAmount(),
+      ])
+      ->setId($o->getId());
+        
+      $rows[] = $row;
+    }
+          
+        
+    return TableView::create('customer-orders')
+          ->addField(
+            TableField::link('order_number', 'Order #', 'order_show')
+              )
+          ->addField(
+            TableField::date('order_date', 'Date')
+              )
+          ->addField(
+            TableField::amount('order_total', 'Total')
+              )
+          ->setRows($rows)
+          ->setShowToolbar(false)
+          ->build();
+    }
+
+  private function buildInvoicesTable(Customer $customer): array
+  {        
+    $rows = [];
+        
+    foreach ($customer->getInvoices() as $o) {
+      $row = TableRow::create([
+        'invoice_number' => $o->getId(),
+        'invoice_date' => $o->getCreatedAt(),
+        'invoice_total' => $o->getTotalAmount(),
+      ])
+      ->setId($o->getId());
+        
+      $rows[] = $row;
+    }
+          
+        
+    return TableView::create('customer-invoices')
+          ->addField(
+            TableField::link('invoice_number', 'Invoice #', 'invoice_show')
+              )
+          ->addField(
+            TableField::date('invoice_date', 'Date')
+              )
+          ->addField(
+            TableField::amount('invoice_total', 'Total')
+              )
+          ->setRows($rows) 
+          ->setShowToolbar(false)     
+          ->build();
+    }
+
+  private function buildActivityTable(Customer $customer): array
+  {
+    # TODO: design timeline events (maybe cache an activity_log)
+    #       including (i) new orders, (ii) payments, (iii) credit status changes, etc
+
+    $changes = $this->audit->getEntityHistory('Customer', $customer->getId());
+
+    $rows = [];
+    foreach ($changes as $c) {
+      $row = TableRow::create([
+        'request_id' => $c->getRequestId(),
+        'user_id' => $c->getUserId(),
+        'changed_at' => $c->getChangedAt(),
+      ])
+      ->setId($c->getId());
+
+      $rows[] = $row;
+    }
+
+    return TableView::create('customer_recent_activity')
+      ->addField(
+        TableField::text('request_id', 'Request')
+              )
+      ->addField(
+        TableField::text('user_id', 'Changed By')
+              )
+      ->addField(
+        TableField::date('changed_at', 'Changed At')
+              )
+      ->setRows($rows)
+      ->setShowToolbar(false)
+      ->setEmptyState('No recent activity')
+      ->build();
+  }
 }

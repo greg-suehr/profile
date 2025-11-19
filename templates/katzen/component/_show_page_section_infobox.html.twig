@@ -1,0 +1,36 @@
+{#
+  ShowPage InfoBox Section
+  
+  Displays key-value pairs in a card layout
+#}
+
+<div class="card">
+  <div class="card-body">
+    <div class="row g-3">
+      {% for item in section.items %}
+      <div class="col-12 col-md-{{ section.columns ?? 2 == 1 ? 12 : 6 }}">
+        <div class="mb-0">
+          <label class="form-label text-muted small mb-1">{{ item.label }}</label>
+          <div class="{{ item.class ?? '' }}">
+            {% if item.type == 'link' %}
+              <a href="{{ path(item.route, item.routeParams) }}" class="text-decoration-none">
+                {{ item.value }}
+              </a>
+            {% elseif item.type == 'badge' %}
+              <span class="badge bg-{{ item.variant ?? 'secondary' }}">{{ item.value }}</span>
+            {% elseif item.type == 'currency' %}
+              ${{ item.value|number_format(2) }}
+            {% elseif item.type == 'date' %}
+              {{ item.value|date(item.format ?? 'Y-m-d') }}
+            {% elseif item.type == 'html' %}
+              {{ item.value|raw }}
+            {% else %}
+              {{ item.value ?? '-' }}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>

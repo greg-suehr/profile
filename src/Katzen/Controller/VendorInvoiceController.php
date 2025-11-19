@@ -88,6 +88,18 @@ final class VendorInvoiceController extends AbstractController
       )
       ->setRows($rows)
       ->setSelectable(true)
+      ->addQuickAction(
+        TableAction::custom('approve', 'Approve')
+          ->setRoute('vendor_invoice_approve')
+          ->setIcon('bi bi-check')
+          ->setVariant('outline-primary')
+      )
+      ->addQuickAction(
+        TableAction::custom('pay', 'Pay')
+          ->setRoute('vendor_invoice_pay')
+          ->setIcon('bi bi-cash')
+          ->setVariant('outline-primary')
+          )
       ->setSearchPlaceholder('Search by invoice number, vendor name, ...')
       ->setEmptyState('No vendor invoices found.')
       ->build();
@@ -305,7 +317,13 @@ final class VendorInvoiceController extends AbstractController
   public function approve(VendorInvoice $invoice): Response
   {
     return $this->redirectToRoute('vendor_invoice_index');
-  }    
+  }
+
+  #[Route('/pay/{id}', name: 'pay', methods: ['POST'])]
+  public function pay(VendorInvoice $invoice): Response
+  {
+    return $this->redirectToRoute('vendor_invoice_index');
+  }
 
   #[Route('/void/{id}', name: 'void', methods: ['POST'])]
   public function void(VendorInvoice $invoice): Response

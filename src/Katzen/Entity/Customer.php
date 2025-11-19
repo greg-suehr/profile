@@ -108,6 +108,8 @@ class Customer
   public function getCreditLimit(): ?string {  return $this->credit_limit; }
   public function setCreditLimit(?string $credit_limit): static {  $this->credit_limit = $credit_limit; return $this; }
   public function getStatus(): ?string { return $this->status; }
+  public function isActive(): bool { return $this->status == 'inactive' ? false : true; }
+  public function isSuspended(): bool { return $this->status == 'suspended'; }  
   public function setStatus(string $status): static { $this->status = $status; return $this; }
   public function getNotes(): ?string { return $this->notes; }
   public function setNotes(?string $notes): static { $this->notes = $notes; return $this; }

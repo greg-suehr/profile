@@ -1,0 +1,51 @@
+{#
+  ShowPage Tabs Section
+  
+  Nested tabs within a section (limited depth - tabs can contain other section types but not more tabs)
+#}
+
+{% set tabId = section.id ?? 'tabs-' ~ random() %}
+
+<ul class="nav nav-pills mb-3" role="tablist">
+  {% for tab in section.tabs %}
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link {{ loop.first ? 'active' : '' }}"
+      id="{{ tabId }}-{{ tab.key }}-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#{{ tabId }}-{{ tab.key }}"
+      type="button"
+      role="tab"
+      aria-controls="{{ tabId }}-{{ tab.key }}"
+      aria-selected="{{ loop.first ? 'true' : 'false' }}"
+      >
+      {% if tab.icon %}<i class="{{ tab.icon }}"></i> {% endif %}
+      {{ tab.label }}
+    </button>
+  </li>
+  {% endfor %}
+</ul>
+
+<div class="tab-content">
+  {% for tab in section.tabs %}
+  <div
+    class="tab-pane fade {{ loop.first ? 'show active' : '' }}"
+    id="{{ tabId }}-{{ tab.key }}"
+    role="tabpanel"
+    aria-labelledby="{{ tabId }}-{{ tab.key }}-tab"
+    >
+    {% if tab.section %}
+      {# Recursive include for nested section - but only one level deep #}
+      {% if tab.section.type != 'tabs' %}
+        {{ include('katzen/component/_show_page_section.html.twig', { section: tab.section }) }}
+      {% else %}
+        <div class="alert alert-warning">
+          Nested tabs are not supported (tabs within tabs)
+        </div>
+      {% endif %}
+    {% elseif tab.content %}
+      {{ tab.content|raw }}
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>

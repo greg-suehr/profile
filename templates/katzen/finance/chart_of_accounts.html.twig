@@ -1,0 +1,264 @@
+{% extends activeDash ?? 'katzen/_dashboard_base.html.twig' %}
+
+{% block title %}Chart of Accounts{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid py-4">
+  {# Page Header #}
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h1 class="h3 mb-1">
+        <i class="bi bi-bank2 me-2"></i>Chart of Accounts
+      </h1>
+      <p class="text-muted">
+        {% if asOfDate %}
+        Financial position as of {{ asOfDate|date('F d, Y') }}
+        {% else %}
+        Current financial position
+        {% endif %}
+      </p>
+    </div>
+    <div class="col-md-4 text-end">
+      <div class="btn-group" role="group">
+        <a href="{{ path('chart_of_accounts', {expand: expandAll ? '0' : '1', show_zero: showZeroBalances ? '1' : '0'}) }}" 
+           class="btn btn-outline-secondary">
+          <i class="bi bi-{{ expandAll ? 'dash' : 'plus' }}-square me-1"></i>
+          {{ expandAll ? 'Collapse All' : 'Expand All' }}
+        </a>
+        <a href="{{ path('chart_of_accounts', {show_zero: showZeroBalances ? '0' : '1', expand: expandAll ? '1' : '0'}) }}" 
+           class="btn btn-outline-secondary">
+          <i class="bi bi-eye{{ showZeroBalances ? '-slash' : '' }} me-1"></i>
+          {{ showZeroBalances ? 'Hide' : 'Show' }} Zero Balances
+        </a>
+        <a href="{{ path('chart_of_accounts_export', app.request.query.all) }}" 
+           class="btn btn-outline-primary">
+          <i class="bi bi-download me-1"></i>
+          Export CSV
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  {# Financial Summary Cards #}
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card border-primary">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2 text-muted">Total Assets</h6>
+          <h4 class="card-title mb-0">
+            ${{ totals.total_assets|number_format(2) }}
+          </h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-danger">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2 text-muted">Total Liabilities</h6>
+          <h4 class="card-title mb-0">
+            ${{ totals.total_liabilities|number_format(2) }}
+          </h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-info">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2 text-muted">Total Equity</h6>
+          <h4 class="card-title mb-0">
+            ${{ totals.total_equity|number_format(2) }}
+          </h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-success">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2 text-muted">Net Income</h6>
+          <h4 class="card-title mb-0 {{ totals.net_income < 0 ? 'text-danger' : 'text-success' }}">
+            ${{ totals.net_income|number_format(2) }}
+          </h4>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  {# Accounting Equation Check #}
+  {% set equation_diff = totals.total_assets - totals.assets_liabilities_equity %}
+  {% if equation_diff|abs > 0.01 %}
+  <div class="alert alert-warning mb-4">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    <strong>Accounting Equation Imbalance:</strong>
+    Assets (${{ totals.total_assets|number_format(2) }}) ≠ 
+    Liabilities + Equity + Net Income (${{ totals.assets_liabilities_equity|number_format(2) }})
+    <br>
+    <small>Difference: ${{ equation_diff|abs|number_format(2) }}</small>
+  </div>
+  {% endif %}
+  
+  {# Chart of Accounts Table #}
+  <div class="card">
+    <div class="card-body">
+      {% for group in chartData %}
+      <div class="account-type-group mb-4">
+        {# Type Header #}
+        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-2">
+          <h5 class="mb-0">
+            <i class="bi bi-folder me-2"></i>
+            {{ group.label }}
+          </h5>
+          <h5 class="mb-0 fw-bold">
+            ${{ group.total_balance|number_format(2) }}
+          </h5>
+        </div>
+        
+        {# Account Tree #}
+        <div class="account-tree">
+          {% for node in group.accounts %}
+          {{ _self.render_account_node(node, 0, expandAll) }}
+          {% endfor %}
+        </div>
+      </div>
+      {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-inbox display-1 d-block mb-3"></i>
+        <p>No accounts found with activity.</p>
+        {% if not showZeroBalances %}
+        <a href="{{ path('chart_of_accounts', {show_zero: '1'}) }}" class="btn btn-sm btn-outline-primary">
+          Show Zero Balances
+        </a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{# Recursive macro for rendering account nodes #}
+{% macro render_account_node(node, level, expandAll) %}
+{% set hasChildren = node.has_children %}
+{% set collapseId = 'account-' ~ node.id %}
+{% set indent = level * 2 %}
+
+<div class="account-node" style="margin-left: {{ indent }}rem;">
+  <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+    <div class="account-info d-flex align-items-center">
+      {% if hasChildren %}
+      <button class="btn btn-sm btn-link text-decoration-none p-0 me-2" 
+              type="button" 
+              data-bs-toggle="collapse" 
+              data-bs-target="#{{ collapseId }}"
+              aria-expanded="{{ expandAll ? 'true' : 'false' }}"
+              aria-controls="{{ collapseId }}">
+        <i class="bi bi-chevron-right toggle-icon"></i>
+      </button>
+      {% else %}
+      <span class="me-2" style="width: 20px; display: inline-block;"></span>
+      {% endif %}
+      
+      <span class="text-muted me-3 font-monospace">{{ node.code }}</span>
+      <span class="fw-{{ hasChildren ? 'bold' : 'normal' }}">{{ node.name }}</span>
+      
+      {% if hasChildren %}
+      <span class="badge bg-secondary ms-2">
+        {{ node.children|length }} sub-account{{ node.children|length != 1 ? 's' : '' }}
+      </span>
+      {% endif %}
+    </div>
+    
+    <div class="account-balances text-end">
+      <div class="d-flex gap-3">
+        {% if node.balance != 0 %}
+        <div class="text-muted small">
+          <span class="d-block" style="font-size: 0.75rem;">Direct</span>
+          <span>${{ node.balance|abs|number_format(2) }}</span>
+        </div>
+        {% endif %}
+        
+        <div class="fw-{{ hasChildren ? 'bold' : 'normal' }}">
+          {% if hasChildren %}
+          <span class="d-block text-muted small" style="font-size: 0.75rem;">Rollup</span>
+          {% endif %}
+          <span class="{{ node.rollup_balance < 0 ? 'text-danger' : '' }}">
+            ${{ node.rollup_balance|abs|number_format(2) }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  {% if hasChildren %}
+  <div class="collapse {{ expandAll ? 'show' : '' }}" id="{{ collapseId }}">
+    {% for child in node.children %}
+    {{ _self.render_account_node(child, level + 1, expandAll) }}
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endmacro %}
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+  .account-tree {
+    font-size: 0.95rem;
+  }
+  
+  .account-node {
+    transition: background-color 0.15s ease;
+  }
+  
+  .account-node:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+  
+  .toggle-icon {
+    transition: transform 0.2s ease;
+  }
+  
+  [aria-expanded="true"] .toggle-icon {
+    transform: rotate(90deg);
+  }
+  
+  .account-info {
+    flex: 1;
+    min-width: 0; /* Allow text truncation */
+  }
+  
+  .account-balances {
+    flex-shrink: 0;
+    min-width: 200px;
+  }
+  
+  /* Print styles */
+  @media print {
+    .btn-group,
+    .card-header {
+      display: none;
+    }
+    
+    .collapse {
+      display: block !important;
+      height: auto !important;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle icon rotation on collapse
+    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(button) {
+      button.addEventListener('click', function() {
+        const icon = this.querySelector('.toggle-icon');
+        if (icon) {
+          icon.classList.toggle('rotated');
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

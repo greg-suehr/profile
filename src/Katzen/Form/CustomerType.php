@@ -19,7 +19,7 @@ class CustomerType extends AbstractType
             ->add('type')
             ->add('billing_address')
             ->add('shipping_address')
-            ->add('account_balance')
+            ->add('payment_terms')
             ->add('credit_limit')
             ->add('status')
             ->add('notes')

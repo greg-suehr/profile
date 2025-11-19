@@ -73,7 +73,6 @@ class InvoiceLineItem
     public function setQuantity(string $quantity): static
     {
         $this->quantity = $quantity;
-        $this->calculateLineTotal();
         return $this;
     }
 
@@ -85,7 +84,6 @@ class InvoiceLineItem
     public function setUnitPrice(string $unit_price): static
     {
         $this->unit_price = $unit_price;
-        $this->calculateLineTotal();
         return $this;
     }
 
@@ -122,7 +120,7 @@ class InvoiceLineItem
         return $this;
     }
 
-    private function calculateLineTotal(): void
+    public function calculateLineTotal(): void
     {
         $qty = (float)$this->quantity;
         $price = (float)$this->unit_price;

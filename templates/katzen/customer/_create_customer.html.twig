@@ -1,46 +1,314 @@
-<div class="card shadow-sm">
-  <div class="card-body">
-    <h2 class="card-title mb-4">Create a Customer</h2>
+{% block main_content %}
+<div class="container-fluid my-4">
+  {# Header #}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">
+        <i class="bi bi-building me-2 text-primary"></i>
+        {{ customer ? 'Edit Customer' : 'New Customer' }}
+      </h2>
+      <p class="text-muted mb-0">
+        {% if customer %}
+          Update customer information.
+        {% else %}
+          Add a new customer to your system.
+        {% endif %}
+      </p>
+    </div>
+    <div>
+      <a href="{{ path('customer_index') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Customers
+      </a>
+    </div>
+  </div>
 
-    {{ form_start(form) }}
-    {{ form_errors(form) }}
-    
-    <div class="row g-3 mb-4">
-      <div class="col-md-6">{{ form_row(form.name) }}</div>
-    </div>
+  {% if tooltip is defined %}
+   {% include 'katzen/component/_tooltip.html.twig' %}
+  {% endif %}
 
-    <div class="row g-3 mb-4">
-      <div class="col-md-6">{{ form_row(form.email) }}</div>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      {{ form_start(form, {'attr': {'id': 'customer-form', 'novalidate': 'novalidate'}}) }}
+      {{ form_errors(form) }}
+
+      {# Tab Navigation #}
+      <ul class="nav nav-tabs mb-4" id="customerTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" 
+                  data-bs-target="#basic" type="button" role="tab">
+            <i class="bi bi-info-circle me-2"></i>Basic Info
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="contact-tab" data-bs-toggle="tab" 
+                  data-bs-target="#contact" type="button" role="tab">
+            <i class="bi bi-telephone me-2"></i>Contact
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="address-tab" data-bs-toggle="tab" 
+                  data-bs-target="#address" type="button" role="tab">
+            <i class="bi bi-geo-alt me-2"></i>Address
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="financial-tab" data-bs-toggle="tab" 
+                  data-bs-target="#financial" type="button" role="tab">
+            <i class="bi bi-cash-stack me-2"></i>Financial
+          </button>
+        </li>
+      </ul>
+
+      {# Tab Content #}
+      <div class="tab-content" id="customerTabContent">
+        
+        {# ============================================================ #}
+        {# BASIC INFO TAB #}
+        {# ============================================================ #}
+        <div class="tab-pane fade show active" id="basic" role="tabpanel">
+          <div class="row g-4">
+            <div class="col-md-6">
+              {{ form_row(form.name, {
+                'label_attr': {'class': 'form-label fw-bold'},
+                'row_attr': {'class': 'mb-3'}
+              }) }}
+            </div>
+            <div class="col-md-4">
+              {{ form_row(form.type, {
+                'label_attr': {'class': 'form-label fw-bold'},
+                'row_attr': {'class': 'mb-3'}
+              }) }}
+            </div>            
+            <div class="col-md-2">
+              {{ form_row(form.status, {
+                'label_attr': {'class': 'form-label fw-bold'},
+                'row_attr': {'class': 'mb-3'}
+              }) }}
+            </div>
+          </div>
+
+          <div class="row g-4 mt-2">
+            <div class="col-md-6">
+            </div>
+          </div>
+
+          <div class="mt-4">
+            {{ form_row(form.notes, {
+              'label_attr': {'class': 'form-label fw-bold'},
+              'row_attr': {'class': 'mb-3'}
+            }) }}
+          </div>
+        </div>
+
+        {# ============================================================ #}
+        {# CONTACT TAB #}
+        {# ============================================================ #}
+        <div class="tab-pane fade" id="contact" role="tabpanel">
+          <div class="row g-4">
+            <div class="col-md-6">
+              {{ form_row(form.email, {
+                'label_attr': {'class': 'form-label fw-bold'},
+                'row_attr': {'class': 'mb-3'}
+              }) }}
+              
+            </div>
+            <div class="col-md-6">
+
+            </div>
+          </div>
+
+          <div class="row g-4 mt-2">
+            <div class="col-md-6">
+              {{ form_row(form.phone, {
+                'label_attr': {'class': 'form-label fw-bold'},
+                'row_attr': {'class': 'mb-3'}
+              }) }}              
+            </div>
+            <div class="col-md-6">
+
+            </div>
+          </div>
+        </div>
+
+        {# ============================================================ #}
+        {# ADDRESS TAB #}
+        {# ============================================================ #}
+        <div class="tab-pane fade" id="address" role="tabpanel">
+          <div class="row g-4">
+            <div class="col-md-6">
+              {{ form_row(form.billing_address, {
+                'label_attr': {'class': 'form-label fw-bold'},
+                'row_attr': {'class': 'mb-3'}
+              }) }}
+              
+            </div>
+            <div class="col-md-6">
+              {{ form_row(form.shipping_address, {
+                'label_attr': {'class': 'form-label fw-bold'},
+                'row_attr': {'class': 'mb-3'}
+              }) }}
+              
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="copy-billing-address">
+                <i class="bi bi-clipboard me-1"></i>Copy from Billing
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {# ============================================================ #}
+        {# FINANCIAL TAB #}
+        {# ============================================================ #}
+        <div class="tab-pane fade" id="financial" role="tabpanel">
+          <div class="row g-4">
+            <div class="col-md-6">
+              
+            </div>
+            <div class="col-md-6">
+
+            </div>
+          </div>
+
+          <div class="row g-4 mt-2">
+            <div class="col-md-6">
+              {{ form_row(form.payment_terms, {
+                'label_attr': {'class': 'form-label fw-bold'},
+                'row_attr': {'class': 'mb-3'}
+              }) }}
+            </div>
+          </div>
+
+          <div class="row g-4 mt-3">
+            <div class="col-md-6">
+              {{ form_row(form.credit_limit, {
+                'label_attr': {'class': 'form-label fw-bold'},
+                'row_attr': {'class': 'mb-3'}
+              }) }}
+            </div>
+            {% if customer %}
+            <div class="col-md-6">
+              {% if customer.creditLimit and customer.accountBalance %}
+                {% set usagePercent = (customer.accountBalance / customer.creditLimit * 100)|round %}
+                <div class="progress" style="height: 25px;">
+                  <div class="progress-bar {% if usagePercent > 90 %}bg-danger{% elseif usagePercent > 75 %}bg-warning{% else %}bg-success{% endif %}" 
+                       role="progressbar" 
+                       style="width: {{ usagePercent }}%">
+                    {{ usagePercent }}% Used
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+      </div> {# End tab-content #}
+
+      {# Form Actions #}
+      <div class="d-flex justify-content-between align-items-center mt-4 pt-4 border-top">
+        <a href="{{ path('customer_index') }}" class="btn btn-link text-secondary">
+          <i class="bi bi-x-circle me-2"></i>Cancel
+        </a>
+        
+        <div>
+          {% if customer %}
+          <a href="{{ path('customer_show', {'id': customer.id}) }}" class="btn btn-outline-secondary me-2">
+            <i class="bi bi-eye me-2"></i>View Customer
+          </a>
+          {% endif %}
+          
+          {{ form_widget(form.submit, {
+            'label': customer ? 'Update Customer' : 'Create Customer',
+            'attr': {'class': 'btn btn-primary btn-lg px-5'}
+          }) }}
+        </div>
+      </div>
+
+      {{ form_rest(form) }}
+      {{ form_end(form) }}
     </div>
-    <div class="row g-3 mb-4">
-      <div class="col-md-6">{{ form_row(form.phone) }}</div>
-    </div>
-    <div class="row g-3 mb-4">
-      <div class="col-md-6">{{ form_row(form.type) }}</div>
-    </div>
-    <div class="row g-3 mb-4">
-      <div class="col-md-6">{{ form_row(form.billing_address) }}</div>
-    </div>
-    <div class="row g-3 mb-4">
-      <div class="col-md-6">{{ form_row(form.shipping_address) }}</div>
-    </div>
-    <div class="row g-3 mb-4">
-      <div class="col-md-6">{{ form_row(form.account_balance) }}</div>
-    </div>
-    <div class="row g-3 mb-4">
-      <div class="col-md-6">{{ form_row(form.credit_limit) }}</div>
-    </div>
-    <div class="row g-3 mb-4">
-      <div class="col-md-6">{{ form_row(form.status) }}</div>
-    </div>
-    <div class="row g-3 mb-4">
-      <div class="col-md-6">{{ form_row(form.notes) }}</div>
-    </div>
-    
-    <div class="d-flex justify-content-end gap-2">
-      {{ form_row(form.submit, { 'label': 'Save' }) }}
-    </div>
-    {{ form_row(form._token) }}
-    {{ form_end(form, { render_rest: false }) }}
   </div>
 </div>
+
+{# JavaScript for Collection Types and Copy Button #}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Copy billing to shipping address
+  const copyBtn = document.getElementById('copy-billing-address');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function() {
+      const billing = document.querySelector('[name*="[billing_address]"]');
+      const shipping = document.querySelector('[name*="[shipping_address]"]');
+      if (billing && shipping) {
+        shipping.value = billing.value;
+      }
+    });
+  }
+
+  // Collection type handlers for aliases and domains
+  function setupCollectionType(containerId, addButtonId, prototype) {
+    const container = document.getElementById(containerId);
+    const addButton = document.getElementById(addButtonId);
+    
+    if (!container || !addButton) return;
+    
+    let index = container.querySelectorAll('input').length;
+    
+    addButton.addEventListener('click', function() {
+      const newForm = prototype.replace(/__name__/g, index);
+      const wrapper = document.createElement('div');
+      wrapper.className = 'd-flex gap-2 mb-2 align-items-start';
+      wrapper.innerHTML = newForm + '<button type="button" class="btn btn-sm btn-outline-danger remove-item"><i class="bi bi-x"></i></button>';
+      
+      container.appendChild(wrapper);
+      
+      wrapper.querySelector('.remove-item').addEventListener('click', function() {
+        wrapper.remove();
+      });
+      
+      index++;
+    });
+    
+    // Handle existing remove buttons
+    container.querySelectorAll('.remove-item').forEach(btn => {
+      btn.addEventListener('click', function() {
+        btn.closest('.d-flex').remove();
+      });
+    });
+  }
+  
+  // Note: This assumes Symfony's collection prototype is available
+  // You may need to adjust based on your actual form rendering
+});
+</script>
+
+<style>
+.nav-tabs .nav-link {
+  color: #6c757d;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 0.75rem 1.5rem;
+}
+
+.nav-tabs .nav-link:hover {
+  border-bottom-color: #dee2e6;
+  color: #495057;
+}
+
+.nav-tabs .nav-link.active {
+  color: #0d6efd;
+  border-bottom-color: #0d6efd;
+  background: none;
+}
+
+.form-label.fw-bold {
+  font-size: 0.95rem;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
+}
+</style>
+{% endblock %}

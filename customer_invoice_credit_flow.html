@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Invoicing and Credit Lifecycle</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+        }
+        
+        #header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        #header h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        #stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .stat {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .stat strong {
+            font-weight: 600;
+        }
+        
+        #controls {
+            background: white;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        select, input[type="checkbox"] {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        #mynetwork {
+            height: calc(100vh - 200px);
+            background: white;
+            margin: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .legend {
+            position: absolute;
+            top: 180px;
+            right: 30px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-size: 13px;
+            z-index: 1000;
+        }
+        
+        .legend h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 6px 0;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>🔗 Customer Invoicing and Credit Lifecycle</h1>
+        <div id="stats">
+            <div class="stat"><strong>4</strong> Services</div>
+            <div class="stat"><strong>96</strong> Dependencies</div>
+            <div class="stat"><strong>10</strong> Repositories</div>
+            <div class="stat"><strong>2</strong> Infrastructure</div>
+        </div>
+    </div>
+    
+    
+    
+    <div id="controls">
+        <div class="control-group">
+            <label for="filterType">Filter:</label>
+            <select id="filterType">
+                <option value="all">All Nodes</option>
+                <option value="services-only">Services Only</option>
+                <option value="high-complexity">High Complexity (5+ deps)</option>
+                <option value="leaf-services">Leaf Services (no deps)</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="namespaceFilter">Namespace:</label>
+            <select id="namespaceFilter">
+                <option value="">All Namespaces</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <input type="checkbox" id="showRepositories" checked>
+            <label for="showRepositories">Show Repositories</label>
+        </div>
+        
+        <div class="control-group">
+            <input type="checkbox" id="showInfrastructure">
+            <label for="showInfrastructure">Show Infrastructure</label>
+        </div>
+        
+        <div class="control-group">
+            <input type="checkbox" id="showLabels" checked>
+            <label for="showLabels">Show Labels</label>
+        </div>
+    </div>
+    
+    <div class="legend">
+        <h3>Legend</h3>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #97C2FC;"></div>
+            <span>Service</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #FFCC80;"></div>
+            <span>Repository</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #CE93D8;"></div>
+            <span>Infrastructure</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #A5D6A7;"></div>
+            <span>External</span>
+        </div>
+    </div>
+    
+    <div id="mynetwork"></div>
+    
+    <script type="text/javascript">
+        const allNodes = [
+  {
+    "id": "service_0",
+    "label": "AccountingService",
+    "type": "service",
+    "group": "service",
+    "title": "<b>AccountingService</b><br>Namespace: App\\Katzen\\Service<br>Dependencies: 8<br>Depth: 5<br>Modifier: final<br><br><b>Dependency Breakdown:</b><br>  infrastructure: 1<br>  repository: 4<br>  service: 3",
+    "namespace": "App\\Katzen\\Service",
+    "dependency_count": 8,
+    "depth": 5,
+    "is_final": true,
+    "full_name": "App\\Katzen\\Service\\AccountingService"
+  },
+  {
+    "id": "service_1",
+    "label": "OrderService",
+    "type": "service",
+    "group": "service",
+    "title": "<b>OrderService</b><br>Namespace: App\\Katzen\\Service<br>Dependencies: 12<br>Depth: 7<br>Modifier: final<br><br><b>Dependency Breakdown:</b><br>  repository: 4<br>  service: 7<br>  infrastructure: 1",
+    "namespace": "App\\Katzen\\Service",
+    "dependency_count": 12,
+    "depth": 7,
+    "is_final": true,
+    "full_name": "App\\Katzen\\Service\\OrderService"
+  },
+  {
+    "id": "service_2",
+    "label": "OrderActionProvider",
+    "type": "service",
+    "group": "service",
+    "title": "<b>OrderActionProvider</b><br>Namespace: App\\Katzen\\Service\\Order<br>Dependencies: 1<br>Depth: 1<br>Modifier: final<br><br><b>Dependency Breakdown:</b><br>  external: 1",
+    "namespace": "App\\Katzen\\Service\\Order",
+    "dependency_count": 1,
+    "depth": 1,
+    "is_final": true,
+    "full_name": "App\\Katzen\\Service\\Order\\OrderActionProvider"
+  },
+  {
+    "id": "service_3",
+    "label": "CustomerInvoiceService",
+    "type": "service",
+    "group": "service",
+    "title": "<b>CustomerInvoiceService</b><br>Namespace: App\\Katzen\\Service\\Accounting<br>Dependencies: 5<br>Depth: 5<br>Modifier: final<br><br><b>Dependency Breakdown:</b><br>  infrastructure: 1<br>  repository: 3<br>  service: 1",
+    "namespace": "App\\Katzen\\Service\\Accounting",
+    "dependency_count": 5,
+    "depth": 5,
+    "is_final": true,
+    "full_name": "App\\Katzen\\Service\\Accounting\\CustomerInvoiceService"
+  },
+  {
+    "id": "infrastructure_4",
+    "label": "EntityManagerInterface",
+    "type": "infrastructure",
+    "group": "infrastructure",
+    "title": "Infrastructure: Doctrine\\ORM\\EntityManagerInterface",
+    "full_name": "Doctrine\\ORM\\EntityManagerInterface"
+  },
+  {
+    "id": "repository_5",
+    "label": "CustomerRepository",
+    "type": "repository",
+    "group": "repository",
+    "title": "Repository: App\\Katzen\\Repository\\CustomerRepository",
+    "full_name": "App\\Katzen\\Repository\\CustomerRepository"
+  },
+  {
+    "id": "repository_6",
+    "label": "InvoiceRepository",
+    "type": "repository",
+    "group": "repository",
+    "title": "Repository: App\\Katzen\\Repository\\InvoiceRepository",
+    "full_name": "App\\Katzen\\Repository\\InvoiceRepository"
+  },
+  {
+    "id": "repository_7",
+    "label": "LedgerEntryRepository",
+    "type": "repository",
+    "group": "repository",
+    "title": "Repository: App\\Katzen\\Repository\\LedgerEntryRepository",
+    "full_name": "App\\Katzen\\Repository\\LedgerEntryRepository"
+  },
+  {
+    "id": "repository_8",
+    "label": "PaymentRepository",
+    "type": "repository",
+    "group": "repository",
+    "title": "Repository: App\\Katzen\\Repository\\PaymentRepository",
+    "full_name": "App\\Katzen\\Repository\\PaymentRepository"
+  },
+  {
+    "id": "repository_9",
+    "label": "OrderRepository",
+    "type": "repository",
+    "group": "repository",
+    "title": "Repository: App\\Katzen\\Service\\OrderRepository",
+    "full_name": "App\\Katzen\\Service\\OrderRepository"
+  },
+  {
+    "id": "repository_10",
+    "label": "OrderItemRepository",
+    "type": "repository",
+    "group": "repository",
+    "title": "Repository: App\\Katzen\\Service\\OrderItemRepository",
+    "full_name": "App\\Katzen\\Service\\OrderItemRepository"
+  },
+  {
+    "id": "repository_11",
+    "label": "RecipeRepository",
+    "type": "repository",
+    "group": "repository",
+    "title": "Repository: App\\Katzen\\Repository\\RecipeRepository",
+    "full_name": "App\\Katzen\\Repository\\RecipeRepository"
+  },
+  {
+    "id": "repository_12",
+    "label": "SellableRepository",
+    "type": "repository",
+    "group": "repository",
+    "title": "Repository: App\\Katzen\\Repository\\SellableRepository",
+    "full_name": "App\\Katzen\\Repository\\SellableRepository"
+  },
+  {
+    "id": "infrastructure_13",
+    "label": "MessageBusInterface",
+    "type": "infrastructure",
+    "group": "infrastructure",
+    "title": "Infrastructure: Symfony\\Component\\Messenger\\MessageBusInterface",
+    "full_name": "Symfony\\Component\\Messenger\\MessageBusInterface"
+  },
+  {
+    "id": "external_14",
+    "label": "CsrfTokenManagerInterface",
+    "type": "external",
+    "group": "external",
+    "title": "External: Symfony\\Component\\Security\\Csrf\\CsrfTokenManagerInterface",
+    "full_name": "Symfony\\Component\\Security\\Csrf\\CsrfTokenManagerInterface"
+  },
+  {
+    "id": "repository_15",
+    "label": "InvoiceLineItemRepository",
+    "type": "repository",
+    "group": "repository",
+    "title": "Repository: App\\Katzen\\Repository\\InvoiceLineItemRepository",
+    "full_name": "App\\Katzen\\Repository\\InvoiceLineItemRepository"
+  },
+  {
+    "id": "repository_16",
+    "label": "OrderRepository",
+    "type": "repository",
+    "group": "repository",
+    "title": "Repository: App\\Katzen\\Repository\\OrderRepository",
+    "full_name": "App\\Katzen\\Repository\\OrderRepository"
+  }
+];
+        const allEdges = [
+  {
+    "from": "service_0",
+    "to": "infrastructure_4",
+    "label": "infrastructure",
+    "arrows": "to",
+    "color": {
+      "color": "#FF9800"
+    },
+    "title": "AccountingService depends on EntityManagerInterface"
+  },
+  {
+    "from": "service_0",
+    "to": "repository_5",
+    "label": "repository",
+    "arrows": "to",
+    "color": {
+      "color": "#2196F3"
+    },
+    "title": "AccountingService depends on CustomerRepository"
+  },
+  {
+    "from": "service_0",
+    "to": "repository_6",
+    "label": "repository",
+    "arrows": "to",
+    "color": {
+      "color": "#2196F3"
+    },
+    "title": "AccountingService depends on InvoiceRepository"
+  },
+  {
+    "from": "service_0",
+    "to": "repository_7",
+    "label": "repository",
+    "arrows": "to",
+    "color": {
+      "color": "#2196F3"
+    },
+    "title": "AccountingService depends on LedgerEntryRepository"
+  },
+  {
+    "from": "service_0",
+    "to": "repository_8",
+    "label": "repository",
+    "arrows": "to",
+    "color": {
+      "color": "#2196F3"
+    },
+    "title": "AccountingService depends on PaymentRepository"
+  },
+  {
+    "from": "service_1",
+    "to": "repository_9",
+    "label": "repository",
+    "arrows": "to",
+    "color": {
+      "color": "#2196F3"
+    },
+    "title": "OrderService depends on OrderRepository"
+  },
+  {
+    "from": "service_1",
+    "to": "repository_10",
+    "label": "repository",
+    "arrows": "to",
+    "color": {
+      "color": "#2196F3"
+    },
+    "title": "OrderService depends on OrderItemRepository"
+  },
+  {
+    "from": "service_1",
+    "to": "repository_11",
+    "label": "repository",
+    "arrows": "to",
+    "color": {
+      "color": "#2196F3"
+    },
+    "title": "OrderService depends on RecipeRepository"
+  },
+  {
+    "from": "service_1",
+    "to": "repository_12",
+    "label": "repository",
+    "arrows": "to",
+    "color": {
+      "color": "#2196F3"
+    },
+    "title": "OrderService depends on SellableRepository"
+  },
+  {
+    "from": "service_1",
+    "to": "service_0",
+    "label": "service",
+    "arrows": "to",
+    "color": {
+      "color": "#4CAF50"
+    },
+    "title": "OrderService depends on AccountingService"
+  },
+  {
+    "from": "service_1",
+    "to": "infrastructure_13",
+    "label": "infrastructure",
+    "arrows": "to",
+    "color": {
+      "color": "#FF9800"
+    },
+    "title": "OrderService depends on MessageBusInterface"
+  },
+  {
+    "from": "service_2",
+    "to": "external_14",
+    "label": "external",
+    "arrows": "to",
+    "color": {
+      "color": "#9C27B0"
+    },
+    "title": "OrderActionProvider depends on CsrfTokenManagerInterface"
+  },
+  {
+    "from": "service_3",
+    "to": "infrastructure_4",
+    "label": "infrastructure",
+    "arrows": "to",
+    "color": {
+      "color": "#FF9800"
+    },
+    "title": "CustomerInvoiceService depends on EntityManagerInterface"
+  },
+  {
+    "from": "service_3",
+    "to": "repository_6",
+    "label": "repository",
+    "arrows": "to",
+    "color": {
+      "color": "#2196F3"
+    },
+    "title": "CustomerInvoiceService depends on InvoiceRepository"
+  },
+  {
+    "from": "service_3",
+    "to": "repository_15",
+    "label": "repository",
+    "arrows": "to",
+    "color": {
+      "color": "#2196F3"
+    },
+    "title": "CustomerInvoiceService depends on InvoiceLineItemRepository"
+  },
+  {
+    "from": "service_3",
+    "to": "repository_16",
+    "label": "repository",
+    "arrows": "to",
+    "color": {
+      "color": "#2196F3"
+    },
+    "title": "CustomerInvoiceService depends on OrderRepository"
+  }
+];
+        
+        let network = null;
+        
+        // Populate namespace filter
+        const namespaces = [...new Set(allNodes
+            .filter(n => n.type === 'service')
+            .map(n => n.namespace))].sort();
+        const namespaceSelect = document.getElementById('namespaceFilter');
+        namespaces.forEach(ns => {
+            const option = document.createElement('option');
+            option.value = ns;
+            option.textContent = ns;
+            namespaceSelect.appendChild(option);
+        });
+        
+        function initNetwork(nodes, edges) {
+            const container = document.getElementById('mynetwork');
+            const data = {
+                nodes: new vis.DataSet(nodes),
+                edges: new vis.DataSet(edges)
+            };
+            
+            const options = {
+                nodes: {
+                    shape: 'box',
+                    margin: 10,
+                    font: {
+                        size: 14,
+                        face: 'Inter, system-ui, sans-serif'
+                    },
+                    borderWidth: 2,
+                    shadow: true,
+                    chosen: {
+                        node: function(values, id, selected, hovering) {
+                            if (selected || hovering) {
+                                values.shadow = true;
+                                values.borderWidth = 3;
+                            }
+                        }
+                    }
+                },
+                groups: {
+                    service: {
+                        color: {
+                            background: '#97C2FC',
+                            border: '#2B7CE9',
+                            highlight: { background: '#D2E5FF', border: '#2B7CE9' }
+                        }
+                    },
+                    repository: {
+                        color: {
+                            background: '#FFCC80',
+                            border: '#FB8C00',
+                            highlight: { background: '#FFE0B2', border: '#FB8C00' }
+                        },
+                        shape: 'ellipse'
+                    },
+                    infrastructure: {
+                        color: {
+                            background: '#CE93D8',
+                            border: '#AB47BC',
+                            highlight: { background: '#E1BEE7', border: '#AB47BC' }
+                        },
+                        shape: 'diamond'
+                    },
+                    external: {
+                        color: {
+                            background: '#A5D6A7',
+                            border: '#66BB6A',
+                            highlight: { background: '#C8E6C9', border: '#66BB6A' }
+                        },
+                        shape: 'dot',
+                        size: 15
+                    }
+                },
+                edges: {
+                    smooth: {
+                        type: 'cubicBezier',
+                        forceDirection: 'horizontal',
+                        roundness: 0.4
+                    },
+                    arrows: {
+                        to: {
+                            enabled: true,
+                            scaleFactor: 0.5
+                        }
+                    },
+                    font: {
+                        size: 11,
+                        align: 'middle'
+                    },
+                    length: 200
+                },
+                physics: {
+                    enabled: true,
+                    solver: 'forceAtlas2Based',
+                    forceAtlas2Based: {
+                        gravitationalConstant: -50,
+                        centralGravity: 0.01,
+                        springLength: 150,
+                        springConstant: 0.08,
+                        damping: 0.4,
+                        avoidOverlap: 0.5
+                    },
+                    stabilization: {
+                        iterations: 150,
+                        updateInterval: 25
+                    }
+                },
+                layout: {
+                    improvedLayout: true,
+                    hierarchical: {
+                        enabled: false
+                    }
+                },
+                interaction: {
+                    hover: true,
+                    tooltipDelay: 100,
+                    navigationButtons: true,
+                    keyboard: true,
+                    zoomView: true
+                }
+            };
+            
+            if (network) {
+                network.destroy();
+            }
+            network = new vis.Network(container, data, options);
+            
+            // Add click handler for detailed info
+            network.on('click', function(params) {
+                if (params.nodes.length > 0) {
+                    const nodeId = params.nodes[0];
+                    const node = allNodes.find(n => n.id === nodeId);
+                    console.log('Selected:', node);
+                }
+            });
+            
+            // Stabilization progress
+            network.on('stabilizationProgress', function(params) {
+                const progress = Math.round(params.iterations / params.total * 100);
+                console.log('Layout stabilization: ' + progress + '%');
+            });
+            
+            network.once('stabilizationIterationsDone', function() {
+                console.log('✓ Layout stabilized');
+                network.setOptions({ physics: false });
+            });
+        }
+        
+        function filterGraph() {
+            const filterType = document.getElementById('filterType').value;
+            const namespace = document.getElementById('namespaceFilter').value;
+            const showRepositories = document.getElementById('showRepositories').checked;
+            const showInfrastructure = document.getElementById('showInfrastructure').checked;
+            
+            let filteredNodes = allNodes.filter(n => {
+                // Apply namespace filter
+                if (namespace && n.namespace !== namespace) return false;
+                
+                // Apply type filters
+                if (n.type === 'repository' && !showRepositories) return false;
+                if (n.type === 'infrastructure' && !showInfrastructure) return false;
+                
+                // Apply complexity filters
+                if (filterType === 'services-only' && n.type !== 'service') return false;
+                if (filterType === 'high-complexity' && n.type === 'service' && n.dependency_count < 5) return false;
+                if (filterType === 'leaf-services' && n.type === 'service' && n.dependency_count > 0) return false;
+                
+                return true;
+            });
+            
+            // Filter edges to only include those between visible nodes
+            const nodeIds = new Set(filteredNodes.map(n => n.id));
+            let filteredEdges = allEdges.filter(e => 
+                nodeIds.has(e.from) && nodeIds.has(e.to)
+            );
+            
+            // Add back nodes that are targets of visible edges
+            const referencedNodes = new Set();
+            filteredEdges.forEach(e => {
+                referencedNodes.add(e.from);
+                referencedNodes.add(e.to);
+            });
+            
+            filteredNodes = allNodes.filter(n => referencedNodes.has(n.id));
+            
+            initNetwork(filteredNodes, filteredEdges);
+        }
+        
+        // Event listeners
+        document.getElementById('filterType').addEventListener('change', filterGraph);
+        document.getElementById('namespaceFilter').addEventListener('change', filterGraph);
+        document.getElementById('showRepositories').addEventListener('change', filterGraph);
+        document.getElementById('showInfrastructure').addEventListener('change', filterGraph);
+        
+        document.getElementById('showLabels').addEventListener('change', (e) => {
+            const nodes = network.body.data.nodes;
+            const showLabels = e.target.checked;
+            allNodes.forEach(node => {
+                nodes.update({
+                    id: node.id,
+                    font: { size: showLabels ? 14 : 0 }
+                });
+            });
+        });
+        
+        // Initialize
+        initNetwork(allNodes, allEdges);
+    </script>
+</body>
+</html>

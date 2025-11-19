@@ -45,7 +45,8 @@ final class VendorController extends AbstractController
 
         $table = TableView::create('Vendors')
             ->addField(
-              TableField::text('name', 'Vendor Name')->sortable(),
+              TableField::link('name', 'Vendor Name', 'vendor_show')
+                ->sortable(),
             )
             ->addField(
               TableField::text('email', 'Email'),
@@ -59,17 +60,17 @@ final class VendorController extends AbstractController
             ->setRows($rows)
             ->setSelectable(true)
             ->addQuickAction(
-                TableAction::create('view', 'View')
-                    ->setIcon('bi bi-eye')
-                    ->setVariant('outline-primary')
-                    ->setRoute('vendor_show')                  
-            )
-            ->addQuickAction(
                 TableAction::create('edit', 'Edit')
                     ->setIcon('bi bi-pencil')
                     ->setVariant('outline-secondary')
                     ->setRoute('vendor_edit')                  
             )
+            ->addQuickAction(
+                TableAction::create('po', 'Start PO')
+                  ->setIcon('bi bi-envelope')
+                  ->setVariant('outline-primary')
+                  ->setRoute('purchase_create')
+                  )
             ->setSearchPlaceholder('Search vendors by name, contact, or email...')
             ->setEmptyState('No vendors found.')
             ->build();

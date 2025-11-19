@@ -1,7 +1,7 @@
 {#
   TableView Component
 
-  Usage: {% include 'katzen/components/_table_view.html.twig' with { table: tableConfig } %}
+  Usage: {% include 'katzen/component/_table_view.html.twig' with { table: tableConfig } %}
 #}
 
 {% set tableId = table.id %}
@@ -14,14 +14,16 @@
      {% if table.hasBulkActions %}
      data-bulk-endpoint="{{ path(bulkRoute) }}"
      {% endif %}
+     {% if csrfSlug is defined %}
      data-csrf="{{ csrf_token(csrfSlug) }}"
+     {% endif %}
      >
   
   {% if table.showToolbar %}
   <div class="table-toolbar mb-3">
     <div class="row g-2 align-items-center">
       
-      {# Search Bar #}
+      {# Search Bar #}      
       <div class="col-12 col-md-8">
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-search"></i></span>

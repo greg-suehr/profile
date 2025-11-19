@@ -1,0 +1,152 @@
+{#
+  ShowPage Component
+  
+  Usage: {% include 'katzen/component/_show_page.html.twig' with { page: showPageConfig } %}
+#}
+
+{% set pageId = page.id %}
+
+<div class="show-page-container" data-page-id="{{ pageId }}">
+  
+  <div class="show-page-header mb-4">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      
+      {# Title and Status #}
+      <div>
+        <h2 class="mb-1">
+          {{ page.header.title }}
+          {% if page.header.statusBadge %}
+            <span class="badge bg-{{ page.header.statusBadge.variant }} ms-2">
+              {{ page.header.statusBadge.label }}
+            </span>
+          {% endif %}
+        </h2>
+        {% if page.header.subtitle %}
+        <p class="text-muted mb-0">{{ page.header.subtitle }}</p>
+        {% endif %}
+      </div>
+      
+      {# Quick Actions #}
+      {% if page.header.quickActions %}
+      <div class="btn-group" role="group">
+        {% for action in page.header.quickActions %}
+        <a
+          href="{{ action.route ? path(action.route, action.routeParams) : '#' }}"
+          class="btn btn-{{ action.variant ?? 'primary' }} show-page-action"
+          data-action="{{ action.name }}"
+          {% if action.confirmMessage %}data-confirm="{{ action.confirmMessage }}"{% endif %}
+          {% if action.disabled %}disabled{% endif %}
+          >
+          {% if action.icon %}<i class="{{ action.icon }}"></i> {% endif %}
+          {{ action.label }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+      
+    </div>
+    
+    {# Tabs Navigation #}
+    {% if page.header.tabs %}
+    <ul class="nav nav-tabs" role="tablist">
+      {% for tab in page.header.tabs %}
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link {{ loop.first ? 'active' : '' }}"
+          id="{{ pageId }}-{{ tab.key }}-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#{{ pageId }}-{{ tab.key }}"
+          type="button"
+          role="tab"
+          aria-controls="{{ pageId }}-{{ tab.key }}"
+          aria-selected="{{ loop.first ? 'true' : 'false' }}"
+          >
+          {% if tab.icon %}<i class="{{ tab.icon }}"></i> {% endif %}
+          {{ tab.label }}
+          {% if tab.badge %}
+          <span class="badge bg-{{ tab.badge.variant ?? 'secondary' }} ms-1">
+            {{ tab.badge.count }}
+          </span>
+          {% endif %}
+        </button>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  
+  <div class="tab-content">
+    {% if page.header.tabs %}
+      {# Tabbed Layout #}
+      {% for tab in page.header.tabs %}
+      <div
+        class="tab-pane fade {{ loop.first ? 'show active' : '' }}"
+        id="{{ pageId }}-{{ tab.key }}"
+        role="tabpanel"
+        aria-labelledby="{{ pageId }}-{{ tab.key }}-tab"
+        >
+        {# TODO: not this #}
+        <div class="section-container container">
+          <div class="row">
+        {% for section in page.sections %}
+          {% if section.tab == tab.key %}
+            {{ include('katzen/component/_show_page_section.html.twig', { section: section }) }}
+          {% else %}
+          {% endif %}        
+        {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      {% for section in page.sections %}
+        {{ include('katzen/component/_show_page_section.html.twig', { section: section }) }}
+      {% endfor %}
+      {% endif %}
+  </div>
+  
+  {% if page.footer %}
+  <div class="show-page-footer mt-4">
+    
+    {# Summary/Totals Card #}
+    {% if page.footer.summary %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="row g-3">
+          {% for item in page.footer.summary %}
+          <div class="col-12 col-md-{{ 12 // page.footer.summary|length }}">
+            <div class="text-center">
+              <div class="text-muted small text-uppercase">{{ item.label }}</div>
+              <div class="fs-4 fw-bold {{ item.class ?? '' }}">
+                {{ item.value }}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    
+    {# Terminal Actions #}
+    {% if page.footer.terminalActions %}
+    <div class="d-flex justify-content-end gap-2">
+      {% for action in page.footer.terminalActions %}
+      <a
+        href="{{ action.route ? path(action.route, action.routeParams) : '#' }}"
+        class="btn btn-{{ action.variant ?? 'secondary' }} show-page-action"
+        data-action="{{ action.name }}"
+        {% if action.confirmMessage %}data-confirm="{{ action.confirmMessage }}"{% endif %}
+        {% if action.disabled %}disabled{% endif %}
+        >
+        {% if action.icon %}<i class="{{ action.icon }}"></i> {% endif %}
+        {{ action.label }}
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+    
+  </div>
+  {% endif %}
+  
+</div>

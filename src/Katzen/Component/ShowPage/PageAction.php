@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Katzen\Component\TableView;
+namespace App\Katzen\Component\ShowPage;
 
 /**
- * TableAction - Defines actions (quick actions per row, or bulk actions)
- *
+ * PageAction - Defines an action available on a ShowPage
  *
  */
-class TableAction
+class PageAction
 {
     private string $name;
     private string $label;
@@ -17,7 +16,7 @@ class TableAction
     private ?string $route = null;
     private array $routeParams = [];
     private ?string $confirmMessage = null;
-    private bool $requiresSelection = false;
+    private bool $disabled = false;
     
   private function __construct(string $name, string $label)
   {
@@ -65,11 +64,6 @@ class TableAction
         }
         return $action;
     }
-
-    public static function custom(string $action, string $label): self
-    {
-        return new self($action, $label);
-    }
     
     public function setIcon(string $icon): self
     {
@@ -96,9 +90,9 @@ class TableAction
         return $this;
     }
     
-    public function requiresSelection(bool $required = true): self
+    public function disable(): self
     {
-        $this->requiresSelection = $required;
+        $this->disabled = true;
         return $this;
     }
     
@@ -113,7 +107,7 @@ class TableAction
             'route' => $this->route,
             'routeParams' => $this->routeParams,
             'confirmMessage' => $this->confirmMessage,
-            'requiresSelection' => $this->requiresSelection,
+            'disabled' => $this->disabled,
         ];
     }
 }
