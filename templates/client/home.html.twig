@@ -1,0 +1,44 @@
+{% extends 'client/base.html.twig' %}
+
+{% block content %}
+<article class="sections" id="sections" data-page-sections="">
+  <section data-test="page-section"
+           data-section-theme=""
+           class="page-section content-collection full-bleed-section collection-type-portfolio-grid-basic background-width--full-bleed section-height--medium content-width--wide horizontal-alignment--center vertical-alignment--middle"
+           data-section-id=""
+           data-controller="SectionWrapperController"
+           data-animation="none">
+    <div class="section-border">
+      <div class="section-background"></div>
+    </div>
+    <div class='content-wrapper' style=''>
+      <div class="content">
+        <div id="gridThumbs" class="portfolio-grid-basic grid-wrapper collection-content-wrapper" data-animation-role="section">
+          <a class="grid-item" href="/work">
+            <div class="grid-image">
+              <div class="grid-image-inner-wrapper">
+                <img data-src="https://images.squarespace-cdn.com/content/v1/5cdc8db64d546e01b837cea4/1562710262349-VSOYX8VZYQQF5JF5HOV9/65.jpg"
+                     data-image="https://images.squarespace-cdn.com/content/v1/5cdc8db64d546e01b837cea4/1562710262349-VSOYX8VZYQQF5JF5HOV9/65.jpg"
+                     data-image-dimensions="2500x1667"
+                     data-image-focal-point="0.5,0.5"
+                     data-load="false"
+                     elementtiming="nbf-portfolio-grid-basic"
+                     src="https://images.squarespace-cdn.com/content/v1/5cdc8db64d546e01b837cea4/1562710262349-VSOYX8VZYQQF5JF5HOV9/65.jpg"
+                     width="2500" height="1667" alt=""
+                     sizes="(max-width: 767px) 100vw, 50vw"
+                     style="display:block;object-position: 50% 50%"
+                     loading="lazy"
+                     decoding="async"
+                     data-loader="sqs">
+              </div>
+            </div>
+            <div class="portfolio-text">
+              <h3 class="portfolio-title">Peaks</h3>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</article>
+{% endblock %}
