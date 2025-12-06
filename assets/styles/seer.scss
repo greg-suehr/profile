@@ -1,0 +1,132 @@
+@use './seer_theme';
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+  display: flex;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 16rem;
+    z-index: 1000;
+}
+
+.main-content {
+    margin-left: 16rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    background-color: white;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.main-area {
+    flex: 1;
+    overflow-y: auto;
+}
+
+a {
+    text-decoration: none;
+}
+
+main {
+    flex: 1;
+}
+
+.navbar-brand {
+    font-family: var(--font-family-title);
+    font-size: 1.8rem;
+}
+
+.navbar-brand, .nav-link {
+    transition: all .15s;
+}
+
+.lift {
+    transition: box-shadow .25s ease,transform .25s ease;
+
+    &:focus, &:hover {
+        box-shadow: 0 1rem 2.5rem rgba(22,28,45,.1),0 .5rem 1rem -.75rem rgba(22,28,45,.1)!important;
+        transform: translate3d(0, -4px, 0);
+    }
+}
+
+footer {
+    background: #18171b;
+}
+
+.item-catalog {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* Header */
+.catalog-header h1 {
+  color: var(--color-accent);
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+/* Table */
+.catalog-table thead {
+  background-color: var(--color-primary);
+  color: #fff;
+  border-bottom: none;
+}
+
+.catalog-table tbody tr:hover {
+  background-color: var(--color-secondary);
+  color: #fff;
+}
+
+.catalog-table a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+.catalog-table a:hover {
+  text-decoration: underline;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-border);
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--color-accent);
+  border-color: var(--color-border);
+}
+
+.btn-success {
+  background-color: var(--color-success);
+  border-color: var(--color-border);
+}
+.btn-success:hover,
+.btn-success:focus {
+  background-color: var(--color-success);
+}
+
+/* Search input */
+.input-group .form-control {
+  border-color: var(--color-border);
+}
+.input-group .btn {
+  background-color: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-border);
+}

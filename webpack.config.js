@@ -24,7 +24,13 @@ Encore
     .addEntry('panel-view', './assets/panel-view.js')
     .addEntry('table-view', './assets/table-view.js')
     .addEntry('prologue', './assets/js/prologue.js')
-    .addEntry('scene', './assets/js/scene-bootstrap.js')   
+    .addEntry('scene', './assets/js/scene-bootstrap.js')
+    // usecue resources + Seer Design assets
+    .addEntry('seer', './assets/seer.js')
+    .addEntry('accordion', './assets/accordion.js')
+    .addEntry('carousel', './assets/carousel.js')
+    .addEntry('filter', './assets/filter.js')
+
     // TODO: design autoload, config file for client projects
     //    .addEntry('litmas', './assets/js/project/litmas/scene.js')
 

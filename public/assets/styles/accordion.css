@@ -1,0 +1,61 @@
+ul.accordion {
+    border-top: 1px solid rgba(0,0,0,0.16);
+    margin-top: 3rem 0 0!important;
+    padding: 0!important;
+}
+ul.accordion > li { 
+    border-bottom: 1px solid rgba(0,0,0,0.16); 
+    list-style: none;
+    margin: 0!important;
+    padding: 0!important;
+}
+ul.accordion > li > * > button {
+    color: inherit; 
+    background: inherit; 
+    border: inherit;  
+    font-size: inherit; 
+    display: block; 
+    line-height: inherit; 
+    font-weight: inherit;
+    width: 100%; 
+    text-align: left; 
+    display: flex; 
+    align-items: center; 
+    cursor: pointer;  
+    font-family: inherit; 
+    font-weight: 600; 
+    padding-left: 2rem; 
+    position: relative; 
+}
+ul.accordion > li > * > button::before,
+ul.accordion > li > * > button::after {
+    content: ""; 
+    position: absolute;
+    width: .9rem; 
+    height: 2px; 
+    border-radius: 1rem; 
+    background: currentColor; 
+    transform: rotate(0deg);  
+    transition: transform .1s; 
+    left: 0.25rem; 
+}
+ul.accordion > li > * > button::before {
+    transform: rotate(90deg);  
+}
+ul.accordion > li > div { 
+    transition: padding .25s, max-height .25s;
+    overflow: hidden;  
+    width: calc(100% - 3rem); 
+    padding-left: 2rem;
+    display: flex; 
+    flex-direction: column; 
+}
+ul.accordion > li > div[aria-hidden=true] { 
+    max-height: 0px; 
+}
+ul.accordion > li > div[aria-hidden=false] {
+    max-height: var(--height, unset); 
+}
+ul.accordion > li > * > button[aria-expanded=true]::before { 
+   transform: rotate(0deg);
+}

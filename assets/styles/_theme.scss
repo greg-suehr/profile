@@ -156,4 +156,4 @@ $gradient-honey: linear-gradient(135deg, #{$color-accent-light} 0%, #{$color-acc
 
 @forward "~bootstrap/scss/bootstrap";
 
-@import "bootstrap-icons/font/bootstrap-icons";
+@use "bootstrap-icons/font/bootstrap-icons";

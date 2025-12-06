@@ -1,0 +1,109 @@
+## Categories:
+- **Ownership** - You control your destiny
+- **UX** - Design that actually works
+- **Technical** - Better code, better performance
+- **Business** - Smart economics
+- **Process** - How we work together
+- **Platform Critique** - Why builders fail you
+
+### Ownership (1-10)
+
+5. **You Own Your Data**  
+   Category: Ownership | Tags: Privacy, Control  
+   *Your customer data, analytics, content - it's all yours, stored where you want it.*
+
+10. **No Features Held Hostage**  
+    Category: Ownership | Tags: Control, Flexibility  
+    *Need a feature? We build it. Don't need one? We don't include it. No upselling to "premium" tiers.*
+
+### UX Philosophy (11-20)
+
+18. **Navigation Should Be Obvious**  
+    Category: UX Philosophy | Tags: Usability, Fundamentals  
+    *If users can't find what they need in three clicks, we've failed.*
+
+### Technical (21-32)
+
+24. **Database Design That Scales**  
+    Category: Technical | Tags: Architecture, Growth  
+    *Start small, but with a schema that won't collapse when you grow.*
+
+26. **API-First Architecture**  
+    Category: Technical | Tags: Integration, Flexibility  
+    *Build your site with APIs from day one. Integrations become trivial.*
+
+27. **Security By Design**  
+    Category: Technical | Tags: Security, Best Practices  
+    *HTTPS, input validation, SQL injection prevention - built in from the start.*
+
+28. **Automated Testing Prevents Disasters**  
+    Category: Technical | Tags: Quality, Confidence  
+    *Catch bugs before they reach production. Sleep better at night.*
+
+29. **Performance Budgets**  
+    Category: Technical | Tags: Speed, Discipline  
+    *Set hard limits on page weight and load time. Then enforce them.*
+
+### Business (33-42)
+
+33. **Transparent Pricing**  
+    Category: Business | Tags: Honesty, Clarity  
+    *Fixed bids or hourly. Never surprise invoices or hidden fees.*
+
+35. **No Hostage Negotiations**  
+    Category: Business | Tags: Ethics, Respect  
+    *Want to move to another developer? Here's all your code and documentation. Good luck!*
+
+### Process (43-50)
+
+### Platform Critique (51-57)
+
+6. **No Platform Tax**  
+   Category: Ownership | Tags: Economics, Independence  
+   *Build a $100K/year business without giving Shopify or Squarespace their cut.*
+
+51. **WordPress Isn't Always the Answer**  
+    Category: Platform Critique | Tags: Nuance, Right Tool  
+    *Great for blogs. Overkill for static sites. Vulnerable if not maintained. Let's choose tools that fit.*
+
+52. **Page Builders Make Bad Code**  
+    Category: Platform Critique | Tags: Technical Debt, Performance  
+    *Elementor and Divi generate bloated HTML that crushes performance.*
+
+53. **Wix SEO Is Still Limited**  
+    Category: Platform Critique | Tags: Marketing, Limitations  
+    *Better than it was, but still can't match custom sites for SEO flexibility.*
+
+54. **Squarespace's Template Trap**  
+    Category: Platform Critique | Tags: Limitations, Design  
+    *Beautiful templates until you need something custom. Then you're stuck.*
+
+55. **Shopify Transaction Fees Add Up**  
+    Category: Platform Critique | Tags: Economics, Hidden Costs  
+    *2% of every sale if you don't use Shopify Payments. Forever.*
+
+56. **Template Marketplaces Are Landfills**  
+    Category: Platform Critique | Tags: Quality, Uniqueness  
+    *Thousands of sites look identical. Poorly coded themes with bloated features.*
+
+57. **Auto-Updates Break Things**  
+    Category: Platform Critique | Tags: Control, Stability  
+    *Platform updates shouldn't break your site. With custom code, we control when and how things change.*
+
+---
+
+## Implementation Notes
+
+**Suggested attributes for each entry:**
+- Number (1-57)
+- Title
+- Category
+- Tags (1-3 per entry)
+- Short description (shown in card)
+- Full content (shown on detail page/expansion)
+
+**Filter options:**
+- By category (dropdown or buttons)
+- By tag (search/filter)
+- Text search across titles and descriptions
+- Sort by number or alphabetically

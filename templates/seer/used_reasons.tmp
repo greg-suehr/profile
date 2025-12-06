@@ -1,0 +1,128 @@
+3. **Nobody Cares More Than You (Except Me)**
+   Category: Ownership | Tags: Partnership, Investment
+   *Your success is my success. I'm personally invested in outcomes, not just checking tickets off a board.*
+
+4. **One Throat to Choke**
+   Category: Ownership | Tags: Accountability, Direct
+   *No passing the buck between departments. I'm accountable for everything.*
+
+2. **No Vendor Lock-In**
+   Category: Ownership | Tags: Freedom, Portability
+   *Take your site anywhere. Host it anywhere. No proprietary formats or export limitations.*
+
+7. **Future-Proof Ownership**
+   Category: Ownership | Tags: Longevity, Security
+   *If I get hit by a bus, another developer can pick up where I left off. Clean code, clear documentation.*
+
+11. **Scrolljacking Sucks**
+    Category: UX Philosophy | Tags: Anti-Pattern, Usability
+    *Hijacking scroll behavior might win design awards, but Nielsen Norman Group says it destroys usability.*
+
+12. **Nielsen Group Metrics Matter**
+    Category: UX Philosophy | Tags: Research, Data-Driven
+    *I design based on decades of usability research, not fleeting trends.*
+
+13. **Accessibility Is Non-Negotiable**
+    Category: UX Philosophy | Tags: Inclusive, Standards
+    *WCAG compliance isn't an add-on. It's foundational to good design.*
+
+14. **Mobile-First, Not Mobile-Afterthought**
+    Category: UX Philosophy | Tags: Responsive, Modern
+    *60%+ of traffic is mobile. I design for that reality, not desktop nostalgia.*
+
+15. **Load Time Is User Experience**
+    Category: UX Philosophy | Tags: Performance, UX
+    *Every 100ms of load time costs you conversions. I optimize obsessively.*
+
+17. **White Space Is Not Wasted Space**
+    Category: UX Philosophy | Tags: Design, Breathing Room
+    *Cluttered pages stress users. Generous spacing improves comprehension and conversion.*
+
+19. **Animation With Purpose**
+    Category: UX Philosophy | Tags: Design, Intentional
+    *Motion should guide attention and provide feedback, not just look cool.*
+
+20. **Content First, Design Second**
+    Category: UX Philosophy | Tags: Strategy, Hierarchy
+    *Great design serves your content and goals. Not the other way around.*
+
+21. **Semantic HTML Matters**
+    Category: Technical | Tags: SEO, Standards
+    *Proper HTML structure helps search engines understand your content and improves accessibility.*
+
+22. **Zero jQuery Dependencies**
+    Category: Technical | Tags: Modern, Performance
+    *Modern JavaScript is powerful enough. Why ship 30KB of legacy library?*
+
+23. **Progressive Enhancement**
+    Category: Technical | Tags: Reliability, Accessibility
+    *Core functionality works without JavaScript. Enhancements are bonuses, not requirements.*
+
+25. **CSS That Makes Sense**
+    Category: Technical | Tags: Maintainability, Clean Code
+    *Organized, documented stylesheets that future developers (or you) can understand.*
+
+30. **Clean URLs, Smart Routing**
+    Category: Technical | Tags: SEO, UX
+    *yoursite.com/about, not yoursite.com/index.php?page=2&section=about*
+
+31. **Image Optimization By Default**
+    Category: Technical | Tags: Performance, Automation
+    *WebP, lazy loading, responsive images. Automatic, not optional.*
+
+34. **Monthly Fees That Make Sense**
+    Category: Business | Tags: Economics, Value
+    *Pay for hosting and maintenance, not platform rents.*
+
+36. **ROI-Focused Features**
+    Category: Business | Tags: Strategy, Value
+    *Every feature should serve a business goal. I'll push back on vanity requests.*
+
+37. **Scope Creep Happens (Let's Manage It)**
+    Category: Business | Tags: Process, Communication
+    *Projects evolve. I document changes and impacts before implementing them.*
+
+37. **Scope Creep Happens (Let's Manage It)**
+    Category: Business | Tags: Process, Communication
+    *Projects evolve. I document changes and impacts before implementing them.*
+
+40. **Conversion Optimization**
+    Category: Business | Tags: Growth, Testing
+    *A/B test your CTAs. Measure everything. Improve continuously.*
+
+41. **Training Included**
+    Category: Business | Tags: Empowerment, Support
+    *I'll teach you to update your own content. Independence is the goal.*
+
+42. **Local Business, Local Support**
+    Category: Business | Tags: Community, Partnership
+    *Pittsburgh-based. Available for in-person meetings. Same timezone, quick responses.*
+
+43. **Discovery Before Design**
+    Category: Process | Tags: Strategy, Understanding
+    *I learn your business before touching code. Better questions = better solutions.*
+
+44. **Iterative, Not Waterfall**
+    Category: Process | Tags: Agile, Flexibility
+    *Show early, get feedback, adjust. No big reveals that miss the mark.*
+
+46. **Documentation Is Deliverable**
+    Category: Process | Tags: Knowledge Transfer, Quality
+    *How things work, why decisions were made. Not just code, but context.*
+
+47. **Staging Environments Standard**
+    Category: Process | Tags: Quality, Safety
+    *Test changes in a safe space before they go live.*
+
+48. **Regular Check-Ins**
+    Category: Process | Tags: Communication, Partnership
+    *Weekly updates. No disappearing for weeks then dumping finished work.*
+
+49. **Post-Launch Support**
+    Category: Process | Tags: Commitment, Partnership
+    *The launch isn't the end. I'm here for bugs, questions, and iterations.*
+
+
+50. **Change Requests Welcome**
+    Category: Process | Tags: Flexibility, Service
+    *Mind changed? Priorities shifted? Let's talk about how to adjust.*

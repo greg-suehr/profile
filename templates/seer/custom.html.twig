@@ -1,0 +1,510 @@
+{% extends 'seer/base.html.twig' %}
+
+{% block main_content %}
+<p>
+  Why custom?
+</p>
+<p>
+  A custom website is 
+</p>
+<p>
+  Site builders promise simplicity, but they deliver cookie-cutter templates, monthly fees that never end, and limitations that emerge the moment you need something custom.
+  You're building on rented land.
+</p>
+
+<h3>Reasons</h3>
+<div class="container">
+<div class="button-group">
+  <button class="button is-checked" data-filter="*">show all</button>
+  <button class="button" data-filter=".ownership">ownership</button>
+  <button class="button" data-filter=".design">design</button>
+  <button class="button" data-filter=".business">business</button>
+  <button class="button" data-filter=".process">process</button>    
+  <button class="button" data-filter=".technical">technical</button>  
+</div>
+<div class="button-group">
+    <button class="button is-checked" data-sortby="order">original order</button>
+    <button class="button" data-sortby="name">name</button>
+    <button class="button" data-sortby="number">number</button>
+</div>
+</div>
+<div class="grid masonry" id="filter" style="aspect-ratio: 0.75;">
+  <div class="element-item ownership partnership investment">
+    <h3 class="name">
+      Care
+    </h3>
+    <p class="description">
+      Nobody cares about your website more than you (except me)
+      Your success is my success. I'm personally invested in outcomes, not just checking tickets off a board.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item onwership accountability direct">
+    <h3 class="name">
+      Access
+    </h3>
+    <p class="description">
+      You work with me, not an account manager.
+      No passing the buck between departments. I'm accountable for everything.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item ownership independence">
+    <h3 class="name">
+      No Lock-In
+    </h3>
+    <p class="description">
+      Take your site anywhere. Host it anywhere. No proprietary formats or export limitations.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item ownership independence">
+    <h3 class="name">
+      The Long View
+    </h3>
+    <p class="description">
+      When you own your codebase, you're never held hostage by a platform's pricing changes or feature removals.
+      A VPS service costs $2 / month. You shouldn't have to pay $25 / month.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item ownership independence">
+    <h3 class="name">
+      Acquisition Ready
+    </h3>
+    <p class="description">
+      Selling your business? A custom site with clean code is an asset. A Wix subscription is a liability.*
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item design antipattern usability">
+    <h3 class="name">
+      Scrolljacking Sucks
+    </h3>
+    <p class="description">
+      So do a lot of other flashy design patterns. I'll build you a site that doesn't piss people off.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item design data">
+    <h3 class="name">
+      Understand What Matters
+    </h3>
+    <p class="description">
+      I design based on decades of usability research, not fleeting trends.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item design data usability">
+    <h3 class="name">
+      Accessibility
+    </h3>
+    <p class="description">
+      WCAG compliance isn't an add-on. It's foundational to good design.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item design data modern">
+    <h3 class="name">
+      Mobile-First
+    </h3>
+    <p class="description">
+      It's 2025. A website that doesn't work on mobile is embarrassing.
+      60%+ of traffic is mobile. I design for that reality, not desktop nostalgia.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item design data performance usability">
+    <h3 class="name">
+      Fast Load Times
+    </h3>
+    <p class="description">
+      Load times matter.
+      Every 100ms of load time costs you conversions.
+      I optimize obsessively.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item design conversion details">
+    <h3 class="name">
+      Forms Should Be Pleasant
+    </h3>
+    <p class="description">
+      Clear labels, smart validation, helpful errors. Form design is where sales happen.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item design conversion usability">
+    <h3 class="name">
+      Classy
+    </h3>
+    <p class="description">
+      Cluttered pages stress users. Generous spacing improves comprehension and conversion.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item design usability">
+    <h3 class="name">
+      Animation With Purpose
+    </h3>
+    <p class="description">
+      Motion should guide attention and provide feedback, not just look cool.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item design strategy">
+    <h3 class="name">
+      Content First
+    </h3>
+    <p class="description">
+      Great design serves your content and goals. Not the other way around.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item technical details seo">
+    <h3 class="name">
+      The Codes Are Good
+    </h3>
+    <p class="description">
+      Semantic HTML Matters. Proper HTML structure helps search engines understand your content and improves accessibility.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item technical antipattern conversion performance">
+    <h3 class="name">
+      Dependencies Aren't Bad (But They Have A Cost)
+    </h3>
+    <p class="description">
+      Modern JavaScript is powerful enough. Why ship 30KB of legacy library? Because most website designers settle for good enough.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item technical accessibility conversion performance">
+    <h3 class="name">
+      Progressive Enhancement
+    </h3>
+    <p class="description">
+      Core functionality works without JavaScript. Enhancements are bonuses, not requirements.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item technical details independence">
+    <h3 class="name">
+      CSS That Makes Sense
+    </h3>
+    <p class="description">
+      Organized, documented stylesheets that future developers (or you) can understand.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item technical details seo">
+    <h3 class="name">
+      Clean URLs, Smart Routings
+    </h3>
+    <p class="description">
+      yoursite.com/about, not yoursite.com/index.php?page=2&section=about
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item technical performance conversion">
+    <h3 class="name">
+      Images That Don't Break Conversion
+    </h3>
+    <p class="description">
+      WebP, lazy loading, responsive images. Automatic, not optional.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item business value">
+    <h3 class="name">
+      Monthly Fees That Make Sense
+    </h3>
+    <p class="description">
+      Pay for server costs, not platorm rent.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item business strategy value">
+    <h3 class="name">
+      ROI-Focused Features
+    </h3>
+    <p class="description">
+       Every feature should serve a business goal. I'll push back on vanity requests.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item business communication process">
+    <h3 class="name">
+      Scope Creep Happens (Let's Manage It)
+    </h3>
+    <p class="description">
+      Projects evolve.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item business technical value">
+    <h3 class="name">
+      Conversion Optimization
+    </h3>
+    <p class="description">
+      A/B test your CTAs. Measure everything. Improve continuously.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item business independence process">
+    <h3 class="name">
+      Training Included
+    </h3>
+    <p class="description">
+      I'll teach you to update your own content. Independence is the goal.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item business accountability communication partnership process">
+    <h3 class="name">
+      Local Business, Local Support
+    </h3>
+    <p class="description">
+      Pittsburgh-based. Available for in-person meetings. Same timezone, quick responses.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item process strategy understanding">
+    <h3 class="name">
+      Discovery Before Design
+    </h3>
+    <p class="description">
+      I learn your business before touching code. Better questions = better solutions.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item process communication partnership">
+    <h3 class="name">
+      Iterative Delivery
+    </h3>
+    <p class="description">
+      Show early, get feedback, adjust. No big reveals that miss the mark.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item process understanding value">
+    <h3 class="name">
+      Documented Deliverables
+    </h3>
+    <p class="description">
+      How things work, why decisions were made. Not just code, but context
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item process details technical value">
+    <h3 class="name">
+      Staging Environments
+    </h3>
+    <p class="description">
+      Test changes in a safe space before they go live.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item process accountability communication partnership">
+    <h3 class="name">
+      Regular Check-Ins
+    </h3>
+    <p class="description">
+      Weekly updates. No disappearing for weeks then dumping finished work.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item process parnership value">
+    <h3 class="name">
+      Post-Launch Support
+    </h3>
+    <p class="description">
+      The launch isn't the end. I'm here for bugs, questions, and iterations.
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item process flexibility">
+    <h3 class="name">
+      Changes Welcome
+    </h3>
+    <p class="description">
+      Mind changed? Priorities shifted? Let's talk about how to adjust
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item ">
+    <h3 class="name">
+    </h3>
+    <p class="description">
+    </p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>  
+  <div class="element-item primary">
+    <h3 class="name"></h3>
+    <p class="description"></p>
+    <p class="number"></p>
+    <p class="symbol"></p>
+  </div>
+</div>
+
+{% endblock %}
