@@ -1,0 +1,14 @@
+h3 {font-size: 1.25rem; margin-block: 0.5rem;}
+img {max-width: 100%;}
+p {margin-block: 0.5rem 1rem;}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 4rem;
+  font-family: sans-serif;
+  align-items: flex-start;
+}
+.grid > *  {
+  position: relative;
+}
