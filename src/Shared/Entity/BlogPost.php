@@ -50,6 +50,9 @@ class BlogPost
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $featuredImage = null;
 
+    #[ORM\Column(nullable: false)]
+    private ?bool $is_published = false;
+
     public function __construct()
     {
         $this->postImages = new ArrayCollection();
@@ -194,6 +197,18 @@ class BlogPost
     public function setFeaturedImage(?string $featuredImage): static
     {
         $this->featuredImage = $featuredImage;
+
+        return $this;
+    }
+
+    public function isPublished(): ?bool
+    {
+        return $this->is_published;
+    }
+
+    public function setIsPublished(?bool $is_published): static
+    {
+        $this->is_published = $is_published;
 
         return $this;
     }

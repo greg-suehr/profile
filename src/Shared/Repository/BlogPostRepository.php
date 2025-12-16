@@ -19,6 +19,8 @@ class BlogPostRepository extends ServiceEntityRepository
   public function findRecent(): array
   {
       return $this->createQueryBuilder('me')
+        ->andWhere('me.is_published = :published')
+        ->setParameter('published', true)        
         ->orderBy('me.id', 'DESC')
         ->setMaxResults(10)
         ->getQuery()
@@ -26,13 +28,15 @@ class BlogPostRepository extends ServiceEntityRepository
         ;
   }
 
-  public function getFeatures(?int $numResults): array
+  public function getFeature(): ?BlogPost
   {
       return $this->createQueryBuilder('me')
+        ->andWhere('me.is_published = :published')
+        ->setParameter('published', true)
         ->orderBy('me.id', 'DESC')
-        ->setMaxResults($numResults)
+        ->setMaxResults(1)
         ->getQuery()
-        ->getResult()
+        ->getOneOrNullResult()
         ;
   }
 

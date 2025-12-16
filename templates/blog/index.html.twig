@@ -6,6 +6,7 @@
 <div class="container mt-5">
     <h1 class="text-center mb-5">Blog</h1>
 
+    {% if featured_post is defined and featured_post is not null %}
     <div class="section row">
       <div class="col-md-6">
         <div class="card">
@@ -45,6 +46,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
 
     
     <div class="section row">

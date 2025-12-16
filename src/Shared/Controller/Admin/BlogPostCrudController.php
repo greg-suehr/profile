@@ -5,6 +5,7 @@ namespace App\Shared\Controller\Admin;
 use App\Shared\Entity\BlogPost;
 use App\Shared\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -40,7 +41,8 @@ class BlogPostCrudController extends AbstractCrudController
             DateTimeField::new('created_at'),
             DateTimeField::new('updated_at'),
             AssociationField::new('author')
-              ->setCrudController(UserCrudController::class)
+              ->setCrudController(UserCrudController::class),
+            BooleanField::new('is_published')
         ];
     }
 }
