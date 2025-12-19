@@ -3,9 +3,9 @@
 namespace App\Katzen\Form;
 
 use App\Katzen\Entity\Recipe;
+use App\Katzen\Form\RecipeBuilderType;
 use Craue\FormFlowBundle\Form\FormFlow;
 use Craue\FormFlowBundle\Form\FormFlowInterface;
-use App\Form\RecipeBuilderType;
 
 class CreateRecipeFlow extends FormFlow {
 

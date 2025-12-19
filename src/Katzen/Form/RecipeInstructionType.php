@@ -14,7 +14,7 @@ class RecipeInstructionType extends AbstractType
     {
         $builder
 #          ->add('section_number')
-#          ->add('step_number')
+          ->add('step_number')
           ->add('description')
 #          ->add('prep_time')
 #          ->add('cook_time')

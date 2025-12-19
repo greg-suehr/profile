@@ -27,7 +27,7 @@ final class RecipeController extends AbstractController
   ){}
   
   #[Route('/recipe', name: 'recipe_index')]
-  #[DashboardLayout('kitchen', 'recipe', 'recipe-index')]
+  #[DashboardLayout('prep', 'recipe', 'recipe-index')]
   public function index(): Response
   {
     $recipes = $this->recipeRepo->findBy([]);
@@ -67,7 +67,7 @@ final class RecipeController extends AbstractController
   }
 
   #[Route('/recipe/manage', name: 'recipe_table')]
-  #[DashboardLayout('kitchen', 'recipe', 'recipe-table')]
+  #[DashboardLayout('prep', 'recipe', 'recipe-table')]
   public function list(Request $request): Response
   {
     $recipes = $this->recipeRepo->findBy([]);
@@ -136,7 +136,7 @@ final class RecipeController extends AbstractController
   }
   
   #[Route('/recipe/view/{id}', name: 'recipe_view')]
-  #[DashboardLayout('kitchen', 'recipe', 'recipe-show')]
+  #[DashboardLayout('prep', 'recipe', 'recipe-show')]
   public function view(Recipe $recipe, Request $request): Response
     {
         $recipe_ingredients = array();
@@ -160,7 +160,7 @@ final class RecipeController extends AbstractController
     }
 
   #[Route('/recipe/build', name: 'recipe_build')]
-  #[DashboardLayout('kitchen', 'recipe', 'recipe-build')]
+  #[DashboardLayout('prep', 'recipe', 'recipe-build')]
   public function build(Request $request): Response
     {
 
@@ -184,8 +184,6 @@ final class RecipeController extends AbstractController
         $recipe->setAuthor($this->getUser());
         $recipe->setStatus('draft');
         $recipe->setVersion(1); // TODO: getLatestVersion
-        $recipe->setCreatedAt(new \DateTimeImmutable());
-        $recipe->setUpdatedAt(new \DateTime());
 
         $this->recipeRepo->save($recipe, true);
 
@@ -198,7 +196,7 @@ final class RecipeController extends AbstractController
     }
 
   #[Route('/recipe/create', name: 'recipe_create')]
-  #[DashboardLayout('kitchen', 'recipe', 'recipe-create')]
+  #[DashboardLayout('prep', 'recipe', 'recipe-create')]
   public function create(Request $request, CreateRecipeFlow $flow): Response
   {
     $recipe = new Recipe();
@@ -212,9 +210,14 @@ final class RecipeController extends AbstractController
       if ($flow->nextStep()) {
         $form = $flow->createForm();
       } else {
-        $this->recipeRepo->save($recipe);        
+        $recipe->setAuthor($this->getUser());
+        $recipe->setStatus('draft');
+        $recipe->setVersion(1); // TODO: getLatestVersion
+        
+        $this->recipeRepo->save($recipe);
+        
         $flow->reset();        
-        return $this->redirectToRoute('recipe');
+        return $this->redirectToRoute('recipe_table');
       }
 	}
 
@@ -225,7 +228,7 @@ final class RecipeController extends AbstractController
   }
   
   #[Route('/recipe/import', name: 'recipe_import', methods: ['GET', 'POST'])]
-  #[DashboardLayout('kitchen', 'recipe', 'recipe-import')]
+  #[DashboardLayout('prep', 'recipe', 'recipe-import')]
   public function import(Request $request, RecipeImportService $recipeImportService): Response
   {
         $form = $this->createForm(ImportRecipeType::class);

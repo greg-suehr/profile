@@ -5,6 +5,7 @@ namespace App\Katzen\Form;
 use App\Katzen\Entity\RecipeIngredient;
 use App\Katzen\Entity\RecipeInstruction;
 use App\Katzen\Entity\Recipe;
+use App\Katzen\Form\RecipeInstructionType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
