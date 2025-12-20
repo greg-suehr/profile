@@ -32,8 +32,8 @@ class RecipeMappingService
         if (!$item) {
           throw new \Exception("Ingredient '{$ingredientData['name']}' not found in database.");
         }
-        $ingredient->setSupplyId($item->getId()); // TODO: clean up relations like this
-        $ingredient->setQuantity($ingredientData['quantity']);
+        $ingredient->setSupplyId($item->getId()); // TODO: clean up relations like this        
+        $ingredient->setQuantity($ingredientData['quantity'] ?? 1);
         $unit = $this->entityManager->getRepository(Unit::class)->findOneBy(['name' => $ingredientData['unit']]);
         if (!$unit) {
           throw new \Exception("Unit '{$ingredientData['unit']}' not found in database.");
@@ -121,7 +121,7 @@ class RecipeMappingService
               throw new \Exception("Ingredient '{$ingredientData['name']}' not found in database.");
             }
             $ingredient->setSupplyId($item->getId()); // TODO: clean up relations like this
-            $ingredient->setQuantity($ingredientData['quantity']);
+            $ingredient->setQuantity($ingredientData['quantity'] ?? 1);
             $unit = $this->entityManager->getRepository(Unit::class)->findOneBy(['name' => $ingredientData['unit']]);
             if (!$unit) {
               throw new \Exception("Unit '{$ingredientData['unit']}' not found in database.");

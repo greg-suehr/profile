@@ -69,4 +69,22 @@ class RecipeRepository extends ServiceEntityRepository
         ->getQuery()
         ->getArrayResult();
     }
+
+  /**
+   * Find recipes that use another recipe as an ingredient (sub-recipes)
+   * 
+   * @return array<array{id: int, title: string}>
+   */
+  public function findRecipesUsingAsIngredient(int $recipeId): array
+  {
+    return $this->createQueryBuilder('r')
+        ->select('r.id', 'r.title')
+        ->innerJoin('r.recipeIngredients', 'ri')
+        ->andWhere('ri.supply_type = :type')
+        ->andWhere('ri.supply_id = :recipeId')
+        ->setParameter('type', 'recipe')
+        ->setParameter('recipeId', $recipeId)
+        ->getQuery()
+        ->getArrayResult();
+  }
 }

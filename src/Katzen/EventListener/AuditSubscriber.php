@@ -233,7 +233,7 @@ final class AuditSubscriber implements EventSubscriber
                 $diff[$field] = $this->serializeValue($value);
             }
         }
-
+        
         return [$type, $id, $diff];
     }
 
@@ -290,6 +290,16 @@ final class AuditSubscriber implements EventSubscriber
 
         if ($value instanceof \DateTimeInterface) {
             return $value->format('Y-m-d H:i:s');
+        }
+
+        if ($value instanceof \Doctrine\Common\Collections\Collection) {
+          $refs = [];
+          foreach ($value as $element) {
+            if (is_object($element)) {
+              $refs[] = $this->serializeEntityRef($element);
+            }
+          }
+          return $refs;
         }
 
         if (is_object($value)) {

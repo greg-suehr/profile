@@ -2,6 +2,7 @@
 namespace App\Katzen\Repository;
 
 use App\Katzen\Entity\RecipeList;
+use App\Katzen\Entity\Recipe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -21,28 +22,18 @@ class RecipeListRepository extends ServiceEntityRepository
     $this->getEntityManager()->flush();
   }
 
-//    /**
-//     * @return RecipeList[] Returns an array of RecipeList objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('r')
-//            ->andWhere('r.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('r.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?RecipeList
-//    {
-//        return $this->createQueryBuilder('r')
-//            ->andWhere('r.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+  /**
+   * Find all recipe lists (menus) containing a specific recipe
+   *
+   * @return RecipeList[]
+   */
+  public function findListsContainingRecipe(Recipe $recipe): array
+  {
+    return $this->createQueryBuilder('rl')
+        ->innerJoin('rl.recipes', 'r')
+        ->andWhere('r = :recipe')
+        ->setParameter('recipe', $recipe)
+        ->getQuery()
+        ->getResult();
+  }
 }

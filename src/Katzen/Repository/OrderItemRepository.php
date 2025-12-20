@@ -3,6 +3,7 @@
 namespace App\Katzen\Repository;
 
 use App\Katzen\Entity\OrderItem;
+use App\Katzen\Entity\Recipe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -33,28 +34,17 @@ class OrderItemRepository extends ServiceEntityRepository
     $this->getEntityManager()->flush();
   }
 
-//    /**
-//     * @return OrderItem[] Returns an array of OrderItem objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('o')
-//            ->andWhere('o.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('o.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?OrderItem
-//    {
-//        return $this->createQueryBuilder('o')
-//            ->andWhere('o.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+  /**
+   * Find all order lines referencing a specific recipe
+   *
+   * @return OrderLine[]
+   */
+  public function findByRecipe(Recipe $recipe): array
+  {
+    return $this->createQueryBuilder('oi')
+        ->andWhere('oi.recipe_list_recipe_id = :recipe')
+        ->setParameter('recipe', $recipe)
+        ->getQuery()
+        ->getResult();
+  }
 }
