@@ -22,6 +22,13 @@ class RecipeRepository extends ServiceEntityRepository
     $this->getEntityManager()->flush();
   }
 
+  public function remove(Recipe $recipe): void
+  {
+    $this->getEntityManager()->remove($recipe);
+  }
+
+  public function flush(): void { $this->getEntityManager()->flush(); }
+
   public function delete(Recipe $recipe): void
   {
     $this->getEntityManager()->remove($recipe);
@@ -30,11 +37,13 @@ class RecipeRepository extends ServiceEntityRepository
 
   public function getLatestVersionForTitle(string $title): int
   {
-    return $this->createQueryBuilder('r')
+    $versionNum = $this->createQueryBuilder('r')
        ->select('MAX(r.version)')
        ->andWhere('r.title = :title')
        ->setParameter('title', $title)
        ->getQuery()->getSingleScalarResult();
+
+    return $versionNum ?? 0;
   }
 
   public function findByTitleLike(string $term): array
