@@ -30,5 +30,9 @@ final class ClientController extends AbstractController
   #[Route('/beal/work', name: 'client_work')]
   public function work(Request $request): Response { return $this->render('client/work.html.twig'); }
 
+  #[Route('/beal/contact/submit', name: 'client_contact_submit')]
+  public function contact_submit(Request $request): Response {
+    return $this->redirect('client_contact');
+  }
   
 }

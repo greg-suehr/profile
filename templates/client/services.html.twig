@@ -1,22 +1,74 @@
 {% extends 'client/base.html.twig' %}
 
 {% block content %}
-<div class="container">
-</div>
-<div class="container">
-  <p>
-    Sasha provides a variety of design services, such as:
-  </p>
-  <ul>
-    <li>
-      illustrating your book
-    </li>
-    <li>
-      creating custom greeting cards for your special event
-    </li>
-  </ul>
-  <p>
-    Contact Sasha today!
-  </p>
+<div class="container section">
+  <div class="row">
+    <div class="col-md-12">
+      <h1 class="mb-4">Services</h1>
+      <p class="lead mb-5">
+        From custom artwork to collaborative design projects, I offer a range of creative services tailored to bring your vision to life. Each project is approached with care, creativity, and a commitment to exceeding expectations.
+      </p>
+    </div>
+  </div>
+
+  <div class="row mb-5">
+    <div class="col-md-12">
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <h3>Original Commissioned Artwork</h3>
+          <p>
+            Create a unique piece designed specifically for your space. Whether you're looking for a large-scale painting for your office, an abstract piece for your home, or a textile work that adds texture and warmth, I work closely with you to develop artwork that reflects your aesthetic and complements your environment.
+          </p>
+          <p class="text-secondary-dark">
+            <strong>Ideal for:</strong> Homes, offices, hospitality spaces, corporate collections
+          </p>
+        </div>
+
+        <div class="col-md-6 mb-4">
+          <h3>Book & Publication Illustration</h3>
+          <p>
+            Bring your written work to life with custom illustrations. From chapter headings to full-page artwork, cover design to interior illustrations, I create visual elements that enhance your narrative and captivate readers. I work with authors, publishers, and independent creators on both fiction and non-fiction projects.
+          </p>
+          <p class="text-secondary-dark">
+            <strong>Ideal for:</strong> Novels, poetry collections, children's books, journals, chapbooks
+          </p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <h3>Custom Greeting Cards & Stationery</h3>
+          <p>
+            Make your special occasions truly memorable with custom-designed greeting cards, invitations, and stationery. Perfect for weddings, anniversaries, holiday cards, birth announcements, or corporate events. Each design is created to reflect the unique character of your celebration.
+          </p>
+          <p class="text-secondary-dark">
+            <strong>Ideal for:</strong> Weddings, celebrations, corporate events, holiday cards, personal stationery
+          </p>
+        </div>
+
+        <div class="col-md-6 mb-4">
+          <h3>Collaborative Projects</h3>
+          <p>
+            Have an idea that doesn't fit into a traditional category? I'm always interested in exploring new creative collaborations. Whether it's a cross-disciplinary project, an experimental installation, or something entirely unique, let's discuss how we might work together.
+          </p>
+          <p class="text-secondary-dark">
+            <strong>Ideal for:</strong> Artists, designers, creative professionals, community initiatives
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8 offset-md-2 text-center">
+      <div class="p-4" style="background-color: #f5f5f5 !important;">
+        <h4 class="mb-3">Ready to start a project?</h4>
+        <p class="mb-4">
+          Every project begins with a conversation. I'd love to hear about your vision and explore how we might work together to bring it to life.
+        </p>
+        <a href="{{ path('client_contact') }}" class="btn btn-primary btn-lg">Get in Touch</a>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
