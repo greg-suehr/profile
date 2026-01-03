@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Name</title>
+  <meta name="description" content="Your description here.">
+  <style>
+    /* Reset & Base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, sans-serif;
+      line-height: 1.6;
+      color: #726D5F;
+      background-color: #2E241B;
+    }
+
+    a {
+      color: #F6F1EB;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: #F6F1EB;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+
+    @media (min-width: 1024px) {
+      .container {
+        display: flex;
+        gap: 4rem;
+        padding: 0 1.5rem;
+      }
+
+      header {
+        position: sticky;
+        top: 0;
+        width: 48%;
+        height: 100vh;
+        padding: 6rem 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      main {
+        width: 52%;
+        padding: 6rem 0;
+      }
+    }
+
+    /* Header */
+    .name {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #F6F1EB;
+    }
+
+    .title {
+      font-size: 1.25rem;
+      color: #F6F1EB;
+      margin-top: 0.5rem;
+    }
+
+    .rotating-title {
+      display: block;
+      height: 1.75rem;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .rotating-title span {
+      position: absolute;
+      opacity: 0;
+      animation: fade-titles 16s infinite;
+    }
+    
+    .rotating-title span:nth-child(1) { animation-delay: 0s; }
+    .rotating-title span:nth-child(2) { animation-delay: 4s; }
+    .rotating-title span:nth-child(3) { animation-delay: 8s; }
+    .rotating-title span:nth-child(4) { animation-delay: 12s; }
+    
+    @keyframes fade-titles {
+    0% { opacity: 0; }
+    5% { opacity: 1; }
+    25% { opacity: 1; }
+    30%, 100% { opacity: 0; }
+    }
+    
+    .tagline {
+      margin-top: 1rem;
+      max-width: 300px;
+    }
+
+    /* Navigation */
+    nav {
+      margin-top: 4rem;
+    }
+
+    nav ul {
+      list-style: none;
+    }
+    
+    nav a {
+      display: block;
+      padding: 0.75rem 0;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #F6F1EB;
+    }
+
+    nav a:hover {
+      color: #F6D58A;
+    }
+
+    /* Social Links */
+    .social {
+      display: flex;
+      gap: 1.25rem;
+      margin-top: 2rem;
+      list-style: none;
+    }
+
+    .social a {
+      color: #D9D5CC;
+    }
+
+    /* Sections */
+    section {
+      margin-bottom: 6rem;
+    }
+
+    section h2 {
+      font-size: 0.875rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #F6F1EB;
+      margin-bottom: 2rem;
+    }
+
+    @media (min-width: 1024px) {
+      section h2 {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+      }
+    }
+
+    section p {
+      margin-bottom: 1rem;
+    }
+
+    /* Experience & Project Items */
+    .item {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    @media (min-width: 640px) {
+      .item {
+        grid-template-columns: 1fr 3fr;
+      }
+    }
+
+    .item-date {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #F6D58A;
+    }
+
+    .item-title {
+      font-weight: 500;
+      color: #F6F1EB;
+      margin-bottom: 0.5rem;
+    }
+
+    .item-description {
+      font-size: 0.875rem;
+    }
+
+    /* Tags */
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      list-style: none;
+    }
+
+    .tag {
+      background-color: rgba(232, 180, 75, 0.1);
+      color: #e8b44b;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    /* Footer */
+    footer {
+      font-size: 0.875rem;
+      color: #F6F1EB;
+      padding-bottom: 4rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1 class="name"><a href="/">Greg Suehr</a></h1>
+        <h2 class="title">
+          <span class="rotating-title">
+            <span>Developer.</span>
+            <span>Designer.</span>
+            <span>Creative Strategist.</span>
+            <span>Researcher.</span>
+          </span>
+        </h2>
+        <p class="tagline">
+          I solve hard problems with well-crafted, human solutions.
+        </p>
+
+        <nav>
+          <ul>
+            <li><a href="#about">About</a></li>
+            <li><a href="#experience">Experience</a></li>
+            <li><a href="#projects">Projects</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <ul class="social">
+        <li><a href="https://github.com/greg-suehr" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://linkedin.com/greg-suehr" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="mailto:myname+ory.mylastname@thegoogleone.com">Email</a></li>
+      </ul>
+      <!-- Suehr © {{ 'now'|date('Y') }} -->
+    </header>
+
+    <main>
+      <section id="about">
+        <h2>About</h2>
+        <p>
+          I am a software engineer and product leader with over a decade experience building and improving complex systems.
+          I've had the pleasure of working on ERP platforms, government financial systems, and data systems for high energy physics research.
+        </p>
+        <p>
+          Currently, I'm and independent software developer and technical consultant.
+          I help businesses automate and manage systems, business processes, and data.
+          I'm passionate about building software that solves real problems for underserved markets.
+        </p>
+        <p>
+          I also appreciate work that is creatively open.
+          If you're the patient type, you can join my <a>mailing list</a> for updates on new media projects.
+        </p>
+        <p>
+          When I am not making software, I spend my time making music, writing stuff, and exploring the great outdoors.
+        </p>
+      </section>
+
+      <section id="experience">
+        <h2>Experience</h2>
+
+        <article class="item">
+          <div class="item-date">2025 — Present</div>
+          <div>
+            <h3 class="item-title"><a href="#">Technical Consultant</a></h3>
+            <p class="item-description">
+              I help businesses automate and manage systems, business processes, and data.
+            </p>
+            <ul class="tags">
+              <li class="tag">PHP</li>
+              <li class="tag">Symfony</li>
+              <li class="tag">PostgreSQL</li>
+              <li class="tag">AutoHotkey</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="item">
+          <div class="item-date">2020 — 2025</div>
+          <div>
+            <h3 class="item-title"><a href="#">Product Manager · Bizowie</a></h3>
+            <p class="item-description">
+              Led product vision and engineering operations for a mid-market ERP platform.
+              Partnered with strategic accounts on implementations, change management, and process automation.
+              <ul class="tags">
+              <li class="tag">ERP</li>                
+              <li class="tag">Perl</li>
+              <li class="tag">MySQL</li>
+              <li class="tag">JavaScript</li>
+              <li class="tag">Product Management</li>
+              <li class="tag">Technical Strategy</li>             
+            </ul>
+          </div>
+        </article>
+
+        <article class="item">
+          <div class="item-date">2017 — 2020</div>
+          <div>
+            <h3 class="item-title"><a href="#">Product Owner · Grant Street Group</a></h3>
+            <p class="item-description">
+              Led Agile teams building cashiering and accounting systems for government clients.
+              Built ETL pipelines to migrate historical tax and property data from legacy systems.
+            </p>
+            <ul class="tags">
+              <li class="tag">Agile Leadership</li>
+              <li class="tag">MySQL</li>         
+              <li class="tag">ETL</li>
+              <li class="tag">Legacy Systems</li>
+            </ul>
+          </div>
+        </article>
+
+        <p><a href="{{ asset('uploads/docs/resume.pdf') }}" target="_blank">View Full Résumé →</a></p>
+      </section>
+
+      <section id="projects">
+        <h2>Projects</h2>
+
+        <article class="item">
+          <div class="item-date">Business Software</div>
+          <div>
+            <h3 class="item-title"><a href="#">Katzen</a></h3>
+            <p class="item-description">
+              Katzen is ERP for the cottage kitchen industry.
+            </p>
+            <ul class="tags">
+              <li class="tag">Python</li>
+              <li class="tag">FastAPI</li>
+              <li class="tag">OCR</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="item">
+          <div class="item-date">Games</div>
+          <div>
+            <h3 class="item-title"><a href="#">Messy</a></h3>
+            <p class="item-description">
+              Messy is a synesthetic geometric action game exploring the intersection of sound, color, and motion.
+              Built with Godot and featuring an original soundtrack.
+            </p>
+            <ul class="tags">
+              <li class="tag">GDScript</li>
+              <li class="tag">C#</li>
+            </ul>
+          </div>
+        </article>
+
+        <p><a href="/archive">View All Projects →</a></p>
+      </section>
+
+      <footer>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

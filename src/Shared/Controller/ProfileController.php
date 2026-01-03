@@ -19,11 +19,17 @@ final class ProfileController extends AbstractController
     }
     
     if ($host === 'gregsuehr.com') {
-      return $this->render('hyper_link/story.html.twig');
+      return $this->redirectToRoute('profile_resume');
     }
     
     return $this->render('greg/dark.html.twig');
-  } 
+  }
+
+  #[Route('/resume', name: 'profile_resume')]
+  public function resume(): Response { return $this->render('professional/index.html.twig'); }
+
+  #[Route('/archive', name: 'profile_archive')]
+  public function archive(): Response { return $this->render('professional/archive.html.twig'); }
 
   # TODO: add links
   #[Route('/about', name: 'profile_about')]
