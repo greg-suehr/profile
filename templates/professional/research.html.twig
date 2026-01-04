@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Projects</title>
+  <meta name="description" content="Your description here.">
+  <style>
+    /* Reset & Base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      color: #b7b09d;
+      background-color: #2E241B;
+      min-height: 100vh;
+    }
+
+    a {
+      color: #F6F1EB;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    a:hover {
+      color: #F6D58A;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        padding: 4rem 3rem;
+      }
+    }
+
+    /* Header */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #F6F1EB;
+      margin-bottom: 0.5rem;
+      transition: transform 0.2s;
+    }
+
+    .back-link:hover {
+      transform: translateX(-4px);
+      color: #F6D58A;
+    }
+
+    .back-link svg {
+      width: 1rem;
+      height: 1rem;
+      margin-right: 0.25rem;
+      transform: rotate(180deg);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #F6F1EB;
+      margin-bottom: 3rem;
+    }
+
+    @media (min-width: 640px) {
+      h1 {
+        font-size: 3rem;
+      }
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 3rem;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid rgba(246, 241, 235, 0.1);
+      background-color: rgba(46, 36, 27, 0.75);
+      backdrop-filter: blur(10px);
+    }
+
+    th {
+      padding: 1rem 2rem 1rem 0;
+      text-align: left;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #F6F1EB;
+    }
+
+    th:last-child {
+      padding-right: 0;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(246, 241, 235, 0.1);
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background-color: rgba(246, 213, 138, 0.05);
+    }
+
+    td {
+      padding: 1rem 2rem 1rem 0;
+      vertical-align: top;
+      font-size: 0.875rem;
+    }
+
+    td:last-child {
+      padding-right: 0;
+    }
+
+    .project-name {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #F6F1EB;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.25rem;
+    }
+
+    .project-name:hover {
+      color: #F6D58A;
+    }
+
+    .project-link {
+      display: inline-flex;
+      align-items: baseline;
+      color: #726D5F;
+      font-size: 0.875rem;
+    }
+
+    .project-link:hover {
+      color: #F6F1EB;
+    }
+
+    .external-icon {
+      width: 1rem;
+      height: 1rem;
+      margin-left: 0.125rem;
+      display: inline-block;
+      transition: transform 0.2s;
+    }
+
+    a:hover .external-icon {
+      transform: translate(2px, -2px);
+    }
+
+    /* Tags */
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+      list-style: none;
+    }
+
+    .tag {
+      background-color: rgba(232, 180, 75, 0.1);
+      color: #e8b44b;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    /* Responsive */
+    .hide-mobile {
+      display: none;
+    }
+
+    @media (min-width: 640px) {
+      .hide-mobile {
+        display: table-cell;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .hide-tablet {
+        display: table-cell;
+      }
+    }
+
+    .hide-tablet {
+      display: none;
+    }
+
+    /* Year column */
+    .year {
+      white-space: nowrap;
+      color: #726D5F;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/>
+      </svg>
+      Greg Suehr
+    </a>
+    <h1>Research</h1>    
+    <div class="section">
+      <p>
+        During my time at the University of Pittsburgh, I had a mentor who liked to say: <i>"If we knew what we were doing, it wouldn't be research."</i>
+      </p>
+      <br>
+      <p>
+        It was a comforting thought (and likely repeated as often as it was for my own benefit).        
+      </p>
+      <br>
+      <p>
+        Research is a difficult thing.
+        My experience as an <i>undergraduate researcher</i> was very much like climbing a mountain.
+        At first I moved slowly, but felt like a trailblazer. The world was foggy. Every crumb of knowledge I collected was exciting and new.
+        But as I got further up the hill I realized more and more there was a well-worn trail extended miles ahead of me.
+        Not only was I not a trailblazer, I was not even progressing along the trail as competently as many of my colleagues.
+      </p>
+      <br>
+      <p>
+        Around the same time, I experienced a crisis of faith regarding what I had seen as a <i>fundamental</i> character of physics research.
+        As I learned more of the history of science, I saw <i>modernity</i> less as the edge of the future and more like the future past.
+        My perspective of science shifted from that of a mountain we were climbing to a bowl we were filling.
+        <i>Cutting-edge research</i> was still an interface to an open unknown, but to be a part of that rising flood required a sacrificial flattening,
+        a wholesale dedication of an entire career to a very small piece of the puzzle.
+        I was not a mountaineer so much as a drop of water, especially in the world of Big Science that commands high energy physics research.
+      </p>
+      <br>
+      <p>
+        This sense of the <i>flatness</i> of scientific research was a challenge to my ego.
+        More critically, I developed a perspective that this bowl we were filling had a leak,
+        along with an acute worry that nobody had a measure on what and how much knowledge a culture could lose.
+      </p>
+      <br>
+      <p>
+        The hole in human culture is responsible for two deleterious effects.
+        First, it slows the progress of our filling the bowl by removing substantive knowledge through a natural process of attrition.
+        The knowledge a culture pursues and retains is scoped by the material structure, activities, and values of that culture.
+        Everything must be passed on, or it will be forgotten.
+        As the values and needs of culture shift over time, our persistent forgetting creates potholes which inevitably researchers must turn back to and fill.
+      <!--
+        The idea of lost knowledge is often treated as a contigent historical fact or trivia.
+        If knowledge is a mountain to climb, then any "lost knowledge" is a set back at worst, one we are only ever more capable of making up with each step.
+        But, simply put, I find it difficult to maintain a confidence that the ultimate in light of our most current knowledge from the field of physics.
+        -->
+      </p>
+      <br>
+      <p>
+        This is a more practical problem for researchers than the idea that it is worth knowing our history (which I also believe to be true).
+      </p>
+      <br>
+      <p>
+        The second <i>deleterious effect</i> of the hole in human culture is that while these <i>potholes</i> remain unfilled,
+        there is a not emptiness but a fragile structure which threatens the integrity of the knowledge piled above.
+      </p>
+      <br>
+      <p>
+        Our knowledge is not grounded on the researcher and their individual understanding.
+        Simply put, we collectively know too much. Our knowledge leans back on itself,
+        and it is nearly impossible to tell whether any particular fact we rely on is well founded without climbing the whole mountain over again.
+        As a result, out of necessity, we employ facts we do not know.
+      </p>
+      <br>
+      <p>
+        In pursuit of a career other than physics research, I leaned on my experience programming to build a very practical career in business software.
+        
+      </p>
+      <br>
+      <p>
+      </p>
+      <br>
+      <p>
+        Today, my research interests are primarily historical
+      </p>
+      <br>
+      <p>
+        Research Two particula
+      <ol>
+        <li>
+          Günther Anders.
+        </li>
+        <li>
+          Perspectives on Non-Human Intelligence.
+        </li>
+      </ol>
+      <br>
+    </div>
+  </div>
+</body>
+</html>

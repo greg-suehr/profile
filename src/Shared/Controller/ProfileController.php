@@ -28,8 +28,24 @@ final class ProfileController extends AbstractController
   #[Route('/resume', name: 'profile_resume')]
   public function resume(): Response { return $this->render('professional/index.html.twig'); }
 
+  #[Route('/research', name: 'profile_research')]
+  public function research(): Response { return $this->render('professional/research.html.twig'); }
+  
   #[Route('/archive', name: 'profile_archive')]
-  public function archive(): Response { return $this->render('professional/archive.html.twig'); }
+  public function archive(): Response {
+      $projectsPath = $this->getParameter('kernel.project_dir') . '/assets/data/projects.json';
+      $projects = [];
+      
+      if (file_exists($projectsPath)) {
+        $projectsJson = file_get_contents($projectsPath);
+        $projects = json_decode($projectsJson, true) ?? [];
+      }
+      
+      return $this->render('professional/archive.html.twig', [
+        'projects' => $projects
+      ]
+      );
+  }
 
   # TODO: add links
   #[Route('/about', name: 'profile_about')]

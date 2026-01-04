@@ -1,0 +1,152 @@
+[
+  {
+    "year": "2025",
+    "category": "Business Software",
+    "name": "Katzen",
+    "description": "ERP web application for the cottage-kitchen industry. Designed for small, revenue-capped businesses priced out by most F&B software.",
+    "tags": ["Symfony", "PHP", "PostgreSQL", "FastAPI", "OCR"],
+    "url": "https://getkatzen.com",
+    "madeAt": null,
+    "featured": true
+  },
+  {
+    "year": "2025",
+    "category": "Games",
+    "name": "Messy",
+    "description": "Synesthetic geometric action game exploring the intersection of sound, color, and motion. Built with Godot and featuring an original soundtrack.",
+    "tags": ["GDScript", "C#", "Godot"],
+    "url": "https://messygame.com",
+    "madeAt": null,
+    "featured": true
+  },
+  {
+    "year": "2025",
+    "category": "Play",
+    "name": "The Bother of a Fly",
+    "description": null,
+    "tags": ["Drama"],
+    "url": null,
+    "madeAt": null,
+    "featured": false
+  },
+  {
+    "year": "2025",
+    "category": "Play",
+    "name": "Johnny's Gonna Die",
+    "description": null,
+    "tags": ["Drama"],
+    "url": null,
+    "madeAt": null,
+    "featured": false
+  },
+  {
+    "year": "2025",
+    "category": "Play",
+    "name": "Orbit",
+    "description": null,
+    "tags": ["Drama"],
+    "url": null,
+    "madeAt": null,
+    "featured": false
+  },
+  {
+    "year": "2024",
+    "category": "Business Software",
+    "name": "Shipping Carrier Integration Migration",
+    "description": "Migrating two service integrations from SOAP to Rest services, and another.",
+    "tags": ["Perl", "API Integration", "Logistics"],
+    "url": null,
+    "madeAt": "Bizowie",
+    "featured": false
+  },  
+  {
+    "year": "2024",
+    "category": "Play",
+    "name": "Colorado River Dam Project",
+    "description": null,
+    "tags": ["Drama"],
+    "url": null,
+    "madeAt": null,
+    "featured": false
+  },
+  {
+    "year": "2023",
+    "category": "Business Software",
+    "name": "Authorize.net Integration",
+    "description": "Payment processing integration for mid-market ERP platform.",
+    "tags": ["Perl", "API Integration", "Payment Processing"],
+    "url": null,
+    "madeAt": "Bizowie",
+    "featured": false
+  },
+  {
+    "year": "2023",
+    "category": "Play",
+    "name": "The Skull of the Last Khan",
+    "description": null,
+    "tags": ["Drama"],
+    "url": null,
+    "madeAt": null,
+    "featured": false
+  },
+  {
+    "year": "2022",
+    "category": "Business Software",
+    "name": "BigCommerce Integration",
+    "description": "E-commerce platform integration enabling automated order processing and inventory sync.",
+    "tags": ["Perl", "API Integration", "E-commerce"],
+    "url": null,
+    "madeAt": "Bizowie",
+    "featured": false
+  },
+  {
+    "year": "2021",
+    "category": "Business Software",
+    "name": "jiracli",
+    "description": null,
+    "tags": ["CLI", "Productivity"],
+    "url": null,
+    "madeAt": null,
+    "featured": false
+  },
+  {
+    "year": "2020",
+    "category": "Podcast",
+    "name": "Our Stepdad Dave",
+    "description": null,
+    "tags": ["Audio", "Creative"],
+    "url": null,
+    "madeAt": null,
+    "featured": false
+  },
+  {
+    "year": "2017",
+    "category": "Business Software",
+    "name": "Budge",
+    "description": null,
+    "tags": ["Flask", "SQLite"],
+    "url": null,
+    "madeAt": null,
+    "featured": false
+  },
+  {
+    "year": "2015",
+    "category": "Research Tools",
+    "name": "Neural Networks for Signal Detection",
+    "description": "Research project applying neural networks for fast signal detection in high-energy physics data.",
+    "tags": ["C++", "Machine Learning", "Physics"],
+    "url": null,
+    "madeAt": "University of Pittsburgh",
+    "featured": false
+  },
+  {
+    "year": "2014",
+    "category": "Research Tools",
+    "name": "TOP Visualization Tools",
+    "description": "Data visualization and management tools for high-energy physics analysis workflows.",
+    "tags": ["Python", "Data Visualization", "Physics"],
+    "url": null,
+    "madeAt": "University of Pittsburgh",
+    "featured": false
+  }
+]

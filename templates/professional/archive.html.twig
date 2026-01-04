@@ -16,13 +16,13 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       line-height: 1.6;
-      color: #726D5F;
+      color: #b7b09d;
       background-color: #2E241B;
       min-height: 100vh;
     }
 
     a {
-      color: #F6F1EB;
+      color: #b7b09d;
       text-decoration: none;
       transition: color 0.2s;
     }
@@ -207,7 +207,7 @@
     /* Year column */
     .year {
       white-space: nowrap;
-      color: #726D5F;
+      color: #b7b09d;
     }
   </style>
 </head>
@@ -224,6 +224,7 @@
     <table>
       <thead>
         <tr>
+          <th>Year</th>
           <th>Category</th>
           <th>Project</th>
           <th class="hide-tablet">Made at</th>
@@ -232,34 +233,44 @@
         </tr>
       </thead>
       <tbody>
+        {% for project in projects %}
+        {% if project.category not in ["Play", "Podcast"] %}
         <tr>
-          <td class="year">Business Software</td>
+          <td class="year">{{ project.year }}</td>          
+          <td class="year">{{ project.category }}</td>
           <td>
-            <a href="https://katzencook.com" class="project-name" target="_blank" rel="noreferrer noopener">
-              Katzen
+            {% if project.url %}
+            <a href="{{ project.url }}" class="project-name" target="_blank" rel="noreferrer noopener">
+              {{ project.name }}
               <svg class="external-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clip-rule="evenodd"/>
               </svg>
             </a>
+            {% else %}
+            <span class="project-name">{{ project.name }}</span>
+            {% endif %}
           </td>
-          <td class="hide-tablet"></td>
+          <td class="hide-tablet">{{ project.madeAt }}</td>
           <td>
             <ul class="tags">
-              <li class="tag">Symfony</li>
-              <li class="tag">PHP</li>
-              <li class="tag">PostgreSQL</li>
+              {% for tag in project.tags %}
+              <li class="tag">{{ tag }}</li>
+              {% endfor %}
             </ul>
           </td>
           <td class="hide-mobile">
-            <a href="https://katzencook.com" class="project-link" target="_blank" rel="noreferrer noopener">
-              katzencook.com
+            {% if project.url %}
+            <a href="{{ project.url }}" class="project-link" target="_blank" rel="noreferrer noopener">
+              {{ project.url|replace({'https://': '', 'http://': ''})|split('/')|first }}
               <svg class="external-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clip-rule="evenodd"/>
               </svg>
             </a>
+            {% endif %}
           </td>
         </tr>
-        <!-- Add more projects here -->
+        {% endif %}
+        {% endfor %}
       </tbody>
     </table>
   </div>
