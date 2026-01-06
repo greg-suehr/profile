@@ -1,6 +1,7 @@
 *~
 *.backup
 data/*
+documentation/instructions/*
 scripts/*
 assets/images/*
 public/images/*
