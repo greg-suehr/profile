@@ -9,22 +9,6 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class ProfileController extends AbstractController
 {
-  #[Route('/', name: 'profile_landing')]
-  public function landing(Request $request): Response
-  {
-    $host = $request->getHost();
-    
-    if ($host === 'mulvaylitmas.com') {
-      return $this->redirectToRoute('litmas_index');
-    }
-    
-    if ($host === 'gregsuehr.com') {
-      return $this->redirectToRoute('profile_resume');
-    }
-    
-    return $this->render('greg/dark.html.twig');
-  }
-
   #[Route('/resume', name: 'profile_resume')]
   public function resume(): Response { return $this->render('professional/index.html.twig'); }
 
