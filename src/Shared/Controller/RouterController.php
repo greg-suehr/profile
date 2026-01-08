@@ -22,7 +22,7 @@ final class RouterController extends AbstractController
       return $this->redirectToRoute('profile_resume');
     }
 
-    if ($host === 'katzendemo.com') {
+    if ($host === 'getkatzen.com') {
       return $this->redirectToRoute('katzen_demo');
     }
     
