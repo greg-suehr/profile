@@ -21,10 +21,6 @@ final class RouterController extends AbstractController
     if ($host === 'gregsuehr.com') {
       return $this->redirectToRoute('profile_resume');
     }
-
-    if ($host === 'getkatzen.com') {
-      return $this->redirectToRoute('katzen_demo');
-    }
     
     return $this->render('greg/dark.html.twig');
   }

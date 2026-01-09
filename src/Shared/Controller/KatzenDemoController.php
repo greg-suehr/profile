@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class KatzenDemoController extends AbstractController
 {
-  #[Route('/demo', name: 'katzen_demo')]
+  #[Route('/', name: 'katzen_demo', host: 'getkatzen.com')]
   public function landing(Request $request): Response
   {
     return $this->render('katzen_demo/landing.html.twig');
