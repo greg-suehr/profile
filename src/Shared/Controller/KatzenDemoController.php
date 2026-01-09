@@ -14,4 +14,10 @@ final class KatzenDemoController extends AbstractController
   {
     return $this->render('katzen_demo/landing.html.twig');
   }
+
+  #[Route('/demo', name: 'katzen_demo_2')]
+  public function landing2(Request $request): Response
+  {
+    return $this->render('katzen_demo/landing.html.twig');
+  }
 }
