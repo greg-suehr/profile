@@ -14,6 +14,9 @@ final class ProfileController extends AbstractController
 
   #[Route('/research', name: 'profile_research')]
   public function research(): Response { return $this->render('professional/research.html.twig'); }
+
+  #[Route('/etal', name: 'profile_acknowledgements')]
+  public function ackowledgements(): Response { return $this->render('professional/acknowledgements.html.twig'); }
   
   #[Route('/archive', name: 'profile_archive')]
   public function archive(): Response {

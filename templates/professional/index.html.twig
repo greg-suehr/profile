@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Name</title>
+  <title>Greg Suehr</title>
   <meta name="description" content="Your description here.">
   <style>
-    /* Reset & Base */
     * {
       margin: 0;
       padding: 0;
@@ -29,7 +28,6 @@
       color: #F6F1EB;
     }
 
-    /* Layout */
     .container {
       max-width: 1200px;
       margin: 0 auto;
@@ -60,7 +58,6 @@
       }
     }
 
-    /* Header */
     .name {
       font-size: 2.5rem;
       font-weight: bold;
@@ -103,7 +100,6 @@
       max-width: 300px;
     }
 
-    /* Navigation */
     nav {
       margin-top: 4rem;
     }
@@ -126,7 +122,6 @@
       color: #F6D58A;
     }
 
-    /* Social Links */
     .social {
       display: flex;
       gap: 1.25rem;
@@ -138,7 +133,6 @@
       color: #D9D5CC;
     }
 
-    /* Sections */
     section {
       margin-bottom: 6rem;
     }
@@ -166,7 +160,6 @@
       margin-bottom: 1rem;
     }
 
-    /* Experience & Project Items */
     .item {
       display: grid;
       gap: 1rem;
@@ -197,7 +190,6 @@
       font-size: 0.875rem;
     }
 
-    /* Tags */
     .tags {
       display: flex;
       flex-wrap: wrap;
@@ -215,7 +207,6 @@
       font-weight: 500;
     }
 
-    /* Footer */
     footer {
       font-size: 0.875rem;
       color: #F6F1EB;
@@ -237,7 +228,7 @@
           </span>
         </h2>
         <p class="tagline">
-          I solve hard problems with well-crafted, human solutions.
+         Solving hard problems with well-crafted, human solutions.
         </p>
 
         <nav>
@@ -250,9 +241,10 @@
       </div>
 
       <ul class="social">
-        <li><a href="https://github.com/greg-suehr" target="_blank" rel="noopener">GitHub</a></li>
-        <li><a href="https://linkedin.com/greg-suehr" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://github.com/greg-suehr">GitHub</a></li>
+        <li><a href="https://linkedin.com/in/greg-suehr">LinkedIn</a></li>
         <li><a href="mailto:myname+ory.mylastname@thegoogleone.com">Email</a></li>
+        <li><a href="{{ path('profile_acknowledgements') }}">Acknowledgements</a></li>
       </ul>
       <!-- Suehr © {{ 'now'|date('Y') }} -->
     </header>
@@ -261,20 +253,28 @@
       <section id="about">
         <h2>About</h2>
         <p>
-          I am a software engineer, <a href="{{ path('profile_research') }}"> researcher</a>, and product leader with over a decade experience building and improving complex systems.
-          I've had the pleasure of working on ERP platforms, government financial systems, and data systems for high energy physics research.
+          I am a software engineer, <a href="{{ path('profile_research') }}"> researcher</a>, and product leader
+          with over a decade of experience building and improving complex systems, including
+          ERP platforms, GovTech and FinTech systems, and data analysis tools for high energy physics research.
         </p>
         <p>
-          Currently, I'm and independent software developer and technical consultant.
-          I help businesses automate and manage systems, business processes, and data.
-          I'm passionate about building software that solves real problems for underserved markets.
+          Currently, I am an independent software developer and technical consultant.
+          I help businesses automate day-to-day processes and manage their data and systems.
         </p>
         <p>
-          I also appreciate work that is creatively open.
-          If you're the patient type, you can join my <a>mailing list</a> for updates on new media projects.
+          If you can read this paragraph, I am available for hire <u>full-time</u> or for <u>projects</u>.
+          <br>
+          (Because I change it when I am not.)
         </p>
         <p>
-          When I am not making software, I spend my time making music, writing stuff, and exploring the great outdoors.
+          I am passionate about building software for underserved markets, artsy types, "people who don't get computers",
+          and anyone who may otherwise miss out on the Faustian promise of technology.
+        </p>
+        <p>
+          When I am not making software, I am usually making music, writing stuff, and exploring the great outdoors (weather permitting).
+        </p>
+        <p>
+          You can join a <a>mailing list</a> for updates on my own artsy projects.
         </p>
       </section>
 
@@ -286,13 +286,22 @@
           <div>
             <h3 class="item-title"><a href="#">Technical Consultant</a></h3>
             <p class="item-description">
-              I help businesses automate and manage systems, business processes, and data.
+              I help businesses automate day-to-day processes and manage their data and systems.
+            </p>
+            <p  class="item-description">
+              Custom application development, web design and hosting, robotic process automation, and
+              other services that meet needs off-the-shelf software just can't.</p><!-- ' -->
             </p>
             <ul class="tags">
               <li class="tag">PHP</li>
               <li class="tag">Symfony</li>
+              <li class="tag">Python</li>
+              <li class="tag">FastAPI</li>
               <li class="tag">PostgreSQL</li>
+              <li class="tag">Switft</li>
+              <li class="tag">Power Automate</li>
               <li class="tag">AutoHotkey</li>
+              
             </ul>
           </div>
         </article>
@@ -332,7 +341,7 @@
           </div>
         </article>
 
-        <p><a href="{{ asset('uploads/docs/resume.pdf') }}" target="_blank">View Full Résumé →</a></p>
+        <p><a href="{{ asset('assets/docs/resume.pdf') }}" target="_blank">View Full Résumé →</a></p>
       </section>
 
       <section id="projects">
