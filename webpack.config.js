@@ -24,7 +24,8 @@ Encore
     .addEntry('panel-view', './assets/panel-view.js')
     .addEntry('table-view', './assets/table-view.js')
     .addEntry('prologue', './assets/js/prologue.js')
-    .addEntry('scene', './assets/js/scene-bootstrap.js')   
+    .addEntry('scene', './assets/js/scene-bootstrap.js')
+    .addEntry('portfolio', './assets/portfolio.js')
     // TODO: design autoload, config file for client projects
     //    .addEntry('litmas', './assets/js/project/litmas/scene.js')
 
