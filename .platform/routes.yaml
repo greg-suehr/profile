@@ -4,7 +4,7 @@
 "https://gregsuehr.com/":
     type: upstream
     upstream: "app:http"
-"https://www.getkatzen.com/":
+"https://getkatzen.com/":
     type: upstream
     upstream: "app:http"
 
@@ -15,7 +15,3 @@
 "https://mulvaylitmas.com/":
   type: upstream
   upstream: "app:http"
-
-"http://{all}/": 
-  type: redirect
-  to: "https://{all}/"
