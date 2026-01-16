@@ -11,13 +11,16 @@
       <div class="hero-card">
         <p>
           Katzen is ERP built for cottage kitchens, bakeries, and small food businesses. 
-          Track inventory, manage recipes, handle orders, and understand your costs—all in one place.
         </p>
       </div>
     </div>
+
+    <div class="hero-image-overlay">
+      <img src="{{ asset('images/katzen-demo-hopeful.png') }}" alt="Two hopeful kittens."></img>
+    </div>
   </section>
 
-  <section>
+  <section class="primary-cta">
     <div class="container">
       <div class="cta-card">
         <h2>Already Interested?</h2>
@@ -31,109 +34,138 @@
           Please, click below to join our waitlist.
           We look forward to serving you.
         </p>
-        <a href="#" class="btn-primary">Join Our Waitlist</a>
+	<a href="#" class="btn-primary">Join Our Waitlist</a>        
       </div>
     </div>
   </section>
-
+  
   <section>
     <div class="container">
       <h2 class="section-title">Why Katzen?</h2>
       <p class="section-subtitle">Purpose-built for food businesses that make things from scratch</p>
 
-      <div class="benefits-grid">
-        <div class="benefit-card">
-          <div class="benefit-icon gold">
-            <i class="bi bi-clock-history"></i>
-          </div>
-          <div>
-            <strong>Save Hours Weekly</strong>
-            <span>Stop wrestling with spreadsheets and guessing at costs</span>
-          </div>
-        </div>
-
-        <div class="benefit-card">
-          <div class="benefit-icon olive">
-            <i class="bi bi-graph-up-arrow"></i>
-          </div>
-          <div>
-            <strong>Know Your Numbers</strong>
-            <span>Real-time profit margins and cost tracking that actually works</span>
-          </div>
-        </div>
-
-        <div class="benefit-card">
-          <div class="benefit-icon plum">
-            <i class="bi bi-lightning-charge"></i>
-          </div>
-          <div>
-            <strong>Grow Confidently</strong>
-            <span>From cottage kitchen to commercial space with systems that scale</span>
-          </div>
-        </div>
+      <div class="carousel">
+        <ul>
+          <li>
+            <img src="{{ asset('images/katzen-demo-bakery.png') }}" alt="A watchful cat overlooking a dough topped counter.">
+            <div>
+              <strong>Save Hours Weekly</strong>
+              <span>Stop wrestling with spreadsheets and guessing at costs</span>              
+            </div>            
+          </li>
+          <li>
+            <img src="{{ asset('images/katzen-demo-kitchen-short.png') }}" alt="An calm, alert cat on a kitchen counter.">
+            <div>
+              <strong>Know Your Numbers</strong>
+              <span>Real-time profit margins and cost tracking that actually works</span>              
+            </div>
+          </li>
+          <li>
+            <img src="{{ asset('images/katzen-demo-restful.png') }}" alt="A restful cat laying on a kitchen floor.">
+            <div>
+              <strong>Grow Confidently</strong>
+              <span>From cottage kitchen to commercial space with systems that scale</span>              
+            </div>
+          </li>
+        </ul>
       </div>
 
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-header">
-            <div class="feature-icon sizzle">
-              <i class="bi bi-fire"></i>
-            </div>
-            <div>
-              <h3 class="feature-title">Capable Kitchen</h3>
-            </div>
-          </div>
-          <p>
-            Recipe management, ingredient scaling, batch planning, and production schedules. 
-            Know exactly what to make and when, with built-in cost tracking for every dish.
-          </p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-header">
-            <div class="feature-icon tabby">
-              <i class="bi bi-calendar-check"></i>
-            </div>
-            <div>
-              <h3 class="feature-title">Order Management</h3>
-            </div>
-          </div>
-          <p>
-            Schedule pickups, manage custom orders, and track customer preferences. 
-            Keep your regulars happy and your special orders organized without drowning in texts.
-          </p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-header">
-            <div class="feature-icon ledger">
-              <i class="bi bi-receipt"></i>
-            </div>
-            <div>
-              <h3 class="feature-title">Financial Control</h3>
-            </div>
-          </div>
-          <p>
-            Cost tracking, profit & loss reports, and pricing guidance. 
-            Understand your true costs per unit and make pricing decisions with confidence.
-          </p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-header">
-            <div class="feature-icon binx">
-              <i class="bi bi-box-seam"></i>
-            </div>
-            <div>
-              <h3 class="feature-title">Inventory Tracking</h3>
-            </div>
-          </div>
-          <p>
-            Track ingredients, reconcile stock levels, and scan receipts automatically. 
-            Know what you have, what you need, and what everything costs—no more surprises.
-          </p>
-        </div>
-      </div>
     </div>
   </section>
+
+  <section>
+    <div class="container">
+      <h2 class="section-title">Sure, but why cats?</h2>
+      <p class="section-subtitle">
+        Oh! Because we love cats. Can’t you tell?
+        <br>
+        Cats are curious, confident, careful creatures who can be quite considerate.
+        All things we value at Katzen.
+      </p>
+    </div>
+  </section>
+
+
+  <section>
+    <div class="container">
+      <div class="cta-card">
+        <h2>Your Business + Katzen</h2>
+        <p>
+          Cats inspired the quiet, playful energy of the Katzen application.
+          Purpose-built for food businesses that make things from scratch.          
+        </p>
+	<a href="#" class="btn-primary">Join Our Waitlist</a>
+      </div>
+    </div>
+   </section>
+
+   <section class="feature-grid">
+     <h1 class="feature-title">Need Another Reason?</h1>
+     <ul class="feature-list">
+       <article class="feature-item">
+         <figure class="feature-item-figure">
+           <img src="{{ asset('images/katzen-demo-kitchen-short.png') }}" alt="An calm, alert cat on a kitchen counter.">
+         </figure>
+         <div class="feature-item-info">
+           <h2 class="feature-item-title">Capable Kitchen</h2>
+           <p class="feature-item-excerpt">
+             Recipe management, ingredient scaling, batch planning, and production schedules.
+             Know exactly what to make and when, with built-in cost tracking for every dish.
+           </p>
+         </div>
+       </article>
+       <article class="feature-item">
+         <div class="feature-item-info">
+           <h2 class="feature-item-title">Orders Out On Time</h2>
+           <p class="feature-item-excerpt">
+             Schedule pickups, manage custom orders, and track customer preferences.
+             Keep your regulars happy and your special orders organized without drowning in texts.
+           </p>
+         </div>
+         <figure class="feature-item-figure">
+           <img src="{{ asset('images/katzen-demo-bakery.png') }}" alt="A watchful cat overlooking a dough topped counter.">
+         </figure>         
+       </article>
+       <article class="feature-item">
+         <figure class="feature-item-figure">
+           <img src="{{ asset('images/katzen-demo-kitchen-short.png') }}" alt="An calm, alert cat on a kitchen counter.">
+         </figure>
+         <div class="feature-item-info">
+           <h2 class="feature-item-title">Financial Control</h2>
+           <p class="feature-item-excerpt">
+             Cost tracking, profit & loss reports, and pricing guidance.
+             Understand your true costs per unit and make pricing decisions with confidence.
+           </p>
+         </div>
+       </article>
+       <article class="feature-item">
+         <div class="feature-item-info">
+           <h2 class="feature-item-title">Intelligent Inventory Tracking</h2>
+           <p class="feature-item-excerpt">
+             Track ingredients, reconcile stock levels, and scan receipts automatically.
+             Know what you have, what you need, and what everything costs—no more surprises. 
+           </p>
+         </div>
+         <figure class="feature-item-figure">
+           <img src="{{ asset('images/katzen-demo-restful.png') }}" alt="A restful cat laying on a kitchen floor.">           
+         </figure>         
+       </article>
+       <article class="feature-item">
+         <figure class="feature-item-figure">
+           <img src="{{ asset('images/katzen-demo-bakery.png') }}" alt="A watchful cat overlooking a dough topped counter.">
+         </figure>
+         <div class="feature-item-info">
+           <h2 class="feature-item-title">We'd Love To Tell You More</h2>
+           <p class="feature-item-excerpt">
+             Join our waitlist. You made it this far.
+           </p>
+           <div class="container">
+
+	       <a href="#" class="btn-primary">Join Our Waitlist</a>
+
+           </div>           
+         </div>
+       </article>       
+     </ul>
+   </section>
 {% endblock %}
