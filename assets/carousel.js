@@ -9,26 +9,34 @@ document.addEventListener('DOMContentLoaded', function() {
       let startX;
       let scrollLeft;
       let walk;
-      //initialize the carousel
+      let hasDragged = false;
+
       ele.id = 'carousel'+index;
       carousel.setAttribute('duration', 7000);
-      //add 'bullets' after slides
+
       const ol = document.createElement('ol');
       carousel.appendChild(ol);
-      //add li to ol based on number of slides
+
       slides.forEach(function(slide, slideindex) {
-        //add id to slide
+
         slide.id = 'c'+index+'_slide'+(slideindex+1);
         var elements = slide.querySelectorAll('img, button, .button, a');
         elements.forEach(function(element) {
           element.setAttribute('draggable','false');
         });
-        //create bullet
+
+        slide.addEventListener('click', function(e) {
+            if(hasDragged) {
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          }, true);
+
         const li = document.createElement('li');
         li.innerHTML = `<a href="#c${index}_slide${slideindex+1}"><span class="sr-only">Slide ${slideindex+1}</span></a>`;
         ol.appendChild(li);
       });
-      //add next and prev buttons
+
       const nextbutton = document.createElement('button');
       nextbutton.classList.add('next');
       nextbutton.setAttribute('aria-label','Next Slide');
@@ -42,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const bullets = carousel.querySelectorAll('ol li');
       const nextarrow = carousel.querySelector('.next');
       const prevarrow = carousel.querySelector('.prev');
-      //set initial state
+    // Initialize State
       ele.scrollLeft = 0;
       bullets[0].classList.add('selected');
       slides[0].classList.add('selected');
@@ -88,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ele.classList.add('interacted');
       }
           
-      // Attach the handlers
+
       ele.addEventListener("scroll", debounce(setSelected));
       ele.addEventListener("touchstart", setInteracted);
       ele.addEventListener('keydown', function (e){
@@ -97,6 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       const startDrag = function(e) {
           isDown = true;
+          hasDragged = false;
           ele.classList.add('grabbing');
           ele.style.scrollSnapType = 'none';
           ele.focus();
@@ -106,22 +115,21 @@ document.addEventListener('DOMContentLoaded', function() {
       };
       const stopDrag = function(e) {
           ele.classList.remove('grabbing');
-          //determine of nthchild was rounded up or down
+
           const scrolllength = carousel.querySelector('ul li:nth-child(2)').offsetLeft - carousel.querySelector('ul li:nth-child(1)').offsetLeft;
           const round = ((ele.scrollLeft/scrolllength)+1)%1;
           let roundup = false;
           if(Math.abs(round)>=0.5) {
-              //rounded up
               roundup = true
           }
-          if(isDown && walk<-10) {
+          if(isDown && walk<-10 && hasDragged) {
             if(!carousel.querySelector('ol li.selected:last-child') && roundup==false) {
               carousel.querySelector('.next').click();
             } else {
               carousel.querySelector('ol li.selected a').click();
             }
           }
-          if(isDown && walk>10) {
+          if(isDown && walk>10 && hasDragged) {
             if(!carousel.querySelector('ol li.selected:first-child') && roundup==true) {
               carousel.querySelector('.prev').click();
             } else {
@@ -137,6 +145,9 @@ document.addEventListener('DOMContentLoaded', function() {
           e.preventDefault();
           const x = e.pageX - ele.offsetLeft;
           walk = (x - startX) * 1; //scroll-fast
+          if(Math.abs(walk) > 5) {
+              hasDragged = true;
+          }
           ele.scrollLeft = scrollLeft - walk;
       };
       ele.addEventListener('mousedown', startDrag, false);
@@ -157,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
       //setInterval for autoplay
       if(carousel.getAttribute('duration')) {
         setInterval(function(){ 
-          if (ele != document.querySelector(".auto-carousel:hover ul") && ele.classList.contains('interacted')==false) {
+          if (ele.classList.contains('interacted')==false) {
             nextarrow.click();
           }
         }, carousel.getAttribute('duration'));
@@ -166,24 +177,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
   }); //end foreach
 }); //end onload
-/**
-* Debounce functions for better performance
-* (c) 2021 Chris Ferdinandi, MIT License, https://gomakethings.com
-* @param  {Function} fn The function to debounce
-*/
 function debounce (fn) {
-  // Setup a timer
   let timeout;
-  // Return a function to run debounced
   return function () {
-    // Setup the arguments
     let context = this;
     let args = arguments;
-    // If there's a timer, cancel it
+
     if (timeout) {
       window.cancelAnimationFrame(timeout);
     }
-    // Setup the new requestAnimationFrame()
+
     timeout = window.requestAnimationFrame(function () {
       fn.apply(context, args);
     });

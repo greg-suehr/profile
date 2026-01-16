@@ -44,7 +44,8 @@ class IngredientValidator
                 if ($autoInsert) {
                     $item = new Item();
                     $item->setName($name);
-                    // Set other default fields if needed
+                    // TODO: make mapping unknown ingredients a Workflow, then make it smart
+                    $item->setCategory('imported');
                     $this->entityManager->persist($item);
                 }
             }

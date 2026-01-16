@@ -30,7 +30,9 @@ Encore
     .addEntry('accordion', './assets/accordion.js')
     .addEntry('carousel', './assets/carousel.js')
     .addEntry('filter', './assets/filter.js')
-
+    // TODO: package those more nicely in the project JS
+    .addEntry('katzen-demo', './assets/katzen-demo.js')
+    .addEntry('portfolio', './assets/portfolio.js')
     // TODO: design autoload, config file for client projects
     //    .addEntry('litmas', './assets/js/project/litmas/scene.js')
 

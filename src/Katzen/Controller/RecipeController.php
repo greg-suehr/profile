@@ -11,6 +11,8 @@ use App\Katzen\Form\CreateRecipeFlow;
 use App\Katzen\Repository\ItemRepository;
 use App\Katzen\Repository\RecipeRepository;
 use App\Katzen\Service\Cook\RecipeImportService;
+use App\Katzen\Service\Delete\DeleteMode;
+use App\Katzen\Service\Delete\RecipeDeletionPolicy;
 use App\Katzen\Service\Utility\DashboardContextService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,10 +26,11 @@ final class RecipeController extends AbstractController
     private DashboardContextService $dashboardContext,
     private ItemRepository $itemRepo,
     private RecipeRepository $recipeRepo,
+    private RecipeDeletionPolicy $deletionPolicy,
   ){}
   
   #[Route('/recipe', name: 'recipe_index')]
-  #[DashboardLayout('kitchen', 'recipe', 'recipe-index')]
+  #[DashboardLayout('prep', 'recipe', 'recipe-index')]
   public function index(): Response
   {
     $recipes = $this->recipeRepo->findBy([]);
@@ -38,26 +41,86 @@ final class RecipeController extends AbstractController
   
   #[Route('/recipe/bulk', name: 'recipe_bulk', methods: ['POST'])]
   public function recipeBulk(Request $request): Response
-  {
+  {    
     $payload = json_decode($request->getContent(), true) ?? [];
     if (!$this->isCsrfTokenValid('recipe_bulk', $payload['_token'] ?? '')) {
       return $this->json(['ok' => false, 'error' => 'Bad CSRF'], 400);
     }
-    
+
     $action = $payload['action'] ?? null;
     $ids    = array_map('intval', $payload['ids'] ?? []);
+    $mode   = DeleteMode::from($payload['mode'] ?? DeleteMode::BLOCK_IF_REFERENCED->value);
     
     if (!$action || empty($ids)) {
       return $this->json(['ok' => false, 'error' => 'Missing action or ids'], 400);
     }
-    
+
     switch ($action) {
     case 'delete':
+      $deleted = 0;
+      $blocked = [];
+
       foreach ($ids as $id) {
-        $recipe = $this->recipeRepo->findBy([ 'id' => $id ]);
-        if ($recipe) $this->delete($recipe);
+        $recipe = $this->recipeRepo->find($id);
+        if (!$recipe) {
+          continue;
+        }
+
+        $report = $this->deletionPolicy->preflight($recipe, $mode);
+                
+        if (!$report->ok) {
+          $blocked[] = [
+            'id' => $id,
+            'title' => $recipe->getTitle(),
+            'reasons' => $report->reasons,
+            'facts' => $report->facts,
+          ];
+          continue;
+        }
+
+        try {
+          $this->deletionPolicy->execute($recipe, $mode);
+          $deleted++;
+        } catch (\Exception $e) {
+          $blocked[] = [
+            'id' => $id,
+            'title' => $recipe->getTitle(),
+            'reasons' => [$e->getMessage()],
+          ];
+        }
       }
-      break;
+      
+      if (count($blocked) > 0 && $deleted === 0) {
+        error_log('About to return blocked response: ' . json_encode($blocked));
+        return $this->json([
+          'ok' => false,
+          'error' => 'All deletions blocked',
+          'blocked' => $blocked,
+        ], 409);
+      }
+            
+      return $this->json([
+        'ok' => true,
+        'message' => sprintf(
+          '%d recipe(s) deleted%s',
+          $deleted,
+          count($blocked) > 0 ? sprintf(', %d blocked', count($blocked)) : ''
+        ),
+        'deleted' => $deleted,
+        'blocked' => $blocked,
+      ]);
+
+    case 'archive':
+      $count = 0;
+      foreach ($ids as $id) {
+        $recipe = $this->recipeRepo->find($id);
+        if ($recipe) {
+          $recipe->setStatus('archived');
+          $count++;
+        }
+      }
+      $this->em->flush();
+      return $this->json(['ok' => true, 'message' => "$count recipe(s) archived"]);
       
     default:
       return $this->json(['ok' => false, 'error' => 'Unknown action'], 400);
@@ -67,7 +130,7 @@ final class RecipeController extends AbstractController
   }
 
   #[Route('/recipe/manage', name: 'recipe_table')]
-  #[DashboardLayout('kitchen', 'recipe', 'recipe-table')]
+  #[DashboardLayout('prep', 'recipe', 'recipe-table')]
   public function list(Request $request): Response
   {
     $recipes = $this->recipeRepo->findBy([]);
@@ -119,6 +182,12 @@ final class RecipeController extends AbstractController
       ->setSelectable(true)
       ->addQuickAction(TableAction::view('recipe_view'))
       ->addBulkAction(
+        TableAction::create('archive', 'Archive Selected')
+          ->setIcon('bi-box')
+          ->setVariant('outline-danger')
+          ->setConfirmMessage('Are you sure you want to archive the selected recipes?')
+      )
+      ->addBulkAction(
         TableAction::create('delete', 'Delete Selected')
             ->setIcon('bi-trash')
             ->setVariant('outline-danger')
@@ -136,7 +205,7 @@ final class RecipeController extends AbstractController
   }
   
   #[Route('/recipe/view/{id}', name: 'recipe_view')]
-  #[DashboardLayout('kitchen', 'recipe', 'recipe-show')]
+  #[DashboardLayout('prep', 'recipe', 'recipe-table')]
   public function view(Recipe $recipe, Request $request): Response
     {
         $recipe_ingredients = array();
@@ -160,7 +229,7 @@ final class RecipeController extends AbstractController
     }
 
   #[Route('/recipe/build', name: 'recipe_build')]
-  #[DashboardLayout('kitchen', 'recipe', 'recipe-build')]
+  #[DashboardLayout('prep', 'recipe', 'recipe-build')]
   public function build(Request $request): Response
     {
 
@@ -184,8 +253,6 @@ final class RecipeController extends AbstractController
         $recipe->setAuthor($this->getUser());
         $recipe->setStatus('draft');
         $recipe->setVersion(1); // TODO: getLatestVersion
-        $recipe->setCreatedAt(new \DateTimeImmutable());
-        $recipe->setUpdatedAt(new \DateTime());
 
         $this->recipeRepo->save($recipe, true);
 
@@ -198,7 +265,7 @@ final class RecipeController extends AbstractController
     }
 
   #[Route('/recipe/create', name: 'recipe_create')]
-  #[DashboardLayout('kitchen', 'recipe', 'recipe-create')]
+  #[DashboardLayout('prep', 'recipe', 'recipe-create')]
   public function create(Request $request, CreateRecipeFlow $flow): Response
   {
     $recipe = new Recipe();
@@ -212,9 +279,14 @@ final class RecipeController extends AbstractController
       if ($flow->nextStep()) {
         $form = $flow->createForm();
       } else {
-        $this->recipeRepo->save($recipe);        
+        $recipe->setAuthor($this->getUser());
+        $recipe->setStatus('draft');
+        $recipe->setVersion(1); // TODO: getLatestVersion
+        
+        $this->recipeRepo->save($recipe);
+        
         $flow->reset();        
-        return $this->redirectToRoute('recipe');
+        return $this->redirectToRoute('recipe_table');
       }
 	}
 
@@ -225,7 +297,7 @@ final class RecipeController extends AbstractController
   }
   
   #[Route('/recipe/import', name: 'recipe_import', methods: ['GET', 'POST'])]
-  #[DashboardLayout('kitchen', 'recipe', 'recipe-import')]
+  #[DashboardLayout('prep', 'recipe', 'recipe-import')]
   public function import(Request $request, RecipeImportService $recipeImportService): Response
   {
         $form = $this->createForm(ImportRecipeType::class);
@@ -269,4 +341,42 @@ final class RecipeController extends AbstractController
           'form' => $form->createView(),
         ]));
     }
+
+  #[Route('/recipe/delete/{id}', name: 'recipe_delete', methods: ['POST'])]
+  public function delete(Request $request, Recipe $recipe): Response
+  {
+    $this->denyAccessUnlessGranted('ROLE_USER');
+    
+    $token = $request->request->get('_token');
+    if (!$this->isCsrfTokenValid('delete_recipe_' . $recipe->getId(), $token)) {
+      throw $this->createAccessDeniedException('Invalid CSRF token.');
+    }
+    
+    $mode = DeleteMode::from($request->request->get('mode', DeleteMode::BLOCK_IF_REFERENCED->value));
+
+    try {
+      $report = $this->deletionPolicy->preflight($recipe, $mode);
+      
+      if (!$report->ok) {
+        $this->addFlash('danger', sprintf(
+          "Can't delete: %s",
+          implode(' ', $report->reasons)
+        ));
+        return $this->redirectToRoute('recipe_view', ['id' => $recipe->getId()]);
+      }
+
+      $this->deletionPolicy->execute($recipe, $mode);
+      
+      $this->addFlash('success', sprintf(
+        'Recipe "%s" deleted successfully.',
+        $recipe->getTitle()
+      ));
+      
+      return $this->redirectToRoute('recipe_table');
+      
+    } catch (\Throwable $e) {
+      $this->addFlash('danger', 'Delete failed: ' . $e->getMessage());
+      return $this->redirectToRoute('recipe_view', ['id' => $recipe->getId()]);
+    }
+  }
 }

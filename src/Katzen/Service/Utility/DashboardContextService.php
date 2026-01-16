@@ -301,6 +301,7 @@ class DashboardContextService
           'icon' => 'fas fa-mortar-pestle',
           'items' => [
             ['key' => 'recipe-create', 'label' => 'Add Recipe', 'route' => 'recipe_create'],
+            ['key' => 'recipe-import', 'label' => 'Import Recipe', 'route' => 'recipe_import'],
             ['key' => 'recipe-table', 'label' => 'Manage Recipes', 'route' => 'recipe_table'],
           ],
         ],

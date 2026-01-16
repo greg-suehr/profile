@@ -1,7 +1,7 @@
 <?php
 namespace App\Katzen\Service\Cook;
 
-use App\Katzen\Adapter\RecipeAdapterInterface;
+use App\Katzen\Adapter\AdapterInterface;
 use App\Katzen\Adapter\JSONAdapter;
 use App\Katzen\Adapter\CSVAdapter;
 use App\Katzen\Adapter\PDFAdapter;
@@ -21,7 +21,7 @@ class RecipeImportService
       $this->adapters = $adapters; // An iterable collection of all adapters
 
       foreach ($this->adapters as $adapter) {
-        if ($adapter instanceof RecipeAdapterInterface) {
+        if ($adapter instanceof AdapterInterface) {
           if ($adapter->supports('json')) {
             $this->adapterMap['json'] = $adapter;
           }

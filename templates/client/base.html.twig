@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Sasha Beal{% endblock %}</title>
+    {% block stylesheets %}
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,500,500i,600,600i&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {{ encore_entry_link_tags('app') }}
+    <link href="client.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ asset('client.css') }}">
+    <link href="masonry.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ asset('masonry.css') }}">    
+    {% endblock %}
+</head>
+<body>
+  <header>
+    <nav id='nav-bar' class='nav-link'>
+      <div class='container-fluid'>
+        <div class='row'>
+          <div class='col-md-6'>
+            <h5><a href="{{ path('client_bio') }}">Sasha Beal</a></h5>
+          </div>
+          <div class='col-md-1'>
+          </div>
+          <div class='col-md-1'>
+            <a href="{{ path('client_landing') }}">Home</a>
+          </div>
+          <div class='col-md-1'>
+            <a href="{{ path('client_work') }}">Work</a>
+          </div>
+          <div class='col-md-1'>
+            <a href="{{ path('client_services') }}">Services</a>
+          </div>
+          <div class='col-md-2'>            
+            <a href="{{ path('client_contact') }}" class='btn btn-primary'>Contact</a>
+          </div>
+        </div>
+    </nav>
+  </header>
+
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+      <div class="site-map">
+        <div class="container">
+          <div class="row">
+            <p></p>
+            <p></p>
+            <aside>
+              {% block footer_text %}
+              Alexandra (Sasha) Beal © 2026
+              {% endblock %}
+            </aside>
+          </div>
+        </div>
+      </div>
+    </footer>
+</body>
+</html>

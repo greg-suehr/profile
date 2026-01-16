@@ -8,6 +8,7 @@ use App\Katzen\Entity\Item;
 use App\Katzen\Entity\Unit;
 use App\Katzen\Entity\KatzenUser;
 use App\Katzen\Service\Inventory\IngredientValidator;
+use App\Katzen\Service\Inventory\UnitValidator;
 use Doctrine\ORM\EntityManagerInterface;
 
 class RecipeMappingService
@@ -31,8 +32,8 @@ class RecipeMappingService
         if (!$item) {
           throw new \Exception("Ingredient '{$ingredientData['name']}' not found in database.");
         }
-        $ingredient->setSupplyId($item->getId()); // TODO: clean up relations like this
-        $ingredient->setQuantity($ingredientData['quantity']);
+        $ingredient->setSupplyId($item->getId()); // TODO: clean up relations like this        
+        $ingredient->setQuantity($ingredientData['quantity'] ?? 1);
         $unit = $this->entityManager->getRepository(Unit::class)->findOneBy(['name' => $ingredientData['unit']]);
         if (!$unit) {
           throw new \Exception("Unit '{$ingredientData['unit']}' not found in database.");
@@ -77,11 +78,13 @@ class RecipeMappingService
           if (isset($data['author'])) {
             $author = $this->entityManager->getRepository(KatzenUser::class)->findOneBy(['username' => $data['author']]);
             if (!$author) {
-              throw new \Exception("Author '{$data['author']}' not found in database.");
+              $author = $this->entityManager->getRepository(KatzenUser::class)->findOneBy(['username' => 'demo_admin']);
+              # INFO: Recipe import fallback: (`author`)
+              # throw new \Exception("Author '{$data['author']}' not found in database.");
             }
             $recipe->setAuthor($author);
           } else {
-            $author = $this->entityManager->getRepository(KatzenUser::class)->findOneBy(['username' => 'greg']);
+            $author = $this->entityManager->getRepository(KatzenUser::class)->findOneBy(['username' => 'demo_admin']);
             $recipe->setAuthor($author);   
           }
           
@@ -91,11 +94,19 @@ class RecipeMappingService
           $ingredientValidator = new IngredientValidator($this->entityManager);
           // Validate ingredient list prior to import
           $ingredientNames = array_map(fn($i) => $i['name'], $data['ingredients']);
-          $unknowns = $ingredientValidator->validate($ingredientNames, false);
+          
+          # INFO: toggle find_or_create (autoInsert) behavior
+          $autoInsert = true;
+          $unknowns = $ingredientValidator->validate($ingredientNames, $autoInsert);
 
-          if (!empty($unknowns)) {
+          if (!$autoInsert && !empty($unknowns)) {
             throw new \Exception("Unknown ingredients: " . implode(', ', $unknowns));
           }
+
+          $unitValidator = new UnitValidator($this->entityManager);
+          $unitNames = array_map(fn($i) => $i['unit'], $data['ingredients']);
+
+          $unknownUnits = $unitValidator->validate($unitNames, $autoInsert);          
           
           foreach ($data['ingredients'] as $ingredientData) {
             if (empty($ingredientData['name'])) {
@@ -110,7 +121,7 @@ class RecipeMappingService
               throw new \Exception("Ingredient '{$ingredientData['name']}' not found in database.");
             }
             $ingredient->setSupplyId($item->getId()); // TODO: clean up relations like this
-            $ingredient->setQuantity($ingredientData['quantity']);
+            $ingredient->setQuantity($ingredientData['quantity'] ?? 1);
             $unit = $this->entityManager->getRepository(Unit::class)->findOneBy(['name' => $ingredientData['unit']]);
             if (!$unit) {
               throw new \Exception("Unit '{$ingredientData['unit']}' not found in database.");

@@ -8,7 +8,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+
 #[ORM\Entity(repositoryClass: RecipeRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Recipe
 {
     #[ORM\Id]
@@ -198,9 +200,10 @@ class Recipe
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
+    #[ORM\PrePersist]
+    public function setCreatedAt(): static
     {
-        $this->created_at = $created_at;
+        $this->created_at = new \DateTimeImmutable();
 
         return $this;
     }
@@ -210,9 +213,11 @@ class Recipe
         return $this->updated_at;
     }
 
-    public function setUpdatedAt(\DateTimeInterface $updated_at): static
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function setUpdatedAt(): static
     {
-        $this->updated_at = $updated_at;
+        $this->updated_at = new \DateTime();
 
         return $this;
     }

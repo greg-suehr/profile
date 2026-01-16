@@ -1,0 +1,173 @@
+{% extends 'professional/base.html.twig' %}
+{% block seo_description %}Very interesting things about Greg.{% endblock %}
+{% block main_content %}
+  <div class="container">
+    <header>
+      <div>
+        <h1 class="name"><a href="/">Greg Suehr</a></h1>
+        <h2 class="title">
+          <span class="rotating-title">
+            <span>Developer.</span>
+            <span>Designer.</span>
+            <span>Creative Strategist.</span>
+            <span>Researcher.</span>
+          </span>
+        </h2>
+        <p class="tagline">
+         Solving hard problems with well-crafted, human solutions.
+        </p>
+
+        <nav>
+          <ul>
+            <li><a href="#about">About</a></li>
+            <li><a href="#experience">Experience</a></li>
+            <li><a href="#projects">Projects</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <ul class="social">
+        <li><a href="https://github.com/greg-suehr">GitHub</a></li>
+        <li><a href="https://linkedin.com/in/greg-suehr">LinkedIn</a></li>
+        <li><a href="mailto:myname+ory.mylastname@thegoogleone.com">Email</a></li>
+        <li><a href="{{ path('profile_acknowledgements') }}">Acknowledgements</a></li>
+      </ul>
+      <!-- Suehr © {{ 'now'|date('Y') }} -->
+    </header>
+
+    <main>
+      <section id="about">
+        <h2>About</h2>
+        <p>
+          I am a software engineer, <a href="{{ path('profile_research') }}"> researcher</a>, and product leader
+          with over a decade of experience building and improving complex systems, including
+          ERP platforms, GovTech and FinTech systems, and data analysis tools for high energy physics research.
+        </p>
+        <p>
+          Currently, I am an independent software developer and technical consultant.
+          I help businesses automate day-to-day processes and manage their data and systems.
+        </p>
+        <p>
+          If you can read this paragraph, I am available for hire <u>full-time</u> or for <u>projects</u>.
+          <br>
+          (Because I change it when I am not.)
+        </p>
+        <p>
+          I am passionate about building software for underserved markets, artsy types, "people who don't get computers",
+          and anyone who may otherwise miss out on the Faustian promise of technology.
+        </p>
+        <p>
+          When I am not making software, I am usually making music, writing stuff, and exploring the great outdoors (weather permitting).
+        </p>
+        <p>
+          You can join a <a>mailing list</a> for updates on my own artsy projects.
+        </p>
+      </section>
+
+      <section id="experience">
+        <h2>Experience</h2>
+
+        <article class="item">
+          <div class="item-date">2025 — Present</div>
+          <div>
+            <h3 class="item-title"><a href="#">Technical Consultant</a></h3>
+            <p class="item-description">
+              I help businesses automate day-to-day processes and manage their data and systems.
+            </p>
+            <p  class="item-description">
+              Custom application development, web design and hosting, robotic process automation, and
+              other services that meet needs off-the-shelf software just can't.</p><!-- ' -->
+            </p>
+            <ul class="tags">
+              <li class="tag">PHP</li>
+              <li class="tag">Symfony</li>
+              <li class="tag">Python</li>
+              <li class="tag">FastAPI</li>
+              <li class="tag">PostgreSQL</li>
+              <li class="tag">Switft</li>
+              <li class="tag">Power Automate</li>
+              <li class="tag">AutoHotkey</li>
+              
+            </ul>
+          </div>
+        </article>
+
+        <article class="item">
+          <div class="item-date">2020 — 2025</div>
+          <div>
+            <h3 class="item-title"><a href="#">Product Manager · Bizowie</a></h3>
+            <p class="item-description">
+              Led product vision and engineering operations for a mid-market ERP platform.
+              Partnered with strategic accounts on implementations, change management, and process automation.
+              <ul class="tags">
+              <li class="tag">ERP</li>                
+              <li class="tag">Perl</li>
+              <li class="tag">MySQL</li>
+              <li class="tag">JavaScript</li>
+              <li class="tag">Product Management</li>
+              <li class="tag">Technical Strategy</li>             
+            </ul>
+          </div>
+        </article>
+
+        <article class="item">
+          <div class="item-date">2017 — 2020</div>
+          <div>
+            <h3 class="item-title"><a href="#">Product Owner · Grant Street Group</a></h3>
+            <p class="item-description">
+              Led Agile teams building cashiering and accounting systems for government clients.
+              Built ETL pipelines to migrate historical tax and property data from legacy systems.
+            </p>
+            <ul class="tags">
+              <li class="tag">Agile Leadership</li>
+              <li class="tag">MySQL</li>         
+              <li class="tag">ETL</li>
+              <li class="tag">Legacy Systems</li>
+            </ul>
+          </div>
+        </article>
+
+        <p><a href="{{ asset('assets/docs/resume.pdf') }}" target="_blank">View Full Résumé →</a></p>
+      </section>
+
+      <section id="projects">
+        <h2>Projects</h2>
+
+        <article class="item">
+          <div class="item-date">Business Software</div>
+          <div>
+            <h3 class="item-title"><a href="#">Katzen</a></h3>
+            <p class="item-description">
+              Katzen is ERP for the cottage kitchen industry.
+            </p>
+            <ul class="tags">
+              <li class="tag">Python</li>
+              <li class="tag">FastAPI</li>
+              <li class="tag">OCR</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="item">
+          <div class="item-date">Games</div>
+          <div>
+            <h3 class="item-title"><a href="#">Messy</a></h3>
+            <p class="item-description">
+              Messy is a synesthetic geometric action game exploring the intersection of sound, color, and motion.
+              Built with Godot and featuring an original soundtrack.
+            </p>
+            <ul class="tags">
+              <li class="tag">GDScript</li>
+              <li class="tag">C#</li>
+            </ul>
+          </div>
+        </article>
+
+        <p><a href="/archive">View All Projects →</a></p>
+      </section>
+
+      <footer>
+      </footer>
+    </main>
+  </div>
+{% endblock %}
