@@ -25,12 +25,7 @@ Encore
     .addEntry('table-view', './assets/table-view.js')
     .addEntry('prologue', './assets/js/prologue.js')
     .addEntry('scene', './assets/js/scene-bootstrap.js')
-    // usecue resources + Seer Design assets
     .addEntry('seer', './assets/seer.js')
-    .addEntry('accordion', './assets/accordion.js')
-    .addEntry('carousel', './assets/carousel.js')
-    .addEntry('filter', './assets/filter.js')
-    // TODO: package those more nicely in the project JS
     .addEntry('katzen-demo', './assets/katzen-demo.js')
     .addEntry('portfolio', './assets/portfolio.js')
     // TODO: design autoload, config file for client projects

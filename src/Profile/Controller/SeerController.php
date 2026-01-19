@@ -14,6 +14,9 @@ final class SeerController extends AbstractController
   public function __construct(
   ) {}
 
+  #[Route('/slide', name: 'seer_tmp')]
+  public function tmp(): Response { return $this->render('seer/slide-effect.html.twig', []);}
+
   #[Route('/design', name: 'seer_home')]
   public function index(): Response { return $this->render('seer/index.html.twig', []);}
 

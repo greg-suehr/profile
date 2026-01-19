@@ -1,31 +1,29 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Seer Design{% endblock %}</title>
 
-    <link rel="stylesheet" href="/assets/styles/accordion.css" />
-    {% block start_scripts %}
-      {{ encore_entry_script_tags('accordion') }}
-      {{ encore_entry_script_tags('carousel') }}
-      {{ encore_entry_script_tags('filter') }}        
+    {% block scripts %}
+      {{ encore_entry_script_tags('seer') }}
     {% endblock %}
     {% block stylesheets %}
-    {{ encore_entry_link_tags('seer') }}
+      {{ encore_entry_link_tags('seer') }}
     {% endblock %}
   </head>
-  <body class="bg-light">
+  <body>
+    {% if show_sidebar ?? false %}
     <aside class="sidebar d-flex flex-column flex-shrink-0 border-end border-secondary bg-secondary" style="width: 16rem;">
       <div class="p-3 border-bottom border-secondary">
         <h1 class="h4 mb-0 text-primary">siːə(ɹ)</h1>
       </div>
     </aside>
+    {% endif %}
 
-    <div class="main-content">
-      <main class="main-area p-4">
+    <main>
         {% block main_content %}{% endblock %}
-      </main>
+    </main>
     </div>
   </body>
   </html>
