@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seer Design Portfolio</title>
+  
+  
+  <style>
+    :root {
+      --color-dark: #0a0a0a;
+      --color-light: #f8f7f4;
+      --color-accent: #c4a77d;
+      --color-muted: #6b6b6b;
+      
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      
+      --sidebar-width: 80px;
+      --hero-min-height: 80px;
+      --transition-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --transition-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--color-light);
+      color: var(--color-dark);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .hero-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .hero-morph {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--color-dark);
+      clip-path: inset(0 0 50% 0);
+      transition: clip-path 0.1s linear;
+      will-change: clip-path;
+    }
+
+    .hero-content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: var(--color-light);
+      text-align: center;
+      padding: 2rem;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+      pointer-events: auto;
+    }
+
+    .hero-content.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .hero-logo {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 1s var(--transition-smooth) 0.2s forwards;
+    }
+
+    .hero-phonetic {
+      font-family: var(--font-body);
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      font-weight: 300;
+      color: var(--color-accent);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s var(--transition-smooth) 0.4s forwards;
+    }
+
+    .hero-tagline {
+      font-family: var(--font-body);
+      font-size: clamp(0.875rem, 1.5vw, 1rem);
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 2rem;
+      max-width: 400px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s var(--transition-smooth) 0.6s forwards;
+    }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeInUp 1s var(--transition-smooth) 0.8s forwards;
+    }
+
+    .scroll-indicator::after {
+      content: '';
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--color-accent), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    .sidebar-logo {
+      position: fixed;
+      top: 50%;
+      left: var(--sidebar-width);
+      transform: translate(-50%, -50%) rotate(-90deg);
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      color: var(--color-light);
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.5s ease 0.3s;
+      z-index: 1001;
+      pointer-events: none;
+    }
+
+    .sidebar-logo.visible {
+      opacity: 1;
+    }
+
+    .hero-bottom {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 50vh;
+      background: var(--color-light);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .hero-bottom.hidden {
+      opacity: 0;
+      transform: translateY(100%);
+      pointer-events: none;
+    }
+
+    .hero-cta {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .hero-cta h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 400;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s var(--transition-smooth) 0.5s forwards;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 2rem;
+      background: var(--color-dark);
+      color: var(--color-light);
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      border-radius: 0;
+      transition: all 0.3s var(--transition-smooth);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s var(--transition-smooth) 0.7s forwards;
+      pointer-events: auto;
+    }
+
+    .cta-button:hover {
+      background: var(--color-accent);
+      color: var(--color-dark);
+      transform: translateY(-2px);
+    }
+
+    .cta-button svg {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    .cta-button:hover svg {
+      transform: translateX(4px);
+    }
+
+    .main-wrapper {
+      position: relative;
+      z-index: 1;
+      /* Start content below the fold */
+      padding-top: 100vh;
+      min-height: 300vh;
+    }
+
+    .main-content {
+      padding: 4rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      transition: padding 0.5s var(--transition-smooth);
+    }
+
+    body.sidebars-active .main-content {
+      padding-left: calc(var(--sidebar-width) + 3rem);
+      padding-right: calc(var(--sidebar-width) + 3rem);
+    }
+
+    .content-section {
+      margin-bottom: 6rem;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.8s var(--transition-smooth);
+    }
+
+    .content-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section-label {
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-body {
+      font-size: 1.125rem;
+      line-height: 1.8;
+      color: var(--color-muted);
+      max-width: 65ch;
+    }
+
+    .section-body p + p {
+      margin-top: 1.5rem;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .service-card {
+      padding: 2rem;
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      transition: all 0.4s var(--transition-smooth);
+    }
+
+    .service-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .service-card h4 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 400;
+      margin-bottom: 1rem;
+    }
+
+    .service-card p {
+      font-size: 0.9375rem;
+      line-height: 1.7;
+      color: var(--color-muted);
+    }
+
+    .highlight {
+      color: var(--color-dark);
+      font-weight: 500;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% {
+        opacity: 0.4;
+        transform: scaleY(1);
+      }
+      50% {
+        opacity: 1;
+        transform: scaleY(1.2);
+      }
+    }
+
+    @media (max-width: 768px) {
+      :root {
+        --sidebar-width: 40px;
+      }
+      
+      .hero-content {
+        padding: 1.5rem;
+      }
+      
+      .main-content {
+        padding: 2rem 1rem;
+      }
+      
+      body.sidebars-active .main-content {
+        padding-left: calc(var(--sidebar-width) + 1.5rem);
+        padding-right: calc(var(--sidebar-width) + 1.5rem);
+      }
+      
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .scroll-progress {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background: var(--color-dark);
+      color: var(--color-light);
+      padding: 0.5rem 1rem;
+      font-family: monospace;
+      font-size: 0.75rem;
+      z-index: 9999;
+      border-radius: 4px;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================
+       HERO CONTAINER - MORPHING ELEMENT
+       ============================================ -->
+  <div class="hero-container">
+    <!-- The black shape that morphs from top-half to U-shaped sidebars -->
+    <div class="hero-morph" id="heroMorph"></div>
+    
+    <!-- Hero content (visible initially) -->
+    <div class="hero-content" id="heroContent">
+      <h1 class="hero-logo">Seer</h1>
+      <span class="hero-phonetic">siːə(ɹ)</span>
+      <p class="hero-tagline">Web Design · Hosting · Custom Software</p>
+      <div class="scroll-indicator">
+        <span>Scroll to explore</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar logo (appears after morph) -->
+  <div class="sidebar-logo" id="sidebarLogo">Seer Design</div>
+
+  <!-- Bottom white section with CTA -->
+  <div class="hero-bottom" id="heroBottom">
+    <div class="hero-cta">
+      <h2>Let's build something<br>uniquely yours.</h2>
+      <a href="#contact" class="cta-button">
+        Start a conversation
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- ============================================
+       MAIN CONTENT WRAPPER
+       ============================================ -->
+  <div class="main-wrapper">
+    <div class="main-content">
+      
+      <!-- About Section -->
+      <section class="content-section" data-animate>
+        <span class="section-label">About</span>
+        <h2 class="section-title">You deserve a website that's actually yours.</h2>
+        <div class="section-body">
+          <p>
+            I create custom websites that you own outright—designed around your needs, 
+            not a template's constraints. As a solo developer with 7+ years of engineering 
+            experience building complex software systems, I bring <span class="highlight">technical depth 
+            without agency overhead</span>.
+          </p>
+          <p>
+            What this means for you: direct communication with the person building your site, 
+            solutions tailored to your actual workflow and goals, and clean, maintainable code 
+            you can take anywhere.
+          </p>
+          <p>
+            I'm currently building my portfolio of web design clients, which means you get 
+            experienced engineering at accessible rates while I establish this side of my practice.
+          </p>
+        </div>
+      </section>
+
+      <!-- Services Section -->
+      <section class="content-section" data-animate>
+        <span class="section-label">Services</span>
+        <h2 class="section-title">How I can help</h2>
+        
+        <div class="services-grid">
+          <div class="service-card">
+            <h4>Web Design & Hosting</h4>
+            <p>
+              Your website should work as hard as you do. I build custom sites from the 
+              ground up—whether that's a portfolio to showcase your work, an event site, 
+              or a business presence that reflects who you actually are. Modern, responsive 
+              design that looks great on any device. I handle the technical details so you don't have to.
+            </p>
+          </div>
+          
+          <div class="service-card">
+            <h4>Custom Software Development</h4>
+            <p>
+              Have a specific business problem that off-the-shelf software doesn't quite solve? 
+              I specialize in building custom tools and integrations—from automation workflows 
+              to data management systems. Built to fit your process, not the other way around.
+            </p>
+          </div>
+          
+          <div class="service-card">
+            <h4>Strategy & Consulting</h4>
+            <p>
+              A website is a tool in your belt. Let's make sure it's the right tool, 
+              sharpened for your specific goals. I help you think through what you actually 
+              need before writing a single line of code.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Process Section -->
+      <section class="content-section" data-animate>
+        <span class="section-label">Process</span>
+        <h2 class="section-title">Built with intention,<br>delivered with care.</h2>
+        <div class="section-body">
+          <p>
+            Every project starts with understanding—your goals, your audience, your constraints. 
+            From there, I design and build iteratively, keeping you involved at every step. 
+            No black boxes, no surprises.
+          </p>
+          <p>
+            The result: a website that genuinely serves your needs, built on a foundation 
+            you can maintain and grow.
+          </p>
+        </div>
+      </section>
+
+      <!-- Contact Section -->
+      <section class="content-section" data-animate id="contact">
+        <span class="section-label">Contact</span>
+        <h2 class="section-title">Ready to start?</h2>
+        <div class="section-body">
+          <p>
+            I'd love to hear about your project. Whether you have a clear vision or 
+            just a rough idea, let's talk about how we can bring it to life.
+          </p>
+          <p style="margin-top: 2rem;">
+            <a href="mailto:hello@seerdesign.co" class="cta-button">
+              Get in touch
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </p>
+        </div>
+      </section>
+
+      <!-- Spacer for scrolling demo -->
+      <div style="height: 50vh;"></div>
+
+    </div>
+  </div>
+
+  <!-- Debug: Scroll progress indicator -->
+  <div class="scroll-progress" id="scrollProgress">
+    Progress: 0%
+  </div>
+
+  <!-- ============================================
+       JAVASCRIPT - SCROLL-DRIVEN ANIMATION
+       ============================================ -->
+  <script>
+    (function() {
+      'use strict';
+
+      // Configuration
+      const CONFIG = {
+        // How many pixels of scroll before hero starts collapsing
+        scrollStart: 0,
+        // How many pixels of scroll for full collapse (hero -> thin bar)
+        scrollPhase1End: window.innerHeight * 0.5,
+        // How many pixels of scroll for morph to sidebars
+        scrollPhase2End: window.innerHeight * 0.8,
+        // Final sidebar width
+        sidebarWidth: 80,
+        // Minimum hero height before morphing
+        heroMinHeight: 80,
+      };
+
+      // DOM Elements
+      const heroMorph = document.getElementById('heroMorph');
+      const heroContent = document.getElementById('heroContent');
+      const heroBottom = document.getElementById('heroBottom');
+      const sidebarLogo = document.getElementById('sidebarLogo');
+      const scrollProgress = document.getElementById('scrollProgress');
+      const contentSections = document.querySelectorAll('[data-animate]');
+
+      // State
+      let ticking = false;
+
+      /**
+       * Calculate the clip-path based on scroll progress
+       * 
+       * Phase 1 (0-50% scroll): Top half shrinks from 50% to heroMinHeight
+       * Phase 2 (50-80% scroll): Morphs from rectangle to U-shape (two sidebars + top bar)
+       */
+      function calculateClipPath(scrollY) {
+        const phase1Progress = Math.min(1, scrollY / CONFIG.scrollPhase1End);
+        const phase2Start = CONFIG.scrollPhase1End;
+        const phase2Progress = Math.max(0, Math.min(1, (scrollY - phase2Start) / (CONFIG.scrollPhase2End - phase2Start)));
+
+        // Easing function for smoother transitions
+        const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+        const easeInOutCubic = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+        const easedPhase1 = easeOutCubic(phase1Progress);
+        const easedPhase2 = easeInOutCubic(phase2Progress);
+
+        // Phase 1: Shrink from 50% to min height
+        // inset(top right bottom left)
+        const initialBottom = 50; // 50% from bottom = top 50%
+        const maxBottom = 100 - (CONFIG.heroMinHeight / window.innerHeight * 100);
+        
+        if (phase2Progress === 0) {
+          // Still in phase 1: simple rectangle shrinking
+          const currentBottom = initialBottom + (maxBottom - initialBottom) * easedPhase1;
+          return `inset(0 0 ${currentBottom}% 0)`;
+        }
+
+        // Phase 2: Morph to U-shape
+        // The shape goes from a thin top bar to having "arms" extending down the sides
+        const sidebarWidthPercent = (CONFIG.sidebarWidth / window.innerWidth) * 100;
+        const armLength = easedPhase2 * 100; // How far down the arms extend (0-100%)
+
+        // Use polygon for the U-shape
+        // Points go clockwise from top-left
+        // Shape: Rectangle at top, with two vertical arms extending down on sides
+        
+        const topBarHeight = CONFIG.heroMinHeight / window.innerHeight * 100;
+        
+        // Polygon points for U-shape:
+        // Start top-left, go around the outside, then cut out the middle
+        return `polygon(
+          /* Outer edge - clockwise */
+          0% 0%,
+          100% 0%,
+          100% ${topBarHeight + armLength}%,
+          ${100 - sidebarWidthPercent}% ${topBarHeight + armLength}%,
+          ${100 - sidebarWidthPercent}% ${topBarHeight}%,
+          ${sidebarWidthPercent}% ${topBarHeight}%,
+          ${sidebarWidthPercent}% ${topBarHeight + armLength}%,
+          0% ${topBarHeight + armLength}%
+        )`;
+      }
+
+      /**
+       * Update all scroll-based animations
+       */
+      function updateOnScroll() {
+        const scrollY = window.scrollY;
+        const viewportHeight = window.innerHeight;
+        
+        // Calculate progress percentage for debug
+        const totalScrollRange = CONFIG.scrollPhase2End;
+        const progressPercent = Math.min(100, (scrollY / totalScrollRange) * 100).toFixed(0);
+        scrollProgress.textContent = `Scroll: ${scrollY.toFixed(0)}px | Progress: ${progressPercent}%`;
+
+        // Update clip-path
+        const clipPath = calculateClipPath(scrollY);
+        heroMorph.style.clipPath = clipPath;
+
+        // Fade hero content based on scroll
+        const contentFadeEnd = CONFIG.scrollPhase1End * 0.3;
+        const contentOpacity = Math.max(0, 1 - (scrollY / contentFadeEnd));
+        heroContent.style.opacity = contentOpacity;
+        
+        if (contentOpacity <= 0) {
+          heroContent.classList.add('hidden');
+        } else {
+          heroContent.classList.remove('hidden');
+        }
+
+        // Hide bottom section as we scroll
+        const bottomFadeStart = CONFIG.scrollPhase1End * 0.2;
+        const bottomFadeEnd = CONFIG.scrollPhase1End * 0.6;
+        const bottomProgress = Math.max(0, Math.min(1, (scrollY - bottomFadeStart) / (bottomFadeEnd - bottomFadeStart)));
+        
+        if (bottomProgress >= 1) {
+          heroBottom.classList.add('hidden');
+        } else {
+          heroBottom.classList.remove('hidden');
+          heroBottom.style.opacity = 1 - bottomProgress;
+        }
+
+        // Show sidebar logo after morph
+        const phase2Progress = Math.max(0, (scrollY - CONFIG.scrollPhase1End) / (CONFIG.scrollPhase2End - CONFIG.scrollPhase1End));
+        if (phase2Progress > 0.5) {
+          sidebarLogo.classList.add('visible');
+        } else {
+          sidebarLogo.classList.remove('visible');
+        }
+
+        // Add sidebars-active class to body for content padding
+        if (phase2Progress >= 1) {
+          document.body.classList.add('sidebars-active');
+        } else {
+          document.body.classList.remove('sidebars-active');
+        }
+
+        // Animate content sections into view
+        contentSections.forEach((section) => {
+          const rect = section.getBoundingClientRect();
+          const triggerPoint = viewportHeight * 0.85;
+          
+          if (rect.top < triggerPoint) {
+            section.classList.add('visible');
+          }
+        });
+
+        ticking = false;
+      }
+
+      /**
+       * Throttled scroll handler using requestAnimationFrame
+       */
+      function onScroll() {
+        if (!ticking) {
+          requestAnimationFrame(updateOnScroll);
+          ticking = true;
+        }
+      }
+
+      // Initialize
+      function init() {
+        // Set initial state
+        updateOnScroll();
+        
+        // Listen for scroll
+        window.addEventListener('scroll', onScroll, { passive: true });
+        
+        // Handle resize
+        window.addEventListener('resize', () => {
+          CONFIG.scrollPhase1End = window.innerHeight * 0.5;
+          CONFIG.scrollPhase2End = window.innerHeight * 0.8;
+          updateOnScroll();
+        });
+
+        console.log('Seer Design - Scroll Animation Initialized');
+        console.log('Config:', CONFIG);
+      }
+
+      // Start when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+
+</body>
+</html>
