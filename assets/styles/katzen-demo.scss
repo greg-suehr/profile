@@ -72,15 +72,15 @@ a:hover {
   width: 90%;
   max-width: 900px;
   z-index: 1;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
+  border-radius: 0;
+  border: 2px solid #2E241B;
   overflow: hidden;
   
   img {
     display: block;
     width: 100%;
     height: auto;
-    opacity: 0.95;
+    /* opacity: 0.95; */
   }
   
   @media (max-width: 768px) {
@@ -109,12 +109,13 @@ a:hover {
   font-size: 3rem;
   font-weight: bold;
   margin-bottom: 0.75rem;
-  text-shadow: 0 2px 8px rgba(46, 36, 27, 0.3);
+  color: #F6F1EB;
+  text-shadow: -1.5px 0 #2E241B, 0 1.5px #2E241B, 1.5px 0 #2E241B, 0 -1.5px #2E241B;  
 }
 
 .hero-tagline {
   font-size: 1.25rem;
-  text-shadow: 0 1px 4px rgba(46, 36, 27, 0.3);
+  text-shadow: -1.5px 0 #2E241B, 0 1.5px #2E241B, 1.5px 0 #2E241B, 0 -1.5px #2E241B;    
 }
 
 .hero-card {
@@ -123,11 +124,12 @@ a:hover {
   bottom: 2rem;
   right: 2rem;
   max-width: 380px;
-  background: rgba(253, 252, 249, 0.95);
+  background: rgba(253, 252, 249, 0.97);
   backdrop-filter: blur(10px);
-  border-radius: 12px;
+  border-radius: 0;
+  border: 2px solid #2E241B;
   padding: 1.5rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 4px 4px 0 #2E241B;
   color: #5A4436;
 }
 
@@ -169,12 +171,19 @@ section {
 }
 
 .cta-card {
-  z-index: 5;  
-  background: linear-gradient(135deg, #F6F1EB 0%, #E5DED1 100%);
-  border-radius: 12px;
+  z-index: 5;
+  background: #F6F1EB;
+  border: 3px solid #2E241B;
+  border-radius: 0;
   padding: 3rem;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 8px 8px 0 #2E241B;
+  transition: all 0.2s ease;
+}
+
+.cta-card:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 12px 12px 0 #2E241B;
 }
 
 .cta-card h2 {
@@ -204,6 +213,25 @@ section {
   color: #2E241B;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(232, 180, 75, 0.4);
+}
+
+.btn-primary {
+  display: inline-block;
+  background: #E8B44B;
+  color: #2E241B;
+  padding: 1rem 2.5rem;
+  border-radius: 0;
+  border: 3px solid #2E241B;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 0 #2E241B;
+}
+
+.btn-primary:hover {
+  background: #E8B44B;
+  color: #2E241B;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #2E241B;
 }
 
 .benefits-grid {
@@ -326,6 +354,7 @@ section {
   color: white;
   font-weight: bold;
   font-size: 20px;
+  text-shadow: -1.5px 0 #2E241B, 0 1.5px #2E241B, 1.5px 0 #2E241B, 0 -1.5px #2E241B;
 }
 
 .carousel ol {
