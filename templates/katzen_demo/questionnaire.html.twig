@@ -1,0 +1,115 @@
+{% extends 'katzen_demo/base.html.twig' %}
+
+{% block main_content %}
+  <section class="questionnaire-section">
+    <div class="container">
+      <div class="questionnaire-card">
+        <h1>Tell Us About Your Business</h1>
+        <p class="questionnaire-intro">
+          Thanks for joining the waitlist, <strong>{{ email }}</strong>!
+          Help us understand your needs so we can build Katzen to serve you better.
+        </p>
+
+        <form action="{{ path('katzen_questionnaire_submit') }}" method="POST" class="questionnaire-form">
+          <input type="hidden" name="_token" value="{{ csrf_token('questionnaire') }}">
+
+          {# TODO: Add questionnaire fields here #}
+          <div class="form-group">
+            <label for="business-name">Business Name</label>
+            <input type="text" id="business-name" name="business_name" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label for="business-type">What type of food business do you run?</label>
+            <select id="business-type" name="business_type" class="form-input" required>
+              <option value="">Select one...</option>
+              <option value="cottage_kitchen">Cottage Kitchen</option>
+              <option value="bakery">Bakery</option>
+              <option value="catering">Catering</option>
+              <option value="food_truck">Food Truck</option>
+              <option value="restaurant">Restaurant</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="biggest-challenge">What's your biggest operational challenge?</label>
+            <textarea id="biggest-challenge" name="biggest_challenge" rows="4" class="form-input"></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .questionnaire-section {
+      min-height: 100vh;
+      padding: 4rem 0;
+      background: linear-gradient(135deg, #F6F1EB 0%, #FDFCF9 100%);
+    }
+
+    .questionnaire-card {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #F6F1EB;
+      border: 3px solid #2E241B;
+      border-radius: 0;
+      padding: 3rem;
+      box-shadow: 8px 8px 0 #2E241B;
+    }
+
+    .questionnaire-card h1 {
+      color: #5A4436;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      font-weight: bold;
+    }
+
+    .questionnaire-intro {
+      color: #7a6a5a;
+      margin-bottom: 2rem;
+    }
+
+    .questionnaire-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      color: #5A4436;
+      font-weight: 600;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 1rem;
+      border: 3px solid #2E241B;
+      border-radius: 0;
+      background: #FDFCF9;
+      color: #5A4436;
+      font-size: 1rem;
+      font-family: system-ui, sans-serif;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #E8B44B;
+      box-shadow: 4px 4px 0 rgba(232, 180, 75, 0.3);
+    }
+
+    textarea.form-input {
+      resize: vertical;
+      min-height: 100px;
+    }
+  </style>
+{% endblock %}

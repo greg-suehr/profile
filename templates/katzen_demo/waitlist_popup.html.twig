@@ -1,0 +1,210 @@
+<div id="waitlist-overlay" class="waitlist-overlay" style="display: none;">
+  <div class="waitlist-overlay-backdrop"></div>
+  <div class="waitlist-popup">
+    <button type="button" class="waitlist-close" aria-label="Close">&times;</button>
+    
+    <div class="waitlist-content">
+      <h2>Join the Waitlist</h2>
+      <p>Get early access to Katzen. We'll keep you updated on our progress.</p>
+      
+      <form id="waitlist-form" action="{{ path('katzen_waitlist_submit') }}" method="POST">
+        <div class="waitlist-form-group">
+          <label for="waitlist-email" class="sr-only">Email Address</label>
+          <input 
+            type="email" 
+            id="waitlist-email" 
+            name="email" 
+            class="waitlist-input" 
+            placeholder="your@email.com"
+            required
+            autocomplete="email"
+          >
+        </div>
+        
+        <input type="hidden" name="_token" value="{{ csrf_token('waitlist') }}">
+        
+        <button type="submit" class="btn-primary waitlist-submit">
+          Join Waitlist
+        </button>
+      </form>
+      
+      <div id="waitlist-success" class="waitlist-message waitlist-success" style="display: none;">
+        <strong>Welcome aboard!</strong>
+        <p>Check your email to confirm your spot on the waitlist.</p>
+      </div>
+      
+      <div id="waitlist-error" class="waitlist-message waitlist-error" style="display: none;">
+        <strong>Oops!</strong>
+        <p id="waitlist-error-message">Something went wrong. Please try again.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const overlay = document.getElementById('waitlist-overlay');
+  const closeBtn = document.querySelector('.waitlist-close');
+  const backdrop = document.querySelector('.waitlist-overlay-backdrop');
+  const form = document.getElementById('waitlist-form');
+  const successMsg = document.getElementById('waitlist-success');
+  const errorMsg = document.getElementById('waitlist-error');
+  const errorText = document.getElementById('waitlist-error-message');
+  
+  document.querySelectorAll('a[href="#"]').forEach(link => {
+    if (link.textContent.includes('Join Our Waitlist')) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      });
+    }
+  });
+  
+  function closeOverlay() {
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  
+  closeBtn.addEventListener('click', closeOverlay);
+  backdrop.addEventListener('click', closeOverlay);
+  
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && overlay.style.display === 'flex') {
+      closeOverlay();
+    }
+  });
+  
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showQuestionnairePrompt(data.questionnaire_url, data.questionnaire_mode || 'redirect');
+      } else {
+        errorText.textContent = data.message || 'Something went wrong. Please try again.';
+        errorMsg.style.display = 'block';
+        successMsg.style.display = 'none';
+      }
+    })
+    .catch(error => {
+      errorText.textContent = 'Network error. Please try again.';
+      errorMsg.style.display = 'block';
+      successMsg.style.display = 'none';
+    });
+  });
+  
+  function showQuestionnairePrompt(questionnaireUrl, mode) {
+    form.style.display = 'none';
+    errorMsg.style.display = 'none';
+    
+    successMsg.innerHTML = `
+      <strong>Welcome aboard!</strong>
+      <p style="margin: 1rem 0;">Would you like to tell us more about your business now? It only takes 2 minutes and helps us serve you better.</p>
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <button class="btn-secondary questionnaire-choice" data-choice="later" style="flex: 1;">
+          I'll wait for your email
+        </button>
+        <button class="btn-primary questionnaire-choice" data-choice="now" style="flex: 1;">
+          Sure, let's do it now
+        </button>
+      </div>
+    `;
+    successMsg.style.display = 'block';
+    
+    document.querySelectorAll('.questionnaire-choice').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const choice = this.dataset.choice;
+        
+        if (choice === 'now') {
+          if (mode === 'overlay') {
+            loadQuestionnaireOverlay(questionnaireUrl);
+          } else {
+            window.location.href = questionnaireUrl;
+          }
+        } else {
+          successMsg.innerHTML = `
+            <strong>Perfect!</strong>
+            <p>Check your email for confirmation. We'll be in touch soon!</p>
+          `;
+          setTimeout(closeOverlay, 2500);
+        }
+      });
+    });
+  }
+
+  function loadQuestionnaireOverlay(questionnaireUrl) {
+    fetch(questionnaireUrl)
+      .then(response => response.text())
+      .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const questionnaireContent = doc.querySelector('.questionnaire-card');
+        
+        if (questionnaireContent) {
+          const popup = document.querySelector('.waitlist-popup');
+          popup.style.maxWidth = '700px';
+          
+          successMsg.innerHTML = '';
+          successMsg.style.display = 'none';
+          
+          const contentDiv = document.querySelector('.waitlist-content');
+          contentDiv.innerHTML = questionnaireContent.innerHTML;
+          
+          setupQuestionnaireFormHandler();
+        }
+      })
+      .catch(error => {
+        console.error('Error loading questionnaire:', error);
+        window.location.href = questionnaireUrl;
+      });
+  }
+
+  function setupQuestionnaireFormHandler() {
+    const questionnaireForm = document.querySelector('.questionnaire-form');
+    
+    if (questionnaireForm) {
+      questionnaireForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(questionnaireForm);
+        
+        fetch(questionnaireForm.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            const contentDiv = document.querySelector('.waitlist-content');
+            contentDiv.innerHTML = `
+              <h2>Thank you! 🙏</h2>
+              <p style="color: #7a6a5a; margin-top: 1rem;">${data.message}</p>
+            `;
+            
+            setTimeout(closeOverlay, 3500);
+          } else {
+            alert(data.message || 'Something went wrong. Please try again.');
+          }
+        })
+          .catch(error => {
+            alert('Network error. Please try again.');
+          });
+      });
+    }
+  }
+});
+</script>
