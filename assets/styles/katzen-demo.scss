@@ -55,8 +55,9 @@ a:hover {
   display: flex;
   align-items: center;
   overflow: visible;
-  padding-bottom: 200px;
   z-index: 3;
+
+  padding-bottom: 120px;
   
   @media (min-width: 768px) {
     padding-bottom: 250px;
@@ -65,8 +66,6 @@ a:hover {
 
 .hero-image-overlay {
   position: absolute;
-  top: 250px;
-  bottom: -150px;
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
@@ -75,17 +74,25 @@ a:hover {
   border-radius: 0;
   border: 2px solid #2E241B;
   overflow: hidden;
+
+  top: 180px;
+  bottom: auto;
   
   img {
     display: block;
     width: 100%;
     height: auto;
-    /* opacity: 0.95; */
+  }
+
+  @media (min-width: 768px) {
+    top: 250px;
+    bottom: -150px;
+    width: 90%;
   }
   
   @media (max-width: 768px) {
-    bottom: -100px;
     width: 95%;
+    max-width: 500px;
   }
 }
 
@@ -378,7 +385,8 @@ section {
   color: white;
   font-weight: bold;
   font-size: 20px;
-  text-shadow: -1.5px 0 #2E241B, 0 1.5px #2E241B, 1.5px 0 #2E241B, 0 -1.5px #2E241B;
+  -webkit-text-stroke: 1.5px #2E241B;
+  paint-order: stroke fill;
 }
 
 .carousel ol {
