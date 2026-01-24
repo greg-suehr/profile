@@ -57,7 +57,7 @@ a:hover {
   overflow: visible;
   z-index: 3;
 
-  padding-bottom: 120px;
+  padding-bottom: 160px;
   
   @media (min-width: 768px) {
     padding-bottom: 250px;
@@ -70,13 +70,13 @@ a:hover {
   transform: translateX(-50%);
   width: 90%;
   max-width: 900px;
-  z-index: 1;
+  z-index: 4;
   border-radius: 0;
   border: 2px solid #2E241B;
   overflow: hidden;
 
-  top: 180px;
-  bottom: auto;
+  bottom: -80px;
+  top: auto;
   
   img {
     display: block;
@@ -109,7 +109,7 @@ a:hover {
   position: relative;
   z-index: 5;
   color: #F6F1EB;
-  padding: 4rem 0;
+  padding: 3rem 0 2rem;
 }
 
 .hero-title {
@@ -175,8 +175,13 @@ section {
 
 .primary-cta {
   position: relative;
-  z-index: 5;
+  z-index: 6;
   opacity: 0.95;
+  margin-top: -60px;
+  
+  @media (min-width: 768px) {
+    margin-top: 0;
+  }
 }
 
 .cta-card {
@@ -384,9 +389,38 @@ section {
   flex-direction: column;
   color: white;
   font-weight: bold;
-  font-size: 20px;
-  -webkit-text-stroke: 1.5px #2E241B;
+  font-size: 16px;
+  -webkit-text-stroke: 2px #2E241B;
   paint-order: stroke fill;
+  text-align: center;
+  padding: 1rem;
+  background: rgba(46, 36, 27, 0.3);
+  
+  @media (min-width: 768px) {
+    font-size: 20px;
+    -webkit-text-stroke: 1.5px #2E241B;
+    background: transparent;
+  }
+}
+
+.carousel ul li > div strong {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 0.5rem;
+  
+  @media (min-width: 768px) {
+    font-size: 24px;
+  }
+}
+
+.carousel ul li > div span {
+  display: block;
+  font-size: 14px;
+  font-weight: normal;
+  
+  @media (min-width: 768px) {
+    font-size: 18px;
+  }
 }
 
 .carousel ol {
