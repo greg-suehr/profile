@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(host: 'gregsuehr.com')]
+#[Route(host: '{domain}', requirements: ['domain' => '%gregsuehr_hosts%'], defaults: ['domain' => 'gregsuehr.com'])]
 final class ProfileController extends AbstractController
 {
   #[Route('/', name: 'profile_landing')]

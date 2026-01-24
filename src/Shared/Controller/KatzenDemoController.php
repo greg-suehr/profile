@@ -10,17 +10,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(host: 'getkatzen.com', name: 'katzen_')]
+#[Route(name: 'katzen_', host: '{domain}', requirements: ['domain' => '%katzen_hosts%'], defaults: ['domain' => 'getkatzen.com'])]
 final class KatzenDemoController extends AbstractController
 {
-  #[Route('/', name: 'demo', host: 'getkatzen.com')]
-  public function landing(Request $request): Response
+  #[Route('/__debug/host', name: 'debug_host')]
+  public function debugHost(Request $request): Response
   {
-    return $this->render('katzen_demo/landing.html.twig');
+    return new Response($request->getHost());
   }
 
-  #[Route('/demo', name: 'demo_2')]
-  public function landing2(Request $request): Response
+  #[Route('/', name: 'demo')]
+  #[Route('/demo', name: 'demo2')]
+  public function landing(Request $request): Response
   {
     return $this->render('katzen_demo/landing.html.twig');
   }

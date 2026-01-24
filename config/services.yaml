@@ -1,4 +1,8 @@
 parameters:
+    katzen_hosts: 'getkatzen.com|getkatzen.local'
+    gregishere_hosts: 'gregishere.com|gregishere.local'
+    gregsuehr_hosts: 'gregsuehr.com|gregsuehr.local'
+    litmas_hosts: 'mulvaylitmas.com|mulvaylitmas.local'
 
 services:
     _defaults:
