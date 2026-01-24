@@ -40,7 +40,7 @@ class AuthenticationExceptionSubscriber implements EventSubscriberInterface
                 
                 $targetPath = $request->getUri();
                 
-                $loginUrl = $this->urlGenerator->generate('app_login', [
+                $loginUrl = $this->urlGenerator->generate('katzen_login', [
                     '_target_path' => $targetPath
                 ]);
                 
@@ -54,7 +54,7 @@ class AuthenticationExceptionSubscriber implements EventSubscriberInterface
             $exception instanceof AccessDeniedHttpException) {
             
             $targetPath = $request->getUri();
-            $loginUrl = $this->urlGenerator->generate('app_login', [
+            $loginUrl = $this->urlGenerator->generate('katzen_login', [
                 '_target_path' => $targetPath
             ]);
             

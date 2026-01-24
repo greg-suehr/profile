@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Seld\JsonLint\JsonParser;
 
-#[Route(host: 'getkatzen.com')]
+#[Route(host: '{domain}', requirements: ['domain' => '%katzen_hosts%'], defaults: ['domain' => 'getkatzen.com'])]
 final class RecipeController extends AbstractController
 {
   public function __construct(

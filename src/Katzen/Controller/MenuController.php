@@ -27,7 +27,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Seld\JsonLint\JsonParser;
 
-#[Route('/menu', name: 'menu_', host: 'getkatzen.com')]
+#[Route('/menu', name: 'menu_', host: '{domain}', requirements: ['domain' => '%katzen_hosts%'], defaults: ['domain' => 'getkatzen.com'])]
 final class MenuController extends AbstractController
 {
   public function __construct(

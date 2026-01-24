@@ -36,7 +36,7 @@ class DashboardContextService
       $request = $this->requestStack->getCurrentRequest();
       $currentUrl = $request ? $request->getUri() : null;
       
-      $loginUrl = $this->urlGenerator->generate('app_login');
+      $loginUrl = $this->urlGenerator->generate('katzen_login');
       if ($currentUrl) {
         $loginUrl .= '?_target_path=' . urlencode($currentUrl);
       }
