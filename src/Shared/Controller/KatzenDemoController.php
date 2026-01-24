@@ -10,21 +10,22 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route(host: 'getkatzen.com', name: 'katzen_')]
 final class KatzenDemoController extends AbstractController
 {
-  #[Route('/', name: 'katzen_demo', host: 'getkatzen.com')]
+  #[Route('/', name: 'demo', host: 'getkatzen.com')]
   public function landing(Request $request): Response
   {
     return $this->render('katzen_demo/landing.html.twig');
   }
 
-  #[Route('/demo', name: 'katzen_demo_2')]
+  #[Route('/demo', name: 'demo_2')]
   public function landing2(Request $request): Response
   {
     return $this->render('katzen_demo/landing.html.twig');
   }
   
-  #[Route('/waitlist/submit', name: 'katzen_waitlist_submit', methods: ['POST'])]
+  #[Route('/waitlist/submit', name: 'waitlist_submit', methods: ['POST'])]
   public function waitlistSubmit(Request $request, EntityManagerInterface $entityManager): JsonResponse
   {
     $submittedToken = $request->request->get('_token');
@@ -68,7 +69,7 @@ final class KatzenDemoController extends AbstractController
     ]);
   }
 
-  #[Route('/waitlist/questionnaire', name: 'katzen_questionnaire')]
+  #[Route('/waitlist/questionnaire', name: 'questionnaire')]
   public function questionnaire(Request $request): Response
   {
     $session = $request->getSession();
@@ -94,7 +95,7 @@ final class KatzenDemoController extends AbstractController
     $this->mailer->send($email);
   }
 
-  #[Route('/waitlist/questionnaire/submit', name: 'katzen_questionnaire_submit', methods: ['POST'])]
+  #[Route('/waitlist/questionnaire/submit', name: 'questionnaire_submit', methods: ['POST'])]
   public function questionnaireSubmit(Request $request, EntityManagerInterface $entityManager): JsonResponse|Response
   {
     $submittedToken = $request->request->get('_token');

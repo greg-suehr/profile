@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route(host: 'gregishere.com')]
 final class ClientController extends AbstractController
 {
   #[Route('/beal', name: 'client_landing')]

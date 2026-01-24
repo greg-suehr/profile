@@ -12,15 +12,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route(host: 'mulvaylitmas.com')]
 final class LitmasController extends AbstractController
 {
-    public function __construct(
-      private CmsPageRepository $cmsRepository
-    ) {}
+  public function __construct(
+    private CmsPageRepository $cmsRepository
+  ) {}
        
-    #[Route('/litmas', name: 'litmas_index')]
+  #[Route('/', name: 'litmas_index')]
   public function index(Request $request, SessionInterface $session): Response
-    {
+  {
         $naughtyOrNice = $session->get('naughty_or_nice');
         
         $textContent = $this->cmsRepository->findOneBySlug('main');

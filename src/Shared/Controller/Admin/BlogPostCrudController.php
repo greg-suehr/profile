@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 
+#[Route(host: 'gregishere.com')]
 class BlogPostCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string

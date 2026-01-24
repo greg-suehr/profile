@@ -7,9 +7,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route(host: 'gregsuehr.com')]
 final class ProfileController extends AbstractController
 {
-  #[Route('/resume', name: 'profile_resume')]
+  #[Route('/', name: 'profile_landing')]
   public function resume(): Response { return $this->render('professional/index.html.twig'); }
 
   #[Route('/research', name: 'profile_research')]

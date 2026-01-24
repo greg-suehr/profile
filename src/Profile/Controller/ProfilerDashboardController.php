@@ -22,6 +22,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route(host: 'gregishere.com')]
 #[AdminDashboard(routePath: '/profiler', routeName: 'profiler_admin')]
 class ProfilerDashboardController extends AbstractDashboardController
 {
