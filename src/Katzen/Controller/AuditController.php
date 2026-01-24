@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * Controller for viewing audit logs and change history
  */
+#[Route(host: 'getkatzen.com')]
 final class AuditController extends AbstractController
 {
     public function __construct(

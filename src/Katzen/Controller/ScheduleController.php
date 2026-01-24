@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 
+#[Route(host: 'getkatzen.com')]
 final class ScheduleController extends AbstractController
 {
 

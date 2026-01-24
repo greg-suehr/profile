@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 
-#[Route('/bill', name: 'vendor_invoice_')]
+#[Route('/bill', name: 'vendor_invoice_', host: 'getkatzen.com')]
 final class VendorInvoiceController extends AbstractController
 {
   public function __construct(

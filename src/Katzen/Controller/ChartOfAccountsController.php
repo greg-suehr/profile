@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route(host: 'getkatzen.com')]
 final class ChartOfAccountsController extends AbstractController
 {
     public function __construct(

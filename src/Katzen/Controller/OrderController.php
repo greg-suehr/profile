@@ -27,7 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 
-#[Route('/order', name: 'order_')]
+#[Route('/order', name: 'order_', host: 'getkatzen.com')]
 final class OrderController extends AbstractController
 {
   public function __construct(
