@@ -57,7 +57,7 @@ class Recipe
     private ?int $version = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $status = null; // draft, active, archived
+    private ?string $status = 'draft'; // draft, active, archived
 
     #[ORM\Column]
     private ?bool $is_public = false;

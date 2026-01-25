@@ -29,7 +29,7 @@ class StockReceipt
     private ?KatzenUser $received_by = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $status = null; // pending, received
+    private ?string $status = 'pending'; // pending, received
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notes = null;

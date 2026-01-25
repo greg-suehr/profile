@@ -57,7 +57,7 @@ class Vendor
     private ?string $current_balance = null;
 
     #[ORM\Column(length: 50)]
-  private ?string $status = 'active';
+    private ?string $status = 'active'; // 'active', inactive'
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notes = null;

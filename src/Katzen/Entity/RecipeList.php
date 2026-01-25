@@ -123,7 +123,7 @@ class RecipeList
 
   # Virtual tag attributes
   private ?string $meal_type = null;
-  private ?string $status = null; // active, archived, draft, seasonal
+  private ?string $status = 'draft'; // active, archived, draft, seasonal
   private bool $current = false;
   
   public function getMealType(): ?string { return $this->meal_type; }

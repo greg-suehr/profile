@@ -32,7 +32,7 @@ class Purchase
     private ?\DateTimeInterface $updated_at = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $status = null; // draft, submitted, approved, rejected, cancelled, received, partial, closed
+    private ?string $status = 'draft'; // draft, submitted, approved, rejected, cancelled, received, partial, closed
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?string $subtotal = '0.00';
