@@ -2,8 +2,11 @@ parameters:
     katzen_hosts: 'getkatzen.com|getkatzen.local'
     katzen_match: '#^(getkatzen\.com|getkatzen\.local)$#'
     gregishere_hosts: 'gregishere.com|gregishere.local'
+    gregishere_match: '#^(gregishere\.com|gregishere\.local)$#'
     gregsuehr_hosts: 'gregsuehr.com|gregsuehr.local'
+    gregsuehr_match: '#^(gregsuehr\.com|gregsuehr\.local)$#'
     litmas_hosts: 'mulvaylitmas.com|mulvaylitmas.local'
+    litmas_match: '#^(mulvaylitmas\.com|mulvaylitmas\.local)$#'
 
 services:
     _defaults:

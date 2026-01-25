@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(host: '{domain}', requirements: ['domain' => '%gregishere_hosts%'], defaults: ['domain' => 'gregishere.com'])]
+#[Route(condition: "request.getHost() matches '%gregishere_match%'")]
 final class ContentController extends AbstractController
 {
 

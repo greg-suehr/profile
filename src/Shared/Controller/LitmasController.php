@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(host: '{domain}', requirements: ['domain' => '%litmas_hosts%'], defaults: ['domain' => 'mulvaylitmas.com'])]
+#[Route(condition: "request.getHost() matches '%litmas_match%'")]
 final class LitmasController extends AbstractController
 {
   public function __construct(

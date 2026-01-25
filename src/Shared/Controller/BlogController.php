@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(host: '{domain}', requirements: ['domain' => '%gregishere_hosts%'], defaults: ['domain' => 'gregishere.com'])]
+#[Route(condition: "request.getHost() matches '%gregishere_match%'")]
 final class BlogController extends AbstractController
 {
     #[Route('/blog', name: 'profile_blog')]

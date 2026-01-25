@@ -9,9 +9,9 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-  #[Route(path: '/login', name: 'katzen_login', host: '{domain}', requirements: ['domain' => '%katzen_hosts%'], defaults: ['domain' => 'getkatzen.com'])]
-  #[Route(path: '/login', name: 'blog_login', host: '{domain}', requirements: ['domain' => '%gregishere_hosts%'], defaults: ['domain' => 'gregishere.com'])]
-  #[Route(path: '/login', name: 'listmas_login', host: '{domain}', requirements: ['domain' => '%litmas_hosts%'], defaults: ['domain' => 'mulvaylitmas.com'])]
+  #[Route(path: '/login', name: 'katzen_login', condition: "request.getHost() matches '%katzen_match%'")]
+  #[Route(path: '/login', name: 'blog_login', condition: "request.getHost() matches '%gregishere_match%'")]
+  #[Route(path: '/login', name: 'listmas_login', condition: "request.getHost() matches '%litmas_match%'")]
   public function login(AuthenticationUtils $authenticationUtils): Response
   {
         $error = $authenticationUtils->getLastAuthenticationError();
@@ -24,9 +24,9 @@ class SecurityController extends AbstractController
         ]);
     }
 
-  #[Route(path: '/logout', name: 'katzen_logout', host: '{domain}', requirements: ['domain' => '%katzen_hosts%'], defaults: ['domain' => 'getkatzen.com'])]
-  #[Route(path: '/logout', name: 'blog_logout', host: '{domain}', requirements: ['domain' => '%gregishere_hosts%'], defaults: ['domain' => 'gregishere.com'])]
-  #[Route(path: '/logout', name: 'listmas_logout', host: '{domain}', requirements: ['domain' => '%litmas_hosts%'], defaults: ['domain' => 'mulvaylitmas.com'])]
+  #[Route(path: '/logout', name: 'katzen_logout', condition: "request.getHost() matches '%katzen_match%'")]
+  #[Route(path: '/logout', name: 'blog_logout', condition: "request.getHost() matches '%gregishere_match%'")]
+  #[Route(path: '/logout', name: 'listmas_logout', condition: "request.getHost() matches '%litmas_match%'")]
   public function logout(): void
   {
     throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');

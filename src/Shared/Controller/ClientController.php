@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(host: '{domain}', requirements: ['domain' => '%gregishere_hosts%'], defaults: ['domain' => 'gregishere.com'])]
+#[Route(condition: "request.getHost() matches '%gregishere_match%'")]
 final class ClientController extends AbstractController
 {
   #[Route('/beal', name: 'client_landing')]

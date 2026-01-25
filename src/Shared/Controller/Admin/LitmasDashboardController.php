@@ -12,7 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(host: '{domain}', requirements: ['domain' => '%litmas_hosts%'], defaults: ['domain' => 'mulvaylitmas.com'])]
+#[Route(condition: "request.getHost() matches '%litmas_match%'")]
 class LitmasDashboardController extends AbstractDashboardController
 {
     #[Route('/litmas/admin', name:'litmas_admin')]

@@ -11,7 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(host: '{domain}', requirements: ['domain' => '%gregishere_hosts%'], defaults: ['domain' => 'gregishere.com'])]
+#[Route(condition: "request.getHost() matches '%gregishere_match%'")]
 class ProfileDashboardController extends AbstractDashboardController
 {
     #[Route('/greg/admin', name:'greg_admin')]
