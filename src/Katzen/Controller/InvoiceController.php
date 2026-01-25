@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/invoice', name: 'invoice_', host: '{domain}', requirements: ['domain' => '%katzen_hosts%'], defaults: ['domain' => 'getkatzen.com'])]
+#[Route('/invoice', name: 'invoice_', condition: "request.getHost() matches '%katzen_match%'")]
 final class InvoiceController extends AbstractController
 {
     public function __construct(

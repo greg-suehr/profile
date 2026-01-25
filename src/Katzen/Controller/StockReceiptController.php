@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(host: '{domain}', requirements: ['domain' => '%katzen_hosts%'], defaults: ['domain' => 'getkatzen.com'])]
+#[Route(condition: "request.getHost() matches '%katzen_match%'")]
 final class StockReceiptController extends AbstractController
 {
     public function __construct(

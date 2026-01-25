@@ -27,7 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 
-#[Route('/order', name: 'order_', host: '{domain}', requirements: ['domain' => '%katzen_hosts%'], defaults: ['domain' => 'getkatzen.com'])]
+#[Route('/order', name: 'order_', condition: "request.getHost() matches '%katzen_match%'")]
 final class OrderController extends AbstractController
 {
   public function __construct(

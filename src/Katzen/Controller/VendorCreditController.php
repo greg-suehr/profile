@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/credits/vendor', name: 'vendor_credit_', host: '{domain}', requirements: ['domain' => '%katzen_hosts%'], defaults: ['domain' => 'getkatzen.com'])]
+#[Route('/credits/vendor', name: 'vendor_credit_', condition: "request.getHost() matches '%katzen_match%'")]
 final class VendorCreditController extends AbstractController
 {
   #[Route('/', name: 'index')]

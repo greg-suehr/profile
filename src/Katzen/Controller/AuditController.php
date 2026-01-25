@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * Controller for viewing audit logs and change history
  */
-#[Route(host: '{domain}', requirements: ['domain' => '%katzen_hosts%'], defaults: ['domain' => 'getkatzen.com'])]
+#[Route(condition: "request.getHost() matches '%katzen_match%'")]
 final class AuditController extends AbstractController
 {
     public function __construct(
