@@ -2,6 +2,7 @@
 *.backup
 data/*
 documentation/attribution/*
+documentation/generated/*
 documentation/instructions/*
 scripts/*
 assets/images/*
