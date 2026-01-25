@@ -34,7 +34,7 @@ class StockLotTransfer
     private ?\DateTimeInterface $transfer_date = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $status = null;
+    private ?string $status = null; // pending, approved, completed, cancelled
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $received_at = null;

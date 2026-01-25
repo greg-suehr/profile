@@ -45,7 +45,7 @@ class Customer
   private ?string $credit_limit = null;
   
   #[ORM\Column(length: 50)]
-  private ?string $status = 'active'; // active, suspended, archived
+  private ?string $status = 'active'; // active, suspended, inactive
 
   #[ORM\Column(type: Types::TEXT, nullable: true)]
   private ?string $notes = null;

@@ -45,7 +45,7 @@ class StockTransaction
     private ?string $unit_cost = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $status = null;
+    private ?string $status = null; // pending, completed, reversed
 
     #[ORM\Column(nullable: true)]
     private ?int $batch_id = null;
