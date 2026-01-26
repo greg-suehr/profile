@@ -1,0 +1,352 @@
+{% extends 'katzen/_dashboard_base.html.twig' %}
+
+{% block title %}Configure Field Mappings{% endblock %}
+
+{% block main_content %}
+{% set show_advanced = show_advanced|default(false) %}
+{% set editable = editable|default(true) %}
+
+<div class="multi-entity-mapping" data-controller="multi-entity-mapping">
+  
+  {# Detection Summary #}
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">
+        <i class="bi bi-diagram-3 me-2"></i>
+        Data Analysis
+      </h5>
+      <span class="badge bg-{{ detection.overallConfidence >= 0.7 ? 'success' : (detection.overallConfidence >= 0.5 ? 'warning' : 'secondary') }}">
+        {{ (detection.overallConfidence * 100)|round }}% Confidence
+      </span>
+    </div>
+    <div class="card-body">
+      <p class="lead mb-3">{{ detection.explanation|raw }}</p>
+      
+      {% set strategy = detection.strategySummary %}
+      {% if strategy.requires_grouping %}
+        <div class="alert alert-info mb-0">
+          <i class="bi bi-info-circle me-2"></i>
+          <strong>{{ strategy.type_label }}</strong>: 
+          Records will be grouped by <code>{{ strategy.grouping_key }}</code> 
+          to extract related entities in order: 
+          {{ strategy.extraction_order_labels|join(' → ') }}
+        </div>
+      {% endif %}
+      
+      {% if detection.warnings|length > 0 %}
+        <div class="alert alert-warning mt-3 mb-0">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <strong>Warnings:</strong>
+          <ul class="mb-0 mt-2">
+            {% for warning in detection.warnings|slice(0, 3) %}
+              <li>{{ warning.message|default(warning) }}</li>
+            {% endfor %}
+            {% if detection.warnings|length > 3 %}
+              <li class="text-muted">...and {{ detection.warnings|length - 3 }} more</li>
+            {% endif %}
+          </ul>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {# Entity Cards #}
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">
+        <i class="bi bi-collection me-2"></i>
+        Detected Entities
+        <span class="badge bg-secondary ms-2">{{ detection.entityCards|length }}</span>
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        {% for card in detection.entityCards %}
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100 entity-card {{ card.is_primary ? 'border-primary' : '' }}" 
+                 data-entity-type="{{ card.entity_type }}">
+              <div class="card-header d-flex justify-content-between align-items-start py-2">
+                <div>
+                  <span class="badge bg-{{ card.badge_variant }} me-2">{{ card.label }}</span>
+                  {% if card.is_primary %}
+                    <span class="badge bg-primary-subtle text-primary">Primary</span>
+                  {% endif %}
+                </div>
+                {% if editable %}
+                  <div class="form-check form-switch">
+                    <input type="checkbox" 
+                           class="form-check-input entity-toggle" 
+                           id="entity_{{ card.entity_type }}"
+                           name="entities[{{ card.entity_type }}][enabled]"
+                           value="1"
+                           {{ card.enabled ? 'checked' : '' }}
+                           data-action="multi-entity-mapping#toggleEntity">
+                  </div>
+                {% endif %}
+              </div>
+              <div class="card-body py-2">
+                {# Confidence meter #}
+                <div class="mb-2">
+                  <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span>Confidence</span>
+                    <span>{{ card.confidence_percent }}%</span>
+                  </div>
+                  <div class="progress" style="height: 6px;">
+                    <div class="progress-bar bg-{{ card.confidence_level == 'high' ? 'success' : (card.confidence_level == 'medium' ? 'warning' : 'danger') }}" 
+                         style="width: {{ card.confidence_percent }}%"></div>
+                  </div>
+                </div>
+                
+                {# Header count #}
+                <div class="d-flex justify-content-between small">
+                  <span class="text-muted">Columns mapped:</span>
+                  <span class="fw-medium">{{ card.header_count }}</span>
+                </div>
+                
+                {# Relationship info #}
+                {% if card.has_parent %}
+                  <div class="d-flex justify-content-between small">
+                    <span class="text-muted">Parent:</span>
+                    <span class="badge bg-light text-dark">{{ card.parent }}</span>
+                  </div>
+                {% endif %}
+                {% if card.has_children %}
+                  <div class="d-flex justify-content-between small">
+                    <span class="text-muted">Children:</span>
+                    <span>{{ card.children|join(', ') }}</span>
+                  </div>
+                {% endif %}
+                
+                {# Matched fields preview #}
+                {% if card.matched_fields.required|length > 0 or card.matched_fields.strong|length > 0 %}
+                  <div class="mt-2 pt-2 border-top">
+                    <small class="text-muted d-block mb-1">Matched fields:</small>
+                    <div class="d-flex flex-wrap gap-1">
+                      {% for field in card.matched_fields.required|slice(0, 3) %}
+                        <span class="badge bg-success-subtle text-success">{{ field }}</span>
+                      {% endfor %}
+                      {% for field in card.matched_fields.strong|slice(0, 2) %}
+                        <span class="badge bg-info-subtle text-info">{{ field }}</span>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+              
+              {# Expand for header list #}
+              {% if card.headers|length > 0 %}
+                <div class="card-footer py-2 bg-light">
+                  <button class="btn btn-sm btn-link text-decoration-none p-0 w-100 text-start collapsed"
+                          type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#headers_{{ card.entity_type }}">
+                    <i class="bi bi-chevron-down me-1"></i>
+                    View {{ card.header_count }} columns
+                  </button>
+                  <div class="collapse mt-2" id="headers_{{ card.entity_type }}">
+                    <ul class="list-unstyled mb-0 small">
+                      {% for header in card.headers %}
+                        <li class="py-1 border-bottom">
+                          <code>{{ header }}</code>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {# Advanced: Header Assignments Table #}
+  {% if show_advanced %}
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="bi bi-table me-2"></i>
+          Column Assignments
+        </h5>
+        <button class="btn btn-sm btn-outline-secondary" 
+                type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#headerAssignmentsTable">
+          <i class="bi bi-chevron-down"></i>
+        </button>
+      </div>
+      <div class="collapse show" id="headerAssignmentsTable">
+        <div class="table-responsive">
+          <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Column Header</th>
+                <th>Assigned To</th>
+                <th>Shared</th>
+                <th>Other Matches</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for assignment in detection.headerAssignments %}
+                <tr>
+                  <td>
+                    <code>{{ assignment.header }}</code>
+                    {% if assignment.normalized != assignment.header|lower %}
+                      <small class="text-muted d-block">→ {{ assignment.normalized }}</small>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if assignment.primary_entity %}
+                      <span class="badge bg-{{ assignment.badge_variant }}">
+                        {{ assignment.primary_entity_label }}
+                      </span>
+                    {% else %}
+                      <span class="badge bg-secondary">Unmapped</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if assignment.is_shared %}
+                      <i class="bi bi-diagram-2 text-warning" title="Used by multiple entities"></i>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if assignment.all_matches|length > 1 %}
+                      {% for match in assignment.all_matches|slice(1, 3) %}
+                        <span class="badge bg-{{ match.badge_variant }}-subtle text-{{ match.badge_variant }} me-1" 
+                              title="{{ (match.score * 100)|round }}% match">
+                          {{ match.label }}
+                        </span>
+                      {% endfor %}
+                    {% else %}
+                      <span class="text-muted">—</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {# Per-Entity Field Mappings #}
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0">
+        <i class="bi bi-arrow-left-right me-2"></i>
+        Field Mappings
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      <div class="accordion accordion-flush" id="entityMappingsAccordion">
+        {% for entityType, detail in detection.entityMappingDetails %}
+          <div class="accordion-item entity-mapping-panel" data-entity-type="{{ entityType }}">
+            <h2 class="accordion-header">
+              <button class="accordion-button {{ loop.first ? '' : 'collapsed' }}" 
+                      type="button" 
+                      data-bs-toggle="collapse" 
+                      data-bs-target="#mapping_{{ entityType }}">
+                <span class="badge bg-{{ detection.entityCards|filter(c => c.entity_type == entityType)|first.badge_variant|default('secondary') }} me-2">
+                  {{ detail.label }}
+                </span>
+                <span class="text-muted me-3">
+                  {{ detail.mapped_count }}/{{ detail.headers|length }} fields mapped
+                </span>
+                <div class="progress flex-grow-1 me-3" style="height: 4px; max-width: 100px;">
+                  <div class="progress-bar" style="width: {{ detail.completeness_percent }}%"></div>
+                </div>
+              </button>
+            </h2>
+            <div id="mapping_{{ entityType }}" 
+                 class="accordion-collapse collapse {{ loop.first ? 'show' : '' }}"
+                 data-bs-parent="#entityMappingsAccordion">
+              <div class="accordion-body">
+                {% if detail.field_mappings|length > 0 %}
+                  <table class="table table-sm mb-0">
+                    <thead>
+                      <tr>
+                        <th>CSV Column</th>
+                        <th></th>
+                        <th>Maps To</th>
+                        {% if editable %}
+                          <th style="width: 40px;"></th>
+                        {% endif %}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for column, targetField in detail.field_mappings %}
+                        <tr>
+                          <td><code>{{ column }}</code></td>
+                          <td class="text-center text-muted">→</td>
+                          <td>
+                            {% if editable %}
+                              <input type="text" 
+                                     class="form-control form-control-sm"
+                                     name="mappings[{{ entityType }}][{{ column }}]"
+                                     value="{{ targetField }}"
+                                     placeholder="target field">
+                            {% else %}
+                              <code>{{ targetField }}</code>
+                            {% endif %}
+                          </td>
+                          {% if editable %}
+                            <td>
+                              <button type="button" 
+                                      class="btn btn-sm btn-link text-danger p-0"
+                                      data-action="multi-entity-mapping#removeMapping"
+                                      title="Remove mapping">
+                                <i class="bi bi-x-lg"></i>
+                              </button>
+                            </td>
+                          {% endif %}
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                {% endif %}
+                
+                {% if detail.unmapped_headers|length > 0 %}
+                  <div class="mt-3 pt-3 border-top">
+                    <small class="text-muted">Unmapped columns:</small>
+                    <div class="d-flex flex-wrap gap-1 mt-1">
+                      {% for header in detail.unmapped_headers %}
+                        <span class="badge bg-light text-dark border">{{ header }}</span>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {# Hidden inputs for form submission #}
+  <input type="hidden" name="primary_entity" value="{{ detection.primaryEntity }}">
+  <input type="hidden" name="extraction_strategy" value="{{ detection.extractionStrategy|json_encode }}">
+  <input type="hidden" name="_token" value="{{ csrf_token }}">
+  
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.entity-toggle').forEach(function(toggle) {
+      toggle.addEventListener('change', function() {
+        const entityType = this.closest('.entity-card').dataset.entityType;
+        const panel = document.querySelector(`.entity-mapping-panel[data-entity-type="${entityType}"]`);
+        
+        if (panel) {
+          panel.style.opacity = this.checked ? '1' : '0.5';
+          panel.querySelectorAll('input').forEach(function(input) {
+            input.disabled = !this.checked;
+          }.bind(this));
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

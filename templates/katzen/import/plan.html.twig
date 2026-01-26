@@ -1,153 +1,460 @@
-{% extends 'katzen/_dashboard_base.html.twig' %}
-
-{% block title %}Import Mappings{% endblock %}
+{% extends activeDash ?? 'katzen/_dashboard_base.html.twig' %}
 
 {% block main_content %}
-<div class="card mb-4">
-  <div class="card-header bg-light">
-    <h5 class="mb-0">
-      <i class="bi bi-sparkles me-2"></i>
-      Auto-Detected Mapping
-      <span class="badge bg-{{ overall_confidence > 0.9 ? 'success' : overall_confidence > 0.75 ? 'warning' : 'danger' }}">
-        {{ (overall_confidence * 100)|round }}% Confidence
-      </span>
-    </h5>
-  </div>
-  <div class="card-body">
-    <div class="alert alert-info mb-4">
-      <strong>What we detected:</strong> This appears to be <strong>Order transaction data</strong>
-      with {{ column_details|length }} columns including customer info, product details, and pricing.
+<div class="container-fluid">
+  
+  {# Page Header #}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">
+        <i class="bi bi-diagram-3 me-2"></i>
+        Import Plan
+      </h2>
+      <p class="text-muted mb-0">
+        Review detected data types and configure field mappings
+      </p>
     </div>
-    
-    <h6 class="mb-3">Field Mappings (by confidence):</h6>
-    <div class="table-responsive">
-      <table class="table table-sm">
-        <thead class="table-light">
-          <tr>
-            <th style="width: 20%;">CSV Column</th>
-            <th style="width: 25%;">Maps To</th>
-            <th style="width: 15%;">Confidence</th>
-            <th style="width: 40%;">Reasoning</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for column_name, detail in column_details %}
-          <tr class="{{ detail.confidence < 0.6 ? 'table-warning' : '' }}">
-            <td>
-              <code>{{ column_name }}</code>
-            </td>
-            <td>
-              <strong>{{ detail.target_field }}</strong>
-              {% if detail.confidence < 0.6 %}
-                <br><small class="text-danger">⚠️ Low confidence - review recommended</small>
-              {% endif %}
-            </td>
-            <td>
-              <div class="progress" style="height: 1.5rem;">
-                <div class="progress-bar"
-                     role="progressbar"
-                     style="width: {{ detail.confidence * 100 }}%"
-                     aria-valuenow="{{ detail.confidence * 100 }}"
-                     aria-valuemin="0"
-                     aria-valuemax="100">
-                  {{ (detail.confidence * 100)|round }}%
+    <div>
+      <a href="{{ path('import_upload') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back
+      </a>
+    </div>
+  </div>
+
+  {# File Info Banner #}
+  <div class="alert alert-light border d-flex align-items-center mb-4">
+    <i class="bi bi-file-earmark-spreadsheet fs-4 me-3 text-success"></i>
+    <div class="flex-grow-1">
+      <strong>{{ file_name }}</strong>
+      <span class="text-muted ms-2">{{ total_rows|number_format }} rows</span>
+    </div>
+    <span class="badge bg-{{ detection.overall_confidence >= 0.7 ? 'success' : (detection.overall_confidence >= 0.5 ? 'warning' : 'secondary') }} fs-6">
+      {{ (detection.overall_confidence * 100)|round }}% Confidence
+    </span>
+  </div>
+
+  <form method="post" action="{{ path('import_plan') }}" id="import-plan-form">
+    <input type="hidden" name="_token" value="{{ csrf_token }}">
+    <input type="hidden" name="primary_entity" value="{{ detection.primary_entity }}">
+    <input type="hidden" name="extraction_strategy" value="{{ detection.extraction_strategy|json_encode }}">
+
+    {# Detection Summary #}
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="bi bi-sparkles me-2"></i>
+          Analysis Summary
+        </h5>
+      </div>
+      <div class="card-body">
+        <p class="lead mb-3">{{ detection.explanation }}</p>
+        
+        {% set strategy = detection.strategy_summary %}
+        {% if strategy.requires_grouping %}
+          <div class="alert alert-info mb-3">
+            <i class="bi bi-layers me-2"></i>
+            <strong>{{ strategy.type_label }}</strong><br>
+            <small>
+              Records will be grouped by <code>{{ strategy.grouping_key }}</code> 
+              and processed in order: 
+              <strong>{{ strategy.extraction_order_labels|join(' → ') }}</strong>
+            </small>
+          </div>
+        {% endif %}
+        
+        {% if strategy.notes|length > 0 %}
+          <ul class="mb-0 small text-muted">
+            {% for note in strategy.notes %}
+              <li>{{ note }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    </div>
+
+    {# Entity Cards #}
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="bi bi-collection me-2"></i>
+          Detected Entities
+        </h5>
+        <small class="text-muted">Select which entities to import</small>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          {% for card in detection.entity_cards %}
+            <div class="col-md-6 col-xl-4">
+              <div class="card h-100 {{ card.is_primary ? 'border-primary border-2' : '' }}" 
+                   id="entity-card-{{ card.entity_type }}">
+                <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                  <div>
+                    <span class="badge bg-{{ card.badge_variant }}">{{ card.label }}</span>
+                    {% if card.is_primary %}
+                      <span class="badge bg-primary-subtle text-primary ms-1">Primary</span>
+                    {% endif %}
+                  </div>
+                  <div class="form-check form-switch mb-0">
+                    <input type="checkbox" 
+                           class="form-check-input entity-toggle" 
+                           id="enable_{{ card.entity_type }}"
+                           name="entities[{{ card.entity_type }}][enabled]"
+                           value="1"
+                           {{ card.enabled ? 'checked' : '' }}
+                           data-entity="{{ card.entity_type }}">
+                    <label class="form-check-label visually-hidden" for="enable_{{ card.entity_type }}">
+                      Enable {{ card.label }}
+                    </label>
+                  </div>
+                </div>
+                <div class="card-body py-2">
+                  {# Confidence bar #}
+                  <div class="mb-2">
+                    <div class="d-flex justify-content-between small mb-1">
+                      <span class="text-muted">Detection confidence</span>
+                      <span class="fw-medium">{{ card.confidence_percent }}%</span>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                      <div class="progress-bar bg-{{ card.confidence_level == 'high' ? 'success' : (card.confidence_level == 'medium' ? 'warning' : 'danger') }}" 
+                           style="width: {{ card.confidence_percent }}%"></div>
+                    </div>
+                  </div>
+                  
+                  {# Stats #}
+                  <div class="row text-center small">
+                    <div class="col">
+                      <div class="fw-bold">{{ card.header_count }}</div>
+                      <div class="text-muted">Columns</div>
+                    </div>
+                    {% if card.matched_fields.required|length > 0 %}
+                    <div class="col">
+                      <div class="fw-bold text-success">{{ card.matched_fields.required|length }}</div>
+                      <div class="text-muted">Required</div>
+                    </div>
+                    {% endif %}
+                    {% if card.matched_fields.strong|length > 0 %}
+                    <div class="col">
+                      <div class="fw-bold text-info">{{ card.matched_fields.strong|length }}</div>
+                      <div class="text-muted">Strong</div>
+                    </div>
+                    {% endif %}
+                  </div>
+                  
+                  {# Relationship info #}
+                  {% if card.has_parent or card.has_children %}
+                    <div class="mt-2 pt-2 border-top small">
+                      {% if card.has_parent %}
+                        <div class="text-muted">
+                          <i class="bi bi-arrow-up-short"></i> Parent: 
+                          <span class="badge bg-light text-dark">{{ card.parent }}</span>
+                        </div>
+                      {% endif %}
+                      {% if card.has_children %}
+                        <div class="text-muted">
+                          <i class="bi bi-arrow-down-short"></i> Children: 
+                          {{ card.children|join(', ') }}
+                        </div>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+                
+                {# Column list toggle #}
+                {% if card.headers|length > 0 %}
+                  <div class="card-footer py-2 bg-light">
+                    <button class="btn btn-sm btn-link text-decoration-none p-0 collapsed" 
+                            type="button"
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#columns-{{ card.entity_type }}">
+                      <i class="bi bi-list me-1"></i>
+                      View columns
+                    </button>
+                    <div class="collapse mt-2" id="columns-{{ card.entity_type }}">
+                      <div class="d-flex flex-wrap gap-1">
+                        {% for header in card.headers %}
+                          <code class="small bg-white px-1 rounded border">{{ header }}</code>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    {# Field Mappings Accordion #}
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="bi bi-arrow-left-right me-2"></i>
+          Field Mappings
+        </h5>
+        <a href="{{ path('import_plan', {advanced: 1}) }}" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-gear me-1"></i>
+          {{ show_advanced ? 'Simple View' : 'Advanced' }}
+        </a>
+      </div>
+      <div class="card-body p-0">
+        <div class="accordion accordion-flush" id="mappingsAccordion">
+          {% for entityType, detail in detection.entity_mapping_details %}
+            <div class="accordion-item entity-mapping-section" 
+                 id="mapping-section-{{ entityType }}"
+                 data-entity="{{ entityType }}">
+              <h2 class="accordion-header">
+                <button class="accordion-button {{ loop.first ? '' : 'collapsed' }}" 
+                        type="button" 
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#mapping-{{ entityType }}">
+                  <span class="badge bg-{{ detection.entity_cards|filter(c => c.entity_type == entityType)|first.badge_variant|default('secondary') }} me-2">
+                    {{ detail.label }}
+                  </span>
+                  <span class="text-muted small me-3">
+                    {{ detail.mapped_count }}/{{ detail.headers|length }} mapped
+                  </span>
+                  <div class="progress flex-grow-1 me-3" style="height: 4px; max-width: 150px;">
+                    <div class="progress-bar bg-{{ detail.completeness_percent >= 80 ? 'success' : (detail.completeness_percent >= 50 ? 'warning' : 'danger') }}" 
+                         style="width: {{ detail.completeness_percent }}%"></div>
+                  </div>
+                </button>
+              </h2>
+              <div id="mapping-{{ entityType }}" 
+                   class="accordion-collapse collapse {{ loop.first ? 'show' : '' }}"
+                   data-bs-parent="#mappingsAccordion">
+                <div class="accordion-body">
+                  {% if detail.field_mappings|length > 0 %}
+                    <div class="table-responsive">
+                      <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                          <tr>
+                            <th style="width: 45%">CSV Column</th>
+                            <th style="width: 10%" class="text-center"></th>
+                            <th style="width: 45%">Target Field</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for column, targetField in detail.field_mappings %}
+                            <tr>
+                              <td>
+                                <code>{{ column }}</code>
+                              </td>
+                              <td class="text-center text-muted">
+                                <i class="bi bi-arrow-right"></i>
+                              </td>
+                              <td>
+                                <input type="text" 
+                                       class="form-control form-control-sm"
+                                       name="mappings[{{ entityType }}][{{ column }}]"
+                                       value="{{ targetField }}"
+                                       placeholder="target field">
+                              </td>
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  {% else %}
+                    <div class="text-muted text-center py-3">
+                      <i class="bi bi-info-circle me-1"></i>
+                      No field mappings detected for this entity
+                    </div>
+                  {% endif %}
+                  
+                  {% if detail.unmapped_headers|length > 0 %}
+                    <div class="mt-3 pt-3 border-top">
+                      <small class="text-muted">
+                        <i class="bi bi-question-circle me-1"></i>
+                        Unmapped columns ({{ detail.unmapped_headers|length }}):
+                      </small>
+                      <div class="d-flex flex-wrap gap-1 mt-1">
+                        {% for header in detail.unmapped_headers %}
+                          <code class="small bg-warning-subtle px-1 rounded">{{ header }}</code>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  {% endif %}
                 </div>
               </div>
-            </td>
-            <td class="small">
-              {# Show signal breakdown on hover #}
-              <details class="mt-2">
-                <summary style="cursor: pointer; color: #0d6efd;">View signals</summary>
-                <dl class="row mb-0">
-                  {% for signal_type, signal_data in detail.signals %}
-                  <dt class="col-sm-6">{{ signal_type|replace({'_': ' '})|title }}</dt>
-                  <dd class="col-sm-6">
-                    {% if signal_data.score is defined %}
-                      {{ (signal_data.score * 100)|round }}%
-                    {% elseif signal_data.confidence is defined %}
-                      {{ (signal_data.confidence * 100)|round }}%
-                    {% else %}
-                      {{ signal_data.match ?? signal_data.type ?? signal_data|json_encode }}
-                    {% endif %}
-                  </dd>
-                  {% endfor %}
-                </dl>
-              </details>
-            </td>
-          </tr>
+            </div>
           {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    
-    {% if column_details|filter(d => d.confidence < 0.6)|length > 0 %}
-    <div class="alert alert-warning mt-3">
-      <i class="bi bi-exclamation-triangle me-2"></i>
-      <strong>{{ column_details|filter(d => d.confidence < 0.6)|length }} columns have low confidence.</strong>
-      Please review and adjust the mappings for these columns below.
-    </div>
-    {% endif %}
-  </div>
-</div>
-
-{# Optional: Allow refinement #}
-<div class="card mb-4">
-  <div class="card-header bg-light">
-    <h5 class="mb-0">
-      <i class="bi bi-pencil me-2"></i>
-      Refine Mapping (Optional)
-    </h5>
-  </div>
-  <div class="card-body">
-    <form method="POST" action="{{ path('import_adjust_mapping') }}">
-      {# Show only low-confidence fields #}
-      {% for column_name, detail in column_details %}
-        {% if detail.confidence < 0.75 %}
-        <div class="mb-3">
-          <label class="form-label">
-            <code>{{ column_name }}</code> ({{ (detail.confidence * 100)|round }}% confidence)
-          </label>
-          <select name="mappings[{{ column_name }}]" class="form-select">
-            <option value="">-- Skip this column --</option>
-            {% for field in detail.signals.data_type.compatible_fields %}
-            <option value="{{ field }}" {% if field == detail.target_field %}selected{% endif %}>
-              {{ field }}
-            </option>
-            {% endfor %}
-          </select>
-          <small class="form-text text-muted">
-            System suggested: <strong>{{ detail.target_field }}</strong>
-          </small>
         </div>
-        {% endif %}
-      {% endfor %}
+      </div>
+    </div>
+
+    {# Advanced: Header Assignment Table #}
+    {% if show_advanced %}
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-table me-2"></i>
+            All Column Assignments
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Column Header</th>
+                  <th>Primary Entity</th>
+                  <th>Shared</th>
+                  <th>Other Matches</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for assignment in detection.headerAssignments %}
+                  <tr>
+                    <td>
+                      <code>{{ assignment.header }}</code>
+                      {% if assignment.normalized != assignment.header|lower|replace({' ': '_', '-': '_', '.': '_'}) %}
+                        <small class="text-muted d-block">→ {{ assignment.normalized }}</small>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if assignment.primary_entity %}
+                        <span class="badge bg-{{ assignment.badge_variant }}">
+                          {{ assignment.primary_entity_label }}
+                        </span>
+                      {% else %}
+                        <span class="badge bg-secondary">Unmapped</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if assignment.is_shared %}
+                        <i class="bi bi-share text-warning" title="Used by multiple entities"></i>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% for match in assignment.all_matches|slice(1, 3) %}
+                        <span class="badge bg-{{ match.badge_variant }}-subtle text-{{ match.badge_variant }} me-1" 
+                              title="{{ (match.score * 100)|round }}%">
+                          {{ match.label }}
+                        </span>
+                      {% else %}
+                        <span class="text-muted">—</span>
+                      {% endfor %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {# Data Preview #}
+    {% if sample_rows|length > 0 %}
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-eye me-2"></i>
+            Data Preview
+            <small class="text-muted fw-normal">(first {{ sample_rows|length }} rows)</small>
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+            <table class="table table-sm table-striped mb-0" style="font-size: 0.8rem;">
+              <thead class="table-light sticky-top">
+                <tr>
+                  <th class="text-muted">#</th>
+                  {% for header in headers %}
+                    <th class="text-nowrap">{{ header }}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in sample_rows %}
+                  <tr>
+                    <td class="text-muted">{{ loop.index }}</td>
+                    {% for header in headers %}
+                      <td class="text-nowrap">{{ row[header]|default('-')|slice(0, 30) }}{% if row[header]|default('')|length > 30 %}...{% endif %}</td>
+                    {% endfor %}
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {# Warnings #}
+    {% if detection.warnings|length > 0 %}
+      <div class="alert alert-warning mb-4">
+        <h6 class="alert-heading">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Warnings ({{ detection.warnings|length }})
+        </h6>
+        <ul class="mb-0 small">
+          {% for warning in detection.warnings %}
+            <li>{{ warning.message|default(warning) }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    {# Action Buttons #}
+    <div class="d-flex justify-content-between align-items-center">
+      <a href="{{ path('import_upload') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>
+        Start Over
+      </a>
       
-      <button type="submit" class="btn btn-primary">
-        <i class="bi bi-check me-1"></i>
-        Save Adjustments & Continue
-      </button>
-    </form>
-  </div>
+      <div class="d-flex gap-2">
+        <a href="{{ path('import_configure_mapping') }}" class="btn btn-outline-primary">
+          <i class="bi bi-pencil me-1"></i>
+          Manual Configuration
+        </a>
+        <button type="submit" class="btn btn-success btn-lg">
+          <i class="bi bi-check-circle me-1"></i>
+          {% if detection.overall_confidence >= 0.7 %}
+            Continue to Validation
+          {% else %}
+            Review & Continue
+          {% endif %}
+        </button>
+      </div>
+    </div>
+
+  </form>
 </div>
 
-<div class="card">
-  <div class="card-body d-flex justify-content-between">
-    <a href="{{ path('import_upload') }}" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left me-1"></i>
-      Back
-    </a>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Toggle entity sections when checkbox changes
+  document.querySelectorAll('.entity-toggle').forEach(function(toggle) {
+    toggle.addEventListener('change', function() {
+      const entityType = this.dataset.entity;
+      const card = document.getElementById('entity-card-' + entityType);
+      const mappingSection = document.getElementById('mapping-section-' + entityType);
+      
+      if (this.checked) {
+        card?.classList.remove('opacity-50');
+        mappingSection?.classList.remove('opacity-50');
+        mappingSection?.querySelectorAll('input').forEach(i => i.disabled = false);
+      } else {
+        card?.classList.add('opacity-50');
+        mappingSection?.classList.add('opacity-50');
+        mappingSection?.querySelectorAll('input').forEach(i => i.disabled = true);
+      }
+    });
     
-    <form method="POST" action="{{ path('import_validate') }}" style="display: inline;">
-      <input type="hidden" name="accept_plan" value="1">
-      <button type="submit" class="btn btn-success btn-lg">
-        <i class="bi bi-check-circle me-1"></i>
-        {% if overall_confidence > 0.85 %}
-          Accept & Continue
-        {% else %}
-          Accept & Continue (Review Warnings)
-        {% endif %}
-      </button>
-    </form>
-  </div>
-</div>
+    // Initialize state
+    toggle.dispatchEvent(new Event('change'));
+  });
+  
+  // Ensure at least one entity is selected before submit
+  document.getElementById('import-plan-form').addEventListener('submit', function(e) {
+    const checked = document.querySelectorAll('.entity-toggle:checked');
+    if (checked.length === 0) {
+      e.preventDefault();
+      alert('Please select at least one entity type to import.');
+    }
+  });
+});
+</script>
 {% endblock %}

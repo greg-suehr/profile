@@ -22,6 +22,13 @@ use Psr\Log\LoggerInterface;
  * 3. Value distribution analysis (ranges, uniqueness, nullability)
  * 4. Relationship detection (foreign key patterns, grouping)
  * 5. Historical learning (user corrections, common patterns)
+ * 
+ * Multi-Entity Detection:
+ * For denormalized data (e.g., POS exports with orders + line items + products),
+ * the service can detect ALL extractable entity types and provide:
+ * - Per-entity field mappings
+ * - Header ownership assignments
+ * - Extraction strategy (grouping keys, processing order)
  */
 final class ImportMappingService
 {
@@ -47,9 +54,372 @@ final class ImportMappingService
     private LoggerInterface $logger,
   ) {}
   
+  // ========================================================================
+  // Multi-Entity Detection (NEW)
+  // ========================================================================
+  
+  /**
+   * Detect all extractable entities from CSV headers and sample data
+   * 
+   * This is the primary entry point for the multi-entity mapping UI.
+   * Returns a structured result with all detected entities, their mappings,
+   * and extraction strategy.
+   * 
+   * @param array $headers Column headers from CSV
+   * @param array $sampleRows First N rows for pattern analysis
+   * @param array $options Detection options (e.g., force_entity_types)
+   * @return ServiceResponse containing MultiEntityMappingResult on success
+   */
+  public function detectMultiEntityMapping(
+    array $headers,
+    array $sampleRows = [],
+    array $options = []
+  ): ServiceResponse {
+    $this->logger->info('Starting multi-entity mapping detection', [
+      'header_count' => count($headers),
+      'sample_size' => count($sampleRows),
+    ]);
+    
+    try {
+      // Step 1: Detect all extractable entity types
+      $entityDetection = $this->entityTypeDetector->detect($headers, $sampleRows);
+      
+      if (!$entityDetection->isSuccess()) {
+        return ServiceResponse::failure(
+          errors: ['Could not determine data type'],
+          message: 'Unable to detect what kind of data this is',
+          metadata: [
+            'headers' => $headers,
+            'suggestions' => 'Try using more descriptive column names or providing sample data'
+          ]
+        );
+      }
+      
+      $detectionData = $entityDetection->getData();
+      $primaryEntity = $detectionData['primary_entity'];
+      $extractableEntities = $detectionData['extractable_entities'];
+      $extractionStrategy = $detectionData['extraction_strategy'];
+      $headerEntityMap = $detectionData['header_entity_map'];
+      $allScores = $detectionData['all_scores'];
+      
+      $this->logger->info('Entity types detected', [
+        'primary' => $primaryEntity,
+        'extractable' => array_keys($extractableEntities),
+        'strategy' => $extractionStrategy['type'] ?? 'unknown',
+      ]);
+      
+      // Step 2: Generate per-entity field mappings
+      $entityMappings = [];
+      $allWarnings = [];
+      
+      foreach ($extractableEntities as $entityType => $entityData) {
+        $entityHeaders = $this->getHeadersForEntity($entityType, $headerEntityMap, $headers);
+        
+        $mappingResult = $this->generateEntityMapping(
+          $entityType,
+          $entityHeaders,
+          $headers,
+          $sampleRows
+        );
+        
+        $entityMappings[$entityType] = $mappingResult['mapping'];
+        $allWarnings = array_merge($allWarnings, $mappingResult['warnings']);
+      }
+      
+      // Step 3: Calculate overall confidence
+      $overallConfidence = $this->calculateMultiEntityConfidence(
+        $extractableEntities,
+        $entityMappings,
+        $extractionStrategy
+      );
+      
+      // Step 4: Generate explanation
+      $explanation = $this->generateMultiEntityExplanation(
+        $primaryEntity,
+        $extractableEntities,
+        $extractionStrategy,
+        $overallConfidence
+      );
+      
+      // Step 5: Build result object
+      $result = new MultiEntityMappingResult(
+        primaryEntity: $primaryEntity,
+        extractableEntities: $extractableEntities,
+        extractionStrategy: $extractionStrategy,
+        headerEntityMap: $headerEntityMap,
+        entityMappings: $entityMappings,
+        allScores: $allScores,
+        overallConfidence: $overallConfidence,
+        warnings: $allWarnings,
+        explanation: $explanation,
+      );
+      
+      $this->logger->info('Multi-entity detection complete', [
+        'summary' => $result->getSummary(),
+      ]);
+      
+      return ServiceResponse::success(
+        data: ['detection_result' => $result],
+        message: $this->getMultiEntityConfidenceMessage($result)
+      );
+      
+    } catch (\Throwable $e) {
+      $this->logger->error('Multi-entity mapping detection failed', [
+        'error' => $e->getMessage(),
+        'trace' => $e->getTraceAsString(),
+      ]);
+      
+      return ServiceResponse::failure(
+        errors: [$e->getMessage()],
+        message: 'Failed to detect mapping'
+      );
+    }
+  }
+
+  /**
+   * Get headers that belong to a specific entity type
+   */
+  private function getHeadersForEntity(
+    string $entityType,
+    array $headerEntityMap,
+    array $allHeaders
+  ): array {
+    $entityHeaders = [];
+    
+    foreach ($headerEntityMap as $header => $info) {
+      // Include if primary entity matches
+      if ($info['primary_entity'] === $entityType) {
+        $entityHeaders[] = $header;
+        continue;
+      }
+      
+      // Also include if it's a strong match for this entity (shared headers)
+      $entityMatches = $info['entity_matches'] ?? [];
+      if (isset($entityMatches[$entityType]) && $entityMatches[$entityType]['score'] >= 0.5) {
+        $entityHeaders[] = $header;
+      }
+    }
+    
+    return $entityHeaders;
+  }
+
+  /**
+   * Generate field mapping for a specific entity type
+   */
+  private function generateEntityMapping(
+    string $entityType,
+    array $entityHeaders,
+    array $allHeaders,
+    array $sampleRows
+  ): array {
+    $columnMappings = [];
+    $warnings = [];
+    
+    foreach ($entityHeaders as $header) {
+      $columnData = array_column($sampleRows, $header);
+      $analysis = $this->analyzeColumn($header, $columnData, $entityType);
+      
+      if ($analysis['mapping']) {
+        $columnMappings[$header] = [
+          'target_field' => $analysis['mapping'],
+          'confidence' => $analysis['confidence'],
+          'signals' => $analysis['signals'],
+          'suggested_transformation' => $analysis['transformation'] ?? null,
+        ];
+        
+        if ($analysis['confidence'] < self::MIN_CONFIDENCE_THRESHOLD) {
+          $warnings[] = [
+            'entity_type' => $entityType,
+            'column' => $header,
+            'message' => "Low confidence mapping for '{$header}' → '{$analysis['mapping']}'",
+            'confidence' => $analysis['confidence'],
+          ];
+        }
+      }
+    }
+    
+    // Create ImportMapping entity
+    $mapping = new ImportMapping();
+    $mapping->setName($this->generateMappingName($entityType, $entityHeaders));
+    $mapping->setEntityType($entityType);
+    $mapping->setFieldMappings($this->formatFieldMappings($columnMappings));
+    
+    // Detect composite mappings (date + time, etc.)
+    $compositeMappings = $this->detectCompositeMappings($columnMappings, $allHeaders, $sampleRows);
+    if ($compositeMappings) {
+      $existingMappings = $mapping->getFieldMappings();
+      foreach ($compositeMappings['mappings'] as $key => $compositeMapping) {
+        $existingMappings[$key] = $compositeMapping['target_field'];
+      }
+      $mapping->setFieldMappings($existingMappings);
+      
+      if (!empty($compositeMappings['transformations'])) {
+        $mapping->setTransformationRules($compositeMappings['transformations']);
+      }
+    }
+    
+    return [
+      'mapping' => $mapping,
+      'column_details' => $columnMappings,
+      'warnings' => $warnings,
+    ];
+  }
+
+  /**
+   * Calculate overall confidence for multi-entity detection
+   */
+  private function calculateMultiEntityConfidence(
+    array $extractableEntities,
+    array $entityMappings,
+    array $extractionStrategy
+  ): float {
+    $factors = [];
+    
+    // Factor 1: Average entity detection confidence
+    $entityConfidences = array_column($extractableEntities, 'confidence');
+    $factors['entity_detection'] = !empty($entityConfidences)
+      ? array_sum($entityConfidences) / count($entityConfidences)
+      : 0;
+    
+    // Factor 2: Mapping completeness across all entities
+    $completenessScores = [];
+    foreach ($entityMappings as $entityType => $mapping) {
+      $validation = $this->validateMappingCompleteness(
+        $mapping->getFieldMappings(),
+        $entityType
+      );
+      $completenessScores[] = $validation['completeness_score'];
+    }
+    $factors['completeness'] = !empty($completenessScores)
+      ? array_sum($completenessScores) / count($completenessScores)
+      : 0;
+    
+    // Factor 3: Strategy clarity (do we have clear grouping?)
+    $factors['strategy_clarity'] = match($extractionStrategy['type'] ?? 'unknown') {
+      'single_entity' => 1.0,
+      'denormalized_transaction' => $extractionStrategy['grouping_key'] ? 0.9 : 0.6,
+      'denormalized_hierarchical' => $extractionStrategy['grouping_key'] ? 0.85 : 0.5,
+      default => 0.5,
+    };
+    
+    // Weighted combination
+    $weights = [
+      'entity_detection' => 0.4,
+      'completeness' => 0.35,
+      'strategy_clarity' => 0.25,
+    ];
+    
+    $confidence = 0;
+    foreach ($weights as $factor => $weight) {
+      $confidence += ($factors[$factor] ?? 0) * $weight;
+    }
+    
+    return min(1.0, max(0.0, $confidence));
+  }
+
+  /**
+   * Generate human-readable explanation for multi-entity detection
+   */
+  private function generateMultiEntityExplanation(
+    string $primaryEntity,
+    array $extractableEntities,
+    array $extractionStrategy,
+    float $overallConfidence
+  ): string {
+    $parts = [];
+    
+    // Describe what we found
+    $entityCount = count($extractableEntities);
+    if ($entityCount === 1) {
+      $parts[] = sprintf(
+        "This appears to be **%s** data.",
+        $this->formatEntityLabel($primaryEntity)
+      );
+    } else {
+      $entityLabels = array_map(
+        fn($e) => $this->formatEntityLabel($e),
+        array_keys($extractableEntities)
+      );
+      $parts[] = sprintf(
+        "This file contains **%d types of data**: %s.",
+        $entityCount,
+        implode(', ', $entityLabels)
+      );
+    }
+    
+    // Describe extraction strategy
+    if ($extractionStrategy['requires_grouping'] ?? false) {
+      $groupingKey = $extractionStrategy['grouping_key'] ?? 'unknown field';
+      $parts[] = sprintf(
+        "Records will be grouped by **%s** to extract related entities.",
+        $groupingKey
+      );
+    }
+    
+    // Add strategy notes
+    $notes = $extractionStrategy['notes'] ?? [];
+    foreach (array_slice($notes, 0, 2) as $note) {
+      $parts[] = $note;
+    }
+    
+    // Confidence guidance
+    if ($overallConfidence >= self::HIGH_CONFIDENCE_THRESHOLD) {
+      $parts[] = "High confidence - ready to proceed with review.";
+    } elseif ($overallConfidence >= self::MIN_CONFIDENCE_THRESHOLD) {
+      $parts[] = "Please review the entity assignments and field mappings before proceeding.";
+    } else {
+      $parts[] = "Some manual configuration may be needed for accurate import.";
+    }
+    
+    return implode(' ', $parts);
+  }
+
+  /**
+   * Get confidence message for multi-entity detection
+   */
+  private function getMultiEntityConfidenceMessage(MultiEntityMappingResult $result): string
+  {
+    $entityCount = count($result->extractableEntities);
+    $confidence = $result->overallConfidence;
+    
+    $entityPart = $entityCount === 1
+      ? "1 entity type"
+      : "{$entityCount} entity types";
+    
+    if ($confidence >= 0.9) {
+      return "Detected {$entityPart} with high confidence - ready to import!";
+    } elseif ($confidence >= 0.75) {
+      return "Detected {$entityPart} - please review before importing";
+    } elseif ($confidence >= 0.6) {
+      return "Detected {$entityPart} with moderate confidence - review recommended";
+    } else {
+      return "Detected {$entityPart} - manual configuration may be needed";
+    }
+  }
+
+  private function formatEntityLabel(string $entityType): string
+  {
+    return match($entityType) {
+      'order' => 'Orders',
+      'order_item' => 'Order Items',
+      'sellable' => 'Products',
+      'sellable_variant' => 'Product Variants',
+      'item' => 'Inventory Items',
+      'customer' => 'Customers',
+      'vendor' => 'Vendors',
+      'stock_location' => 'Locations',
+      default => ucwords(str_replace('_', ' ', $entityType)),
+    };
+  }
+
+  // ========================================================================
+  // Legacy Single-Entity Detection (Preserved for backward compatibility)
+  // ========================================================================
+  
   /**
    * Auto-detect mapping from CSV headers and sample data
    * 
+   * @deprecated Use detectMultiEntityMapping() for new code
    * @param array $headers Column headers from CSV
    * @param array $sampleRows First N rows for pattern analysis (default: 100)
    * @return ServiceResponse with detected mapping and confidence scores
@@ -77,13 +447,17 @@ final class ImportMappingService
           ]
         );
       }
-      
-      $entityType = $entityDetection->getData()['entity_type'];
-      $entityConfidence = $entityDetection->getData()['confidence'];
-      
+
+      $detectionResult = $entityDetection->getData();
+      $entityType = $detectionResult['primary_entity'];
+      $entityConfidence = $detectionResult['extractable_entities'][$entityType]['confidence'] 
+        ?? $detectionResult['all_scores'][$entityType] 
+        ?? 0;
+
       $this->logger->info('Entity type detected', [
         'entity_type' => $entityType,
         'confidence' => $entityConfidence,
+        'all_extractable' => array_keys($detectionResult['extractable_entities'] ?? []),
       ]);
       
       $columnMappings = [];
@@ -163,6 +537,12 @@ final class ImportMappingService
           'warnings' => $warnings,
           'missing_required_fields' => $validation['missing_fields'] ?? [],
           'explanation' => $this->generateExplanation($entityType, $columnMappings, $overallConfidence),
+          // NEW: Include multi-entity data for UI to optionally use
+          'multi_entity_data' => [
+            'extractable_entities' => $detectionResult['extractable_entities'] ?? [],
+            'extraction_strategy' => $detectionResult['extraction_strategy'] ?? [],
+            'header_entity_map' => $detectionResult['header_entity_map'] ?? [],
+          ],
         ],
         message: $this->getConfidenceMessage($overallConfidence)
       );
@@ -179,6 +559,10 @@ final class ImportMappingService
       );
     }
   }
+
+  // ========================================================================
+  // Column Analysis Methods
+  // ========================================================================
 
   /**
    * Analyze a single column to determine its mapping
@@ -320,11 +704,13 @@ final class ImportMappingService
     $timeColumns = [];
     
     foreach ($columnMappings as $header => $mapping) {
-      if (str_contains($mapping['target_field'], 'date') && 
-          !str_contains($header, 'time')) {
+      $targetField = is_array($mapping) ? ($mapping['target_field'] ?? null) : $mapping;
+      if (!$targetField) continue;
+      
+      if (str_contains($targetField, 'date') && !str_contains(strtolower($header), 'time')) {
         $dateColumns[$header] = $mapping;
       }
-      if (str_contains($header, 'time') || str_contains($mapping['target_field'], 'time')) {
+      if (str_contains(strtolower($header), 'time') || str_contains($targetField, 'time')) {
         $timeColumns[$header] = $mapping;
       }
     }
@@ -332,11 +718,13 @@ final class ImportMappingService
     if (!empty($dateColumns) && !empty($timeColumns)) {
       foreach ($dateColumns as $dateHeader => $dateMapping) {
         foreach ($timeColumns as $timeHeader => $timeMapping) {
-          $compositeField = $dateMapping['target_field'];
+          $targetField = is_array($dateMapping) ? $dateMapping['target_field'] : $dateMapping;
+          $dateConfidence = is_array($dateMapping) ? ($dateMapping['confidence'] ?? 0.5) : 0.5;
+          $timeConfidence = is_array($timeMapping) ? ($timeMapping['confidence'] ?? 0.5) : 0.5;
           
           $composites[$dateHeader . '+' . $timeHeader] = [
-            'target_field' => $compositeField,
-            'confidence' => min($dateMapping['confidence'], $timeMapping['confidence']),
+            'target_field' => $targetField,
+            'confidence' => min($dateConfidence, $timeConfidence),
             'signals' => [
               'composite' => [
                 'type' => 'datetime_combination',
@@ -346,7 +734,7 @@ final class ImportMappingService
             ],
           ];
           
-          $transformations[$compositeField] = [
+          $transformations[$targetField] = [
             'type' => 'combine_datetime',
             'date_column' => $dateHeader,
             'time_column' => $timeHeader,
@@ -356,15 +744,11 @@ final class ImportMappingService
           $this->logger->info('Detected composite datetime mapping', [
             'date' => $dateHeader,
             'time' => $timeHeader,
-            'target' => $compositeField,
+            'target' => $targetField,
           ]);
         }
       }
     }
-    
-    # TODO: Look for quantity + unit pairs
-    # TODO: Look for price + currency pairs
-    # TODO: etc :)
     
     if (!empty($composites)) {
       return [
@@ -384,7 +768,17 @@ final class ImportMappingService
     string $entityType
   ): array {
     $requiredFields = $this->getRequiredFields($entityType);
-    $mappedFields = array_column($columnMappings, 'target_field');
+    
+    // Handle both old format (target_field in array) and new format (direct value)
+    $mappedFields = [];
+    foreach ($columnMappings as $header => $mapping) {
+      if (is_array($mapping)) {
+        $mappedFields[] = $mapping['target_field'] ?? null;
+      } else {
+        $mappedFields[] = $mapping;
+      }
+    }
+    $mappedFields = array_filter($mappedFields);
     
     $missingFields = [];
     foreach ($requiredFields as $field => $info) {
@@ -423,10 +817,6 @@ final class ImportMappingService
           'description' => 'When the order was placed',
           'has_default' => true,
         ],
-        'customer' => [
-          'description' => 'Customer information',
-          'has_default' => true,
-        ],
       ],
       'order_item' => [
         'order_id' => [
@@ -441,8 +831,14 @@ final class ImportMappingService
           'description' => 'Quantity ordered',
           'has_default' => true,
         ],
-        'unit_price' => [
-          'description' => 'Price per unit',
+      ],
+      'sellable' => [
+        'name' => [
+          'description' => 'Product name',
+          'has_default' => false,
+        ],
+        'price' => [
+          'description' => 'Selling price',
           'has_default' => false,
         ],
       ],
@@ -452,13 +848,21 @@ final class ImportMappingService
           'has_default' => false,
         ],
       ],
-      'sellable' => [
+      'customer' => [
         'name' => [
-          'description' => 'Product name',
+          'description' => 'Customer name',
           'has_default' => false,
         ],
-        'price' => [
-          'description' => 'Selling price',
+      ],
+      'vendor' => [
+        'name' => [
+          'description' => 'Vendor name',
+          'has_default' => false,
+        ],
+      ],
+      'stock_location' => [
+        'name' => [
+          'description' => 'Location name',
           'has_default' => false,
         ],
       ],
@@ -529,8 +933,8 @@ final class ImportMappingService
     array $columnMappings,
     float $overallConfidence
   ): string {
-    $highConfidence = array_filter($columnMappings, fn($m) => $m['confidence'] >= self::HIGH_CONFIDENCE_THRESHOLD);
-    $lowConfidence = array_filter($columnMappings, fn($m) => $m['confidence'] < self::MIN_CONFIDENCE_THRESHOLD);
+    $highConfidence = array_filter($columnMappings, fn($m) => ($m['confidence'] ?? 0) >= self::HIGH_CONFIDENCE_THRESHOLD);
+    $lowConfidence = array_filter($columnMappings, fn($m) => ($m['confidence'] ?? 0) < self::MIN_CONFIDENCE_THRESHOLD);
     
     $parts = [];
     
@@ -569,10 +973,14 @@ final class ImportMappingService
     $formatted = [];
         
     foreach ($columnMappings as $header => $mapping) {
-      $formatted[$header] = $mapping['target_field'];
+      if (is_array($mapping)) {
+        $formatted[$header] = $mapping['target_field'] ?? null;
+      } else {
+        $formatted[$header] = $mapping;
+      }
     }
     
-    return $formatted;
+    return array_filter($formatted);
   }
 
   /**
@@ -591,7 +999,11 @@ final class ImportMappingService
       ($factors['completeness'] * $weights['completeness']) +
       ($factors['historical_match'] * $weights['historical_match']);
     
-    $columnConfidences = array_column($factors['column_mappings'], 'confidence');
+    $columnConfidences = array_filter(array_map(
+      fn($m) => $m['confidence'] ?? null,
+      $factors['column_mappings']
+    ));
+    
     if (!empty($columnConfidences)) {
       $avgColumnConfidence = array_sum($columnConfidences) / count($columnConfidences);
       $confidence += $avgColumnConfidence * 0.2;
@@ -657,7 +1069,7 @@ final class ImportMappingService
     
     return sprintf(
       "%s Import (%d columns) - %s",
-      ucfirst($entityType),
+      ucfirst(str_replace('_', ' ', $entityType)),
       $headerCount,
       $timestamp
     );
@@ -678,15 +1090,40 @@ final class ImportMappingService
       'order_item' => [
         'integer' => ['id', 'order_id', 'sellable_id'],
         'decimal' => ['quantity', 'unit_price', 'line_total'],
-        'string' => ['notes'],
+        'string' => ['notes', 'product_name'],
       ],
-      # TODO: extend ImportMappingService with ... more entity types
+      'sellable' => [
+        'integer' => ['id', 'product_id'],
+        'decimal' => ['price', 'cost'],
+        'string' => ['name', 'description', 'sku', 'category'],
+      ],
+      'item' => [
+        'integer' => ['id', 'item_id'],
+        'decimal' => ['cost', 'quantity'],
+        'string' => ['name', 'description', 'sku', 'upc', 'category'],
+      ],
+      'stock_location' => [
+        'integer' => ['id', 'store_id', 'location_id'],
+        'string' => ['name', 'address', 'region', 'type'],
+      ],
+      'customer' => [
+        'integer' => ['id', 'customer_id'],
+        'string' => ['name', 'email', 'phone', 'address', 'city', 'state'],
+      ],
+      'vendor' => [
+        'integer' => ['id', 'vendor_id'],
+        'string' => ['name', 'email', 'phone', 'contact', 'address'],
+      ],
     ];
     
     return $typeMap[$entityType][$dataType] ?? [];
   }
 
-  public function createTemporaryMapping($entityType, $fieldMappings): ImportMapping {
+  /**
+   * Create a temporary mapping for testing/preview
+   */
+  public function createTemporaryMapping(string $entityType, array $fieldMappings): ImportMapping
+  {
     $mapping = new ImportMapping();
     $mapping->setName("temporary");
     $mapping->setEntityType($entityType);

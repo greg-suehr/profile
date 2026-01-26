@@ -1,0 +1,153 @@
+{% extends 'katzen/_dashboard_base.html.twig' %}
+
+{% block title %}Import Mappings{% endblock %}
+
+{% block main_content %}
+<div class="card mb-4">
+  <div class="card-header bg-light">
+    <h5 class="mb-0">
+      <i class="bi bi-sparkles me-2"></i>
+      Auto-Detected Mapping
+      <span class="badge bg-{{ overall_confidence > 0.9 ? 'success' : overall_confidence > 0.75 ? 'warning' : 'danger' }}">
+        {{ (overall_confidence * 100)|round }}% Confidence
+      </span>
+    </h5>
+  </div>
+  <div class="card-body">
+    <div class="alert alert-info mb-4">
+      <strong>What we detected:</strong> This appears to be <strong>Order transaction data</strong>
+      with {{ column_details|length }} columns including customer info, product details, and pricing.
+    </div>
+    
+    <h6 class="mb-3">Field Mappings (by confidence):</h6>
+    <div class="table-responsive">
+      <table class="table table-sm">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 20%;">CSV Column</th>
+            <th style="width: 25%;">Maps To</th>
+            <th style="width: 15%;">Confidence</th>
+            <th style="width: 40%;">Reasoning</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for column_name, detail in column_details %}
+          <tr class="{{ detail.confidence < 0.6 ? 'table-warning' : '' }}">
+            <td>
+              <code>{{ column_name }}</code>
+            </td>
+            <td>
+              <strong>{{ detail.target_field }}</strong>
+              {% if detail.confidence < 0.6 %}
+                <br><small class="text-danger">⚠️ Low confidence - review recommended</small>
+              {% endif %}
+            </td>
+            <td>
+              <div class="progress" style="height: 1.5rem;">
+                <div class="progress-bar"
+                     role="progressbar"
+                     style="width: {{ detail.confidence * 100 }}%"
+                     aria-valuenow="{{ detail.confidence * 100 }}"
+                     aria-valuemin="0"
+                     aria-valuemax="100">
+                  {{ (detail.confidence * 100)|round }}%
+                </div>
+              </div>
+            </td>
+            <td class="small">
+              {# Show signal breakdown on hover #}
+              <details class="mt-2">
+                <summary style="cursor: pointer; color: #0d6efd;">View signals</summary>
+                <dl class="row mb-0">
+                  {% for signal_type, signal_data in detail.signals %}
+                  <dt class="col-sm-6">{{ signal_type|replace({'_': ' '})|title }}</dt>
+                  <dd class="col-sm-6">
+                    {% if signal_data.score is defined %}
+                      {{ (signal_data.score * 100)|round }}%
+                    {% elseif signal_data.confidence is defined %}
+                      {{ (signal_data.confidence * 100)|round }}%
+                    {% else %}
+                      {{ signal_data.match ?? signal_data.type ?? signal_data|json_encode }}
+                    {% endif %}
+                  </dd>
+                  {% endfor %}
+                </dl>
+              </details>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    {% if column_details|filter(d => d.confidence < 0.6)|length > 0 %}
+    <div class="alert alert-warning mt-3">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <strong>{{ column_details|filter(d => d.confidence < 0.6)|length }} columns have low confidence.</strong>
+      Please review and adjust the mappings for these columns below.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{# Optional: Allow refinement #}
+<div class="card mb-4">
+  <div class="card-header bg-light">
+    <h5 class="mb-0">
+      <i class="bi bi-pencil me-2"></i>
+      Refine Mapping (Optional)
+    </h5>
+  </div>
+  <div class="card-body">
+    <form method="POST" action="{{ path('import_adjust_mapping') }}">
+      {# Show only low-confidence fields #}
+      {% for column_name, detail in column_details %}
+        {% if detail.confidence < 0.75 %}
+        <div class="mb-3">
+          <label class="form-label">
+            <code>{{ column_name }}</code> ({{ (detail.confidence * 100)|round }}% confidence)
+          </label>
+          <select name="mappings[{{ column_name }}]" class="form-select">
+            <option value="">-- Skip this column --</option>
+            {% for field in detail.signals.data_type.compatible_fields %}
+            <option value="{{ field }}" {% if field == detail.target_field %}selected{% endif %}>
+              {{ field }}
+            </option>
+            {% endfor %}
+          </select>
+          <small class="form-text text-muted">
+            System suggested: <strong>{{ detail.target_field }}</strong>
+          </small>
+        </div>
+        {% endif %}
+      {% endfor %}
+      
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-check me-1"></i>
+        Save Adjustments & Continue
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body d-flex justify-content-between">
+    <a href="{{ path('import_upload') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>
+      Back
+    </a>
+    
+    <form method="POST" action="{{ path('import_validate') }}" style="display: inline;">
+      <input type="hidden" name="accept_plan" value="1">
+      <button type="submit" class="btn btn-success btn-lg">
+        <i class="bi bi-check-circle me-1"></i>
+        {% if overall_confidence > 0.85 %}
+          Accept & Continue
+        {% else %}
+          Accept & Continue (Review Warnings)
+        {% endif %}
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
