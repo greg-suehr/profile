@@ -7,13 +7,13 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ImportMappingLearningRepository::class)]
-#[ORM\Table(name: 'mapping_learning')]
+#[ORM\Table(name: 'import_mapping_learning')]
 #[ORM\UniqueConstraint(
     name: 'unique_column_field_entity', 
     columns: ['column_name', 'target_field', 'entity_type']
 )]
-#[ORM\Index(name: 'idx_mapping_learning_entity_type', columns: ['entity_type'])]
-#[ORM\Index(name: 'idx_mapping_learning_fingerprint', columns: ['header_fingerprint'])]
+#[ORM\Index(name: 'idx_import_mapping_learning_entity_type', columns: ['entity_type'])]
+#[ORM\Index(name: 'idx_import_mapping_learning_fingerprint', columns: ['header_fingerprint'])]
 #[ORM\HasLifecycleCallbacks]
 class ImportMappingLearning
 {
