@@ -5,6 +5,7 @@ documentation/attribution/*
 documentation/generated/*
 documentation/instructions/*
 scripts/*
+src/var/*
 assets/images/*
 *DS_Store
 

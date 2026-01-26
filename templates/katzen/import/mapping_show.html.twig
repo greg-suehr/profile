@@ -1,0 +1,225 @@
+{% extends 'katzen/_dashboard_base.html.twig' %}
+
+{% block title %}{{ mapping.name }}{% endblock %}
+
+{% block main_content %}
+<div class="import-mapping-detail">
+  
+  {# ShowPage Component for Header #}
+  {% include 'katzen/component/_show_page.html.twig' with { page: page } %}
+
+  {# Field Mappings Table #}
+  <div class="card mb-4">
+    <div class="card-header bg-transparent">
+      <h5 class="mb-0">
+        <i class="bi bi-arrow-left-right me-2"></i>
+        Field Mappings
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 40%;">CSV Column</th>
+              <th style="width: 10%;" class="text-center"></th>
+              <th style="width: 40%;">Target Field</th>
+              <th style="width: 10%;">Transform</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for source, target in field_mappings %}
+            {% set has_transform = transformation_rules[source] is defined %}
+            <tr>
+              <td>
+                <code class="bg-light px-2 py-1 rounded">{{ source }}</code>
+              </td>
+              <td class="text-center text-muted">
+                <i class="bi bi-arrow-right"></i>
+              </td>
+              <td>
+                <code class="text-primary">{{ target }}</code>
+              </td>
+              <td>
+                {% if has_transform %}
+                <span class="badge bg-info" 
+                      data-bs-toggle="tooltip" 
+                      title="{{ transformation_rules[source]|json_encode }}">
+                  <i class="bi bi-gear"></i>
+                  {{ transformation_rules[source].type ?? 'transform' }}
+                </span>
+                {% else %}
+                <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="4" class="text-center text-muted py-4">
+                No field mappings configured
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {# Transformation Rules (if any) #}
+  {% if transformation_rules is not empty %}
+  <div class="card mb-4">
+    <div class="card-header bg-transparent">
+      <h5 class="mb-0">
+        <i class="bi bi-gear me-2"></i>
+        Transformation Rules
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        {% for field, rule in transformation_rules %}
+        <div class="col-md-6">
+          <div class="border rounded p-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <code class="text-primary">{{ field }}</code>
+              <span class="badge bg-secondary">{{ rule.type ?? 'unknown' }}</span>
+            </div>
+            <div class="small text-muted">
+              <pre class="mb-0" style="font-size: 0.75rem;">{{ rule|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {# Validation Rules (if any) #}
+  {% if validation_rules is not empty %}
+  <div class="card mb-4">
+    <div class="card-header bg-transparent">
+      <h5 class="mb-0">
+        <i class="bi bi-shield-check me-2"></i>
+        Validation Rules
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-sm mb-0">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Required</th>
+              <th>Type</th>
+              <th>Constraints</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for field, rules in validation_rules %}
+            <tr>
+              <td><code>{{ field }}</code></td>
+              <td>
+                {% if rules.required is defined and rules.required %}
+                <span class="badge bg-danger">Required</span>
+                {% else %}
+                <span class="text-muted">Optional</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if rules.type is defined %}
+                <code>{{ rules.type }}</code>
+                {% else %}
+                <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if rules.min is defined %}min: {{ rules.min }}{% endif %}
+                {% if rules.max is defined %}max: {{ rules.max }}{% endif %}
+                {% if rules.pattern is defined %}<code>{{ rules.pattern }}</code>{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {# Default Values (if any) #}
+  {% if default_values is not empty %}
+  <div class="card mb-4">
+    <div class="card-header bg-transparent">
+      <h5 class="mb-0">
+        <i class="bi bi-card-text me-2"></i>
+        Default Values
+      </h5>
+    </div>
+    <div class="card-body">
+      <p class="text-muted small mb-3">
+        These values will be used when the source data is missing or empty.
+      </p>
+      <div class="row g-3">
+        {% for field, value in default_values %}
+        <div class="col-md-4">
+          <div class="bg-light rounded p-2">
+            <small class="text-muted d-block">{{ field }}</small>
+            <code>{{ value }}</code>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {# Mapping Metadata #}
+  <div class="card">
+    <div class="card-header bg-transparent">
+      <h5 class="mb-0">
+        <i class="bi bi-info-circle me-2"></i>
+        Mapping Details
+      </h5>
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-3">Description</dt>
+        <dd class="col-sm-9">{{ mapping.description ?: '—' }}</dd>
+        
+        <dt class="col-sm-3">Created</dt>
+        <dd class="col-sm-9">{{ mapping.createdAt|date('M j, Y g:i A') }}</dd>
+        
+        <dt class="col-sm-3">Last Updated</dt>
+        <dd class="col-sm-9">{{ mapping.updatedAt|date('M j, Y g:i A') }}</dd>
+        
+        <dt class="col-sm-3">Type</dt>
+        <dd class="col-sm-9">
+          {% if mapping.isSystemTemplate %}
+          <span class="badge bg-dark">System Template</span>
+          <small class="text-muted ms-2">Cannot be modified</small>
+          {% else %}
+          <span class="badge bg-light text-dark border">Custom Mapping</span>
+          {% endif %}
+        </dd>
+        
+        {% if mapping.createdBy %}
+        <dt class="col-sm-3">Created By</dt>
+        <dd class="col-sm-9">User #{{ mapping.createdBy }}</dd>
+        {% endif %}
+      </dl>
+    </div>
+  </div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize Bootstrap tooltips
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.forEach(function(tooltipTriggerEl) {
+    new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+});
+</script>
+{% endblock %}

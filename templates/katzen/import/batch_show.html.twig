@@ -1,0 +1,321 @@
+{% extends 'katzen/_dashboard_base.html.twig' %}
+
+{% block title %}Import Batch #{{ batch.id }}{% endblock %}
+
+{% block main_content %}
+<div class="import-batch-detail">
+  
+  {# ShowPage Component for Header & Summary #}
+  {% include 'katzen/component/_show_page.html.twig' with { page: page } %}
+
+  {# Progress Bar (for processing batches) #}
+  {% if batch.status == 'processing' %}
+  <div class="card mb-4" id="progress-card" data-batch-id="{{ batch.id }}">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="fw-semibold">
+          <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+          Processing...
+        </span>
+        <span id="progress-text">{{ batch.progressPercent }}%</span>
+      </div>
+      <div class="progress" style="height: 20px;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" 
+             role="progressbar" 
+             id="progress-bar"
+             style="width: {{ batch.progressPercent }}%" 
+             aria-valuenow="{{ batch.progressPercent }}" 
+             aria-valuemin="0" 
+             aria-valuemax="100">
+        </div>
+      </div>
+      <div class="d-flex justify-content-between mt-2 text-muted small">
+        <span id="progress-rows">{{ batch.processedRows|number_format }} / {{ batch.totalRows|number_format }} rows</span>
+        <span id="progress-errors">{{ batch.failedRows|number_format }} errors</span>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {# Entity Counts (if completed) #}
+  {% if batch.entityCounts is not empty %}
+  <div class="card mb-4">
+    <div class="card-header bg-transparent">
+      <h5 class="mb-0">
+        <i class="bi bi-box me-2"></i>
+        Created Entities
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        {% for entity_type, count in batch.entityCounts %}
+        <div class="col-6 col-md-3">
+          <div class="border rounded p-3 text-center">
+            <div class="h4 mb-1">{{ count|number_format }}</div>
+            <div class="text-muted small text-capitalize">{{ entity_type }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {# Error Analysis (if there are errors) #}
+  {% if batch.failedRows > 0 %}
+  <div class="row g-4 mb-4">
+    
+    {# Error Summary by Type #}
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-transparent">
+          <h5 class="mb-0">
+            <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+            Errors by Type
+          </h5>
+        </div>
+        <div class="card-body">
+          {% if error_summary.by_type is not empty %}
+          <div class="d-flex flex-column gap-2">
+            {% for type, count in error_summary.by_type %}
+            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+              <span class="text-capitalize">
+                {% if type == 'validation' %}
+                <i class="bi bi-shield-exclamation text-warning me-2"></i>
+                {% elseif type == 'transformation' %}
+                <i class="bi bi-arrow-left-right text-info me-2"></i>
+                {% elseif type == 'entity_creation' %}
+                <i class="bi bi-database-exclamation text-danger me-2"></i>
+                {% else %}
+                <i class="bi bi-bug text-secondary me-2"></i>
+                {% endif %}
+                {{ type|replace({'_': ' '}) }}
+              </span>
+              <span class="badge bg-danger">{{ count }}</span>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="text-muted mb-0">No error data available</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {# Error Summary by Field #}
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-transparent">
+          <h5 class="mb-0">
+            <i class="bi bi-input-cursor-text text-danger me-2"></i>
+            Errors by Field
+          </h5>
+        </div>
+        <div class="card-body">
+          {% if error_summary.by_field is not empty %}
+          <div class="d-flex flex-column gap-2">
+            {% for field, count in error_summary.by_field|slice(0, 8) %}
+            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+              <code class="text-body">{{ field }}</code>
+              <span class="badge bg-warning text-dark">{{ count }}</span>
+            </div>
+            {% endfor %}
+            {% if error_summary.by_field|length > 8 %}
+            <a href="{{ path('import_batch_errors', {id: batch.id}) }}" class="text-muted small">
+              + {{ error_summary.by_field|length - 8 }} more fields
+            </a>
+            {% endif %}
+          </div>
+          {% else %}
+          <p class="text-muted mb-0">No field-specific errors</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  {# Common Error Messages #}
+  <div class="card mb-4">
+    <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">
+        <i class="bi bi-chat-quote text-secondary me-2"></i>
+        Most Common Errors
+      </h5>
+      <a href="{{ path('import_batch_errors', {id: batch.id}) }}" class="btn btn-sm btn-outline-warning">
+        View All {{ error_summary.total }} Errors
+      </a>
+    </div>
+    <div class="card-body">
+      {% if unique_errors is not empty %}
+      <div class="table-responsive">
+        <table class="table table-sm mb-0">
+          <thead>
+            <tr>
+              <th>Error Message</th>
+              <th class="text-center" style="width: 100px;">Count</th>
+              <th class="text-end" style="width: 100px;">First Row</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for error in unique_errors %}
+            <tr>
+              <td>
+                <span class="text-danger">{{ error.message|length > 100 ? error.message|slice(0, 100) ~ '...' : error.message }}</span>
+              </td>
+              <td class="text-center">
+                <span class="badge bg-danger">{{ error.count }}</span>
+              </td>
+              <td class="text-end text-muted">Row {{ error.first_row }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted mb-0">Error details not available</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {# Problematic Rows #}
+  {% if problematic_rows is not empty %}
+  <div class="card mb-4">
+    <div class="card-header bg-transparent">
+      <h5 class="mb-0">
+        <i class="bi bi-exclamation-octagon text-danger me-2"></i>
+        Most Problematic Rows
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="d-flex flex-wrap gap-2">
+        {% for row in problematic_rows %}
+        <span class="badge bg-light text-dark border px-3 py-2">
+          Row {{ row.row_number }}
+          <span class="badge bg-danger ms-1">{{ row.error_count }} errors</span>
+        </span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% endif %}
+
+  {# Mapping Details #}
+  {% if batch.mapping %}
+  <div class="card mb-4">
+    <div class="card-header bg-transparent">
+      <h5 class="mb-0">
+        <i class="bi bi-diagram-3 me-2"></i>
+        Mapping Used
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <dl class="row mb-0">
+            <dt class="col-sm-4">Mapping Name</dt>
+            <dd class="col-sm-8">
+              <a href="{{ path('import_mapping_show', {id: batch.mapping.id}) }}">
+                {{ batch.mapping.name }}
+              </a>
+            </dd>
+            <dt class="col-sm-4">Entity Type</dt>
+            <dd class="col-sm-8">
+              <span class="badge bg-primary">{{ batch.mapping.entityType }}</span>
+            </dd>
+            <dt class="col-sm-4">Fields Mapped</dt>
+            <dd class="col-sm-8">{{ batch.mapping.fieldMappings|length }}</dd>
+          </dl>
+        </div>
+        <div class="col-md-6">
+          <h6 class="text-muted mb-2">Field Mappings</h6>
+          <div class="bg-light rounded p-2" style="max-height: 150px; overflow-y: auto;">
+            <table class="table table-sm table-borderless mb-0" style="font-size: 0.85rem;">
+              {% for source, target in batch.mapping.fieldMappings|slice(0, 10) %}
+              <tr>
+                <td class="text-muted">{{ source }}</td>
+                <td><i class="bi bi-arrow-right text-muted"></i></td>
+                <td><code>{{ target }}</code></td>
+              </tr>
+              {% endfor %}
+              {% if batch.mapping.fieldMappings|length > 10 %}
+              <tr>
+                <td colspan="3" class="text-muted">
+                  + {{ batch.mapping.fieldMappings|length - 10 }} more...
+                </td>
+              </tr>
+              {% endif %}
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {# Source File Info #}
+  {% if batch.sourceFile %}
+  <div class="card">
+    <div class="card-header bg-transparent">
+      <h5 class="mb-0">
+        <i class="bi bi-file-earmark me-2"></i>
+        Source File
+      </h5>
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-3">Filename</dt>
+        <dd class="col-sm-9"><code>{{ batch.sourceFile }}</code></dd>
+        {% if batch.sourceFilePath %}
+        <dt class="col-sm-3">Path</dt>
+        <dd class="col-sm-9"><code class="text-muted small">{{ batch.sourceFilePath }}</code></dd>
+        {% endif %}
+      </dl>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+{% if batch.status == 'processing' %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const batchId = {{ batch.id }};
+  const progressBar = document.getElementById('progress-bar');
+  const progressText = document.getElementById('progress-text');
+  const progressRows = document.getElementById('progress-rows');
+  const progressErrors = document.getElementById('progress-errors');
+  const progressCard = document.getElementById('progress-card');
+  
+  function updateProgress() {
+    fetch('{{ path('import_batch_progress', {id: batch.id}) }}')
+      .then(response => response.json())
+      .then(data => {
+        progressBar.style.width = data.progress_percent + '%';
+        progressBar.setAttribute('aria-valuenow', data.progress_percent);
+        progressText.textContent = data.progress_percent + '%';
+        progressRows.textContent = data.processed_rows.toLocaleString() + ' / ' + data.total_rows.toLocaleString() + ' rows';
+        progressErrors.textContent = data.failed_rows.toLocaleString() + ' errors';
+        
+        if (data.is_complete) {
+          // Reload page to show final state
+          window.location.reload();
+        } else {
+          // Continue polling
+          setTimeout(updateProgress, 2000);
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch progress:', err);
+        setTimeout(updateProgress, 5000);
+      });
+  }
+  
+  // Start polling
+  setTimeout(updateProgress, 2000);
+});
+</script>
+{% endif %}
+{% endblock %}

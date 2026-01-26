@@ -1,0 +1,429 @@
+{% extends 'katzen/_dashboard_base.html.twig' %}
+
+{% block title %}Configure Field Mapping{% endblock %}
+
+{% block main_content %}
+<div class="import-configure-mapping">
+  
+  {# Header Section #}
+  <div class="mb-4">
+    <div class="d-flex align-items-center mb-2">
+      <a href="{{ path('import_upload') }}" class="btn btn-sm btn-outline-secondary me-3">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <div>
+        <h2 class="mb-1">
+          <i class="bi bi-diagram-3 me-2"></i>
+          Configure Field Mapping
+        </h2>
+        <p class="text-muted mb-0">Map your CSV columns to {{ entity_type|title }} fields</p>
+      </div>
+    </div>
+  </div>
+
+  {# Wizard Steps Progress #}
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row text-center">
+        <div class="col-3">
+          <div class="wizard-step completed">
+            <div class="wizard-step-icon bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+              <i class="bi bi-check-lg"></i>
+            </div>
+            <div class="fw-semibold text-success">Upload</div>
+            <div class="small text-muted">Complete</div>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="wizard-step active">
+            <div class="wizard-step-icon bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+              <i class="bi bi-diagram-3"></i>
+            </div>
+            <div class="fw-semibold">Map Fields</div>
+            <div class="small text-muted">Configure mapping</div>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="wizard-step">
+            <div class="wizard-step-icon bg-light text-muted rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="text-muted">Validate</div>
+            <div class="small text-muted">Preview & check</div>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="wizard-step">
+            <div class="wizard-step-icon bg-light text-muted rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+              <i class="bi bi-play-fill"></i>
+            </div>
+            <div class="text-muted">Import</div>
+            <div class="small text-muted">Execute</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# AI Suggestions Banner #}
+  {% if suggested is not empty %}
+  <div class="alert alert-success border-success d-flex align-items-start mb-4">
+    <i class="bi bi-lightbulb-fill me-3 mt-1" style="font-size: 1.25rem;"></i>
+    <div>
+      <h6 class="alert-heading mb-1">Smart Mapping Applied</h6>
+      <p class="mb-0 small">
+        Katzen has automatically suggested field mappings based on your column headers and past import patterns. 
+        Review the suggestions below and adjust as needed.
+      </p>
+    </div>
+  </div>
+  {% endif %}
+
+  {{ form_start(form, {'attr': {'class': 'import-mapping-form'}}) }}
+  {{ form_errors(form) }}
+
+  {# Main Mapping Configuration #}
+  <div class="row">
+    <div class="col-lg-10 mx-auto">
+      
+      {# Field Mappings Card #}
+      <div class="card mb-4">
+        <div class="card-header bg-transparent">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-arrow-left-right me-2"></i>
+              Field Mappings
+            </h5>
+            <div>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="clear-all-btn">
+                <i class="bi bi-x-circle me-1"></i>
+                Clear All
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-primary" id="auto-map-btn">
+                <i class="bi bi-magic me-1"></i>
+                Auto-Map
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0 mapping-table">
+              <thead class="table-light sticky-top">
+                <tr>
+                  <th style="width: 5%;" class="text-center">#</th>
+                  <th style="width: 35%;">CSV Column</th>
+                  <th style="width: 10%;" class="text-center"></th>
+                  <th style="width: 50%;">Target Field</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for i, header in headers %}
+                {% set mapping_field = 'mapping_' ~ i %}
+                {% set is_suggested = suggested[header] is defined %}
+                <tr class="mapping-row {% if is_suggested %}table-success{% endif %}">
+                  <td class="text-center text-muted">{{ i + 1 }}</td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <code class="bg-light px-2 py-1 rounded">{{ header }}</code>
+                      {% if is_suggested %}
+                      <span class="badge bg-success-subtle text-success ms-2" title="AI suggested mapping">
+                        <i class="bi bi-lightbulb-fill"></i>
+                      </span>
+                      {% endif %}
+                    </div>
+                  </td>
+                  <td class="text-center text-muted">
+                    <i class="bi bi-arrow-right"></i>
+                  </td>
+                  <td>
+                    {{ form_widget(form[mapping_field], {
+                      'attr': {
+                        'class': 'form-select mapping-select',
+                        'data-row': i
+                      }
+                    }) }}
+                    {{ form_errors(form[mapping_field]) }}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {# Import Options #}
+      <div class="card mb-4">
+        <div class="card-header bg-transparent">
+          <h5 class="mb-0">
+            <i class="bi bi-sliders me-2"></i>
+            Import Options
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="form-check form-switch">
+                {{ form_widget(form.skip_duplicates, {
+                  'attr': {'class': 'form-check-input'}
+                }) }}
+                {{ form_label(form.skip_duplicates, null, {
+                  'label_attr': {'class': 'form-check-label'}
+                }) }}
+              </div>
+              <small class="text-muted d-block mt-1">
+                {{ form.skip_duplicates.vars.help }}
+              </small>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check form-switch">
+                {{ form_widget(form.update_existing, {
+                  'attr': {'class': 'form-check-input'}
+                }) }}
+                {{ form_label(form.update_existing, null, {
+                  'label_attr': {'class': 'form-check-label'}
+                }) }}
+              </div>
+              <small class="text-muted d-block mt-1">
+                {{ form.update_existing.vars.help }}
+              </small>
+            </div>
+            <div class="col-12">
+              <div class="form-check form-switch">
+                {{ form_widget(form.create_missing_references, {
+                  'attr': {'class': 'form-check-input'}
+                }) }}
+                {{ form_label(form.create_missing_references, null, {
+                  'label_attr': {'class': 'form-check-label'}
+                }) }}
+              </div>
+              <small class="text-muted d-block mt-1">
+                {{ form.create_missing_references.vars.help }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Default Values Section #}
+      <div class="card mb-4">
+        <div class="card-header bg-transparent">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-card-text me-2"></i>
+              Default Values
+            </h5>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="add-default-value">
+              <i class="bi bi-plus-lg me-1"></i>
+              Add Default
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="text-muted small mb-3">
+            Set default values for fields that aren't included in your CSV file.
+          </p>
+          <div id="default-values-container">
+            {{ form_row(form.default_values) }}
+          </div>
+        </div>
+      </div>
+
+      {# Save Template Options #}
+      <div class="card mb-4">
+        <div class="card-header bg-transparent">
+          <h5 class="mb-0">
+            <i class="bi bi-bookmark me-2"></i>
+            Save as Template
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="form-check form-switch mb-3">
+            {{ form_widget(form.save_as_template, {
+              'attr': {'class': 'form-check-input', 'id': 'save-template-toggle'}
+            }) }}
+            {{ form_label(form.save_as_template, null, {
+              'label_attr': {'class': 'form-check-label'}
+            }) }}
+          </div>
+          
+          <div id="template-options" class="d-none">
+            <div class="mb-3">
+              {{ form_row(form.mapping_name, {
+                'label_attr': {'class': 'form-label fw-semibold'}
+              }) }}
+            </div>
+            
+            <div class="form-check">
+              {{ form_widget(form.is_system_template, {
+                'attr': {'class': 'form-check-input'}
+              }) }}
+              {{ form_label(form.is_system_template, null, {
+                'label_attr': {'class': 'form-check-label'}
+              }) }}
+              <small class="text-muted d-block mt-1">
+                {{ form.is_system_template.vars.help }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Action Buttons #}
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ path('import_upload') }}" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left me-1"></i>
+              Back
+            </a>
+            <div>
+              <span class="text-muted me-3 small" id="mapping-count">
+                <span class="fw-semibold" id="mapped-count">0</span> of 
+                <span id="total-count">{{ headers|length }}</span> fields mapped
+              </span>
+              {{ form_widget(form.submit) }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {{ form_widget(form._token) }}
+  {{ form_end(form, {'render_rest': false}) }}
+
+</div>
+
+<style>
+  .wizard-step {
+    position: relative;
+  }
+  
+  .wizard-step.active .wizard-step-icon {
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25);
+  }
+  
+  .wizard-step.completed .wizard-step-icon {
+    box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.25);
+  }
+
+  .mapping-table thead {
+    background: white;
+    z-index: 10;
+  }
+
+  .mapping-row.table-success {
+    background-color: rgba(25, 135, 84, 0.05) !important;
+  }
+
+  .mapping-select {
+    font-size: 0.9rem;
+  }
+
+  .mapping-select option[value=""] {
+    font-style: italic;
+    color: #6c757d;
+  }
+
+  .import-configure-mapping .card {
+    border-radius: 0.5rem;
+    border-color: rgba(0,0,0,0.1);
+  }
+  
+  .import-configure-mapping .card-header {
+    border-bottom-color: rgba(0,0,0,0.05);
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  
+  function updateMappingCount() {
+    const selects = document.querySelectorAll('.mapping-select');
+    const mappedCount = Array.from(selects).filter(s => s.value !== '').length;
+    const totalCount = selects.length;
+    
+    document.getElementById('mapped-count').textContent = mappedCount;
+    document.getElementById('total-count').textContent = totalCount;
+  }
+  
+  updateMappingCount();
+  
+  document.querySelectorAll('.mapping-select').forEach(select => {
+    select.addEventListener('change', updateMappingCount);
+  });
+  
+  document.getElementById('clear-all-btn')?.addEventListener('click', function() {
+    if (confirm('Are you sure you want to clear all field mappings?')) {
+      document.querySelectorAll('.mapping-select').forEach(select => {
+        select.value = '';
+      });
+      updateMappingCount();
+    }
+  });
+  
+  document.getElementById('auto-map-btn')?.addEventListener('click', function() {
+    document.querySelectorAll('.mapping-select').forEach(select => {
+      const suggested = select.getAttribute('data-suggested');
+      if (suggested && suggested !== 'false') {
+        const options = Array.from(select.options);
+        const suggestedOption = options.find(opt => opt.selected);
+        if (suggestedOption) {
+          select.value = suggestedOption.value;
+        }
+      }
+    });
+    updateMappingCount();
+  });
+  
+  const saveTemplateToggle = document.getElementById('save-template-toggle');
+  const templateOptions = document.getElementById('template-options');
+  
+  if (saveTemplateToggle && templateOptions) {
+    saveTemplateToggle.addEventListener('change', function() {
+      if (this.checked) {
+        templateOptions.classList.remove('d-none');
+      } else {
+        templateOptions.classList.add('d-none');
+      }
+    });
+    
+    if (saveTemplateToggle.checked) {
+      templateOptions.classList.remove('d-none');
+    }
+  }
+  
+  document.querySelectorAll('.mapping-select').forEach(select => {
+    const originalValue = select.value;
+    select.addEventListener('change', function() {
+      const row = this.closest('tr');
+      if (this.value !== originalValue) {
+        row.classList.add('table-warning');
+      } else {
+        row.classList.remove('table-warning');
+      }
+    });
+  });
+  
+  const form = document.querySelector('.import-mapping-form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      const unmappedCount = Array.from(document.querySelectorAll('.mapping-select'))
+        .filter(s => s.value === '').length;
+      
+      if (unmappedCount > 0) {
+        const confirmed = confirm(
+          `Warning: ${unmappedCount} field(s) are not mapped and will be skipped during import. Continue anyway?`
+        );
+        if (!confirmed) {
+          e.preventDefault();
+        }
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

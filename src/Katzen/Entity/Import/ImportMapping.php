@@ -76,6 +76,16 @@ class ImportMapping
     $this->updated_at = new \DateTime();
   }
 
+  public function isSystemTemplate(): bool
+  {
+    return $this->is_system_template;
+  }
+
+  public function isActive(): bool
+  {
+    return this->is_active;
+  }
+
   public function getId(): ?int { return $this->id; }
   public function getName(): ?string { return $this->name; }
   public function setName(string $name): static { $this->name = $name; return $this; }

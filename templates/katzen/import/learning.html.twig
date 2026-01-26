@@ -1,0 +1,200 @@
+{% extends 'katzen/_dashboard_base.html.twig' %}
+
+{% block title %}Import Learning Stats{% endblock %}
+
+{% block main_content %}
+<div class="import-learning">
+  
+  {# Page Header #}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">
+        <i class="bi bi-graph-up me-2"></i>
+        Mapping Intelligence
+      </h2>
+      <p class="text-muted mb-0">
+        The import system learns from your corrections to improve future suggestions
+      </p>
+    </div>
+    <a href="{{ path('import_mappings') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>
+      Back to Mappings
+    </a>
+  </div>
+
+  {# Stats by Entity Type #}
+  <div class="row g-4 mb-4">
+    {% for entity_type, entity_stats in stats %}
+    {% set colors = {
+      'order': 'primary',
+      'item': 'success', 
+      'sellable': 'info',
+      'customer': 'warning',
+      'vendor': 'secondary'
+    } %}
+    {% set color = colors[entity_type] ?? 'secondary' %}
+    
+    <div class="col-md-4 col-lg-3">
+      <div class="card h-100 border-{{ color }}">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <h5 class="card-title text-capitalize mb-3">{{ entity_type }}</h5>
+            <span class="badge bg-{{ color }}">{{ entity_stats.total }}</span>
+          </div>
+          <dl class="row mb-0 small">
+            <dt class="col-7">Unique Columns</dt>
+            <dd class="col-5 text-end">{{ entity_stats.unique_columns }}</dd>
+            <dt class="col-7">Avg Confidence</dt>
+            <dd class="col-5 text-end">{{ entity_stats.avg_success }}x</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+      <div class="card bg-light border-0">
+        <div class="card-body text-center py-5">
+          <i class="bi bi-lightbulb text-muted" style="font-size: 3rem;"></i>
+          <h5 class="mt-3">No Learning Data Yet</h5>
+          <p class="text-muted mb-0">
+            As you import data and confirm or correct column mappings, 
+            the system will learn and improve its suggestions.
+          </p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {# Top Learned Mappings #}
+  {% if top_mappings is not empty %}
+  <div class="card mb-4">
+    <div class="card-header bg-transparent">
+      <h5 class="mb-0">
+        <i class="bi bi-trophy me-2 text-warning"></i>
+        Top Learned Mappings
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Column Name</th>
+              <th>Maps To</th>
+              <th>Entity Type</th>
+              <th class="text-end">Times Confirmed</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for mapping in top_mappings %}
+            <tr>
+              <td>
+                <code class="bg-light px-2 py-1 rounded">{{ mapping.column_name }}</code>
+              </td>
+              <td>
+                <code class="text-primary">{{ mapping.target_field }}</code>
+              </td>
+              <td>
+                <span class="badge bg-secondary">{{ mapping.entity_type }}</span>
+              </td>
+              <td class="text-end">
+                <span class="badge bg-success">{{ mapping.success_count }}×</span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {# Conflicting Mappings #}
+  {% if conflicts is not empty %}
+  <div class="card mb-4 border-warning">
+    <div class="card-header bg-warning bg-opacity-10">
+      <h5 class="mb-0">
+        <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+        Ambiguous Column Names
+      </h5>
+    </div>
+    <div class="card-body">
+      <p class="text-muted small mb-3">
+        These column names have been mapped to different fields. 
+        This might indicate inconsistent usage or genuinely ambiguous names.
+      </p>
+      
+      {% for conflict in conflicts %}
+      <div class="border rounded p-3 mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <code class="bg-light px-2 py-1 rounded">{{ conflict.column_name }}</code>
+          <span class="badge bg-secondary">{{ conflict.entity_type }}</span>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          {% for mapping in conflict.mappings %}
+          <span class="badge bg-{{ loop.first ? 'primary' : 'outline-secondary border' }} px-3 py-2">
+            {{ mapping.target_field }}
+            <small class="ms-1 opacity-75">({{ mapping.success_count }}×)</small>
+          </span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# How It Works #}
+  <div class="card bg-light border-0">
+    <div class="card-body">
+      <h6 class="card-title">
+        <i class="bi bi-cpu me-2"></i>
+        How Mapping Intelligence Works
+      </h6>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="d-flex align-items-start mb-3 mb-md-0">
+            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+              <i class="bi bi-1-circle text-primary"></i>
+            </div>
+            <div>
+              <strong>Detection</strong>
+              <p class="small text-muted mb-0">
+                Column headers are analyzed using fuzzy matching, data type inference, and pattern recognition.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="d-flex align-items-start mb-3 mb-md-0">
+            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+              <i class="bi bi-2-circle text-primary"></i>
+            </div>
+            <div>
+              <strong>Learning</strong>
+              <p class="small text-muted mb-0">
+                When you confirm or correct mappings, the system remembers the association.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="d-flex align-items-start">
+            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+              <i class="bi bi-3-circle text-primary"></i>
+            </div>
+            <div>
+              <strong>Improvement</strong>
+              <p class="small text-muted mb-0">
+                Future imports with similar columns will use learned mappings first.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

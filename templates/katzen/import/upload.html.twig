@@ -1,0 +1,350 @@
+{% extends 'katzen/_dashboard_base.html.twig' %}
+
+{% block title %}Upload Import File{% endblock %}
+
+{% block main_content %}
+<div class="import-upload">
+  
+  {# Header Section #}
+  <div class="mb-4">
+    <div class="d-flex align-items-center mb-2">
+      <a href="{{ path('import_dashboard') }}" class="btn btn-sm btn-outline-secondary me-3">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <div>
+        <h2 class="mb-1">
+          <i class="bi bi-cloud-upload me-2"></i>
+          New Import
+        </h2>
+        <p class="text-muted mb-0">Upload your data file and configure import settings</p>
+      </div>
+    </div>
+  </div>
+
+  {# Wizard Steps Progress #}
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row text-center">
+        <div class="col-3">
+          <div class="wizard-step active">
+            <div class="wizard-step-icon bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+              <i class="bi bi-cloud-upload"></i>
+            </div>
+            <div class="fw-semibold">Upload</div>
+            <div class="small text-muted">Choose file</div>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="wizard-step">
+            <div class="wizard-step-icon bg-light text-muted rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+              <i class="bi bi-diagram-3"></i>
+            </div>
+            <div class="text-muted">Map Fields</div>
+            <div class="small text-muted">Configure mapping</div>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="wizard-step">
+            <div class="wizard-step-icon bg-light text-muted rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="text-muted">Validate</div>
+            <div class="small text-muted">Preview & check</div>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="wizard-step">
+            <div class="wizard-step-icon bg-light text-muted rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+              <i class="bi bi-play-fill"></i>
+            </div>
+            <div class="text-muted">Import</div>
+            <div class="small text-muted">Execute</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Help Cards #}
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card border-primary h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-start">
+            <div class="bg-primary bg-opacity-10 rounded-3 p-2 me-3">
+              <i class="bi bi-file-earmark-spreadsheet text-primary" style="font-size: 1.5rem;"></i>
+            </div>
+            <div>
+              <h6 class="mb-1">Supported Formats</h6>
+              <p class="text-muted small mb-0">CSV and Excel files (.csv, .xlsx, .xls) up to 10MB</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-success h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-start">
+            <div class="bg-success bg-opacity-10 rounded-3 p-2 me-3">
+              <i class="bi bi-lightbulb text-success" style="font-size: 1.5rem;"></i>
+            </div>
+            <div>
+              <h6 class="mb-1">Smart Mapping</h6>
+              <p class="text-muted small mb-0">AI-powered field detection suggests the best mappings automatically</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-info h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-start">
+            <div class="bg-info bg-opacity-10 rounded-3 p-2 me-3">
+              <i class="bi bi-shield-check text-info" style="font-size: 1.5rem;"></i>
+            </div>
+            <div>
+              <h6 class="mb-1">Safe Preview</h6>
+              <p class="text-muted small mb-0">Review and validate before any data is imported</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Main Upload Form #}
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <div class="card">
+        <div class="card-header bg-transparent">
+          <h5 class="mb-0">
+            <i class="bi bi-file-earmark-arrow-up me-2"></i>
+            Upload Your File
+          </h5>
+        </div>
+        <div class="card-body">
+          
+          {{ form_start(form, {'attr': {'class': 'import-upload-form'}}) }}
+          {{ form_errors(form) }}
+          
+          {# Entity Type Selection #}
+          <div class="mb-4">
+            <div class="alert alert-light border d-flex align-items-start">
+              <i class="bi bi-info-circle text-primary me-2 mt-1"></i>
+              <div class="small">
+                Select what type of data you're importing. This helps Katzen understand your file structure and suggest the right field mappings.
+              </div>
+            </div>
+            {{ form_row(form.entity_type, {
+              'label_attr': {'class': 'form-label fw-semibold'},
+              'attr': {'class': 'form-select form-select-lg'}
+            }) }}
+          </div>
+
+          {# File Upload #}
+          <div class="mb-4">
+            <div class="file-upload-wrapper">
+              {{ form_label(form.file, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+              
+              <div class="file-drop-zone border-2 border-dashed rounded p-5 text-center" id="file-drop-zone">
+                <i class="bi bi-cloud-upload text-primary mb-3" style="font-size: 3rem;"></i>
+                <div class="mb-3">
+                  <div class="fw-semibold mb-1">Drag & drop your file here</div>
+                  <div class="text-muted small">or click to browse</div>
+                </div>
+                
+                {{ form_widget(form.file, {
+                  'attr': {
+                    'class': 'form-control form-control-lg d-none'
+                  }
+                }) }}
+                
+                <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('{{ form.file.vars.id }}').click()">
+                  <i class="bi bi-folder2-open me-1"></i>
+                  Choose File
+                </button>
+                
+                <div id="file-name-display" class="mt-3 d-none">
+                  <div class="alert alert-success d-inline-flex align-items-center">
+                    <i class="bi bi-file-earmark-check me-2"></i>
+                    <span id="file-name"></span>
+                  </div>
+                </div>
+              </div>
+              
+              {{ form_errors(form.file) }}
+              {{ form_help(form.file) }}
+            </div>
+          </div>
+
+          {# Import Name (Optional) #}
+          <div class="mb-4">
+            {{ form_row(form.name, {
+              'label_attr': {'class': 'form-label fw-semibold'},
+              'attr': {'class': 'form-control'}
+            }) }}
+          </div>
+
+          {# Existing Mapping Template #}
+          {% if form.use_existing_mapping is defined %}
+          <div class="mb-4">
+            <div class="card bg-light">
+              <div class="card-body">
+                <h6 class="card-title mb-3">
+                  <i class="bi bi-lightning-charge text-warning me-2"></i>
+                  Quick Start
+                </h6>
+                {{ form_row(form.use_existing_mapping, {
+                  'label_attr': {'class': 'form-label'},
+                  'attr': {'class': 'form-select'}
+                }) }}
+                <div class="small text-muted mt-2">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Select a saved mapping template to skip manual field configuration. You can still review and adjust before importing.
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+          {# Submit Button #}
+          <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ path('import_dashboard') }}" class="btn btn-outline-secondary">
+              <i class="bi bi-x-lg me-1"></i>
+              Cancel
+            </a>
+            {{ form_row(form.submit, {
+              'label': 'Continue to Mapping',
+              'attr': {'class': 'btn btn-primary btn-lg'}
+            }) }}
+          </div>
+
+          {{ form_widget(form._token) }}
+          {{ form_end(form, {'render_rest': false}) }}
+          
+        </div>
+      </div>
+
+      {# Additional Tips #}
+      <div class="card mt-3 border-0 bg-light">
+        <div class="card-body">
+          <h6 class="mb-3">
+            <i class="bi bi-lightbulb me-2"></i>
+            Tips for Best Results
+          </h6>
+          <ul class="mb-0 small text-muted">
+            <li class="mb-2">Ensure your file has clear column headers in the first row</li>
+            <li class="mb-2">Remove any summary rows or totals at the bottom of your data</li>
+            <li class="mb-2">Check that dates are formatted consistently (e.g., MM/DD/YYYY or YYYY-MM-DD)</li>
+            <li class="mb-2">For best mapping results, use descriptive header names (e.g., "Product Name" instead of just "Name")</li>
+            <li>If importing prices, ensure they're numeric values without currency symbols</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<style>
+  .wizard-step {
+    position: relative;
+  }
+  
+  .wizard-step.active .wizard-step-icon {
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25);
+  }
+  
+  .file-drop-zone {
+    transition: all 0.3s ease;
+    background: #fafafa;
+  }
+  
+  .file-drop-zone:hover {
+    border-color: var(--bs-primary) !important;
+    background: rgba(13, 110, 253, 0.05);
+  }
+  
+  .file-drop-zone.dragover {
+    border-color: var(--bs-primary) !important;
+    background: rgba(13, 110, 253, 0.1);
+  }
+  
+  .import-upload .card {
+    border-radius: 0.5rem;
+    border-color: rgba(0,0,0,0.1);
+  }
+  
+  .import-upload .card-header {
+    border-bottom-color: rgba(0,0,0,0.05);
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const fileInput = document.getElementById('{{ form.file.vars.id }}');
+  const dropZone = document.getElementById('file-drop-zone');
+  const fileNameDisplay = document.getElementById('file-name-display');
+  const fileName = document.getElementById('file-name');
+  
+  // File input change handler
+  if (fileInput) {
+    fileInput.addEventListener('change', function(e) {
+      if (e.target.files.length > 0) {
+        const file = e.target.files[0];
+        fileName.textContent = file.name;
+        fileNameDisplay.classList.remove('d-none');
+      }
+    });
+  }
+  
+  // Drag and drop handlers
+  if (dropZone) {
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, function() {
+        dropZone.classList.add('dragover');
+      }, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, function() {
+        dropZone.classList.remove('dragover');
+      }, false);
+    });
+    
+    dropZone.addEventListener('drop', function(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      
+      if (files.length > 0) {
+        fileInput.files = files;
+        // Trigger change event
+        const event = new Event('change', { bubbles: true });
+        fileInput.dispatchEvent(event);
+      }
+    }, false);
+  }
+  
+  // Entity type change - could show/hide relevant tips or warnings
+  const entityTypeSelect = document.querySelector('select[name*="entity_type"]');
+  if (entityTypeSelect) {
+    entityTypeSelect.addEventListener('change', function(e) {
+      // Optional: Add dynamic help text based on entity type
+      console.log('Selected entity type:', e.target.value);
+    });
+  }
+});
+</script>
+{% endblock %}

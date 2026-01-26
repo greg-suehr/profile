@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(name: 'idx_import_error_batch', columns: ['batch_id'])]
 #[ORM\Index(name: 'idx_import_error_type', columns: ['error_type'])]
 #[ORM\Index(name: 'idx_import_error_row', columns: ['batch_id', 'row_number'])]
+#[ORM\HasLifecycleCallbacks]
 class ImportError
 {
   public const TYPE_VALIDATION = 'validation';

@@ -33,7 +33,7 @@ class ImportBatch
   #[ORM\Column(length: 50)]
   private string $status = self::STATUS_PENDING;
   
-  #[ORM\ManyToOne]
+  #[ORM\ManyToOne(cascade: ['persist'])]
   #[ORM\JoinColumn(nullable: false)]
   private ?ImportMapping $mapping = null;
   
@@ -64,8 +64,8 @@ class ImportBatch
   #[ORM\Column(type: Types::DATETIME_MUTABLE)]
   private ?\DateTimeInterface $updated_at = null;
   
-  #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-  private ?\DateTimeImmutable $completed_at = null;
+  #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+  private ?\DateTimeInterface $completed_at = null;
   
   #[ORM\Column(nullable: true)]
   private ?int $created_by = null;

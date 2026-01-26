@@ -1,0 +1,159 @@
+{% extends 'katzen/_dashboard_base.html.twig' %}
+
+{% block title %}Import Errors - Batch #{{ batch.id }}{% endblock %}
+
+{% block main_content %}
+<div class="import-batch-errors">
+  
+  {# Breadcrumb Header #}
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{{ path('import_dashboard') }}">Import</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ path('import_batch_show', {id: batch.id}) }}">Batch #{{ batch.id }}</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Errors</li>
+    </ol>
+  </nav>
+
+  {# Page Header #}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">
+        <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+        Import Errors
+      </h2>
+      <p class="text-muted mb-0">
+        {{ total_errors|number_format }} errors from 
+        <strong>{{ batch.name ?: 'Batch #' ~ batch.id }}</strong>
+      </p>
+    </div>
+    <div class="btn-group">
+      <a href="{{ path('import_batch_show', {id: batch.id}) }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>
+        Back to Batch
+      </a>
+      <a href="#" class="btn btn-outline-primary" id="export-errors-btn">
+        <i class="bi bi-download me-1"></i>
+        Export CSV
+      </a>
+    </div>
+  </div>
+
+  {# Error Type Filter Cards #}
+  {% if summary is not empty %}
+  <div class="row g-3 mb-4">
+    <div class="col-auto">
+      <a href="{{ path('import_batch_errors', {id: batch.id}) }}" 
+         class="card text-decoration-none {{ not app.request.query.get('type') ? 'border-primary' : '' }}"
+         style="min-width: 100px;">
+        <div class="card-body py-2 px-3 text-center">
+          <div class="h5 mb-0">{{ total_errors }}</div>
+          <small class="text-muted">All</small>
+        </div>
+      </a>
+    </div>
+    {% for type, count in summary %}
+    <div class="col-auto">
+      <a href="{{ path('import_batch_errors', {id: batch.id, type: type}) }}" 
+         class="card text-decoration-none {{ app.request.query.get('type') == type ? 'border-primary' : '' }}"
+         style="min-width: 100px;">
+        <div class="card-body py-2 px-3 text-center">
+          <div class="h5 mb-0 text-{{ type == 'validation' ? 'warning' : (type == 'entity_creation' ? 'danger' : 'info') }}">
+            {{ count }}
+          </div>
+          <small class="text-muted text-capitalize">{{ type|replace({'_': ' '}) }}</small>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {# Errors Table #}
+  <div class="card">
+    <div class="card-body p-0">
+      {% include 'katzen/component/_table_view.html.twig' with { table: table } %}
+    </div>
+    
+    {# Pagination #}
+    {% if total_pages > 1 %}
+    <div class="card-footer bg-transparent">
+      <nav aria-label="Error pagination">
+        <ul class="pagination pagination-sm justify-content-center mb-0">
+          
+          {# Previous #}
+          <li class="page-item {{ current_page == 1 ? 'disabled' : '' }}">
+            <a class="page-link" 
+               href="{{ path('import_batch_errors', {id: batch.id, page: current_page - 1}) }}"
+               {% if current_page == 1 %}tabindex="-1" aria-disabled="true"{% endif %}>
+              <i class="bi bi-chevron-left"></i>
+            </a>
+          </li>
+          
+          {# Page Numbers #}
+          {% set start_page = max(1, current_page - 2) %}
+          {% set end_page = min(total_pages, current_page + 2) %}
+          
+          {% if start_page > 1 %}
+          <li class="page-item">
+            <a class="page-link" href="{{ path('import_batch_errors', {id: batch.id, page: 1}) }}">1</a>
+          </li>
+          {% if start_page > 2 %}
+          <li class="page-item disabled"><span class="page-link">...</span></li>
+          {% endif %}
+          {% endif %}
+          
+          {% for page in start_page..end_page %}
+          <li class="page-item {{ page == current_page ? 'active' : '' }}">
+            <a class="page-link" href="{{ path('import_batch_errors', {id: batch.id, page: page}) }}">{{ page }}</a>
+          </li>
+          {% endfor %}
+          
+          {% if end_page < total_pages %}
+          {% if end_page < total_pages - 1 %}
+          <li class="page-item disabled"><span class="page-link">...</span></li>
+          {% endif %}
+          <li class="page-item">
+            <a class="page-link" href="{{ path('import_batch_errors', {id: batch.id, page: total_pages}) }}">{{ total_pages }}</a>
+          </li>
+          {% endif %}
+          
+          {# Next #}
+          <li class="page-item {{ current_page == total_pages ? 'disabled' : '' }}">
+            <a class="page-link" 
+               href="{{ path('import_batch_errors', {id: batch.id, page: current_page + 1}) }}"
+               {% if current_page == total_pages %}tabindex="-1" aria-disabled="true"{% endif %}>
+              <i class="bi bi-chevron-right"></i>
+            </a>
+          </li>
+          
+        </ul>
+      </nav>
+      <div class="text-center text-muted small mt-2">
+        Showing page {{ current_page }} of {{ total_pages }} ({{ total_errors|number_format }} total errors)
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  {# Quick Tips #}
+  <div class="card mt-4 bg-light border-0">
+    <div class="card-body">
+      <h6 class="card-title">
+        <i class="bi bi-lightbulb me-2"></i>
+        Tips for Resolving Errors
+      </h6>
+      <ul class="mb-0 small">
+        <li><strong>Validation errors</strong> usually mean the data doesn't match expected formats (dates, numbers, required fields)</li>
+        <li><strong>Transformation errors</strong> occur when data can't be converted (e.g., "N/A" in a numeric field)</li>
+        <li><strong>Entity creation errors</strong> indicate issues creating records (duplicates, missing references)</li>
+        <li>Export the error list as CSV and fix issues in your source file before re-importing</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

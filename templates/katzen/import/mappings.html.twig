@@ -1,0 +1,83 @@
+{% extends 'katzen/_dashboard_base.html.twig' %}
+
+{% block title %}Import Mappings{% endblock %}
+
+{% block main_content %}
+<div class="import-mappings">
+  
+  {# Page Header #}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">
+        <i class="bi bi-diagram-3 me-2"></i>
+        Import Mappings
+      </h2>
+      <p class="text-muted mb-0">Configure how CSV columns map to Katzen fields</p>
+    </div>
+    <a href="{{ path('import_upload') }}" class="btn btn-primary">
+      <i class="bi bi-plus-lg me-1"></i>
+      New Import
+    </a>
+  </div>
+
+  {# Entity Type Filter Pills #}
+  <div class="mb-4">
+    <div class="d-flex flex-wrap gap-2">
+      <a href="{{ path('import_mappings') }}" 
+         class="btn btn-sm {{ not current_type ? 'btn-primary' : 'btn-outline-secondary' }}">
+        All Types
+      </a>
+      
+      {% set entity_config = {
+        'order': { 'label': 'Orders', 'color': 'primary' },
+        'item': { 'label': 'Items', 'color': 'success' },
+        'sellable': { 'label': 'Sellables', 'color': 'info' },
+        'customer': { 'label': 'Customers', 'color': 'warning' },
+        'vendor': { 'label': 'Vendors', 'color': 'secondary' }
+      } %}
+      
+      {% for type in entity_types %}
+      {% set config = entity_config[type] ?? { 'label': type|capitalize, 'color': 'secondary' } %}
+      <a href="{{ path('import_mappings', {type: type}) }}" 
+         class="btn btn-sm {{ current_type == type ? 'btn-' ~ config.color : 'btn-outline-' ~ config.color }}">
+        {{ config.label }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {# Mappings Table #}
+  <div class="card">
+    <div class="card-body p-0">
+      {% include 'katzen/component/_table_view.html.twig' with { table: table } %}
+    </div>
+  </div>
+
+  {# Help Card #}
+  <div class="card mt-4 bg-light border-0">
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h6 class="card-title">
+            <i class="bi bi-question-circle me-2"></i>
+            What are Import Mappings?
+          </h6>
+          <p class="small mb-0">
+            Import mappings tell Katzen how to translate your CSV column headers into database fields.
+            <strong>System templates</strong> provide common mappings for popular formats (POS exports, spreadsheets).
+            <strong>Custom mappings</strong> are created when you import with a new column structure.
+            You can clone and modify any mapping to suit your needs.
+          </p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+          <a href="{{ path('import_learning') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-graph-up me-1"></i>
+            View Learning Stats
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
