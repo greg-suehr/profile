@@ -40,7 +40,7 @@ final class EntityTypeDetector
       'required_any' => [
         ['order_id', 'transaction_id', 'parent_id'],
         ['product', 'item', 'sku', 'product_id'],
-        ['quantity', 'qty'],
+        ['quantity', 'qty', 'transaction_qty'],
       ],
       'strong_indicators' => [
         'unit_price', 'line_total', 'product_name', 'item_name',
@@ -63,11 +63,12 @@ final class EntityTypeDetector
     ],
     'sellable' => [
       'required_any' => [
-        ['name', 'product_name', 'title'],
+        ['name', 'product_name', 'product_detail', 'title'],
         ['price', 'selling_price', 'retail_price'],
       ],
       'strong_indicators' => [
         'cost', 'sku', 'category', 'description', 'in_stock',
+        'product_id', 
       ],
       'weak_indicators' => [
         'image', 'url', 'brand', 'tags',

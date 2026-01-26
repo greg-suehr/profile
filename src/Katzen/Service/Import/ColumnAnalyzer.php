@@ -93,14 +93,24 @@ final class ColumnAnalyzer
 
     if ($this->isNumeric($nonNullValues)) {
       $numericValues = array_map('floatval', $nonNullValues);
-      
-      $distribution['range'] = [
-        'min' => min($numericValues),
-        'max' => max($numericValues),
-        'mean' => array_sum($numericValues) / count($numericValues),
-        'median' => $this->median($numericValues),
-      ];
-      
+
+      $safeCount = count($numericValues);
+
+      if ($safeCount == 0) {
+        $distribution['range'] = [
+          'min' => 0,
+          'max' => 0,
+          'mean' => 0,
+          'median' => 0,
+        ];
+      } else {
+        $distribution['range'] = [
+          'min' => min($numericValues),
+          'max' => max($numericValues),
+          'mean' => array_sum($numericValues) / $safeCount,
+          'median' => $this->median($numericValues),
+        ];
+      }
       $distribution['is_sequential'] = $this->isSequential($numericValues);
     }
 

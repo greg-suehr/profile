@@ -112,6 +112,17 @@ final class ImportDashboardController extends AbstractController
     ]));
   }
 
+  #[Route('/plan/adjust', name: 'adjust_mapping',  methods: ['POST'])]
+  public function adjustMapping(Request $request): Response
+  {
+    $payload = json_decode($request->getContent(), true) ?? [];
+    if (!$this->isCsrfTokenValid('import_dashboard_batches_bulk', $payload['_token'] ?? '')) {
+      return $this->json(['ok' => false, 'error' => 'Bad CSRF'], 400);
+    }
+
+    return $this->json(['ok' => false, 'error' => 'Not allowed!'], 400);
+  }
+
   #[Route('/bulk', name: 'dashboard_batches_bulk', methods: ['POST'])]
   public function batchesBulk(Request $request): Response
   {
@@ -378,23 +389,43 @@ final class ImportDashboardController extends AbstractController
       try {
         $storedFilename = $this->importService->storeUploadedFile($file);
         $headers = $this->importService->extractHeaders($storedFilename);
+
+        # TODO:
+        $filepath = $this->getParameter('kernel.project_dir') . '/src/var/uploads/' . $storedFilename;
+        $filedata = $this->importService->parseFile($filepath); #, 10); # TODO: tune preview row count for `detectMapping`
+        $rows = $filedata->getData()['rows'];
         
+        $detectionResult = $this->mappingService->detectMapping($headers, $rows);
+
         $session = $request->getSession();
-        $session->set('import_file', $storedFilename);
-        $session->set('import_entity_type', $entityType);
-        $session->set('import_name', $importName);
-        $session->set('import_headers', $headers);
-        
-        if ($existingMappingId) {
-          $session->set('import_mapping_id', $existingMappingId);
-          return $this->redirectToRoute('import_validate');
+        if ($detectionResult->isSuccess()) {
+
+          $detection = $detectionResult->getData();
+          $session->set('auto_mapping', $detection);
+
+          return $this->redirectToRoute('import_plan');
+        } else {
+          # TODO: default weak confidence guesses?
+          #       currently loads single entity mapping form with no selections
+
+          $session->set('import_file', $storedFilename);
+          $session->set('import_entity_type', $entityType);
+          $session->set('import_name', $importName);
+          $session->set('import_headers', $headers);
+          
+          if ($existingMappingId) {
+            $session->set('import_mapping_id', $existingMappingId);
+            return $this->redirectToRoute('import_validate');
+          }
+
+          # TODO: suggest known mappings based on intent context
+          # $suggestedMappings = $this->mappingService->s($headers, $entityType);
+          # $session->set('import_suggested_mappings', $suggestedMappings);
+          
+          return $this->redirectToRoute('import_configure_mapping');
         }
 
-        # TODO: suggest known mappings based on intent context
-        # $suggestedMappings = $this->mappingService->s($headers, $entityType);
-        # $session->set('import_suggested_mappings', $suggestedMappings);
-        
-        return $this->redirectToRoute('import_configure_mapping');
+        # Oops?
         
       } catch (\Exception $e) {
         $this->addFlash('error', 'File upload failed: ' . $e->getMessage());
@@ -403,6 +434,27 @@ final class ImportDashboardController extends AbstractController
     
     return $this->render('katzen/import/upload.html.twig', $this->dashboardContext->with([
       'form' => $form,
+    ]));
+  }
+
+  /**
+   * Import wizard Step 2: Display auto-detect mapping before user confirmation
+   */
+  #[Route('/plan', name: 'plan')]
+  #[DashboardLayout('supply', 'import', 'import-plan')]
+  public function plan(Request $request): Response
+  {
+    $session = $request->getSession();
+    $detectionResult = $session->get('auto_mapping');
+    $mapping = $detectionResult['mapping'];    
+    $column_details = $detectionResult['column_details'];
+    $confidence = $detectionResult['confidence'];    
+    
+    return $this->render('katzen/import/plan.html.twig',  $this->dashboardContext->with([
+        'mapping' => $mapping,
+        'overall_confidence' => $confidence,
+        'column_details' => $column_details,
+        'can_refine' => true,
     ]));
   }
   

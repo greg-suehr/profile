@@ -89,10 +89,9 @@ final class ImportMappingService
       $columnMappings = [];
       $transformations = [];
       $warnings = [];
-      
+
       foreach ($headers as $index => $header) {
-        $columnData = array_column($sampleRows, $index);
-        
+        $columnData = array_column($sampleRows, $header);
         $analysis = $this->analyzeColumn($header, $columnData, $entityType);
         
         if ($analysis['mapping']) {
@@ -210,22 +209,24 @@ final class ImportMappingService
       'confidence' => $dataTypeSignal['confidence'],
       'compatible_fields' => $this->getFieldsForDataType($dataTypeSignal['type'], $entityType),
     ];
-    
+
     $patternSignal = $this->patternRecognizer->detectPattern($columnData);
     $signals['pattern'] = [
       'patterns' => $patternSignal['patterns'] ?? [],
       'primary_pattern' => $patternSignal['primary'] ?? null,
     ];
-    
+
     $distributionSignal = $this->columnAnalyzer->analyzeDistribution($columnData);
+
     $signals['distribution'] = [
       'uniqueness' => $distributionSignal['uniqueness_ratio'],
       'null_ratio' => $distributionSignal['null_ratio'],
       'range' => $distributionSignal['range'] ?? null,
       'likely_foreign_key' => $distributionSignal['uniqueness_ratio'] > 0.8,
     ];
-    
+
     $learnedSignal = $this->learningRepo->findByColumnName($header, $entityType);
+
     if ($learnedSignal) {
       $signals['learned'] = [
         'field' => $learnedSignal->getTargetField(),
@@ -235,7 +236,7 @@ final class ImportMappingService
     }
 
     $synthesis = $this->synthesizeSignals($signals, $entityType);
-    
+
     return [
       'mapping' => $synthesis['field'],
       'confidence' => $synthesis['confidence'],
