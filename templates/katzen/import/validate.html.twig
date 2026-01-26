@@ -1,21 +1,23 @@
 {% extends 'katzen/_dashboard_base.html.twig' %}
 
-{% block title %}Validate Import Data{% endblock %}
+{% block title %}Validate Import{% endblock %}
 
 {% block main_content %}
 <div class="import-validate">
-  
+
   <div class="mb-4">
     <div class="d-flex align-items-center mb-2">
-      <a href="{{ path('import_configure_mapping') }}" class="btn btn-sm btn-outline-secondary me-3">
+      <a href="{{ path('import_plan') }}" class="btn btn-sm btn-outline-secondary me-3">
         <i class="bi bi-arrow-left"></i>
       </a>
       <div>
         <h2 class="mb-1">
           <i class="bi bi-shield-check me-2"></i>
-          Validate Import Data
+          Validate Import
         </h2>
-        <p class="text-muted mb-0">Review your data before importing {{ entity_type|title }} records</p>
+        <p class="text-muted mb-0">
+          Confirm required mappings and review estimated creates for <span class="fw-semibold">{{ file_name }}</span>
+        </p>
       </div>
     </div>
   </div>
@@ -25,7 +27,7 @@
       <div class="row text-center">
         <div class="col-3">
           <div class="wizard-step completed">
-            <div class="wizard-step-icon bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+            <div class="wizard-step-icon bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2 wizard-step-icon--size">
               <i class="bi bi-check-lg"></i>
             </div>
             <div class="fw-semibold text-success">Upload</div>
@@ -34,25 +36,25 @@
         </div>
         <div class="col-3">
           <div class="wizard-step completed">
-            <div class="wizard-step-icon bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+            <div class="wizard-step-icon bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2 wizard-step-icon--size">
               <i class="bi bi-check-lg"></i>
             </div>
-            <div class="fw-semibold text-success">Map Fields</div>
+            <div class="fw-semibold text-success">Plan</div>
             <div class="small text-muted">Complete</div>
           </div>
         </div>
         <div class="col-3">
           <div class="wizard-step active">
-            <div class="wizard-step-icon bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+            <div class="wizard-step-icon bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2 wizard-step-icon--size">
               <i class="bi bi-shield-check"></i>
             </div>
             <div class="fw-semibold">Validate</div>
-            <div class="small text-muted">Preview & check</div>
+            <div class="small text-muted">Completeness & estimates</div>
           </div>
         </div>
         <div class="col-3">
           <div class="wizard-step">
-            <div class="wizard-step-icon bg-light text-muted rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+            <div class="wizard-step-icon bg-light text-muted rounded-circle d-inline-flex align-items-center justify-content-center mb-2 wizard-step-icon--size">
               <i class="bi bi-play-fill"></i>
             </div>
             <div class="text-muted">Import</div>
@@ -62,6 +64,12 @@
       </div>
     </div>
   </div>
+
+  {% set enabled_count = config.enabled_entities|length %}
+  {% set estimated_total_entities = 0 %}
+  {% for entityType, est in total_estimates.entities_to_create %}
+    {% set estimated_total_entities = estimated_total_entities + (est ?? 0) %}
+  {% endfor %}
 
   <div class="row g-3 mb-4">
     <div class="col-md-3">
@@ -73,52 +81,55 @@
             </div>
             <div>
               <div class="text-muted small">Total Rows</div>
-              <div class="h4 mb-0">{{ validation_results.total_rows|number_format }}</div>
+              <div class="h4 mb-0">{{ total_estimates.total_rows|number_format }}</div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <div class="col-md-3">
+      <div class="card border-secondary h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="bg-secondary bg-opacity-10 rounded-3 p-3 me-3">
+              <i class="bi bi-layers text-secondary" style="font-size: 2rem;"></i>
+            </div>
+            <div>
+              <div class="text-muted small">Enabled Entities</div>
+              <div class="h4 mb-0">{{ enabled_count|number_format }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="col-md-3">
       <div class="card border-success h-100">
         <div class="card-body">
           <div class="d-flex align-items-center">
             <div class="bg-success bg-opacity-10 rounded-3 p-3 me-3">
-              <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+              <i class="bi bi-plus-circle text-success" style="font-size: 2rem;"></i>
             </div>
             <div>
-              <div class="text-muted small">Valid Rows</div>
-              <div class="h4 mb-0 text-success">{{ validation_results.valid_rows|number_format }}</div>
+              <div class="text-muted small">Estimated Creates</div>
+              <div class="h4 mb-0 text-success">{{ estimated_total_entities|number_format }}</div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
     <div class="col-md-3">
-      <div class="card border-warning h-100">
+      <div class="card border-info h-100">
         <div class="card-body">
           <div class="d-flex align-items-center">
-            <div class="bg-warning bg-opacity-10 rounded-3 p-3 me-3">
-              <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
+            <div class="bg-info bg-opacity-10 rounded-3 p-3 me-3">
+              <i class="bi bi-star text-info" style="font-size: 2rem;"></i>
             </div>
             <div>
-              <div class="text-muted small">Warnings</div>
-              <div class="h4 mb-0 text-warning">{{ validation_results.warnings|number_format }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card border-danger h-100">
-        <div class="card-body">
-          <div class="d-flex align-items-center">
-            <div class="bg-danger bg-opacity-10 rounded-3 p-3 me-3">
-              <i class="bi bi-x-circle text-danger" style="font-size: 2rem;"></i>
-            </div>
-            <div>
-              <div class="text-muted small">Errors</div>
-              <div class="h4 mb-0 text-danger">{{ validation_results.critical_errors|number_format }}</div>
+              <div class="text-muted small">Primary Entity</div>
+              <div class="h6 mb-0">{{ config.primary_entity is defined ? (config.primary_entity|replace({'_':' '})|title) : '—' }}</div>
             </div>
           </div>
         </div>
@@ -126,195 +137,210 @@
     </div>
   </div>
 
-  {% if validation_results.critical_errors > 0 %}
-  <div class="alert alert-danger d-flex align-items-start mb-4">
-    <i class="bi bi-exclamation-triangle-fill me-3 mt-1" style="font-size: 1.5rem;"></i>
-    <div>
-      <h5 class="alert-heading mb-2">Import Blocked: Critical Errors Found</h5>
-      <p class="mb-2">
-        Your data contains {{ validation_results.critical_errors }} critical error(s) that must be fixed before importing. 
-        Common issues include missing required fields, invalid data types, or constraint violations.
-      </p>
-      <p class="mb-0 small">
-        <strong>Recommendation:</strong> Review the errors below, fix your source file, and re-upload. 
-        You can also adjust field mappings if needed.
-      </p>
+  {% if not can_proceed %}
+    <div class="alert alert-danger d-flex align-items-start mb-4">
+      <i class="bi bi-exclamation-triangle-fill me-3 mt-1" style="font-size: 1.25rem;"></i>
+      <div class="w-100">
+        <h6 class="alert-heading mb-2">Import blocked: required mappings missing</h6>
+        <p class="mb-2 small">
+          One or more enabled entities are missing required fields without defaults. Return to Plan to adjust mappings.
+        </p>
+
+        <div class="mt-2">
+          <ul class="mb-0 small">
+            {% for entityType, result in validation_results %}
+              {% set mc = result.mapping_completeness ?? {} %}
+              {% if mc.missing_required is defined and mc.missing_required is not empty %}
+                {% set critical_missing = mc.missing_required|filter(f => (f.has_default ?? false) == false) %}
+                {% if critical_missing is not empty %}
+                  <li>
+                    <span class="fw-semibold">{{ result.label ?? (entityType|replace({'_':' '})|title) }}</span>:
+                    {% for f in critical_missing %}
+                      <code>{{ f.field }}</code>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                  </li>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
     </div>
-  </div>
-  {% elseif validation_results.warnings > 0 %}
-  <div class="alert alert-warning d-flex align-items-start mb-4">
-    <i class="bi bi-info-circle-fill me-3 mt-1" style="font-size: 1.25rem;"></i>
-    <div>
-      <h6 class="alert-heading mb-1">Warnings Detected</h6>
-      <p class="mb-0 small">
-        Your data contains {{ validation_results.warnings }} warning(s). These won't block the import, 
-        but you may want to review them to ensure data quality.
-      </p>
-    </div>
-  </div>
   {% else %}
-  <div class="alert alert-success d-flex align-items-start mb-4">
-    <i class="bi bi-check-circle-fill me-3 mt-1" style="font-size: 1.25rem;"></i>
-    <div>
-      <h6 class="alert-heading mb-1">Validation Passed!</h6>
-      <p class="mb-0 small">
-        All {{ validation_results.total_rows }} rows passed validation. You're ready to import.
-      </p>
+    <div class="alert alert-success d-flex align-items-start mb-4">
+      <i class="bi bi-check-circle-fill me-3 mt-1" style="font-size: 1.25rem;"></i>
+      <div>
+        <h6 class="alert-heading mb-1">Ready to import</h6>
+        <p class="mb-0 small">All enabled entities have required mappings satisfied (or defaults available). You can start the import.</p>
+      </div>
     </div>
-  </div>
   {% endif %}
 
-  {% if validation_results.errors is defined and validation_results.errors is not empty %}
-  <div class="card mb-4">
-    <div class="card-header bg-transparent">
-      <h5 class="mb-0">
-        <i class="bi bi-exclamation-octagon me-2"></i>
-        Validation Issues
-      </h5>
-    </div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead class="table-light">
-            <tr>
-              <th style="width: 10%;">Row</th>
-              <th style="width: 20%;">Field</th>
-              <th style="width: 15%;">Severity</th>
-              <th style="width: 55%;">Issue</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for error in validation_results.errors|slice(0, 50) %}
-            <tr class="{% if error.severity == 'critical' %}table-danger{% elseif error.severity == 'warning' %}table-warning{% endif %}">
-              <td class="text-center">
-                <code>{{ error.row_number }}</code>
-              </td>
-              <td>
-                <code class="text-primary">{{ error.field }}</code>
-              </td>
-              <td>
-                {% if error.severity == 'critical' %}
-                <span class="badge bg-danger">
-                  <i class="bi bi-x-circle"></i>
-                  Critical
-                </span>
-                {% elseif error.severity == 'error' %}
-                <span class="badge bg-warning">
-                  <i class="bi bi-exclamation-triangle"></i>
-                  Error
-                </span>
-                {% else %}
-                <span class="badge bg-info">
-                  <i class="bi bi-info-circle"></i>
-                  Warning
-                </span>
+  <div class="row g-3 mb-4">
+    {% for entityType, result in validation_results %}
+      {% set mc = result.mapping_completeness ?? {} %}
+      {% set percent = mc.completeness_percent ?? 100 %}
+      {% set is_complete = mc.is_complete ?? true %}
+      {% set missing = mc.missing_required ?? [] %}
+
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header bg-transparent">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-diagram-3 me-2"></i>
+                <span class="fw-semibold">{{ result.label ?? (entityType|replace({'_':' '})|title) }}</span>
+                {% if config.primary_entity is defined and config.primary_entity == entityType %}
+                  <span class="badge bg-info ms-2">Primary</span>
                 {% endif %}
-              </td>
-              <td>
-                {{ error.message }}
-                {% if error.value is defined %}
-                <div class="small text-muted mt-1">
-                  Value: <code>{{ error.value }}</code>
+              </div>
+
+              <div class="d-flex align-items-center gap-2">
+                {% if is_complete %}
+                  <span class="badge bg-success">Mapping complete</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">Mapping incomplete</span>
+                {% endif %}
+
+                {% if result.estimated_total is defined %}
+                  <span class="badge bg-light text-dark border">
+                    Est. creates: {{ result.estimated_total|number_format }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-lg-6">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div class="text-muted small">Required mapping completeness</div>
+                  <div class="small fw-semibold">{{ percent }}%</div>
                 </div>
-                {% endif %}
-              </td>
-            </tr>
-            {% endfor %}
-            {% if validation_results.errors|length > 50 %}
-            <tr>
-              <td colspan="4" class="text-center text-muted py-3">
-                <i class="bi bi-three-dots"></i>
-                Showing first 50 of {{ validation_results.errors|length }} issues. 
-                All issues will be available in the import batch report.
-              </td>
-            </tr>
-            {% endif %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  {% endif %}
+                <div class="progress" role="progressbar" aria-label="Mapping completeness" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar{% if is_complete %} bg-success{% else %} bg-warning{% endif %}" style="width: {{ percent }}%"></div>
+                </div>
 
-  <div class="card mb-4">
-    <div class="card-header bg-transparent">
-      <div class="d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">
-          <i class="bi bi-eye me-2"></i>
-          Data Preview
-        </h5>
-        <span class="badge bg-light text-dark border">
-          Showing first {{ validation_results.preview_rows|length }} rows
-        </span>
-      </div>
-    </div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-sm table-hover mb-0">
-          <thead class="table-light sticky-top">
-            <tr>
-              <th style="width: 5%;" class="text-center">#</th>
-              {% for field in validation_results.headers %}
-              <th>{{ field|title|replace({'_': ' '}) }}</th>
-              {% endfor %}
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in validation_results.preview_rows %}
-            <tr>
-              <td class="text-center text-muted">
-                {{ row.row_number }}
-              </td>
-              
-              {% for field in validation_results.headers %}
-              {% set value = row.data[field] ?? null %}
-              
-              <td>
-                {% if value is null or value == '' %}
-                <span class="text-muted fst-italic">—</span>
-                {% else %}
-                <span class="text-truncate d-inline-block"
-                      style="max-width: 200px;"
-                      title="{{ value }}">
-                  {{ value }}
-                </span>
+                <div class="mt-2 small text-muted">
+                  Mapped fields: <span class="fw-semibold">{{ mc.mapped_count ?? 0 }}</span>
+                  <span class="text-muted">•</span>
+                  Mapping entries: <span class="fw-semibold">{{ result.field_count ?? 0 }}</span>
+                </div>
+
+                {% if missing is not empty %}
+                  <div class="mt-3">
+                    <div class="small fw-semibold mb-2">Missing required fields</div>
+                    <ul class="mb-0 small">
+                      {% for f in missing %}
+                        <li>
+                          <code>{{ f.field }}</code>
+                          {% if f.description is defined and f.description %}
+                            <span class="text-muted">— {{ f.description }}</span>
+                          {% endif %}
+                          {% if f.has_default ?? false %}
+                            <span class="badge bg-secondary ms-2">Default available</span>
+                          {% else %}
+                            <span class="badge bg-danger ms-2">Blocks import</span>
+                          {% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
                 {% endif %}
-              </td>
-              {% endfor %}
-            </tr>
-            {% else %}
-            <tr>
-              <td colspan="100" class="text-center text-muted py-4">
-                No preview data available
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+              </div>
+
+              <div class="col-lg-6">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="card bg-light border-0 h-100">
+                      <div class="card-body">
+                        <div class="text-muted small">Extractor confidence</div>
+                        {% if result.confidence is defined %}
+                          {% set conf = result.confidence %}
+                          {% if conf is iterable %}
+                            <div class="h6 mb-0">Provided</div>
+                          {% else %}
+                            <div class="h5 mb-0">{{ (conf * 100)|round }}%</div>
+                          {% endif %}
+                        {% else %}
+                          <div class="h6 mb-0 text-muted">N/A</div>
+                        {% endif %}
+                        <div class="small text-muted mt-1">
+                          {% if result.sample_count is defined %}
+                            Sample records: {{ result.sample_count|number_format }}
+                          {% else %}
+                            No extractor configured
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="card bg-light border-0 h-100">
+                      <div class="card-body">
+                        <div class="text-muted small">Estimated creates</div>
+                        <div class="h5 mb-0">{{ (result.estimated_total ?? 0)|number_format }}</div>
+                        <div class="small text-muted mt-1">Based on sample-to-total scaling</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {% if result.warnings is defined and result.warnings is not empty %}
+                    <div class="col-12">
+                      <div class="card border-warning">
+                        <div class="card-body">
+                          <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-exclamation-triangle me-2 text-warning"></i>
+                            <span class="fw-semibold">Warnings</span>
+                            <span class="badge bg-warning text-dark ms-2">{{ result.warnings|length }}</span>
+                          </div>
+                          <ul class="mb-0 small">
+                            {% for w in result.warnings|slice(0, 8) %}
+                              <li>{{ w }}</li>
+                            {% endfor %}
+                            {% if result.warnings|length > 8 %}
+                              <li class="text-muted">…and {{ (result.warnings|length - 8) }} more</li>
+                            {% endif %}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
-    </div>
+    {% endfor %}
   </div>
 
   <div class="card">
     <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center">
-        <a href="{{ path('import_configure_mapping') }}" class="btn btn-outline-secondary">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <a href="{{ path('import_plan') }}" class="btn btn-outline-secondary">
           <i class="bi bi-arrow-left me-1"></i>
-          Back to Mapping
+          Back to Plan
         </a>
-        <div>
+
+        <form method="post" action="{{ path('import_execute') }}" id="execute-import-form" class="m-0">
+          <input type="hidden" name="_token" value="{{ csrf_token }}">
+
           {% if can_proceed %}
-          <button type="button" class="btn btn-success btn-lg" id="execute-import-btn">
-            <i class="bi bi-play-fill me-2"></i>
-            Start Import
-          </button>
+            <button type="submit" class="btn btn-success btn-lg" id="execute-import-btn">
+              <i class="bi bi-play-fill me-2"></i>
+              Start Import
+            </button>
           {% else %}
-          <button type="button" class="btn btn-danger btn-lg" disabled>
-            <i class="bi bi-x-circle me-2"></i>
-            Cannot Import (Fix Errors)
-          </button>
+            <button type="button" class="btn btn-danger btn-lg" disabled>
+              <i class="bi bi-x-circle me-2"></i>
+              Cannot Import
+            </button>
           {% endif %}
-        </div>
+        </form>
       </div>
     </div>
   </div>
@@ -327,119 +353,50 @@
       <div class="modal-header border-0">
         <h5 class="modal-title" id="import-modal-label">
           <i class="bi bi-hourglass-split me-2"></i>
-          Importing Data...
+          Starting import…
         </h5>
       </div>
       <div class="modal-body text-center py-5">
         <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
-          <span class="visually-hidden">Loading...</span>
+          <span class="visually-hidden">Loading…</span>
         </div>
-        <p class="mb-0">Please wait while your data is being imported.</p>
-        <p class="text-muted small">This may take a few moments depending on the file size.</p>
-        <div class="progress mt-3" style="height: 25px;">
-          <div class="progress-bar progress-bar-striped progress-bar-animated" 
-               role="progressbar" 
-               style="width: 0%;" 
-               id="import-progress-bar">
-            <span id="progress-text">0%</span>
-          </div>
-        </div>
+        <p class="mb-0">Creating import batch and redirecting to progress.</p>
+        <p class="text-muted small mb-0">If this takes longer than expected, check the batch list from the Import dashboard.</p>
       </div>
     </div>
   </div>
 </div>
 
 <style>
-  .wizard-step {
-    position: relative;
-  }
-  
-  .wizard-step.active .wizard-step-icon {
-    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25);
-  }
-  
-  .wizard-step.completed .wizard-step-icon {
-    box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.25);
-  }
+  .wizard-step { position: relative; }
+  .wizard-step.active .wizard-step-icon { box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25); }
+  .wizard-step.completed .wizard-step-icon { box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.25); }
+  .wizard-step-icon--size { width: 40px; height: 40px; }
 
   .import-validate .card {
     border-radius: 0.5rem;
     border-color: rgba(0,0,0,0.1);
   }
-  
+
   .import-validate .card-header {
     border-bottom-color: rgba(0,0,0,0.05);
-  }
-
-  .table thead.sticky-top {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: white;
   }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const executeBtn = document.getElementById('execute-import-btn');
-  const importModal = new bootstrap.Modal(document.getElementById('import-modal'));
-  const progressBar = document.getElementById('import-progress-bar');
-  const progressText = document.getElementById('progress-text');
-  
-  if (executeBtn) {
-    executeBtn.addEventListener('click', async function() {
-      // Confirm before starting
-      const confirmed = confirm(
-        'Ready to start the import? This will create {{ validation_results.valid_rows }} new {{ entity_type }} record(s).'
-      );
-      
-      if (!confirmed) return;
-      
-      // Show loading modal
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('execute-import-form');
+    const btn = document.getElementById('execute-import-btn');
+    const modalEl = document.getElementById('import-modal');
+
+    if (!form || !btn || !modalEl) return;
+
+    const importModal = new bootstrap.Modal(modalEl);
+
+    form.addEventListener('submit', function() {
+      // Standard POST/redirect; we just provide immediate feedback.
       importModal.show();
-      
-      try {
-        // Start the import
-        const response = await fetch('{{ path('import_execute') }}', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-          }
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-          // Redirect to batch detail page
-          window.location.href = result.redirect_url;
-        } else {
-          importModal.hide();
-          alert('Import failed: ' + (result.error || 'Unknown error'));
-        }
-        
-      } catch (error) {
-        importModal.hide();
-        alert('Import failed: ' + error.message);
-        console.error('Import error:', error);
-      }
     });
-  }
-  
-  // Simulate progress (in reality, you'd poll the progress endpoint)
-  let progress = 0;
-  const progressInterval = setInterval(function() {
-    if (progress < 90) {
-      progress += Math.random() * 10;
-      progressBar.style.width = progress + '%';
-      progressText.textContent = Math.round(progress) + '%';
-    }
-  }, 500);
-  
-  // Clear interval when modal is hidden
-  document.getElementById('import-modal').addEventListener('hidden.bs.modal', function() {
-    clearInterval(progressInterval);
   });
-});
 </script>
 {% endblock %}

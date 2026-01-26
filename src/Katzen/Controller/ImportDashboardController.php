@@ -58,6 +58,8 @@ final class ImportDashboardController extends AbstractController
     private ImportMappingService $mappingService,
     private EntityManagerInterface $em,
     private CsrfTokenManagerInterface $csrfTokenManager,
+    # TODO: Use tagged service locator for cleaner DI   
+    private LocationExtractor $locationExtractor,
   ) {}
 
   // ========================================================================
@@ -653,7 +655,7 @@ final class ImportDashboardController extends AbstractController
         }
       }
     }
-    
+
     return $this->render('katzen/import/validate.html.twig', $this->dashboardContext->with([
       'is_multi_entity' => true,
       'config' => $importConfig,
@@ -899,7 +901,7 @@ final class ImportDashboardController extends AbstractController
   {
     # TODO: Use tagged service locator for cleaner DI
     return match($entityType) {
-      'stock_location' => $this->container->get(LocationExtractor::class),
+      'stock_location' => $this->locationExtractor,
       # TODO: 'sellable' => $this->container->get(CatalogExtractor::class),
       # TODO: 'customer' => $this->container->get(CustomerExtractor::class),
       # TODO: 'order' => $this->container->get(OrderExtractor::class),
