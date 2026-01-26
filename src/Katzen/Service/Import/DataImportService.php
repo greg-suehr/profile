@@ -274,12 +274,13 @@ final class DataImportService
     return sprintf('%s - %s (%s)', $mapping->getName(), $filename, $date);
   }
 
+  # TODO: move parseFile to FileParser interface class
   /**
    * Parse CSV or Excel file into rows
    * 
    * @return ServiceResponse with data: ['rows' => array, 'headers' => array]
    */
-  private function parseFile(string $filepath): ServiceResponse
+  public function parseFile(string $filepath): ServiceResponse
   {
     if (!file_exists($filepath)) {
       return ServiceResponse::failure(
@@ -314,7 +315,7 @@ final class DataImportService
           errors: ["Unable to open file: {$filepath}"]
         );
       }
-      
+
       $firstLine = fgets($handle);
       rewind($handle);
       $delimiter = $this->detectDelimiter($firstLine);
@@ -328,6 +329,7 @@ final class DataImportService
       }
             
       $headers = array_map('trim', $headers);
+      $headers = array_map(fn($h) => $this->stripBom($h), $headers);
       
       $rowNumber = 1;
       while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
@@ -406,6 +408,7 @@ final class DataImportService
         
         if ($rowNumber === 1) {
           $headers = array_map('trim', $rowData);
+          $headers = array_map(fn($h) => $this->stripBom($h), $headers);
           continue;
         }
         
@@ -533,6 +536,17 @@ final class DataImportService
         errors: ['Master data extraction failed: ' . $e->getMessage()]
       );
     }
+  }
+
+  /**
+   * Strip UTF-8 BOM / FEFF characters from beginning of a string.
+   * These guys are why your Excel generated CSVs don't auto-map the first column
+   */
+  private function stripBom(string $value): string
+  {
+    $value = preg_replace('/^\x{FEFF}/u', '', $value) ?? $value;
+    $value = preg_replace('/^\xEF\xBB\xBF/', '', $value) ?? $value;
+    return $value;
   }
 
   /**
