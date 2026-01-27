@@ -72,7 +72,7 @@ final class DataImportService
     $resumeFromRow = $options['resume_from_row'] ?? 0;
     
     $batch = $this->createBatch($filepath, $mapping, $options);
-    
+
     try {
       $this->notifyProgress($progressCallback, 0, 0, 'parsing');
       
@@ -87,7 +87,7 @@ final class DataImportService
       
       $batch->setTotalRows($totalRows);
       $this->batchRepo->save($batch);
-      
+
       $this->logger->info('File parsed successfully', [
         'batch_id' => $batch->getId(),
         'total_rows' => $totalRows,
@@ -149,7 +149,7 @@ final class DataImportService
       $this->notifyProgress($progressCallback, 0, $totalRows, 'master_data');
       $batch->setStatus(ImportBatch::STATUS_PROCESSING);
       $batch->setStartedAt(new \DateTimeImmutable());
-      $this->batchRepo->save($batch);
+      $this->batchRepo->save($batch, true);
       
       $entityCounts = [
         'locations' => 0,
@@ -182,19 +182,19 @@ final class DataImportService
         $entityCounts,
         $transactionResult->data['entity_counts'] ?? []
       ));
-      
+
       if ($options['generate_accounting'] ?? true) {
         $this->notifyProgress($progressCallback, $totalRows, $totalRows, 'accounting');
         $this->generateDerivedData($batch);
       }
       
       $batch->setStatus(ImportBatch::STATUS_COMPLETED);
-      $batch->setCompletedAt(new \DateTimeImmutable());
+      $batch->setCompletedAt(new \DateTime());
       $batch->setErrorSummary($this->generateErrorSummary($batch));
       $this->batchRepo->save($batch);
       
       $this->notifyProgress($progressCallback, $totalRows, $totalRows, 'complete');
-      
+
       return ServiceResponse::success(
         data: [
           'batch_id' => $batch->getId(),
@@ -330,6 +330,23 @@ final class DataImportService
             
       $headers = array_map('trim', $headers);
       $headers = array_map(fn($h) => $this->stripBom($h), $headers);
+
+      $validColumnIndices = [];
+      $filteredHeaders = [];
+      foreach ($headers as $index => $header) {
+        if ($header !== '') {
+          $validColumnIndices[] = $index;
+          $filteredHeaders[] = $header;
+        }
+      }
+      $headers = $filteredHeaders;
+
+      if (empty($headers)) {
+        fclose($handle);
+        return ServiceResponse::failure(
+          errors: ['No valid column headers found']
+        );
+      }
       
       $rowNumber = 1;
       while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
@@ -338,20 +355,25 @@ final class DataImportService
         if ($this->isEmptyRow($row)) {
           continue;
         }
+
+        $filteredRow = [];
+        foreach ($validColumnIndices as $index) {
+          $filteredRow[] = $row[$index] ?? null;
+        }
         
-        if (count($row) === count($headers)) {
+        if (count($filteredRow) === count($headers)) {
           $rows[] = [
             '_row_number' => $rowNumber,
-            ...$this->combineHeadersWithRow($headers, $row),
+            ...$this->combineHeadersWithRow($headers, $filteredRow),
           ];
         } else {
           $this->logger->warning('Column count mismatch', [
             'row' => $rowNumber,
             'expected' => count($headers),
-            'actual' => count($row),
+            'actual' => count($filteredRow),
           ]);
           
-          $paddedRow = array_pad($row, count($headers), null);
+          $paddedRow = array_pad($filteredRow, count($headers), null);
           $rows[] = [
             '_row_number' => $rowNumber,
             '_column_mismatch' => true,
@@ -585,7 +607,7 @@ final class DataImportService
         'total_chunks' => count($chunks),
         'chunk_size' => count($chunk),
       ]);
-      
+
       $this->em->beginTransaction();
       
       try {
@@ -610,7 +632,7 @@ final class DataImportService
                         
             if (count($pendingErrors) < self::MAX_ERRORS_TO_STORE) {
               $pendingErrors[] = $this->createError(
-                $batchId,
+                $batch,
                 $actualRowNumber,
                 $result->errors,
                 $row,
@@ -627,6 +649,11 @@ final class DataImportService
         
         $this->em->clear();
         
+        $batch = $this->batchRepo->find($batchId);
+        if (!$batch) {
+          throw new \RuntimeException("Batch not found after clear: {$batchId}");
+        }
+        
         if (!empty($pendingErrors)) {
           $this->errorRepo->saveBatch($pendingErrors, 50);
           $pendingErrors = [];
@@ -637,7 +664,9 @@ final class DataImportService
         $this->notifyProgress($progressCallback, $processedCount, $totalRows, 'transactions');
         
       } catch (\Throwable $e) {
-        $this->em->rollback();
+        if ($this->em->getConnection()->isTransactionActive()) {
+          $this->em->rollback();
+        }
         
         $this->logger->error('Chunk processing failed', [
           'batch_id' => $batchId,
@@ -650,7 +679,7 @@ final class DataImportService
           
           if (count($pendingErrors) < self::MAX_ERRORS_TO_STORE) {
             $pendingErrors[] = $this->createError(
-              $batchId,
+              $batch,
               $actualRowNumber,
               ['Batch transaction failed: ' . $e->getMessage()],
               $row,
@@ -662,7 +691,7 @@ final class DataImportService
           $failureCount++;
           $processedCount++;
         }
-        
+
         $this->errorRepo->saveBatch($pendingErrors, 50);
         $pendingErrors = [];
         
@@ -684,15 +713,13 @@ final class DataImportService
    * Create an error entity (without persisting)
    */
   private function createError(
-    int $batchId,
+    ImportBatch $batch,
     int $rowNumber,
     array $errors,
     array $rowData,
     string $type = ImportError::TYPE_VALIDATION,
     string $severity = ImportError::SEVERITY_ERROR
   ): ImportError {
-    $batch = $this->em->getReference(ImportBatch::class, $batchId);
-        
     $error = new ImportError();
     $error->setBatch($batch);
     $error->setRowNumber($rowNumber);
@@ -776,7 +803,7 @@ final class DataImportService
    */
   private function generateErrorSummary(ImportBatch $batch): array
   {
-    $errors = $this->errorRepo->findByBatch($batch, limit: 100);
+    $errors = $this->errorRepo->findByBatch($batch);
     
     $summary = [
       'total_errors' => $batch->getFailedRows(),
@@ -810,7 +837,7 @@ final class DataImportService
   private function failBatch(ImportBatch $batch, array $errors, ?array $data = null): ServiceResponse
   {
     $batch->setStatus(ImportBatch::STATUS_FAILED);
-    $batch->setCompletedAt(new \DateTimeImmutable());
+    $batch->setCompletedAt(new \DateTime());
     $batch->setErrorSummary([
       'fatal_errors' => $errors,
       'data' => $data,
@@ -893,7 +920,7 @@ final class DataImportService
       }
       
       $batch->setStatus(ImportBatch::STATUS_ROLLED_BACK);
-      $batch->setCompletedAt(new \DateTimeImmutable());
+      $batch->setCompletedAt(new \DateTime());
       $batch->setErrorSummary([
         'rollback_counts' => $rollbackCounts,
         'rolled_back_at' => (new \DateTime())->format('c'),
@@ -916,7 +943,9 @@ final class DataImportService
       );
       
     } catch (\Throwable $e) {
-      $this->em->rollback();
+      if ($this->em->getConnection()->isTransactionActive()) {
+        $this->em->rollback();
+      }
       
       $this->logger->error('Rollback failed', [
         'batch_id' => $batch->getId(),
@@ -1155,7 +1184,7 @@ final class DataImportService
     }
     
     $parseResult = $this->parseFile($filepath);
-    
+
     if ($parseResult->isFailure()) {
       throw new \RuntimeException(
         'Failed to extract headers: ' . implode(', ', $parseResult->errors)
