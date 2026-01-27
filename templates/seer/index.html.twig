@@ -148,8 +148,20 @@
 
     const MOBILE_MQ = window.matchMedia('(max-width: 768px)');
 
-    function applyHeroMorphOpacity() {
-      heroMorph.style.opacity = MOBILE_MQ.matches ? '0' : '1';
+    function applyHeroMorphOpacity(phase2Progress) {
+      if (!MOBILE_MQ.matches) {
+        heroMorph.style.opacity = '1';
+        return;
+      }
+  
+      if (phase2Progress < 0.4) {
+        heroMorph.style.opacity = '1';
+      } else if (phase2Progress >= 0.5) {
+        heroMorph.style.opacity = '0';
+      } else {
+        const fadeProgress = (phase2Progress - 0.4) / 0.1;
+        heroMorph.style.opacity = (1 - fadeProgress).toString();
+      }
     }
     
     function calculateClipPath(scrollY) {
@@ -234,10 +246,11 @@
       
       if (phase2Progress >= 0.4) {
         document.body.classList.add('sidebars-active');
-        applyHeroMorphOpacity();
       } else {
         document.body.classList.remove('sidebars-active');
       }
+
+      applyHeroMorphOpacity(phase2Progress);
       
       contentSections.forEach((section) => {
         const rect = section.getBoundingClientRect();
@@ -265,12 +278,9 @@
 
       if (typeof MOBILE_MQ.addEventListener === 'function') {
         MOBILE_MQ.addEventListener('change', () => {
-          applyHeroMorphOpacity();
-          updateOnScroll();
-        });
-      } else {
-        MOBILE_MQ.addListener(() => {
-          applyHeroMorphOpacity();
+          const scrollY = window.scrollY;
+          const phase2Progress = Math.max(0, (scrollY - CONFIG.scrollPhase1End) / (CONFIG.scrollPhase2End - CONFIG.scrollPhase1End));
+          applyHeroMorphOpacity(phase2Progress);
           updateOnScroll();
         });
       }
