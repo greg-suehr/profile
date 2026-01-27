@@ -22,6 +22,7 @@ use App\Katzen\Repository\Import\ImportMappingRepository;
 use App\Katzen\Repository\Import\ImportMappingLearningRepository;
 use App\Katzen\Service\Import\DataExtractor;
 use App\Katzen\Service\Import\DataImportService;
+use App\Katzen\Service\Import\Extractor\CatalogExtractor;
 use App\Katzen\Service\Import\Extractor\LocationExtractor;
 use App\Katzen\Service\Import\ImportMappingService;
 use App\Katzen\Service\Import\MultiEntityMappingResult;
@@ -58,7 +59,8 @@ final class ImportDashboardController extends AbstractController
     private ImportMappingService $mappingService,
     private EntityManagerInterface $em,
     private CsrfTokenManagerInterface $csrfTokenManager,
-    # TODO: Use tagged service locator for cleaner DI   
+    # TODO: Use tagged service locator for cleaner DI
+    private CatalogExtractor $catalogExtractor,    
     private LocationExtractor $locationExtractor,
   ) {}
 
@@ -809,14 +811,14 @@ final class ImportDashboardController extends AbstractController
     ));
     $batch->setStatus(ImportBatch::STATUS_PENDING);
     $batch->setTotalRows($uploadData['total_row_count'] ?? count($uploadData['all_rows'] ?? []));
+
     
-    $batch->setMetadata([
-      'type' => 'multi_entity',
-      'file_path' => $uploadData['file_path'],
-      'enabled_entities' => $importConfig['enabled_entities'],
-      'extraction_strategy' => $importConfig['extraction_strategy'],
-      'entity_mappings' => $importConfig['entity_mappings'],
-    ]);
+    # TODO: add metadata to a ServiceResponse object?
+    #  'type' => 'multi_entity',
+    # 'file_path' => $uploadData['file_path'],
+    #  'enabled_entities' => $importConfig['enabled_entities'],
+    #  'extraction_strategy' => $importConfig['extraction_strategy'],
+    #  'entity_mappings' => $importConfig['entity_mappings'],
     
     $this->em->persist($batch);
     $this->em->flush();
@@ -902,7 +904,7 @@ final class ImportDashboardController extends AbstractController
     # TODO: Use tagged service locator for cleaner DI
     return match($entityType) {
       'stock_location' => $this->locationExtractor,
-      # TODO: 'sellable' => $this->container->get(CatalogExtractor::class),
+      'sellable' => $this->catalogExtractor,
       # TODO: 'customer' => $this->container->get(CustomerExtractor::class),
       # TODO: 'order' => $this->container->get(OrderExtractor::class),
       default => null,
