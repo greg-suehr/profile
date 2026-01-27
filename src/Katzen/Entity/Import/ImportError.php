@@ -29,7 +29,7 @@ class ImportError
   #[ORM\Column]
   private ?int $id = null;
   
-  #[ORM\ManyToOne(targetEntity: ImportBatch::class, inversedBy: 'errors')]
+  #[ORM\ManyToOne(targetEntity: ImportBatch::class, inversedBy: 'errors', cascade: ['persist'])]
   #[ORM\JoinColumn(nullable: false)]
   private ?ImportBatch $batch = null;
   

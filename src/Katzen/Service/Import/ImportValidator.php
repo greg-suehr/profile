@@ -351,7 +351,16 @@ final class ImportValidator
       $value = $row[$column] ?? null;
       
       foreach ($columnRules as $rule => $ruleConfig) {
-        $result = $this->applyRule($value, $rule, $ruleConfig, $column);
+        # - Simple: 'rule' => 10
+        # - Complex: 'rule' => ['value' => 10, 'severity' => 'error']
+        $severity = 'error';
+        $actualValue = $ruleConfig;
+        
+        if (is_array($ruleConfig)) {
+          $severity = $ruleConfig['severity'] ?? 'error';
+          $ruleValue = $ruleConfig['value'] ?? $ruleConfig;
+        }
+        $result = $this->applyRule($value, $rule, $ruleValue, $column);
         if ($result !== null) {
           if ($ruleConfig['severity'] ?? 'error' === 'warning') {
             $warnings[] = $result;

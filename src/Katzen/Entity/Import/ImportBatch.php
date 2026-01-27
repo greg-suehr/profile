@@ -54,6 +54,9 @@ class ImportBatch
   
   #[ORM\Column(type: Types::JSON, nullable: true)]
   private ?array $entity_counts = null;
+
+  #[ORM\Column(type: Types::JSON, nullable: true)]
+  private ?array $metadata = null;
   
   #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
   private ?\DateTimeImmutable $started_at = null;
@@ -215,6 +218,8 @@ class ImportBatch
   public function setErrorSummary(array $error_summary): static { $this->error_summary = $error_summary; return $this; }
   public function getEntityCounts(): ?array { return $this->entity_counts; }
   public function setEntityCounts(array $entity_counts): static { $this->entity_counts = $entity_counts; return $this; }
+  public function getMetadata(): ?array { return $this->metadata; }
+  public function setMetadata(?array $metadata): static { $this->metadata = $metadata; return $this; }
   public function getStartedAt(): ?\DateTimeInterface{ return $this->started_at; }
   public function setStartedAt(\DateTimeInterface $started_at): static { $this->started_at = $started_at; return $this; }
   public function getCreatedAt(): ?\DateTimeImmutable { return $this->created_at; }

@@ -67,6 +67,40 @@ class StockLocation
         $this->purchases = new ArrayCollection();
     }
 
+  # TODO: move string transformation logic to a Utility Service, then document
+  #       a design pattern for generate`Entity`Code() and similar utilities
+  public function generateLocationCode(
+    ?string $name=null,
+    ?int $sequence=null,
+  ): string
+  {
+    if (is_null($name)) {
+      if (is_null($this->name)) {
+        return sprintf('%03d', $this->id);
+      }
+
+      $name = $this->name;
+    }
+
+    $base = trim(preg_replace('/\s+/', ' ', strtoupper($name)));
+    $words = explode(' ', $base);
+
+    if (count($words) === 1) {
+      $code = substr($words[0], 0, 3);
+    } else {
+      $code = substr($words[0], 0, 2) . substr($words[1], 0, 1);
+    }
+
+    if (is_null($sequence)) {
+      return $code;
+    } else {      
+      $code = str_pad(substr($code, 0, 2), 3, substr($words[0], -1), STR_PAD_RIGHT);    
+      $suffix = str_pad(base_convert($sequence, 10, 36), 2, '0', STR_PAD_LEFT);
+
+      return $code . $suffix;
+    }
+  }
+
   # TODO: design StockLocation status
     public function getStatus(): string
     {
@@ -93,9 +127,13 @@ class StockLocation
         return $this->code;
     }
 
-    public function setCode(string $code): static
+    public function setCode(?string $code): static
     {
-        $this->code = $code;
+        if (is_null($code)) {
+          $this->code =  $this->generateLocationCode(null,null);
+        } else {
+          $this->code = $code;
+        }
 
         return $this;
     }

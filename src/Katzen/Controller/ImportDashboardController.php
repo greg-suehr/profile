@@ -16,6 +16,7 @@ use App\Katzen\Entity\Import\ImportBatch;
 use App\Katzen\Entity\Import\ImportMapping;
 use App\Katzen\Form\ImportMappingType;
 use App\Katzen\Form\ImportUploadType;
+use App\Katzen\Messenger\TaskExecutor\ImportTaskExecutor;
 use App\Katzen\Repository\Import\ImportBatchRepository;
 use App\Katzen\Repository\Import\ImportErrorRepository;
 use App\Katzen\Repository\Import\ImportMappingRepository;
@@ -59,6 +60,7 @@ final class ImportDashboardController extends AbstractController
     private ImportMappingService $mappingService,
     private EntityManagerInterface $em,
     private CsrfTokenManagerInterface $csrfTokenManager,
+    private ImportTaskExecutor $tasks,
     # TODO: Use tagged service locator for cleaner DI
     private CatalogExtractor $catalogExtractor,    
     private LocationExtractor $locationExtractor,
@@ -811,20 +813,22 @@ final class ImportDashboardController extends AbstractController
     ));
     $batch->setStatus(ImportBatch::STATUS_PENDING);
     $batch->setTotalRows($uploadData['total_row_count'] ?? count($uploadData['all_rows'] ?? []));
-
     
-    # TODO: add metadata to a ServiceResponse object?
-    #  'type' => 'multi_entity',
-    # 'file_path' => $uploadData['file_path'],
-    #  'enabled_entities' => $importConfig['enabled_entities'],
-    #  'extraction_strategy' => $importConfig['extraction_strategy'],
-    #  'entity_mappings' => $importConfig['entity_mappings'],
+    $mapping = $this->mappingService->createTemporaryMapping("multi", []);
+    $batch->setMapping($mapping);
+    $batch->setMetadata([
+      'type' => 'multi',
+      'file_path' => $uploadData['file_path'],
+      'enabled_entities' => $importConfig['enabled_entities'],
+      'extraction_strategy' => $importConfig['extraction_strategy'],
+      'entity_mappings' => $importConfig['entity_mappings'],
+    ]);
     
     $this->em->persist($batch);
     $this->em->flush();
     
     # TODO: Queue the import job for async processing
-    # $this->messageBus->dispatch(new ProcessMultiEntityImportMessage($batch->getId()));
+    $this->tasks->execute('process_multi_entity_import', ['batch_id' => $batch->getId()]);
     
     $this->addFlash('success', 'Import started! You can track progress below.');
     
@@ -1068,14 +1072,17 @@ final class ImportDashboardController extends AbstractController
    */
   private function getBatchEntityTypes(ImportBatch $batch): string
   {
-    $metadata = $batch->getMetadata();
-    if (($metadata['type'] ?? null) === 'multi_entity') {
-      $entities = $metadata['enabled_entities'] ?? [];
-      if (count($entities) > 2) {
-        return 'multi (' . count($entities) . ')';
-      }
-      return implode(', ', array_map(fn($e) => substr($e, 0, 3), $entities));
+    $entityType = $batch->getMapping()?->getEntityType();
+    if (($entityType ?? null) === 'multi') {
+      # TODO: 
+      # $entities = $metadata['enabled_entities'] ?? [];
+      # if (count($entities) > 2) {
+      #  return 'multi (' . count($entities) . ')';
+      # }
+      # return implode(', ', array_map(fn($e) => substr($e, 0, 3), $entities));
+      return 'Multiple entities';
     }
+    
     return '-';
   }
 
@@ -1225,13 +1232,14 @@ final class ImportDashboardController extends AbstractController
 
   private function getBatchSubtitle(ImportBatch $batch): string
   {
-    $metadata = $batch->getMetadata();
-    if (($metadata['type'] ?? null) === 'multi_entity') {
-      $entities = $metadata['enabled_entities'] ?? [];
-      return 'Multi-entity import: ' . implode(', ', array_map(
-        fn($e) => $this->formatEntityLabel($e),
-        $entities
-      ));
+    $entityType = $batch->getMapping()?->getEntityType();
+    if (($entityType ?? null) === 'multi') {
+      # TODO: $entities = $metadata['enabled_entities'] ?? [];
+      # return 'Multi-entity import: ' . implode(', ', array_map(
+      #  fn($e) => $this->formatEntityLabel($e),
+      #  $entities
+      # ));
+      return 'Multi-entity import';
     }
     return ($batch->getMapping()?->getEntityType() ?? 'Unknown') . ' import';
   }

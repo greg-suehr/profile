@@ -53,11 +53,7 @@ final class ImportMappingService
     private PatternRecognizer $patternRecognizer,
     private LoggerInterface $logger,
   ) {}
-  
-  // ========================================================================
-  // Multi-Entity Detection (NEW)
-  // ========================================================================
-  
+    
   /**
    * Detect all extractable entities from CSV headers and sample data
    * 
@@ -81,7 +77,6 @@ final class ImportMappingService
     ]);
     
     try {
-      // Step 1: Detect all extractable entity types
       $entityDetection = $this->entityTypeDetector->detect($headers, $sampleRows);
       
       if (!$entityDetection->isSuccess()) {
@@ -108,7 +103,6 @@ final class ImportMappingService
         'strategy' => $extractionStrategy['type'] ?? 'unknown',
       ]);
       
-      // Step 2: Generate per-entity field mappings
       $entityMappings = [];
       $allWarnings = [];
       
@@ -126,14 +120,12 @@ final class ImportMappingService
         $allWarnings = array_merge($allWarnings, $mappingResult['warnings']);
       }
       
-      // Step 3: Calculate overall confidence
       $overallConfidence = $this->calculateMultiEntityConfidence(
         $extractableEntities,
         $entityMappings,
         $extractionStrategy
       );
       
-      // Step 4: Generate explanation
       $explanation = $this->generateMultiEntityExplanation(
         $primaryEntity,
         $extractableEntities,
@@ -141,7 +133,6 @@ final class ImportMappingService
         $overallConfidence
       );
       
-      // Step 5: Build result object
       $result = new MultiEntityMappingResult(
         primaryEntity: $primaryEntity,
         extractableEntities: $extractableEntities,
@@ -187,13 +178,11 @@ final class ImportMappingService
     $entityHeaders = [];
     
     foreach ($headerEntityMap as $header => $info) {
-      // Include if primary entity matches
       if ($info['primary_entity'] === $entityType) {
         $entityHeaders[] = $header;
         continue;
       }
       
-      // Also include if it's a strong match for this entity (shared headers)
       $entityMatches = $info['entity_matches'] ?? [];
       if (isset($entityMatches[$entityType]) && $entityMatches[$entityType]['score'] >= 0.5) {
         $entityHeaders[] = $header;
@@ -238,13 +227,11 @@ final class ImportMappingService
       }
     }
     
-    // Create ImportMapping entity
     $mapping = new ImportMapping();
     $mapping->setName($this->generateMappingName($entityType, $entityHeaders));
     $mapping->setEntityType($entityType);
     $mapping->setFieldMappings($this->formatFieldMappings($columnMappings));
     
-    // Detect composite mappings (date + time, etc.)
     $compositeMappings = $this->detectCompositeMappings($columnMappings, $allHeaders, $sampleRows);
     if ($compositeMappings) {
       $existingMappings = $mapping->getFieldMappings();
@@ -275,13 +262,11 @@ final class ImportMappingService
   ): float {
     $factors = [];
     
-    // Factor 1: Average entity detection confidence
     $entityConfidences = array_column($extractableEntities, 'confidence');
     $factors['entity_detection'] = !empty($entityConfidences)
       ? array_sum($entityConfidences) / count($entityConfidences)
       : 0;
     
-    // Factor 2: Mapping completeness across all entities
     $completenessScores = [];
     foreach ($entityMappings as $entityType => $mapping) {
       $validation = $this->validateMappingCompleteness(
@@ -294,7 +279,6 @@ final class ImportMappingService
       ? array_sum($completenessScores) / count($completenessScores)
       : 0;
     
-    // Factor 3: Strategy clarity (do we have clear grouping?)
     $factors['strategy_clarity'] = match($extractionStrategy['type'] ?? 'unknown') {
       'single_entity' => 1.0,
       'denormalized_transaction' => $extractionStrategy['grouping_key'] ? 0.9 : 0.6,
@@ -302,7 +286,6 @@ final class ImportMappingService
       default => 0.5,
     };
     
-    // Weighted combination
     $weights = [
       'entity_detection' => 0.4,
       'completeness' => 0.35,
@@ -328,7 +311,6 @@ final class ImportMappingService
   ): string {
     $parts = [];
     
-    // Describe what we found
     $entityCount = count($extractableEntities);
     if ($entityCount === 1) {
       $parts[] = sprintf(
@@ -347,7 +329,6 @@ final class ImportMappingService
       );
     }
     
-    // Describe extraction strategy
     if ($extractionStrategy['requires_grouping'] ?? false) {
       $groupingKey = $extractionStrategy['grouping_key'] ?? 'unknown field';
       $parts[] = sprintf(
@@ -356,13 +337,11 @@ final class ImportMappingService
       );
     }
     
-    // Add strategy notes
     $notes = $extractionStrategy['notes'] ?? [];
     foreach (array_slice($notes, 0, 2) as $note) {
       $parts[] = $note;
     }
     
-    // Confidence guidance
     if ($overallConfidence >= self::HIGH_CONFIDENCE_THRESHOLD) {
       $parts[] = "High confidence - ready to proceed with review.";
     } elseif ($overallConfidence >= self::MIN_CONFIDENCE_THRESHOLD) {
@@ -412,10 +391,6 @@ final class ImportMappingService
     };
   }
 
-  // ========================================================================
-  // Legacy Single-Entity Detection (Preserved for backward compatibility)
-  // ========================================================================
-  
   /**
    * Auto-detect mapping from CSV headers and sample data
    * 
@@ -537,7 +512,6 @@ final class ImportMappingService
           'warnings' => $warnings,
           'missing_required_fields' => $validation['missing_fields'] ?? [],
           'explanation' => $this->generateExplanation($entityType, $columnMappings, $overallConfidence),
-          // NEW: Include multi-entity data for UI to optionally use
           'multi_entity_data' => [
             'extractable_entities' => $detectionResult['extractable_entities'] ?? [],
             'extraction_strategy' => $detectionResult['extraction_strategy'] ?? [],
@@ -559,10 +533,6 @@ final class ImportMappingService
       );
     }
   }
-
-  // ========================================================================
-  // Column Analysis Methods
-  // ========================================================================
 
   /**
    * Analyze a single column to determine its mapping
@@ -769,7 +739,6 @@ final class ImportMappingService
   ): array {
     $requiredFields = $this->getRequiredFields($entityType);
     
-    // Handle both old format (target_field in array) and new format (direct value)
     $mappedFields = [];
     foreach ($columnMappings as $header => $mapping) {
       if (is_array($mapping)) {

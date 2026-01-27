@@ -36,7 +36,7 @@ use Psr\Log\LoggerInterface;
  */
 final class LocationExtractor extends AbstractDataExtractor
 {
-    protected const DEFAULT_PRIORITY = 90; // Run early - locations are dependencies
+    protected const DEFAULT_PRIORITY = 90;
     
     /**
      * Location type classification based on naming patterns.
@@ -92,7 +92,6 @@ final class LocationExtractor extends AbstractDataExtractor
     ): ExtractionResult {
         $fieldMappings = $mapping->getFieldMappings();
         
-        // Find location-related columns
         $nameColumn = $this->findColumn(
             ['location', 'store_location', 'location_name', 'store_name', 
              'store', 'warehouse', 'site', 'site_name'],
@@ -128,7 +127,6 @@ final class LocationExtractor extends AbstractDataExtractor
         foreach ($rows as $rowIndex => $row) {
             $name = $this->getValue($row, $nameColumn);
             
-            // Skip rows without location data
             if (empty($name)) {
                 continue;
             }
@@ -138,13 +136,11 @@ final class LocationExtractor extends AbstractDataExtractor
             $region = $this->getValue($row, $regionColumn);
             $explicitType = $this->getValue($row, $typeColumn);
             
-            // Build unique key - prefer external ID, fall back to name
             $key = $externalId 
                 ? 'ext:' . $this->normalizeKey($externalId)
                 : 'name:' . $this->normalizeKey($name);
             
             if (!isset($locations[$key])) {
-                // Infer location type from name if not explicit
                 $locationType = $explicitType ?: $this->inferLocationType($name);
                 
                 $locations[$key] = [
@@ -157,12 +153,10 @@ final class LocationExtractor extends AbstractDataExtractor
                     'first_seen_row' => $rowIndex,
                 ];
                 
-                // Track by region
                 if ($region) {
                     $byRegion[$region] = ($byRegion[$region] ?? 0) + 1;
                 }
                 
-                // Track by type
                 if ($locationType) {
                     $byType[$locationType] = ($byType[$locationType] ?? 0) + 1;
                 }
@@ -170,7 +164,6 @@ final class LocationExtractor extends AbstractDataExtractor
             
             $locations[$key]['row_count']++;
             
-            // Check for data conflicts (same key but different values)
             if ($locations[$key]['name'] !== $name) {
                 $warnings[] = sprintf(
                     'Location key "%s" has conflicting names: "%s" vs "%s" (row %d)',
@@ -179,7 +172,6 @@ final class LocationExtractor extends AbstractDataExtractor
             }
         }
         
-        // Sort locations by row count (most common first)
         uasort($locations, fn($a, $b) => $b['row_count'] <=> $a['row_count']);
         
         $diagnostics = [
@@ -276,10 +268,6 @@ final class LocationExtractor extends AbstractDataExtractor
         }
     }
     
-    // ========================================================================
-    // Private Helper Methods
-    // ========================================================================
-    
     /**
      * Infer location type from name patterns.
      */
@@ -310,26 +298,24 @@ final class LocationExtractor extends AbstractDataExtractor
             return ServiceResponse::failure('Location must have a name');
         }
         
-        // Try to find existing location
         $existing = null;
         $wasUpdated = false;
         
-        // First try by external ID (most reliable)
-        if ($externalId) {
-            $existing = $this->locationRepo->findOneBy(['externalId' => $externalId]);
-        }
+        # TODO:
+        # if ($externalId) {
+        #    $existing = $this->locationRepo->findOneBy(['externalId' => $externalId]);
+        # }
         
-        // Fall back to name lookup
         if (!$existing) {
             $existing = $this->locationRepo->findOneBy(['name' => $name]);
         }
         
         if ($existing) {
-            // Optionally update external ID if we found by name but have new external ID
-            if ($externalId && !$existing->getExternalId()) {
-                $existing->setExternalId($externalId);
-                $wasUpdated = true;
-            }
+            # TODO:
+            # if ($externalId && !$existing->getExternalId()) {
+            #    $existing->setExternalId($externalId);
+            #    $wasUpdated = true;
+            # }
             
             return ServiceResponse::success(
                 data: [
@@ -340,16 +326,15 @@ final class LocationExtractor extends AbstractDataExtractor
             );
         }
         
-        // Create new location
-        $location = new StockLocation();
+        $location = new StockLocation();        
         $location->setName($name);
+        $location->setCode(null);
+
+        # TODO:
+        # if ($externalId) {
+        #    $location->setExternalId($externalId);
+        #}
         
-        if ($externalId) {
-            $location->setExternalId($externalId);
-        }
-        
-        // Set additional fields if the entity supports them
-        // These might not exist on your StockLocation - adjust as needed
         if (method_exists($location, 'setAddress') && ($data['address'] ?? null)) {
             $location->setAddress($data['address']);
         }
@@ -368,10 +353,6 @@ final class LocationExtractor extends AbstractDataExtractor
             data: ['entity' => $location, 'was_created' => true]
         );
     }
-    
-    // ========================================================================
-    // Public Utility Methods
-    // ========================================================================
     
     /**
      * Get available location types for UI display.
