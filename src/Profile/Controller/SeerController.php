@@ -2,6 +2,8 @@
 
 namespace App\Profile\Controller;
 
+use App\Katzen\Entity\KatzenWaitlist; # TODO: replace after UnifiedWaitlist project
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -15,12 +17,10 @@ final class SeerController extends AbstractController
   public function __construct(
   ) {}
 
-  #[Route('/slide', name: 'seer_tmp')]
-  public function tmp(): Response { return $this->render('seer/slide-effect.html.twig', []);}
-
-  #[Route('/design', name: 'seer_home')]
+  #[Route('/', name: 'seer_home')]
   public function index(): Response { return $this->render('seer/index.html.twig', []);}
 
+  
   #[Route('/about', name: 'seer_about')]
   public function about(): Response { return $this->render('seer/about.html.twig', []);}
 
@@ -35,4 +35,45 @@ final class SeerController extends AbstractController
   
   #[Route('/faq', name: 'seer_faq')]
   public function faq(): Response { return $this->render('seer/faq.html.twig', []);}
+
+
+  #[Route('/contact/submit', name: 'seer_waitlist_submit', methods: ['POST'])]
+  public function waitlistSubmit(Request $request, EntityManagerInterface $entityManager): JsonResponse
+  {
+    $submittedToken = $request->request->get('_token');
+    if (!$this->isCsrfTokenValid('waitlist', $submittedToken)) {
+      return new JsonResponse([
+        'success' => false,
+        'message' => 'Invalid security token. Please refresh and try again.'
+      ], 400);
+    }
+    $email = $request->request->get('email');
+
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      return new JsonResponse([
+	'success' => false,
+        'message' => 'Please enter a valid email address.'
+      ], 400);
+    }
+
+    $waitlist = new KatzenWaitlist();
+    $waitlist->setEmail($email);
+    $waitlist->setCreatedAt(new \DateTimeImmutable());
+    $waitlist->setStatus('pending');
+    $waitlist->setSessionId($request->getSession()->getId());
+
+    $session = $request->getSession();
+    $session->set('waitlist_email', $email);
+    $session->set('waitlist_timestamp', time());
+    
+    $entityManager->persist($waitlist);
+    $entityManager->flush();
+
+    return new JsonResponse([
+      'success' => true,
+      'message' => 'Message received!',
+      # 'questionnaire_url' => $this->generateUrl('seer_questionnaire'),
+      # 'questionnaire_mode' => 'overlay' // 'redirect'
+    ]);
+  }
 }

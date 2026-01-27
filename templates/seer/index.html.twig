@@ -107,7 +107,7 @@
           just a rough idea, let's talk about how we can bring it to life.
         </p>
         <p style="margin-top: 2rem;">
-          <a href="mailto:hello@seerdesign.co" class="cta-button">
+          <a href="#" class="cta-button">
             Get in touch
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -117,13 +117,12 @@
       </div>
     </section>
     
-    <div style="height: 50vh;"></div>
+    <div style="height: 20vh;"></div>
     
   </div>
 </div>
 
-<div class="scroll-progress" id="scrollProgress">
-  Progress: 0%
+<div style="hidden" class="scroll-progress" id="scrollProgress">
 </div>
 
 <script>
@@ -146,6 +145,12 @@
     const contentSections = document.querySelectorAll('[data-animate]');
     
     let ticking = false;
+
+    const MOBILE_MQ = window.matchMedia('(max-width: 768px)');
+
+    function applyHeroMorphOpacity() {
+      heroMorph.style.opacity = MOBILE_MQ.matches ? '0' : '1';
+    }
     
     function calculateClipPath(scrollY) {
       const phase1Progress = Math.min(1, scrollY / CONFIG.scrollPhase1End);
@@ -194,7 +199,7 @@
       
       const totalScrollRange = CONFIG.scrollPhase2End;
       const progressPercent = Math.min(100, (scrollY / totalScrollRange) * 100).toFixed(0);
-      scrollProgress.textContent = `Scroll: ${scrollY.toFixed(0)}px | Progress: ${progressPercent}%`;
+      //scrollProgress.textContent = `Scroll: ${scrollY.toFixed(0)}px | Progress: ${progressPercent}%`;
       
       const clipPath = calculateClipPath(scrollY);
       heroMorph.style.clipPath = clipPath;
@@ -227,8 +232,9 @@
         sidebarLogo.classList.remove('visible');
       }
       
-      if (phase2Progress >= 1) {
+      if (phase2Progress >= 0.4) {
         document.body.classList.add('sidebars-active');
+        applyHeroMorphOpacity();
       } else {
         document.body.classList.remove('sidebars-active');
       }
@@ -256,6 +262,18 @@
       updateOnScroll();
       
       window.addEventListener('scroll', onScroll, { passive: true });
+
+      if (typeof MOBILE_MQ.addEventListener === 'function') {
+        MOBILE_MQ.addEventListener('change', () => {
+          applyHeroMorphOpacity();
+          updateOnScroll();
+        });
+      } else {
+        MOBILE_MQ.addListener(() => {
+          applyHeroMorphOpacity();
+          updateOnScroll();
+        });
+      }
       
       window.addEventListener('resize', () => {
         CONFIG.scrollPhase1End = window.innerHeight * 0.5;
