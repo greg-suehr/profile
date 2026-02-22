@@ -37,6 +37,7 @@ web:
 mounts:
     "/var/cache": { source: local, source_path: var/cache }
     "public/uploads": { source: local }
+    "public/uploads/documents": { source: local, source_path: documents }
 
 relationships:
     database: "database:postgresql"
