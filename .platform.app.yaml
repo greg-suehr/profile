@@ -49,7 +49,7 @@ hooks:
         curl -fs https://get.symfony.com/cloud/configurator | bash
         # php-ext-install blackfire X.Y.Z
         
-        NODE_VERSION=22 symfony-build	
+        NODE_VERSION=22 COMPOSER_FLAGS="--no-progress" symfony-build
         npm install
         npm run build
 
