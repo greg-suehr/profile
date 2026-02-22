@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use './theme';
 @use './root-vars';
 
@@ -115,7 +116,7 @@ footer {
 }
 .btn-success:hover,
 .btn-success:focus {
-  background-color: darken(theme.$success, 10%);
+  background-color: color.adjust(theme.$success, $lightness: -10%);
 }
 
 /* Search input */
@@ -127,4 +128,3 @@ footer {
   color: #fff;
   border-color: theme.$color-border;
 }
-
