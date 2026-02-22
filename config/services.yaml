@@ -139,5 +139,9 @@ services:
         exclude:
             - '../src/Shared/Entity/'
 
+    App\Shared\Service\DocumentUploadService:
+        arguments:
+            $uploadDirectory: '%kernel.project_dir%/public/uploads/documents'
+
     App\Shared\EventSubscriber\TwigEventSubscriber:
         tags: ['kernel.event_subscriber']

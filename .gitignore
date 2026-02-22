@@ -9,6 +9,8 @@ src/var/*
 assets/images/*
 *DS_Store
 
+public/uploads/*
+
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php

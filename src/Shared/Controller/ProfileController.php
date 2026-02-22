@@ -2,6 +2,9 @@
 
 namespace App\Shared\Controller;
 
+use App\Shared\Repository\ReadingListItemRepository;
+use App\Shared\Repository\ResearchDocumentRepository;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,6 +36,39 @@ final class ProfileController extends AbstractController
         'projects' => $projects
       ]
       );
+  }
+
+  #[Route('/reading', name: 'profile_reading')]
+  public function reading(ReadingListItemRepository $repo): Response
+  {
+    $items = $repo->findAllOrdered();
+    $tags  = $repo->findAllTags();
+
+    return $this->render('professional/reading.html.twig', [
+      'items'    => $items,
+      'allTags'  => $tags,
+      'statuses' => \App\Shared\Entity\ReadingListItem::STATUSES,
+    ]);
+  }
+
+  #[Route('/research/documents', name: 'profile_documents')]
+  public function documents(ResearchDocumentRepository $repo): Response
+  {
+    $documents = $repo->findPublished();
+
+    
+    $allTags = [];
+    foreach ($documents as $doc) {
+      foreach ($doc->getTags() as $tag) {
+        $allTags[$tag] = true;
+      }
+    }
+    ksort($allTags);
+
+    return $this->render('professional/documents.html.twig', [
+      'documents' => $documents,
+      'allTags'   => array_keys($allTags),
+    ]);
   }
 
   # TODO: add links

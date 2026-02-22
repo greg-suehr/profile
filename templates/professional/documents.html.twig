@@ -1,0 +1,178 @@
+{% extends 'professional/base.html.twig' %}
+{% block page_title %}Suehr | Research Documents{% endblock %}
+{% block seo_description %}A roster of interesting research papers and documents.{% endblock %}
+
+{% block main_content %}
+<div class="container--tight">
+  <a href="/" class="back-link">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/>
+    </svg>
+    Greg Suehr
+  </a>
+  
+  <h1 class="title--tight">Research Documents</h1>
+  <p class="subtitle">
+    Papers, essays, and other documents I've read and want to reference, remember, or otherwise have reason to host in this archive.
+  </p>
+  
+  {% if allTags is not empty %}
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" data-tag="all">All</button>
+    {% for tag in allTags %}
+    <button class="filter-btn" data-tag="{{ tag|lower }}">{{ tag }}</button>
+    {% endfor %}
+  </div>
+  {% endif %}
+  
+  {% if documents is empty %}
+  <p class="empty">No documents published yet.</p>
+  {% else %}
+  <div class="doc-grid" id="docGrid">
+    {% for doc in documents %}
+    <article
+      class="doc-card"
+      data-tags="{{ doc.tags|join(',')|lower }}"
+      >
+      <div class="doc-meta">
+        {{ doc.year ?? '—' }}
+        {% if doc.source %} · {{ doc.source }}{% endif %}
+      </div>
+      
+      <div class="doc-title">{{ doc.title }}</div>
+
+      {% if doc.authors %}
+      <div class="doc-authors">{{ doc.authors }}</div>
+      {% endif %}
+      
+      {% if doc.abstract %}
+      <div class="doc-abstract">{{ doc.abstract }}</div>
+      {% endif %}
+
+      <div class="doc-footer">
+        {% if doc.tags is not empty %}
+        <ul class="tags">
+          {% for tag in doc.tags %}
+          <li class="tag">{{ tag }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if doc.filePath %}
+        <div class="doc-actions">
+          <button
+            type="button"
+            class="view-link"
+            data-pdf-url="{{ path('profile_document_view', {id: doc.id}) }}"
+            data-pdf-title="{{ doc.title }}"
+            data-download-url="{{ path('profile_document_download', {id: doc.id}) }}"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/>
+              <path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+            </svg>
+            View
+          </button>
+
+          <a
+            href="{{ path('profile_document_download', {id: doc.id}) }}"
+            class="download-link"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z"/>
+              <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"/>
+            </svg>
+            PDF
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+<div class="pdf-overlay" id="pdfOverlay">
+  <div class="pdf-toolbar">
+    <span class="pdf-toolbar-title" id="pdfTitle"></span>
+    <div class="pdf-toolbar-actions">
+      <a id="pdfDownloadBtn" href="#" class="pdf-toolbar-btn" title="Download">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z"/>
+          <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"/>
+        </svg>
+        Download
+      </a>
+      <button type="button" class="pdf-toolbar-btn pdf-close-btn" id="pdfCloseBtn" title="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/>
+        </svg>
+        Close
+      </button>
+    </div>
+  </div>
+  <div class="pdf-frame-wrapper">
+    <iframe id="pdfFrame" title="PDF Viewer"></iframe>
+  </div>
+</div>
+
+<script>
+(function () {
+  const bar  = document.getElementById('filterBar');
+  const grid = document.getElementById('docGrid');
+  if (bar && grid) {
+    bar.addEventListener('click', function (e) {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      bar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tag = btn.dataset.tag;
+      grid.querySelectorAll('.doc-card').forEach(card => {
+        if (tag === 'all') { card.style.display = ''; return; }
+        const cardTags = (card.dataset.tags || '').split(',').map(t => t.trim());
+        card.style.display = cardTags.includes(tag) ? '' : 'none';
+      });
+    });
+  }
+
+  const overlay     = document.getElementById('pdfOverlay');
+  const frame       = document.getElementById('pdfFrame');
+  const titleEl     = document.getElementById('pdfTitle');
+  const downloadBtn = document.getElementById('pdfDownloadBtn');
+  const closeBtn    = document.getElementById('pdfCloseBtn');
+  if (!overlay || !frame) return;
+
+  function openViewer(pdfUrl, title, downloadUrl) {
+    titleEl.textContent = title;
+    downloadBtn.href = downloadUrl;
+    frame.src = pdfUrl;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeViewer() {
+    overlay.classList.remove('open');
+    frame.src = '';
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-pdf-url]');
+    if (!btn) return;
+    e.preventDefault();
+    openViewer(btn.dataset.pdfUrl, btn.dataset.pdfTitle, btn.dataset.downloadUrl);
+  });
+
+  closeBtn.addEventListener('click', closeViewer);
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) closeViewer();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) closeViewer();
+  });
+})();
+</script>
+{% endblock %}

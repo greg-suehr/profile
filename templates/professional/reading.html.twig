@@ -1,0 +1,239 @@
+{% extends 'professional/base.html.twig' %}
+{% block page_title %}Suehr | Reading List{% endblock %}
+{% block seo_description %}Books Greg Suehr has read, is reading, and wants to read.{% endblock %}
+
+{% block main_content %}
+<style>
+  table { width: 100%; border-collapse: collapse; }
+
+  thead {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(46,36,27,.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(246,241,235,.1);
+  }
+
+  th {
+    padding: .875rem 1.25rem .875rem 0;
+    text-align: left; font-size: .8rem;
+    font-weight: 600; letter-spacing: .06em;
+    text-transform: uppercase; color: #F6F1EB;
+    cursor: pointer; user-select: none; white-space: nowrap;
+  }
+  th:last-child { padding-right: 0; }
+  th .sort-arrow { margin-left: .3rem; color: #726D5F; }
+  th.sorted .sort-arrow { color: #F6D58A; }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(246,241,235,.07);
+    transition: background .15s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(246,213,138,.04); }
+
+  td {
+    padding: .875rem 1.25rem .875rem 0;
+    font-size: .875rem; vertical-align: middle;
+  }
+  td:last-child { padding-right: 0; }
+</style>
+
+<div class="container--tight">
+  <a href="/" class="back-link">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/>
+    </svg>
+    Greg Suehr
+  </a>
+
+  <h1 class="title--tight">Reading List</h1>
+  <p class="subtitle">
+    Books I've read, am reading, and intend to read.
+  </p>
+
+  <div class="controls">
+    <input
+      type="search"
+      id="searchInput"
+      class="search-box"
+      placeholder="Search title or author…"
+      autocomplete="off"
+    >
+    <select id="sortSelect" class="select-control">
+      <option value="default">Sort: Default</option>
+      <option value="title">Title A–Z</option>
+      <option value="author">Author A–Z</option>
+      <option value="year-desc">Year (newest)</option>
+      <option value="year-asc">Year (oldest)</option>
+      <option value="rating">Rating</option>
+    </select>
+    {% if allTags is not empty %}
+    <select id="tagSelect" class="select-control">
+      <option value="all">All tags</option>
+      {% for tag in allTags %}
+      <option value="{{ tag|lower }}">{{ tag }}</option>
+      {% endfor %}
+    </select>
+    {% endif %}
+  </div>
+
+  <div class="filter-bar" id="statusBar">
+    <button class="filter-btn active" data-status="all">All</button>
+    {% for label, value in statuses %}
+    <button class="filter-btn" data-status="{{ value }}">{{ label }}</button>
+    {% endfor %}
+  </div>
+
+  <div class="count-note" id="countNote"></div>
+
+  {% if items is empty %}
+    <p class="empty">Nothing here yet.</p>
+  {% else %}
+  <table id="readingTable">
+    <thead>
+      <tr>
+        <th data-sort="title">Title <span class="sort-arrow">↕</span></th>
+        <th data-sort="author" class="hide-sm">Author <span class="sort-arrow">↕</span></th>
+        <th data-sort="year"   class="hide-sm">Year <span class="sort-arrow">↕</span></th>
+        <th data-sort="status">Status <span class="sort-arrow">↕</span></th>
+        <th data-sort="rating" class="hide-md">Rating <span class="sort-arrow">↕</span></th>
+        <th class="hide-md">Tags</th>
+      </tr>
+    </thead>
+    <tbody id="readingBody">
+      {% for item in items %}
+      <tr
+        data-title="{{ item.title|lower }}"
+        data-author="{{ item.author|lower }}"
+        data-year="{{ item.year ?? 0 }}"
+        data-status="{{ item.status }}"
+        data-rating="{{ item.rating ?? 0 }}"
+        data-tags="{{ item.tags|join(',')|lower }}"
+      >
+        <td>
+          <div class="book-title">{{ item.title }}</div>
+          <div class="book-author hide-sm-flex">{{ item.author }}</div>
+        </td>
+        <td class="book-author">{{ item.author }}</div>
+        <td class="book-year hide-sm">{{ item.year ?? '—' }}</td>
+        <td>
+          <span class="status-badge status-{{ item.status }}">
+            {{ item.statusLabel }}
+          </span>
+        </td>
+        <td class="hide-md">
+          {% if item.rating %}
+            <span class="rating">
+              {% for i in 1..5 %}
+                {% if i <= item.rating %}★{% else %}<span class="rating-empty">★</span>{% endif %}
+              {% endfor %}
+            </span>
+          {% else %}
+            <span style="color:#3d342c">—</span>
+          {% endif %}
+        </td>
+        <td class="hide-md">
+          {% if item.tags is not empty %}
+          <ul class="tags">
+            {% for tag in item.tags %}
+            <li class="tag">{{ tag }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+
+<script>
+(function () {
+  const body      = document.getElementById('readingBody');
+  const statusBar = document.getElementById('statusBar');
+  const search    = document.getElementById('searchInput');
+  const sortSel   = document.getElementById('sortSelect');
+  const tagSel    = document.getElementById('tagSelect');
+  const countNote = document.getElementById('countNote');
+  if (!body) return;
+
+  let activeStatus = 'all';
+  let activeSort   = 'default';
+  let activeTag    = 'all';
+  let searchTerm   = '';
+
+  function rows() {
+    return Array.from(body.querySelectorAll('tr'));
+  }
+
+  function applyFilters() {
+    let visible = 0;
+    rows().forEach(row => {
+      const matchStatus = activeStatus === 'all' || row.dataset.status === activeStatus;
+      const matchSearch = !searchTerm
+        || row.dataset.title.includes(searchTerm)
+        || row.dataset.author.includes(searchTerm);
+      const rowTags = (row.dataset.tags || '').split(',').map(t => t.trim());
+      const matchTag = activeTag === 'all' || rowTags.includes(activeTag);
+
+      const show = matchStatus && matchSearch && matchTag;
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    countNote.textContent = visible + ' item' + (visible !== 1 ? 's' : '');
+  }
+
+  function applySort() {
+    const all = rows();
+    all.sort((a, b) => {
+      switch (activeSort) {
+        case 'title':     return a.dataset.title.localeCompare(b.dataset.title);
+        case 'author':    return a.dataset.author.localeCompare(b.dataset.author);
+        case 'year-desc': return Number(b.dataset.year) - Number(a.dataset.year);
+        case 'year-asc':  return Number(a.dataset.year) - Number(b.dataset.year);
+        case 'rating':    return Number(b.dataset.rating) - Number(a.dataset.rating);
+        default:          return 0;
+      }
+    });
+    all.forEach(r => body.appendChild(r));
+  }
+
+  function update() { applySort(); applyFilters(); }
+
+  if (statusBar) {
+    statusBar.addEventListener('click', e => {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      statusBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeStatus = btn.dataset.status;
+      update();
+    });
+  }
+
+  if (search) {
+    search.addEventListener('input', () => {
+      searchTerm = search.value.toLowerCase().trim();
+      update();
+    });
+  }
+
+  if (sortSel) {
+    sortSel.addEventListener('change', () => {
+      activeSort = sortSel.value;
+      update();
+    });
+  }
+
+  if (tagSel) {
+    tagSel.addEventListener('change', () => {
+      activeTag = tagSel.value;
+      update();
+    });
+  }
+
+  update();
+})();
+</script>
+{% endblock %}
