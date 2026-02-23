@@ -4,6 +4,7 @@ namespace App\Shared\Controller;
 
 use App\Shared\Repository\ReadingListItemRepository;
 use App\Shared\Repository\ResearchDocumentRepository;
+use App\Shared\Repository\ProfileInfluenceRepository;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,6 +71,20 @@ final class ProfileController extends AbstractController
       'allTags'   => array_keys($allTags),
     ]);
   }
+
+  #[Route('/etal/more', name: 'profile_acknowledgements_more')]
+  public function acknowledgements_more(ProfileInfluenceRepository $repo): Response
+  {
+    $items = $repo->findPublished();
+    $tags  = $repo->findAllTags();
+    $domains = $repo->findAllDomains(); 
+
+    return $this->render('professional/extended_acknowledgements.html.twig', [
+      'influences' => $items,
+      'allTags'    => $tags,
+      'allDomains' => $domains,
+    ]);
+  }  
 
   # TODO: add links
   #[Route('/about', name: 'profile_about')]

@@ -1,0 +1,148 @@
+{% extends 'professional/base.html.twig' %}
+{% block page_title %}Suehr | Extended Acknowledgements{% endblock %}
+{% block seo_description %}Some other people who shaped how I think and work.{% endblock %}
+
+{% block main_content %}
+<div class="container--tight">
+  <a href="{{ path('profile_acknowledgements') }}" class="back-link">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/>
+    </svg>
+    Acknowledgements
+  </a>
+
+  <h1 class="title--tight">Extended Acknowledgements</h1>
+  <p class="subtitle">
+    Some other people who shaped how I think and work.
+  </p>
+
+  {% if allDomains is not empty %}
+  <div class="filter-bar" id="domainBar">
+    <button class="filter-btn active" data-domain="all">All</button>
+    {% for domain in allDomains %}
+    <button class="filter-btn" data-domain="{{ domain|lower }}">{{ domain }}</button>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if allTags is not empty %}
+  <div class="filter-bar" id="tagBar" style="margin-top: -1.5rem; margin-bottom: 2rem;">
+    <button class="filter-btn active" data-tag="all">All Tags</button>
+    {% for tag in allTags %}
+    <button class="filter-btn" data-tag="{{ tag|lower }}">{{ tag }}</button>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="count-note" id="countNote"></div>
+
+  {% if influences is empty %}
+    <p class="empty">Nothing here yet.</p>
+  {% else %}
+  <table id="influenceTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th class="hide-sm">Domain</th>
+        <th class="hide-md">Era</th>
+        <th>Tags</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for inf in influences %}
+      <tr
+        data-domain="{{ inf.domain|default('')|lower }}"
+        data-tags="{{ inf.tags|join(',')|lower }}"
+      >
+        <td>
+          {% if inf.url %}
+          <a href="{{ inf.url }}" class="project-name" target="_blank" rel="noreferrer noopener">
+            {{ inf.name }}
+            <svg class="external-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clip-rule="evenodd"/>
+            </svg>
+          </a>
+          {% else %}
+          <span class="project-name">{{ inf.name }}</span>
+          {% endif %}
+          {% if inf.epithet %}
+          <div style="font-size: .8rem; color: #9a9488; margin-top: .15rem;">{{ inf.epithet }}</div>
+          {% endif %}
+          {% if inf.blurb %}
+          <div style="font-size: .825rem; color: #b7b09d; margin-top: .35rem; max-width: 420px; line-height: 1.5;">
+            {{ inf.blurb }}
+          </div>
+          {% endif %}
+        </td>
+        <td class="hide-sm year">{{ inf.domain|default('—') }}</td>
+        <td class="hide-md year">{{ inf.era|default('—') }}</td>
+        <td>
+          {% if inf.tags is not empty %}
+          <ul class="tags">
+            {% for tag in inf.tags %}
+            <li class="tag">{{ tag }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+
+<script>
+(function () {
+  const domainBar = document.getElementById('domainBar');
+  const tagBar    = document.getElementById('tagBar');
+  const table     = document.getElementById('influenceTable');
+  const countNote = document.getElementById('countNote');
+  if (!table) return;
+
+  let activeDomain = 'all';
+  let activeTag    = 'all';
+
+  function applyFilters() {
+    const rows = table.querySelectorAll('tbody tr');
+    let visible = 0;
+    rows.forEach(row => {
+      const rowDomain = (row.dataset.domain || '').trim();
+      const rowTags   = (row.dataset.tags || '').split(',').map(t => t.trim());
+
+      const domainMatch = activeDomain === 'all' || rowDomain === activeDomain;
+      const tagMatch    = activeTag === 'all' || rowTags.includes(activeTag);
+
+      if (domainMatch && tagMatch) {
+        row.style.display = '';
+        visible++;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    if (countNote) {
+      const total = rows.length;
+      countNote.textContent = (activeDomain !== 'all' || activeTag !== 'all')
+        ? visible + ' of ' + total + ' shown'
+        : '';
+    }
+  }
+
+  function bindBar(bar, dataAttr, setter) {
+    if (!bar) return;
+    bar.addEventListener('click', function (e) {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      bar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      setter(btn.dataset[dataAttr]);
+      applyFilters();
+    });
+  }
+
+  bindBar(domainBar, 'domain', v => { activeDomain = v; });
+  bindBar(tagBar,    'tag',    v => { activeTag = v; });
+})();
+</script>
+{% endblock %}
