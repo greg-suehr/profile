@@ -2,21 +2,21 @@
 
 namespace App\Shared\Repository;
 
-use App\Shared\Entity\ResearchDocument;
+use App\Shared\Entity\ProfileDocument;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<ResearchDocument>
+ * @extends ServiceEntityRepository<ProfileDocument>
  */
-class ResearchDocumentRepository extends ServiceEntityRepository
+class ProfileDocumentRepository extends ServiceEntityRepository
 {
   public function __construct(ManagerRegistry $registry)
   {
-    parent::__construct($registry, ResearchDocument::class);
+    parent::__construct($registry, ProfileDocument::class);
   }
 
-  /** @return ResearchDocument[] */
+  /** @return ProfileDocument[] */
   public function findPublished(): array
   {
     return $this->createQueryBuilder('d')

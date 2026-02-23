@@ -2,7 +2,7 @@
 
 namespace App\Shared\Controller\Admin;
 
-use App\Shared\Entity\ReadingListItem;
+use App\Shared\Entity\ProfileReadingListItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -13,11 +13,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
 
-class ReadingListItemCrudController extends AbstractCrudController
+class ProfileReadingListItemCrudController extends AbstractCrudController
 {
   public static function getEntityFqcn(): string
   {
-    return ReadingListItem::class;
+    return ProfileReadingListItem::class;
   }
 
   public function configureFields(string $pageName): iterable
@@ -28,7 +28,7 @@ class ReadingListItemCrudController extends AbstractCrudController
       IntegerField::new('year'),
       TextField::new('isbn')->hideOnIndex(),
       ChoiceField::new('status')
-                ->setChoices(ReadingListItem::STATUSES),
+                ->setChoices(ProfileReadingListItem::STATUSES),
       IntegerField::new('rating')
                 ->setHelp('1–5, leave blank if unrated.')
                 ->hideOnIndex(),

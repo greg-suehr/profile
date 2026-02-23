@@ -2,9 +2,9 @@
 
 namespace App\Shared\Controller;
 
-use App\Shared\Entity\DocumentView;
-use App\Shared\Entity\ResearchDocument;
-use App\Shared\Repository\ResearchDocumentRepository;
+use App\Shared\Entity\ProfileDocumentView;
+use App\Shared\Entity\ProfileDocument;
+use App\Shared\Repository\ProfileDocumentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(condition: "request.getHost() matches '%gregsuehr_match%'")]
-final class DocumentViewController extends AbstractController
+final class ProfileDocumentViewController extends AbstractController
 {
   /**
    * Serve a research document PDF inline (browser viewer) and log the view.
@@ -26,7 +26,7 @@ final class DocumentViewController extends AbstractController
   public function view(
     int $id,
     Request $request,
-    ResearchDocumentRepository $docRepo,
+    ProfileDocumentRepository $docRepo,
     EntityManagerInterface $em,
   ): Response
   {
@@ -43,7 +43,7 @@ final class DocumentViewController extends AbstractController
       throw $this->createNotFoundException('File not found on disk.');
     }
 
-    $view = new DocumentView();
+    $view = new ProfileDocumentView();
     $view->setDocument($document);
     $view->setViewedAt(new \DateTimeImmutable());
     $view->setIpAddress($request->getClientIp());
@@ -72,7 +72,7 @@ final class DocumentViewController extends AbstractController
   public function download(
     int $id,
     Request $request,
-    ResearchDocumentRepository $docRepo,
+    ProfileDocumentRepository $docRepo,
     EntityManagerInterface $em,
   ): Response
   {
@@ -89,7 +89,7 @@ final class DocumentViewController extends AbstractController
       throw $this->createNotFoundException('File not found on disk.');
     }
 
-    $view = new DocumentView();
+    $view = new ProfileDocumentView();
     $view->setDocument($document);
     $view->setViewedAt(new \DateTimeImmutable());
     $view->setIpAddress($request->getClientIp());

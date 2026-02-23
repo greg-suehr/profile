@@ -2,22 +2,22 @@
 
 namespace App\Shared\Repository;
 
-use App\Shared\Entity\DocumentView;
-use App\Shared\Entity\ResearchDocument;
+use App\Shared\Entity\ProfileDocumentView;
+use App\Shared\Entity\ProfileDocument;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<DocumentView>
+ * @extends ServiceEntityRepository<ProfileDocumentView>
  */
-class DocumentViewRepository extends ServiceEntityRepository
+class ProfileDocumentViewRepository extends ServiceEntityRepository
 {
   public function __construct(ManagerRegistry $registry)
   {
-    parent::__construct($registry, DocumentView::class);
+    parent::__construct($registry, ProfileDocumentView::class);
   }
 
-  public function countByDocument(ResearchDocument $document): int
+  public function countByDocument(ProfileDocument $document): int
   {
     return (int) $this->createQueryBuilder('v')
       ->select('COUNT(v.id)')

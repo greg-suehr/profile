@@ -3,8 +3,8 @@
 namespace App\Shared\Controller\Admin;
 
 use App\Shared\Entity\BlogPost;
-use App\Shared\Entity\ReadingListItem;
-use App\Shared\Entity\ResearchDocument;
+use App\Shared\Entity\ProfileReadingListItem;
+use App\Shared\Entity\ProfileDocument;
 use App\Shared\Entity\ProfileInfluence;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -35,8 +35,8 @@ class ProfileDashboardController extends AbstractDashboardController
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
         yield MenuItem::linktoCrud('Blogs', 'fas fa-letter', BlogPost::class);
-        yield MenuItem::linkToCrud('Research Docs', 'fas fa-file-pdf', ResearchDocument::class);
-        yield MenuItem::linkToCrud('Reading List', 'fas fa-book', ReadingListItem::class);
+        yield MenuItem::linkToCrud('Research Docs', 'fas fa-file-pdf', ProfileDocument::class);
+        yield MenuItem::linkToCrud('Reading List', 'fas fa-book', ProfileReadingListItem::class);
         yield MenuItem::linkToCrud('Influences', 'fas fa-user', ProfileInfluence::class);
     }
 }

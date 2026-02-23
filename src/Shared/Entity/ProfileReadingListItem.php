@@ -2,13 +2,13 @@
 
 namespace App\Shared\Entity;
 
-use App\Shared\Repository\ReadingListItemRepository;
+use App\Shared\Repository\ProfileReadingListItemRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ReadingListItemRepository::class)]
+#[ORM\Entity(repositoryClass: ProfileReadingListItemRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-class ReadingListItem
+class ProfileReadingListItem
 {
   public const STATUS_WANT    = 'want_to_read';
   public const STATUS_READING = 'reading';

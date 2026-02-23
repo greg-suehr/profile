@@ -2,13 +2,13 @@
 
 namespace App\Shared\Entity;
 
-use App\Shared\Repository\ResearchDocumentRepository;
+use App\Shared\Repository\ProfileDocumentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ResearchDocumentRepository::class)]
+#[ORM\Entity(repositoryClass: ProfileDocumentRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-class ResearchDocument
+class ProfileDocument
 {
   #[ORM\Id]
   #[ORM\GeneratedValue]

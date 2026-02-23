@@ -2,8 +2,8 @@
 
 namespace App\Shared\Controller;
 
-use App\Shared\Repository\ReadingListItemRepository;
-use App\Shared\Repository\ResearchDocumentRepository;
+use App\Shared\Repository\ProfileReadingListItemRepository;
+use App\Shared\Repository\ProfileDocumentRepository;
 use App\Shared\Repository\ProfileInfluenceRepository;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,7 +40,7 @@ final class ProfileController extends AbstractController
   }
 
   #[Route('/reading', name: 'profile_reading')]
-  public function reading(ReadingListItemRepository $repo): Response
+  public function reading(ProfileReadingListItemRepository $repo): Response
   {
     $items = $repo->findAllOrdered();
     $tags  = $repo->findAllTags();
@@ -48,12 +48,12 @@ final class ProfileController extends AbstractController
     return $this->render('professional/reading.html.twig', [
       'items'    => $items,
       'allTags'  => $tags,
-      'statuses' => \App\Shared\Entity\ReadingListItem::STATUSES,
+      'statuses' => \App\Shared\Entity\ProfileReadingListItem::STATUSES,
     ]);
   }
 
   #[Route('/research/documents', name: 'profile_documents')]
-  public function documents(ResearchDocumentRepository $repo): Response
+  public function documents(ProfileDocumentRepository $repo): Response
   {
     $documents = $repo->findPublished();
 

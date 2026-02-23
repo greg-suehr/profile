@@ -2,7 +2,7 @@
 
 namespace App\Shared\Controller\Admin;
 
-use App\Shared\Entity\ResearchDocument;
+use App\Shared\Entity\ProfileDocument;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -13,11 +13,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Validator\Constraints\File;
 
-class ResearchDocumentCrudController extends AbstractCrudController
+class ProfileDocumentCrudController extends AbstractCrudController
 {
   public static function getEntityFqcn(): string
   {
-    return ResearchDocument::class;
+    return ProfileDocument::class;
   }
 
   public function configureFields(string $pageName): iterable

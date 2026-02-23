@@ -2,21 +2,21 @@
 
 namespace App\Shared\Repository;
 
-use App\Shared\Entity\ReadingListItem;
+use App\Shared\Entity\ProfileReadingListItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<ReadingListItem>
+ * @extends ServiceEntityRepository<ProfileReadingListItem>
  */
-class ReadingListItemRepository extends ServiceEntityRepository
+class ProfileReadingListItemRepository extends ServiceEntityRepository
 {
   public function __construct(ManagerRegistry $registry)
   {
-    parent::__construct($registry, ReadingListItem::class);
+    parent::__construct($registry, ProfileReadingListItem::class);
   }
 
-  /** @return ReadingListItem[] all items, most-recently-added first */
+  /** @return ProfileReadingListItem[] all items, most-recently-added first */
   public function findAllOrdered(): array
   {
     return $this->createQueryBuilder('r')

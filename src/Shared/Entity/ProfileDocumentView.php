@@ -2,22 +2,22 @@
 
 namespace App\Shared\Entity;
 
-use App\Shared\Repository\DocumentViewRepository;
+use App\Shared\Repository\ProfileDocumentViewRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: DocumentViewRepository::class)]
+#[ORM\Entity(repositoryClass: ProfileDocumentViewRepository::class)]
 #[ORM\Index(columns: ['document_id'], name: 'idx_docview_document')]
 #[ORM\Index(columns: ['viewed_at'], name: 'idx_docview_date')]
-class DocumentView
+class ProfileDocumentView
 {
   #[ORM\Id]
   #[ORM\GeneratedValue]
   #[ORM\Column]
   private ?int $id = null;
 
-  #[ORM\ManyToOne(targetEntity: ResearchDocument::class)]
+  #[ORM\ManyToOne(targetEntity: ProfileDocument::class)]
   #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-  private ?ResearchDocument $document = null;
+  private ?ProfileDocument $document = null;
 
   #[ORM\Column]
   private ?\DateTimeImmutable $viewedAt = null;
@@ -33,8 +33,8 @@ class DocumentView
 
   public function getId(): ?int { return $this->id; }
 
-  public function getDocument(): ?ResearchDocument { return $this->document; }
-  public function setDocument(?ResearchDocument $document): static { $this->document = $document; return $this; }
+  public function getDocument(): ?ProfileDocument { return $this->document; }
+  public function setDocument(?ProfileDocument $document): static { $this->document = $document; return $this; }
 
   public function getViewedAt(): ?\DateTimeImmutable { return $this->viewedAt; }
   public function setViewedAt(\DateTimeImmutable $viewedAt): static { $this->viewedAt = $viewedAt; return $this; }
