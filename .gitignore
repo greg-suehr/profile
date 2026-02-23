@@ -4,6 +4,7 @@ data/*
 documentation/attribution/*
 documentation/generated/*
 documentation/instructions/*
+documentation/wireframes/*
 scripts/*
 src/var/*
 assets/images/*
