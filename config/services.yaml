@@ -7,6 +7,8 @@ parameters:
     gregsuehr_match: '#^(gregsuehr\.com|gregsuehr\.local)$#'
     litmas_hosts: 'mulvaylitmas.com|mulvaylitmas.local'
     litmas_match: '#^(mulvaylitmas\.com|mulvaylitmas\.local)$#'
+    seertechne_hosts: 'seertechne.com|seertechne.local'
+    seertechne_match: '#^(seertechne\.com|seertechne\.local)$#'
 
 services:
     _defaults:
