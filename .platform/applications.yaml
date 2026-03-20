@@ -1,0 +1,6 @@
+- name: app
+  source:
+    root: "/"
+- name: is-here
+  source:
+    root: "is-here"
