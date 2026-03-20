@@ -40,6 +40,9 @@ security:
         - { path: ^/me, roles: ROLE_ADMIN }
         - { path: ^/work, roles: ROLE_ADMIN }
         - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/home, roles: PUBLIC_ACCESS }
+        - { path: ^/bio, roles: PUBLIC_ACCESS }
+        - { path: ^/media, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }
 
 when@test:
