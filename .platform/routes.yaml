@@ -15,3 +15,7 @@
 "https://mulvaylitmas.com/":
   type: upstream
   upstream: "app:http"
+
+"https://ishere.net/":
+    type: upstream
+    upstream: "is-here:http"

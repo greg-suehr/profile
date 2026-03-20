@@ -147,3 +147,10 @@ services:
 
     App\Shared\EventSubscriber\TwigEventSubscriber:
         tags: ['kernel.event_subscriber']
+
+    IsHere\:
+        resource: '../is-here/src/'
+        exclude:
+            - '../is-here/src/DependencyInjection/'
+            - '../is-here/src/Entity/'
+            - '../is-here/src/Kernel.php'
