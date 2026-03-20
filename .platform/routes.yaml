@@ -26,4 +26,4 @@
 
 "https://ishere.net/":
     type: upstream
-    upstream: "is-here:http"
+    upstream: "app:http"
