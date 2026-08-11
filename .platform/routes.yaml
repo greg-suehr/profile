@@ -16,6 +16,14 @@
   type: upstream
   upstream: "app:http"
 
+"https://www.seertechne.com/":
+  type: redirect
+  to: "https://seertechne.com/"
+
+"https://seertechne.com/":
+  type: upstream
+  upstream: "app:http"
+
 "https://ishere.net/":
     type: upstream
     upstream: "is-here:http"

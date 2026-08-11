@@ -5,25 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Seer Techne{% endblock %}</title>
 
-    {% block scripts %}
-      {{ encore_entry_script_tags('seer') }}
-    {% endblock %}
     {% block stylesheets %}
-      {{ encore_entry_link_tags('seer') }}
+      {{ encore_entry_link_tags('seertechne') }}
     {% endblock %}
   </head>
   <body>
-    {% if show_sidebar ?? false %}
-    <aside class="sidebar d-flex flex-column flex-shrink-0 border-end border-secondary bg-secondary" style="width: 16rem;">
-      <div class="p-3 border-bottom border-secondary">
-        <h1 class="h4 mb-0 text-primary">siːə(ɹ)</h1>
-      </div>
-    </aside>
-    {% endif %}
-
     <main>
-        {% block main_content %}{% endblock %}
+      {% block main_content %}{% endblock %}
     </main>
-  </div>
+
+    {% block scripts %}
+      {{ encore_entry_script_tags('seertechne') }}
+    {% endblock %}
   </body>
-  </html>
+</html>

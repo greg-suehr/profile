@@ -26,6 +26,7 @@ Encore
     .addEntry('prologue', './assets/js/prologue.js')
     .addEntry('scene', './assets/js/scene-bootstrap.js')
     .addEntry('seer', './assets/seer.js')
+    .addEntry('seertechne', './assets/seertechne.js')
     .addEntry('katzen-demo', './assets/katzen-demo.js')
     .addEntry('portfolio', './assets/portfolio.js')
     // TODO: design autoload, config file for client projects

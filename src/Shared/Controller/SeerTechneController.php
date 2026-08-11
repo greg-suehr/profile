@@ -13,9 +13,6 @@ final class SeerTechneController extends AbstractController
   #[Route('/', name: 'seertechne_landing')]
   public function techne(): Response { return $this->render('seertechne/index.html.twig'); }
 
-  #[Route('/work/simulations', name: 'seertechne_simulations')]
-  public function simulations(): Response
-  {
-    return $this->render('greg/simulations.html.twig');
-  }
+  #[Route('/contact', name: 'seertechne_contact')]
+  public function contact(): Response { return $this->render('seertechne/contact.html.twig'); }
 }
