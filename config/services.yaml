@@ -9,6 +9,8 @@ parameters:
     litmas_match: '#^(mulvaylitmas\.com|mulvaylitmas\.local)$#'
     seertechne_hosts: 'seertechne.com|seertechne.local'
     seertechne_match: '#^(seertechne\.com|seertechne\.local)$#'
+    samson_hosts: 'ishere.net|ishere.local'
+    samson_match: '#^(ishere\.net|ishere\.local)$#'
 
     seertechne_puzzle_order: '%env(SEERTECHNE_PUZZLE_ORDER)%'
     seertechne_puzzle_reward: '%env(SEERTECHNE_PUZZLE_REWARD)%'

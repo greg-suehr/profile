@@ -24,6 +24,10 @@
   type: upstream
   upstream: "app:http"
 
+"https://www.ishere.net/":
+  type: redirect
+  to: "https://ishere.net/"
+
 "https://ishere.net/":
     type: upstream
     upstream: "app:http"
