@@ -10,6 +10,9 @@ parameters:
     seertechne_hosts: 'seertechne.com|seertechne.local'
     seertechne_match: '#^(seertechne\.com|seertechne\.local)$#'
 
+    seertechne_puzzle_order: '%env(SEERTECHNE_PUZZLE_ORDER)%'
+    seertechne_puzzle_reward: '%env(SEERTECHNE_PUZZLE_REWARD)%'
+
 services:
     _defaults:
         autowire: true
@@ -147,3 +150,11 @@ services:
 
     App\Shared\EventSubscriber\TwigEventSubscriber:
         tags: ['kernel.event_subscriber']
+
+    ########################################################################
+    # Seer Techne
+    ########################################################################
+    App\Shared\Service\SeerTechne\SeerTechnePuzzle:
+        arguments:
+            $order: '%seertechne_puzzle_order%'
+            $reward: '%seertechne_puzzle_reward%'

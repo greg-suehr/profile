@@ -4,12 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Seer Techne{% endblock %}</title>
+    <meta name="description" content="{% block description %}Seer Techne{% endblock %}">
+    <meta name="theme-color" content="#161514">
+    <meta property="og:title" content="Seer Techne">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'><rect width='8' height='8' fill='%23161514'/><circle cx='4' cy='4' r='1.4' fill='%23e2ddd2'/></svg>">
 
     {% block stylesheets %}
       {{ encore_entry_link_tags('seertechne') }}
     {% endblock %}
   </head>
-  <body>
+  <body class="st-body">
     <main>
       {% block main_content %}{% endblock %}
     </main>
