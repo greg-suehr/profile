@@ -2,24 +2,6 @@
 
 {% block main_content %}
   <h1 class="st-sr-only">Seer Techne</h1>
-  <p class="st-sr-only">
-    
-  </p>
 
-  <div class="st-piece"
-       data-st="piece"
-       data-st-endpoint="{{ path('seertechne_puzzle_press') }}"
-       data-st-token="{{ puzzleToken }}">
-
-    <div class="st-mark"><span>Seer Techne</span></div>
-    <div class="st-plate"><canvas data-st="canvas"></canvas></div>
-    <div class="st-reveal"><span data-st="reveal"></span></div>
-    <div class="st-rule" data-st="rule"></div>
-  </div>
-
-  <noscript>
-    <p class="st-noscript">
-      No Javascript?
-    </p>
-  </noscript>
+  <div class="penrose" role="img" aria-label="A penrose triangle."></div>
 {% endblock %}

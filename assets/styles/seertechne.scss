@@ -1,26 +1,31 @@
-$st-ground: rgb(22, 21, 20);
-$st-ink: rgb(154, 150, 143);
-$st-bone: rgb(240, 236, 228);
-$st-hairline: rgba(232, 228, 219, 0.09);
-$st-slow: cubic-bezier(0.22, 0.61, 0.36, 1);
+$st-white: #ffffff;
+$st-black: #444444;
+$st-blue-gray: #b5c4d9;
+
+*,
+*::before,
+*::after {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
 
 html,
 body.st-body {
-  margin: 0;
-  padding: 0;
   min-height: 100%;
-  background: $st-ground;
 }
 
 body.st-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-
-  > main {
-    width: 100%;
-  }
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(
+    -90deg,
+    lighten($st-blue-gray, 10%) 15%,
+    lighten($st-blue-gray, 5%) 100%
+  );
 }
 
 .st-sr-only {
@@ -35,86 +40,69 @@ body.st-body {
   border: 0;
 }
 
-.st-piece {
-  width: 100%;
-  max-width: 1180px;
+div.penrose {
+  width: 100vmin;
+  height: 100vmin;
+  top: -15vmin;
+  left: 5vmin;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin: 0 auto;
-  padding: 4.2rem 3.2rem 2.2rem;
-  box-sizing: border-box;
-  color: $st-ink;
-  font-family: Georgia, serif;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-font-smoothing: antialiased;
+  background:
+    linear-gradient(60deg, $st-black 0vmin, $st-black 38vmin, transparent 38vmin)
+      20vmin 77vmin / 80vmin 7.5vmin no-repeat,
+    linear-gradient(
+        -120deg,
+        lighten($st-black, 40%) 0vmin,
+        lighten($st-black, 40%) 50vmin,
+        transparent 50vmin
+      )
+      -9.5vmin 84.5vmin / 80vmin 7.5vmin no-repeat,
+    linear-gradient(
+        60deg,
+        transparent 18.5vmin,
+        $st-white 18.5vmin,
+        $st-white 25vmin,
+        transparent 25vmin
+      )
+      50vmin 25vmin / 50vmin 60vmin no-repeat,
+    linear-gradient(120deg, $st-white 0vmin, $st-white 3.5vmin, transparent 3.5vmin)
+      75vmin 85vmin / 10vmin 10vmin no-repeat,
+    linear-gradient(-120deg, $st-white 0vmin, $st-white 3vmin, transparent 3vmin)
+      65vmin 85vmin / 10vmin 10vmin no-repeat,
+    linear-gradient(
+        -60deg,
+        transparent 18.5vmin,
+        $st-white 18.5vmin,
+        $st-white 25vmin,
+        transparent 25vmin
+      )
+      0vmin 25vmin / 50vmin 60vmin no-repeat,
+    linear-gradient(
+        -60deg,
+        transparent 18.5vmin,
+        $st-black 18.5vmin,
+        $st-black 32vmin,
+        transparent 32vmin
+      )
+      0vmin 35vmin / 50vmin 50vmin no-repeat,
+    linear-gradient(
+        60deg,
+        transparent 18.5vmin,
+        lighten($st-black, 40%) 18.5vmin,
+        lighten($st-black, 40%) 25vmin,
+        transparent 25vmin
+      )
+      46.5vmin 34vmin / 50vmin 58vmin no-repeat;
 }
 
-.st-mark span {
-  display: inline-block;
-  font-size: 14px;
-  letter-spacing: 0.38em;
-  text-transform: uppercase;
-  font-variant: small-caps;
-  opacity: 0.5;
-  transition: opacity 3.2s $st-slow;
-}
-
-.st-plate {
-  margin: 1.4rem 0 0;
-
-  canvas {
-    display: block;
-    width: 100%;
-    height: auto;
+@keyframes rotatetriangle {
+  0% {
+    transform: rotate(0deg);
   }
-}
-
-.st-reveal {
-  height: 0;
-  opacity: 0;
-  overflow: hidden;
-  text-align: right;
-  font-size: 15px;
-  letter-spacing: 0.14em;
-  color: $st-bone;
-  transition: opacity 3.4s $st-slow 1.2s, height 2s $st-slow;
-}
-
-.st-rule {
-  height: 1px;
-  width: 100%;
-  margin-top: 1.6rem;
-  background: $st-hairline;
-}
-
-.st-hint {
-  margin-top: 1.1rem;
-  height: 1em;
-  font-size: 11px;
-  letter-spacing: 0.26em;
-  text-transform: lowercase;
-  opacity: 0;
-  transition: opacity 3s $st-slow;
-}
-
-.st-piece.is-nudging .st-hint { opacity: 0.3; }
-
-.st-piece.is-solved {
-  .st-mark span { opacity: 0.82; }
-  .st-hint { opacity: 0; }
-
-  .st-reveal {
-    height: 48px;
-    opacity: 0.9;
-    padding-top: 1.7rem;
+  100% {
+    transform: rotate(360deg);
   }
-}
-
-.st-piece.is-locked .st-plate canvas { cursor: default; }
-
-.st-noscript {
-  color: #7e7a74;
-  font-family: Georgia, serif;
-  text-align: center;
-  padding: 4rem;
 }

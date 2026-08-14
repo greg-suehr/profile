@@ -1,0 +1,120 @@
+$st-ground: rgb(22, 21, 20);
+$st-ink: rgb(154, 150, 143);
+$st-bone: rgb(240, 236, 228);
+$st-hairline: rgba(232, 228, 219, 0.09);
+$st-slow: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+html,
+body.st-body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: $st-ground;
+}
+
+body.st-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+
+  > main {
+    width: 100%;
+  }
+}
+
+.st-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.st-piece {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 4.2rem 3.2rem 2.2rem;
+  box-sizing: border-box;
+  color: $st-ink;
+  font-family: Georgia, serif;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+.st-mark span {
+  display: inline-block;
+  font-size: 14px;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  font-variant: small-caps;
+  opacity: 0.5;
+  transition: opacity 3.2s $st-slow;
+}
+
+.st-plate {
+  margin: 1.4rem 0 0;
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
+.st-reveal {
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  text-align: right;
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  color: $st-bone;
+  transition: opacity 3.4s $st-slow 1.2s, height 2s $st-slow;
+}
+
+.st-rule {
+  height: 1px;
+  width: 100%;
+  margin-top: 1.6rem;
+  background: $st-hairline;
+}
+
+.st-hint {
+  margin-top: 1.1rem;
+  height: 1em;
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  text-transform: lowercase;
+  opacity: 0;
+  transition: opacity 3s $st-slow;
+}
+
+.st-piece.is-nudging .st-hint { opacity: 0.3; }
+
+.st-piece.is-solved {
+  .st-mark span { opacity: 0.82; }
+  .st-hint { opacity: 0; }
+
+  .st-reveal {
+    height: 48px;
+    opacity: 0.9;
+    padding-top: 1.7rem;
+  }
+}
+
+.st-piece.is-locked .st-plate canvas { cursor: default; }
+
+.st-noscript {
+  color: #7e7a74;
+  font-family: Georgia, serif;
+  text-align: center;
+  padding: 4rem;
+}
