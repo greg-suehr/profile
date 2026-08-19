@@ -3,6 +3,7 @@
 namespace App\Shared\Controller;
 
 use App\Shared\Controller\Admin\BlogPostCrudController;
+use App\Shared\Controller\Admin\ProfileDashboardController;
 use App\Shared\Entity\BlogPost;
 use App\Shared\Repository\BlogPostRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -54,6 +55,7 @@ final class BlogController extends AbstractController
         $editUrls = [];
         foreach ($posts as $post) {
             $editUrls[$post->getId()] = $adminUrlGenerator
+                ->setDashboard(ProfileDashboardController::class)
                 ->setController(BlogPostCrudController::class)
                 ->setAction('edit')
                 ->setEntityId($post->getId())
