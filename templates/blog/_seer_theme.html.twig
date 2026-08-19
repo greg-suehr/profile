@@ -1,0 +1,185 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  .seer-page {
+    --st-dark: #0a0a0a;
+    --st-light: #f8f7f4;
+    --st-accent: #c4a77d;
+    --st-muted: #6b6b6b;
+    --st-border: rgba(10, 10, 10, 0.08);
+    --st-display: 'Instrument Serif', Georgia, serif;
+    --st-body: 'DM Sans', system-ui, sans-serif;
+
+    background: var(--st-light);
+    color: var(--st-dark);
+    font-family: var(--st-body);
+    padding: 4rem 2rem 6rem;
+    min-height: 70vh;
+  }
+
+  .seer-page .seer-label {
+    font-family: var(--st-body);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--st-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .seer-page h1.seer-title {
+    font-family: var(--st-display);
+    font-weight: 400;
+    font-size: clamp(2rem, 4vw, 3rem);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.75rem;
+    color: var(--st-dark);
+  }
+
+  .seer-page .seer-lede {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--st-muted);
+    max-width: 60ch;
+    margin-bottom: 2.5rem;
+  }
+
+  .seer-page .seer-card {
+    background: #fff;
+    border: 1px solid var(--st-border);
+    border-radius: 0;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .seer-page .seer-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(10, 10, 10, 0.06);
+  }
+
+  .seer-page .seer-column-header {
+    font-family: var(--st-body);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--st-dark);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--st-border);
+  }
+
+  .seer-page .seer-count {
+    font-family: var(--st-body);
+    font-size: 0.7rem;
+    color: var(--st-muted);
+    border: 1px solid var(--st-border);
+    padding: 0.1rem 0.5rem;
+  }
+
+  .seer-page .seer-post-link {
+    color: var(--st-dark);
+    text-decoration: none;
+    font-family: var(--st-body);
+    font-size: 0.9375rem;
+  }
+
+  .seer-page .seer-post-link:hover {
+    color: var(--st-accent);
+  }
+
+  .seer-page .seer-meta {
+    font-size: 0.75rem;
+    color: var(--st-muted);
+    margin-top: 0.35rem;
+  }
+
+  .seer-page .seer-empty {
+    font-size: 0.8rem;
+    color: var(--st-muted);
+    text-align: center;
+    padding: 1rem 0;
+  }
+
+  .seer-page label {
+    font-family: var(--st-body);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--st-muted);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .seer-page .seer-field {
+    width: 100%;
+    font-family: var(--st-body);
+    font-size: 1rem;
+    color: var(--st-dark);
+    background: #fff;
+    border: 1px solid var(--st-border);
+    border-radius: 0;
+    padding: 0.75rem 1rem;
+    transition: border-color 0.2s ease;
+  }
+
+  .seer-page .seer-field:focus {
+    outline: none;
+    border-color: var(--st-accent);
+  }
+
+  .seer-page textarea.seer-field {
+    line-height: 1.7;
+    resize: vertical;
+  }
+
+  .seer-page .seer-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--st-body);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    border-radius: 0;
+    border: 1px solid var(--st-dark);
+    padding: 0.7rem 1.5rem;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+  }
+
+  .seer-page .seer-btn-primary {
+    background: var(--st-dark);
+    color: var(--st-light);
+  }
+
+  .seer-page .seer-btn-primary:hover {
+    background: var(--st-accent);
+    border-color: var(--st-accent);
+    color: var(--st-dark);
+    transform: translateY(-2px);
+  }
+
+  .seer-page .seer-btn-quiet {
+    background: transparent;
+    color: var(--st-dark);
+    border-color: var(--st-border);
+  }
+
+  .seer-page .seer-btn-quiet:hover {
+    border-color: var(--st-dark);
+  }
+
+  .seer-page .seer-alert {
+    font-family: var(--st-body);
+    font-size: 0.875rem;
+    border: 1px solid var(--st-dark);
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+</style>

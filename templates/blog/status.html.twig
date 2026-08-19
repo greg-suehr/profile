@@ -2,40 +2,49 @@
 
 {% block title %}Blog Status Board{% endblock %}
 
-{% block content %}
-<div class="container-fluid mt-5">
-    <h1 class="text-center mb-2">Blog Status Board</h1>
-    <p class="text-center text-muted mb-5">
-        Capture | Outlined | Drafting | Editing | Submitted
-    </p>
+{% block stylesheets %}
+    {{ parent() }}
+    {% include 'blog/_seer_theme.html.twig' %}
+{% endblock %}
 
-    <div class="row flex-nowrap" style="overflow-x: auto;">
-        {% for status, column in columns %}
-            <div class="col-md-3" style="min-width: 260px;">
-                <div class="card mb-3">
-                    <div class="card-header text-center">
-                        <strong>{{ column.label }}</strong>
-                        <span class="badge bg-secondary">{{ column.posts|length }}</span>
-                    </div>
-                    <div class="card-body p-2" style="min-height: 120px;">
-                        {% for post in column.posts %}
-                            <div class="card mb-2 shadow-sm">
-                                <div class="card-body p-2">
-                                    <a href="{{ edit_urls[post.id] }}" class="text-dark text-decoration-none">
+{% block content %}
+<div class="seer-page">
+    <div class="container-fluid">
+        <p class="seer-label text-center">Blog</p>
+        <h1 class="seer-title text-center">Status Board</h1>
+        <p class="seer-lede text-center mx-auto mb-4">
+            Capture | Outlined | Drafting | Editing | Submitted
+        </p>
+        <p class="text-center mb-5">
+            <a href="{{ path('profile_blog_draft') }}" class="seer-btn seer-btn-primary">+ New Draft</a>
+        </p>
+
+        <div class="row flex-nowrap" style="overflow-x: auto;">
+            {% for status, column in columns %}
+                <div class="col-md-3" style="min-width: 260px;">
+                    <div class="seer-card mb-3">
+                        <div class="seer-column-header">
+                            <span>{{ column.label }}</span>
+                            <span class="seer-count">{{ column.posts|length }}</span>
+                        </div>
+                        <div class="p-2" style="min-height: 120px;">
+                            {% for post in column.posts %}
+                                <div class="seer-card mb-2 p-2">
+                                    <a href="{{ edit_urls[post.id] }}" class="seer-post-link">
                                         {{ post.title }}
                                     </a>
-                                    <div class="text-muted" style="font-size: 0.8em;">
+                                    <div class="seer-meta">
                                         Updated {{ post.updatedAt|date('M j, Y') }}
                                     </div>
                                 </div>
-                            </div>
-                        {% else %}
-                            <p class="text-muted text-center" style="font-size: 0.85em;">Empty</p>
-                        {% endfor %}
+                            {% else %}
+                                <p class="seer-empty">Empty</p>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock %}
