@@ -40,6 +40,18 @@ class BlogPostRepository extends ServiceEntityRepository
         ;
   }
 
+  /**
+   * @return BlogPost[] All posts, most recently updated first, for the blog-status board.
+   */
+  public function findAllForStatusBoard(): array
+  {
+      return $this->createQueryBuilder('me')
+        ->orderBy('me.updated_at', 'DESC')
+        ->getQuery()
+        ->getResult()
+        ;
+  }
+
 
 //    /**
 //     * @return BlogPost[] Returns an array of BlogPost objects

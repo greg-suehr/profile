@@ -11,6 +11,20 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: BlogPostRepository::class)]
 class BlogPost
 {
+    public const STATUS_CAPTURE   = 'capture';
+    public const STATUS_OUTLINED  = 'outlined';
+    public const STATUS_DRAFTING  = 'drafting';
+    public const STATUS_EDITING   = 'editing';
+    public const STATUS_SUBMITTED = 'submitted';
+
+    public const STATUSES = [
+        'Capture'   => self::STATUS_CAPTURE,
+        'Outlined'  => self::STATUS_OUTLINED,
+        'Drafting'  => self::STATUS_DRAFTING,
+        'Editing'   => self::STATUS_EDITING,
+        'Submitted' => self::STATUS_SUBMITTED,
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -52,6 +66,9 @@ class BlogPost
 
     #[ORM\Column(nullable: false)]
     private ?bool $is_published = false;
+
+    #[ORM\Column(length: 20)]
+    private string $status = self::STATUS_CAPTURE;
 
     public function __construct()
     {
@@ -211,5 +228,22 @@ class BlogPost
         $this->is_published = $is_published;
 
         return $this;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getStatusLabel(): string
+    {
+        return array_search($this->status, self::STATUSES) ?: $this->status;
     }
 }
