@@ -102,8 +102,6 @@ final class BlogController extends AbstractController
                 throw $this->createAccessDeniedException();
             }
 
-            $now = new \DateTimeImmutable();
-
             $post = new BlogPost();
             $post->setTitle($title);
             $post->setSubtitle($converter->guessSubtitle($draftText));
@@ -113,8 +111,8 @@ final class BlogController extends AbstractController
             $post->setAuthor($author);
             $post->setIsPublished(false);
             $post->setStatus(BlogPost::STATUS_DRAFTING);
-            $post->setCreatedAt($now);
-            $post->setUpdatedAt($now);
+            $post->setCreatedAt(new \DateTimeImmutable());
+            $post->setUpdatedAt(new \DateTime());
 
             $entityManager->persist($post);
             $entityManager->flush();
