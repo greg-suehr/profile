@@ -1,6 +1,6 @@
 parameters:
-    katzen_hosts: 'getkatzen.com|getkatzen.local'
-    katzen_match: '#^(getkatzen\.com|getkatzen\.local)$#'
+    katzen_hosts: 'getkatzen.com|getkatzen.local|gregishere.com|gregishere.local|gregsuehr.com|gregsuehr.local|mulvaylitmas.com|mulvaylitmas.local|seertechne.com|seertechne.local|ishere.net|ishere.local'
+    katzen_match: '#^(getkatzen\.com|getkatzen\.local|gregishere\.com|gregishere\.local|gregsuehr\.com|gregsuehr\.local|mulvaylitmas\.com|mulvaylitmas\.local|seertechne\.com|seertechne\.local|ishere\.net|ishere\.local)$#'
     gregishere_hosts: 'gregishere.com|gregishere.local'
     gregishere_match: '#^(gregishere\.com|gregishere\.local)$#'
     gregsuehr_hosts: 'gregsuehr.com|gregsuehr.local'
