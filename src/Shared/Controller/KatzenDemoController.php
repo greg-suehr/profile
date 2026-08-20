@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(name: 'katzen_', condition: "request.getHost() matches '%katzen_match%'")]
+#[Route(name: 'katzen_', condition: "request.getHost() matches '%getkatzen_marketing_match%'")]
 final class KatzenDemoController extends AbstractController
 {
   #[Route('/__debug/host', name: 'debug_host')]
