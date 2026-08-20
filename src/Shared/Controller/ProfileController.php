@@ -2,6 +2,10 @@
 
 namespace App\Shared\Controller;
 
+use App\Shared\Repository\AlbumRepository;
+use App\Shared\Repository\EssayRepository;
+use App\Shared\Repository\PlayRepository;
+use App\Shared\Repository\PoemRepository;
 use App\Shared\Repository\ProfileReadingListItemRepository;
 use App\Shared\Repository\ProfileDocumentRepository;
 use App\Shared\Repository\ProfileInfluenceRepository;
@@ -108,10 +112,24 @@ final class ProfileController extends AbstractController
   }  
     
   #[Route('/plays', name: 'profile_plays')]
-  public function plays(): Response
+  public function plays(PlayRepository $repo): Response
   {
-    # TODO: feed data from CMS
-    return $this->render('greg/plays.html.twig');
+    return $this->render('greg/plays.html.twig', [
+      'plays' => $repo->findPublished(),
+    ]);
+  }
+
+  #[Route('/plays/{slug}', name: 'profile_play_show', requirements: ['slug' => '(?!purchase$|read$)[a-zA-Z0-9-]+'])]
+  public function playShow(string $slug, PlayRepository $repo): Response
+  {
+    $play = $repo->findOnePublishedBySlug($slug);
+    if (!$play) {
+      throw $this->createNotFoundException('Play not found.');
+    }
+
+    return $this->render('greg/play-show.html.twig', [
+      'play' => $play,
+    ]);
   }
 
   #[Route('/contact', name: 'profile_contact')]
@@ -159,11 +177,67 @@ final class ProfileController extends AbstractController
     return $this->render('greg/plays-read.html.twig');
   }
 
-  # TODO: implement PDF sample file hosting  
   #[Route('/poems', name: 'profile_poems')]
-  public function poems(): Response
+  public function poems(PoemRepository $repo): Response
   {
-    return $this->render('greg/poems.html.twig');
+    return $this->render('greg/poems.html.twig', [
+      'poems' => $repo->findPublished(),
+    ]);
+  }
+
+  #[Route('/poems/{slug}', name: 'profile_poem_show', requirements: ['slug' => '(?!purchase$|read$)[a-zA-Z0-9-]+'])]
+  public function poemShow(string $slug, PoemRepository $repo): Response
+  {
+    $poem = $repo->findOnePublishedBySlug($slug);
+    if (!$poem) {
+      throw $this->createNotFoundException('Poem not found.');
+    }
+
+    return $this->render('greg/poem-show.html.twig', [
+      'poem' => $poem,
+    ]);
+  }
+
+  #[Route('/essays', name: 'profile_essays')]
+  public function essays(EssayRepository $repo): Response
+  {
+    return $this->render('greg/essays.html.twig', [
+      'essays' => $repo->findPublished(),
+    ]);
+  }
+
+  #[Route('/essays/{slug}', name: 'profile_essay_show', requirements: ['slug' => '[a-zA-Z0-9-]+'])]
+  public function essayShow(string $slug, EssayRepository $repo): Response
+  {
+    $essay = $repo->findOnePublishedBySlug($slug);
+    if (!$essay) {
+      throw $this->createNotFoundException('Essay not found.');
+    }
+
+    return $this->render('greg/essay-show.html.twig', [
+      'essay' => $essay,
+    ]);
+  }
+
+  #[Route('/albums', name: 'profile_albums')]
+  public function albums(AlbumRepository $repo): Response
+  {
+    return $this->render('greg/albums.html.twig', [
+      'albums' => $repo->findPublished(),
+    ]);
+  }
+
+  #[Route('/albums/{slug}', name: 'profile_album_show', requirements: ['slug' => '[a-zA-Z0-9-]+'])]
+  public function albumShow(string $slug, AlbumRepository $repo): Response
+  {
+    $album = $repo->findOnePublishedBySlug($slug);
+    if (!$album) {
+      throw $this->createNotFoundException('Album not found.');
+    }
+
+    return $this->render('greg/album-show.html.twig', [
+      'album' => $album,
+    ]);
   }
 
   # TODO: implement payments

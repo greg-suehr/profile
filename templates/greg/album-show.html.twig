@@ -1,0 +1,57 @@
+{# templates/greg/album-show.html.twig #}
+{% extends 'profile_base.html.twig' %}
+
+{% block title %}Greg Suehr | {{ album.title }}{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+  <div class="container">
+    <a href="{{ path('profile_albums') }}" class="back-link">&larr; Albums</a>
+    <h1 class="mb-3"><strong>{{ album.title }}</strong></h1>
+    {% if album.releaseYear %}
+      <p class="text-secondary-dark mb-0">{{ album.releaseYear }}</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="row g-4">
+      {% if album.image %}
+        <div class="col-12 col-md-5">
+          <img src="{{ asset(album.image) }}" alt="{{ album.title }}" class="img-fluid rounded">
+        </div>
+      {% endif %}
+      <div class="col-12 {{ album.image ? 'col-md-7' : '' }}">
+        {% if album.description %}
+          <p class="lead">{{ album.description }}</p>
+        {% endif %}
+        {% if album.tags is not empty %}
+          <ul class="tags list-inline">
+            {% for tag in album.tags %}
+              <li class="list-inline-item tag">{{ tag }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {% if album.songs is not empty %}
+          <ol class="track-list list-group list-group-flush mt-3">
+            {% for song in album.songs %}
+              {% if song.isPublished %}
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  <span>
+                    {% if song.trackNumber %}{{ song.trackNumber }}. {% endif %}{{ song.title }}
+                  </span>
+                  {% if song.audioFilePath %}
+                    <audio controls src="{{ asset(song.audioFilePath) }}" style="height: 32px;"></audio>
+                  {% endif %}
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ol>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

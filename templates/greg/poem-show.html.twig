@@ -1,0 +1,50 @@
+{# templates/greg/poem-show.html.twig #}
+{% extends 'profile_base.html.twig' %}
+
+{% block title %}Greg Suehr | {{ poem.title }}{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+  <div class="container">
+    <a href="{{ path('profile_poems') }}" class="back-link">&larr; Poems</a>
+    <h1 class="mb-3"><strong>{{ poem.title }}</strong></h1>
+    {% if poem.collectionName %}
+      <p class="text-secondary-dark mb-0">From <em>{{ poem.collectionName }}</em></p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="row g-4">
+      {% if poem.image %}
+        <div class="col-12 col-md-5">
+          <img src="{{ asset(poem.image) }}" alt="{{ poem.title }}" class="img-fluid rounded">
+        </div>
+      {% endif %}
+      <div class="col-12 {{ poem.image ? 'col-md-7' : '' }}">
+        {% if poem.blurb %}
+          <p class="lead">{{ poem.blurb }}</p>
+        {% endif %}
+        {% if poem.body %}
+          <p class="text-secondary-dark" style="white-space: pre-line;">{{ poem.body }}</p>
+        {% endif %}
+        {% if poem.tags is not empty %}
+          <ul class="tags list-inline">
+            {% for tag in poem.tags %}
+              <li class="list-inline-item tag">{{ tag }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        {% if poem.filePath %}
+          <p>
+            <a href="{{ asset(poem.filePath) }}" class="btn btn-outline-primary" target="_blank" rel="noopener">
+              Read the PDF
+            </a>
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

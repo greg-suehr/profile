@@ -1,0 +1,51 @@
+{# templates/greg/albums.html.twig #}
+{% extends 'profile_base.html.twig' %}
+
+{% block title %}Greg Suehr | Albums{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+  <div class="container">
+    <h1 class="mb-3"><strong>Albums</strong></h1>
+    <p class="text-secondary-dark mb-0">
+      Recordings, collected.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {% if albums is empty %}
+      <p class="text-secondary-dark">No albums published yet — check back soon.</p>
+    {% else %}
+    <div class="row g-4">
+      {% for album in albums %}
+        <div class="col-12 col-md-6 col-lg-4">
+          <article class="card h-100 border-0 shadow-sm">
+            {% if album.image %}
+              <img src="{{ asset(album.image) }}" alt="{{ album.title }}" class="card-img-top img-fluid">
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+              <h3 class="h5 mb-2">
+                <a href="{{ path('profile_album_show', {slug: album.slug}) }}" class="stretched-link text-decoration-none">
+                  {{ album.title }}
+                </a>
+                {% if album.releaseYear %}
+                  <span class="text-secondary-dark small">({{ album.releaseYear }})</span>
+                {% endif %}
+              </h3>
+              <p class="text-secondary-dark mb-0 small">
+                {{ album.songs|length }} track{{ album.songs|length == 1 ? '' : 's' }}
+              </p>
+              {% if album.description %}
+                <p class="text-secondary-dark mb-0">{{ album.description }}</p>
+              {% endif %}
+            </div>
+          </article>
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

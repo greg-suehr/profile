@@ -1,0 +1,50 @@
+{# templates/greg/essay-show.html.twig #}
+{% extends 'profile_base.html.twig' %}
+
+{% block title %}Greg Suehr | {{ essay.title }}{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+  <div class="container">
+    <a href="{{ path('profile_essays') }}" class="back-link">&larr; Essays</a>
+    <h1 class="mb-3"><strong>{{ essay.title }}</strong></h1>
+    <p class="text-secondary-dark mb-0">
+      {{ essay.year ?? '' }}{% if essay.year and essay.source %} · {% endif %}{{ essay.source ?? '' }}
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="row g-4">
+      {% if essay.image %}
+        <div class="col-12 col-md-5">
+          <img src="{{ asset(essay.image) }}" alt="{{ essay.title }}" class="img-fluid rounded">
+        </div>
+      {% endif %}
+      <div class="col-12 {{ essay.image ? 'col-md-7' : '' }}">
+        {% if essay.blurb %}
+          <p class="lead">{{ essay.blurb }}</p>
+        {% endif %}
+        {% if essay.body %}
+          <div class="text-secondary-dark" style="white-space: pre-line;">{{ essay.body }}</div>
+        {% endif %}
+        {% if essay.tags is not empty %}
+          <ul class="tags list-inline">
+            {% for tag in essay.tags %}
+              <li class="list-inline-item tag">{{ tag }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        {% if essay.filePath %}
+          <p>
+            <a href="{{ asset(essay.filePath) }}" class="btn btn-outline-primary" target="_blank" rel="noopener">
+              Read the PDF
+            </a>
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

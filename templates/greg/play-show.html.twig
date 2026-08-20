@@ -1,0 +1,52 @@
+{# templates/greg/play-show.html.twig #}
+{% extends 'profile_base.html.twig' %}
+
+{% block title %}Greg Suehr | {{ play.title }}{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+  <div class="container">
+    <a href="{{ path('profile_plays') }}" class="back-link">&larr; Plays</a>
+    <h1 class="mb-3"><strong>{{ play.title }}</strong></h1>
+    <p class="text-secondary-dark mb-0">
+      {% if play.genre %}{{ play.genre }}{% endif %}
+      {% if play.runtimeMinutes %} · {{ play.runtimeMinutes }} min{% endif %}
+      {% if play.premiereYear %} · {{ play.premiereYear }}{% endif %}
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="row g-4">
+      {% if play.image %}
+        <div class="col-12 col-md-5">
+          <img src="{{ asset(play.image) }}" alt="{{ play.title }}" class="img-fluid rounded">
+        </div>
+      {% endif %}
+      <div class="col-12 {{ play.image ? 'col-md-7' : '' }}">
+        {% if play.blurb %}
+          <p class="lead">{{ play.blurb }}</p>
+        {% endif %}
+        {% if play.description %}
+          <p class="text-secondary-dark" style="white-space: pre-line;">{{ play.description }}</p>
+        {% endif %}
+        {% if play.tags is not empty %}
+          <ul class="tags list-inline">
+            {% for tag in play.tags %}
+              <li class="list-inline-item tag">{{ tag }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        {% if play.filePath %}
+          <p>
+            <a href="{{ asset(play.filePath) }}" class="btn btn-outline-primary" target="_blank" rel="noopener">
+              Read the script
+            </a>
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

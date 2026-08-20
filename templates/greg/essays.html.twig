@@ -1,0 +1,50 @@
+{# templates/greg/essays.html.twig #}
+{% extends 'profile_base.html.twig' %}
+
+{% block title %}Greg Suehr | Essays{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+  <div class="container">
+    <h1 class="mb-3"><strong>Essays</strong></h1>
+    <p class="text-secondary-dark mb-0">
+      Shorter written work — arguments, observations, and things worth thinking through in prose.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {% if essays is empty %}
+      <p class="text-secondary-dark">No essays published yet — check back soon.</p>
+    {% else %}
+    <div class="row g-4">
+      {% for essay in essays %}
+        <div class="col-12 col-md-6 col-lg-4">
+          <article class="card h-100 border-0 shadow-sm">
+            {% if essay.image %}
+              <img src="{{ asset(essay.image) }}" alt="{{ essay.title }}" class="card-img-top img-fluid">
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+              {% if essay.year or essay.source %}
+                <div class="text-secondary-dark mb-1 small">
+                  {{ essay.year ?? '' }}{% if essay.year and essay.source %} · {% endif %}{{ essay.source ?? '' }}
+                </div>
+              {% endif %}
+              <h3 class="h5 mb-2">
+                <a href="{{ path('profile_essay_show', {slug: essay.slug}) }}" class="stretched-link text-decoration-none">
+                  {{ essay.title }}
+                </a>
+              </h3>
+              {% if essay.blurb %}
+                <p class="text-secondary-dark mb-0">{{ essay.blurb }}</p>
+              {% endif %}
+            </div>
+          </article>
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
