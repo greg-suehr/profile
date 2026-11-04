@@ -6,7 +6,7 @@
 </div>
 <div id="bottlerocket-info" class="litmas-details">
   {% if textContent %}
-  {{ textContent.html |raw }}
+  {{ (textContent.html ?? '')|sanitize_html('app.rich_text') }}
   {% else %}
   <p>
     Bottlerocket Social Hall is a performance venue and bar in Allentown.    

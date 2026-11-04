@@ -244,10 +244,15 @@ final class StockReceiptController extends AbstractController
         );
     }
 
-    #[Route('/receipt/from_po/{po_id}', name: 'receipt_from_po')]
+    #[Route('/receipt/from_po/{po_id}', name: 'receipt_from_po', requirements: ['po_id' => '\d+'], methods: ['POST'])]
     #[DashboardLayout('supply', 'receipt', 'receipt-create')]
-    public function createFromPo(int $po_id, SessionInterface $session): Response
+    public function createFromPo(int $po_id, Request $request, SessionInterface $session): Response
     {
+      if (!$this->isCsrfTokenValid('receipt_from_po_' . $po_id, $request->request->get('_token'))) {
+        $this->addFlash('danger', 'Invalid CSRF token. Please try again.');
+        return $this->redirectToRoute('purchase_show', ['id' => $po_id]);
+      }
+
       $purchase = $this->purchaseRepo->find($po_id);
         
       if (!$purchase) {

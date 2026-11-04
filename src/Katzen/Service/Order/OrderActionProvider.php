@@ -106,10 +106,10 @@ final class OrderActionProvider
       $actions['create_invoice'] = [
         'label' => 'Create Invoice',
         'route' => 'invoice_create_from_order',
-        'method' => 'GET',
+        'method' => 'POST',
         'icon' => 'file-earmark-plus',
         'variant' => 'info',
-        'csrf_token' => null,
+        'csrf_token' => $this->generateToken('invoice_create_from_order_' . $order->getId()),
         'confirm' => null,
         'group' => 'billing',
       ];

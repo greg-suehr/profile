@@ -27,7 +27,7 @@
           {% endif %}
           {# Render Blog Content - HTML with CKEditor | Raw #}
           <div class="post-content">
-            {{ post.content|raw }}
+            {{ (post.content ?? '')|sanitize_html('app.rich_text') }}
           </div>
           
           {# Back to Blog Link #}

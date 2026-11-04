@@ -151,16 +151,21 @@ final class InvoiceController extends AbstractController
         ]));
   }
 
-  #[Route('/create/from_order/{order_id}', name: 'create_from_order')]
+  #[Route('/create/from_order/{id}', name: 'create_from_order', requirements: ['id' => '\d+'], methods: ['POST'])]
   public function createFromOrder(
-    int $order_id,
-    SessionInterface $session
+    int $id,
+    Request $request,
   ): Response
   {
-     $order = $this->orderRepo->find($order_id);
+     if (!$this->isCsrfTokenValid('invoice_create_from_order_' . $id, $request->request->get('_token'))) {
+       $this->addFlash('danger', 'Invalid CSRF token. Please try again.');
+       return $this->redirectToRoute('order_show', ['id' => $id]);
+     }
+
+     $order = $this->orderRepo->find($id);
 
      if (!$order) {
-       throw $this->createNotFoundException('Order order not found.');
+       throw $this->createNotFoundException('Order not found.');
      }
 
      $result = $this->invoicing->createInvoice(

@@ -228,9 +228,12 @@
         {% endif %}
 
         {% if order.isClosed %}
-          <a href="{{ path('invoice_create_from_order', {'order_id': order.id}) }}" class="btn btn-info">
-            <i class="bi bi-file-earmark-plus me-1"></i>Create Invoice
-          </a>
+          <form method="post" action="{{ path('invoice_create_from_order', {'id': order.id}) }}" class="d-inline">
+            <input type="hidden" name="_token" value="{{ csrf_token('invoice_create_from_order_' ~ order.id) }}">
+            <button type="submit" class="btn btn-info">
+              <i class="bi bi-file-earmark-plus me-1"></i>Create Invoice
+            </button>
+          </form>
         {% endif %}
           
         <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">

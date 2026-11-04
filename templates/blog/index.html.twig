@@ -23,7 +23,7 @@
             </a>
           </h1>
           <p class="card-text text-muted">
-            {{ featured_post.subtitle | raw }}
+            {{ (featured_post.subtitle ?? '')|sanitize_html('app.rich_text') }}
           </p>
           <div class="container">
             <div class="row">
@@ -39,7 +39,7 @@
               </div>
             </div>
           </div>
-          <p>{{ featured_post.summary | raw }}<p>
+          <p>{{ (featured_post.summary ?? '')|sanitize_html('app.rich_text') }}<p>
         </div>
         <div class="card-footer text-muted">
           Published on {{ featured_post.updatedAt|date('F d, Y') }}
@@ -63,7 +63,7 @@
                             </a>
                         </h5>
                         <p class="card-text text-muted">
-                          {{ post.subtitle | raw }}
+                          {{ (post.subtitle ?? '')|sanitize_html('app.rich_text') }}
                         </p>
                         <a href="{{ path('profile_post', {'id': post.id}) }}" class="btn btn-primary btn-sm">
                             Read More

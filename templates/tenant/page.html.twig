@@ -2,6 +2,6 @@
 
 {% block body %}
   <article class="tenant-page">
-    {{ page.htmlContent|raw }}
+    {{ (page.htmlContent ?? '')|sanitize_html('app.rich_text') }}
   </article>
 {% endblock %}

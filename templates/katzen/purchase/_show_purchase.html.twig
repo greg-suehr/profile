@@ -30,9 +30,12 @@
           <a href="{{ path('purchase_edit', {'id': purchase.id}) }}" class="btn btn-sm btn-outline-primary">
             <i class="bi bi-pencil"></i> Edit
           </a>
-          <a href="{{ path('vendor_invoice_create_from_po', {'po_id': purchase.id}) }}" class="btn btn-sm btn-outline-success">
-            <i class="bi bi-box-arrow-in-down"></i> Invoice
-          </a>
+          <form method="post" action="{{ path('vendor_invoice_create_from_po', {'po_id': purchase.id}) }}" class="d-inline">
+            <input type="hidden" name="_token" value="{{ csrf_token('vendor_invoice_create_from_po_' ~ purchase.id) }}">
+            <button type="submit" class="btn btn-sm btn-outline-success">
+              <i class="bi bi-box-arrow-in-down"></i> Invoice
+            </button>
+          </form>
           <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()">
             <i class="bi bi-printer"></i> Print
           </button>
@@ -233,9 +236,12 @@
       
       <div class="btn-group" role="group">
         {% if purchase.status != 'cancelled' and purchase.status != 'received' %}
-          <a href="{{ path('receipt_from_po', {'po_id': purchase.id}) }}" class="btn btn-success">
-            <i class="bi bi-box-arrow-in-down me-1"></i>Receive Items
-          </a>
+          <form method="post" action="{{ path('receipt_from_po', {'po_id': purchase.id}) }}" class="d-inline">
+            <input type="hidden" name="_token" value="{{ csrf_token('receipt_from_po_' ~ purchase.id) }}">
+            <button type="submit" class="btn btn-success">
+              <i class="bi bi-box-arrow-in-down me-1"></i>Receive Items
+            </button>
+          </form>
         {% endif %}
         
         {% if purchase.status == 'pending' or purchase.status == 'ordered' %}

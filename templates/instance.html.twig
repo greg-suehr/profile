@@ -43,7 +43,7 @@
 
     {% block configured_head_contents %}
         {% for htmlContent in ea.assets.headContents ?? [] %}
-            {{ htmlContent|raw }}
+            {{ (htmlContent ?? '')|sanitize_html('app.rich_text') }}
         {% endfor %}
     {% endblock %}
 </head>
@@ -398,7 +398,7 @@
 
     {% block configured_body_contents %}
         {% for htmlContent in ea.assets.bodyContents ?? [] %}
-            {{ htmlContent|raw }}
+            {{ (htmlContent ?? '')|sanitize_html('app.rich_text') }}
         {% endfor %}
     {% endblock %}
     </body>

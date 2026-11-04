@@ -3,7 +3,7 @@
 <h1 class="litmas-title">SLEIGHER KRAMPUS BAND</h1>
 <div id="bottlerocket-info">
   {% if textContent %}
-  {{ textContent.html |raw }}
+  {{ (textContent.html ?? '')|sanitize_html('app.rich_text') }}
   {% else %}  
   <p>
     Sleigher - Krampus Band brings sonic holiday punishment to the naughty

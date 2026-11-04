@@ -20,7 +20,7 @@
       </span>
     </div>
     <div class="card-body">
-      <p class="lead mb-3">{{ detection.explanation|raw }}</p>
+      <p class="lead mb-3">{% for part in detection.explanation|split('**') %}{% if loop.index is even %}<strong>{{ part }}</strong>{% else %}{{ part }}{% endif %}{% endfor %}</p>
       
       {% set strategy = detection.strategySummary %}
       {% if strategy.requires_grouping %}

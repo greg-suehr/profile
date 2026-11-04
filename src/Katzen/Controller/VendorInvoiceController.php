@@ -261,18 +261,28 @@ final class VendorInvoiceController extends AbstractController
     ]));
   }
 
-  #[Route('/create/from_receipt/{id}', name: 'create_from_receipt')]
-  public function createFromReceipt(StockReceipt $receipt): Response
+  #[Route('/create/from_receipt/{id}', name: 'create_from_receipt', requirements: ['id' => '\d+'], methods: ['POST'])]
+  public function createFromReceipt(StockReceipt $receipt, Request $request): Response
   {
-    return $this->redirectToRoute('vendor_invoice_index');
-  }    
+    if (!$this->isCsrfTokenValid('vendor_invoice_create_from_receipt_' . $receipt->getId(), $request->request->get('_token'))) {
+      $this->addFlash('danger', 'Invalid CSRF token. Please try again.');
+      return $this->redirectToRoute('receipt_show', ['id' => $receipt->getId()]);
+    }
 
-  #[Route('/create/from_po/{po_id}', name: 'create_from_po')]
+    return $this->redirectToRoute('vendor_invoice_index');
+  }
+
+  #[Route('/create/from_po/{po_id}', name: 'create_from_po', requirements: ['po_id' => '\d+'], methods: ['POST'])]
   public function createFromPurchase(
     int $po_id,
-    SessionInterface $session
+    Request $request,
   ): Response
   {
+     if (!$this->isCsrfTokenValid('vendor_invoice_create_from_po_' . $po_id, $request->request->get('_token'))) {
+       $this->addFlash('danger', 'Invalid CSRF token. Please try again.');
+       return $this->redirectToRoute('purchase_show', ['id' => $po_id]);
+     }
+
      $purchase = $this->purchaseRepo->find($po_id);
      
      if (!$purchase) {
