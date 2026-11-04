@@ -1,55 +1,4 @@
 const Encore = require('@symfony/webpack-encore');
-const WebpackObfuscator = require('webpack-obfuscator');
-
-const OBFUSCATION_PRESETS = {
-  off: null,
-
-  lean: {
-    compact: true,
-    simplify: true,
-    identifierNamesGenerator: 'mangled-shuffled',
-    selfDefending: true,
-    disableConsoleOutput: true,
-    unicodeEscapeSequence: false,
-    stringArray: true,
-    stringArrayEncoding: ['base64'],
-    stringArrayThreshold: 0.8,
-    controlFlowFlattening: false,
-    deadCodeInjection: false,
-    debugProtection: false,
-  },
-
-  heavy: {
-    compact: true,
-    simplify: true,
-    identifierNamesGenerator: 'mangled-shuffled',
-    selfDefending: true,
-    disableConsoleOutput: true,
-    unicodeEscapeSequence: false,
-    stringArray: true,
-    stringArrayEncoding: ['rc4'],
-    stringArrayThreshold: 0.8,
-    splitStrings: true,
-    splitStringsChunkLength: 8,
-    transformObjectKeys: true,
-    numbersToExpressions: true,
-    controlFlowFlattening: true,
-    controlFlowFlatteningThreshold: 0.75,
-    deadCodeInjection: true,
-    deadCodeInjectionThreshold: 0.4,
-    debugProtection: false,
-  },
-};
-
-const OBFUSCATION_LEVEL = process.env.SEERTECHNE_OBFUSCATION || 'lean';
-const seerTechneObfuscation = OBFUSCATION_PRESETS[OBFUSCATION_LEVEL];
-
-if (seerTechneObfuscation === undefined) {
-  throw new Error(
-    `Unknown SEERTECHNE_OBFUSCATION "${OBFUSCATION_LEVEL}". ` +
-      `Expected one of: ${Object.keys(OBFUSCATION_PRESETS).join(', ')}.`,
-  );
-}
 
 if (!Encore.isRuntimeEnvironmentConfigured()) {
     Encore.configureRuntimeEnvironment(process.env.NODE_ENV || 'dev');
@@ -87,7 +36,6 @@ Encore
      * https://symfony.com/doc/current/frontend.html#adding-more-features
      */
     .cleanupOutputBeforeBuild()
-    .enableBuildNotifications()
     .enableSourceMaps(!Encore.isProduction())
     // enables hashed filenames (e.g. app.abc123.css)
     .enableVersioning(Encore.isProduction())
@@ -136,16 +84,5 @@ Encore
 ;
 
 const config = Encore.getWebpackConfig();
-
-// post Encore obfuscation
-if (Encore.isProduction() && seerTechneObfuscation) {
-  config.plugins.push(
-    new WebpackObfuscator(seerTechneObfuscation, [
-      '**/!(seertechne*).js',
-      'runtime*.js',
-      'vendors-*.js',
-    ]),
-  );
-}
 
 module.exports = config;

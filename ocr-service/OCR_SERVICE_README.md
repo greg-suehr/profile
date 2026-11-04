@@ -1,5 +1,13 @@
 # Katzen OCR Service
 
+> **Container-only.** This service runs only in its container (`make ocr`, i.e.
+> `docker compose --profile ocr up -d --build ocr-service` from the repo root).
+> It is not published to the host: the app reaches it at
+> `http://ocr-service:5005` on the compose network. Do not `pip install` its
+> requirements on your machine. Where examples below say `localhost:5005`, run
+> them inside the network, e.g.
+> `docker compose exec ocr-service python -c "import urllib.request;print(urllib.request.urlopen('http://localhost:5005/health').read())"`.
+
 FastAPI-based microservice for receipt and invoice OCR processing using Tesseract 5.
 
 ## Quick Start
@@ -7,11 +15,8 @@ FastAPI-based microservice for receipt and invoice OCR processing using Tesserac
 ### Using Docker (Recommended)
 
 ```bash
-# Build the image
-docker build -t katzen-ocr-service -f Dockerfile .
-
-# Run the container
-docker run -d -p 5005:5005 --name katzen-ocr katzen-ocr-service
+# From the repo root: build and start (no host port is published)
+make ocr
 
 # Check health
 curl http://localhost:5005/health
@@ -20,15 +25,8 @@ curl http://localhost:5005/health
 ### Local Development
 
 ```bash
-# Install system dependencies (Ubuntu/Debian)
-sudo apt-get install -y tesseract-ocr tesseract-ocr-eng libtesseract-dev \
-    libgl1-mesa-glx libglib2.0-0 poppler-utils ghostscript
-
-# Install Python packages
-pip install -r requirements.txt --break-system-packages
-
-# Run the service
-python ocr_service.py
+# Host installs are not supported; run it in its container:
+make ocr
 ```
 
 ## API Endpoints

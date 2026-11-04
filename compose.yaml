@@ -1,13 +1,124 @@
 
+# Run everything through the Makefile (`make help`), which passes
+# `--env-file .env.local` so POSTGRES_PASSWORD is set.
+
+# --- Network layout ---------------------------------------------------------
+#   internal  no route to the internet (Docker `internal: true`). php, node,
+#             ocr-service, database and mailer live only here.
+#   edge      normal bridge with internet. Only trusted, fixed-purpose
+#             containers join it: `web` (nginx, publishes the 127.0.0.1 ports),
+#             `egress-proxy` (squid allowlist, only up during installs/audits)
+#             and the optional `blackfire` agent.
+networks:
+  internal:
+    internal: true
+  edge: {}
+
+# --- Dev toolchain isolation ------------------------------------------------
+# composer, npm, bin/console and phpunit run in these containers so vendored
+# code sees only this repo: not ~/.ssh, git credentials, the Upsun token or
+# other work repos. Do not add mounts outside the repo, the docker socket,
+# SSH-agent forwarding, or the `edge` network to these services.
+x-toolchain: &toolchain
+  user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+  init: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  working_dir: /app
+  networks: [internal]
+  volumes:
+    - .:/app
+    # Hide .git so container code can't plant hooks or config that your host
+    # `git` would later execute.
+    - type: tmpfs
+      target: /app/.git
+    # Files your host runs or trusts are read-only from inside the container.
+    - ./compose.yaml:/app/compose.yaml:ro
+    - ./compose.override.yaml:/app/compose.override.yaml:ro
+    - ./Makefile:/app/Makefile:ro
+    - ./docker:/app/docker:ro
+    - ./.npmrc:/app/.npmrc:ro
+    - ./.platform.app.yaml:/app/.platform.app.yaml:ro
+    - ./.platform:/app/.platform:ro
+    - toolchain_cache:/cache
+
 services:
+  php:
+    <<: *toolchain
+    build: ./docker/php
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      # A real env var beats every .env* file, so dev and test both use it
+      # (doctrine appends _test for the test env).
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.local}@database:5432/${POSTGRES_DB:-app}?serverVersion=${POSTGRES_VERSION:-16}&charset=utf8"
+      PHP_CLI_SERVER_WORKERS: "4"
+    # Reached via `web` on 127.0.0.1:8000 (`make serve`).
+    command: ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+
+  node:
+    <<: *toolchain
+    build: ./docker/node
+    environment:
+      # Env beats the project .npmrc, so a tampered .npmrc can't re-enable scripts.
+      npm_config_ignore_scripts: "true"
+    command: ["npm", "run", "watch"]
+
+  # Host-facing front door: the only service with published ports (see
+  # compose.override.yaml) apart from the optional blackfire agent.
+  web:
+    image: nginx:stable-alpine@sha256:0e52bd054126cdc040b1276c0af347aeb02a41b9cfe305d6094767ac30e97949
+    depends_on: [php, mailer, database]
+    networks: [internal, edge]
+    volumes:
+      - ./docker/web/nginx.conf:/etc/nginx/nginx.conf:ro
+
+  # Allowlisting HTTPS proxy for dependency installs. The Makefile starts it
+  # for `install`/`composer`/`npm`/`audit` and stops it afterwards, so the
+  # app and test runs have no way out at all.
+  egress-proxy:
+    profiles: [egress]
+    build: ./docker/egress-proxy
+    networks: [internal, edge]
+    security_opt: [no-new-privileges:true]
+
+  # OCR service: container-only, reachable from `php` at http://ocr-service:5005.
+  # Not published to the host. Start with `make ocr`.
+  ocr-service:
+    profiles: [ocr]
+    build: ./ocr-service
+    networks: [internal]
+    expose: ["5005"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    environment:
+      PYTHONUNBUFFERED: "1"
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+
 ###> doctrine/doctrine-bundle ###
   database:
     image: postgres:${POSTGRES_VERSION:-16}-alpine
+    # Internal only: the app role is a Postgres superuser (COPY ... TO PROGRAM),
+    # so the DB must not have internet either. Host access goes through `web`.
+    networks: [internal]
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-app}
-      # You should definitely change the password in production
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      # Set in .env.local (gitignored). No default on purpose.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.local}
       POSTGRES_USER: ${POSTGRES_USER:-app}
+    # Check over TCP: during first-time init the entrypoint runs a temporary
+    # socket-only server, so a socket check would report "ready" too early.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
     volumes:
       - database_data:/var/lib/postgresql/data:rw
       # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
@@ -15,6 +126,7 @@ services:
 ###< doctrine/doctrine-bundle ###
 
 volumes:
+  toolchain_cache:
 ###> doctrine/doctrine-bundle ###
   database_data:
 ###< doctrine/doctrine-bundle ###

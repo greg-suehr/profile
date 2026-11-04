@@ -6,8 +6,8 @@ RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     tesseract-ocr-eng \
     libtesseract-dev \
-    # OpenCV dependencies
-    libgl1-mesa-glx \
+    # OpenCV dependencies (libgl1-mesa-glx no longer exists in current Debian)
+    libgl1 \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
@@ -30,14 +30,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY ocr_service.py .
 
-# Create directory for temporary files
-RUN mkdir -p /tmp/ocr_temp && chmod 777 /tmp/ocr_temp
+# Run as an unprivileged user
+RUN useradd --system --no-create-home --uid 10001 ocr
+USER ocr
 
-# Health check
+# Health check (stdlib only; `requests` is not installed)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:5005/health')"
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5005/health', timeout=5)"
 
-# Expose port
+# Container-network port only. Do not publish it to the host.
 EXPOSE 5005
 
 # Run the service

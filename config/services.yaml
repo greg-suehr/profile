@@ -1,4 +1,6 @@
 parameters:
+    # OCR runs only in its container (compose profile "ocr"); override per env if needed.
+    env(OCR_SERVICE_URL): 'http://ocr-service:5005/ocr/receipt'
     katzen_hosts: 'getkatzen.com|getkatzen.local|gregishere.com|gregishere.local|gregsuehr.com|gregsuehr.local|mulvaylitmas.com|mulvaylitmas.local|seertechne.com|seertechne.local|ishere.net|ishere.local'
     katzen_match: '#^(getkatzen\.com|getkatzen\.local|gregishere\.com|gregishere\.local|gregsuehr\.com|gregsuehr\.local|mulvaylitmas\.com|mulvaylitmas\.local|seertechne\.com|seertechne\.local|ishere\.net|ishere\.local)$#'
     getkatzen_marketing_hosts: 'getkatzen.com|getkatzen.local'
@@ -119,6 +121,8 @@ services:
         tags: ['recipe.adapter']
 
     App\Katzen\Adapter\OCRAdapter:
+        arguments:
+            $ocrServiceUrl: '%env(OCR_SERVICE_URL)%'
         tags: ['recipe.adapter']
 
     App\Katzen\Twig\AppExtension:

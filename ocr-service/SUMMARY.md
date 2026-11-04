@@ -1,5 +1,13 @@
 # Katzen OCR Integration - Complete Package
 
+> **Container-only.** This service runs only in its container (`make ocr`, i.e.
+> `docker compose --profile ocr up -d --build ocr-service` from the repo root).
+> It is not published to the host: the app reaches it at
+> `http://ocr-service:5005` on the compose network. Do not `pip install` its
+> requirements on your machine. Where examples below say `localhost:5005`, run
+> them inside the network, e.g.
+> `docker compose exec ocr-service python -c "import urllib.request;print(urllib.request.urlopen('http://localhost:5005/health').read())"`.
+
 ## 📦 What's Included
 
 This package contains everything you need to add OCR receipt/invoice scanning to your Katzen project.
@@ -67,13 +75,8 @@ OCR_SERVICE_URL=http://ocr-service:5005
 ### Step 5: Start Services
 
 ```bash
-# Option A: With Docker (recommended)
-docker-compose up -d --build ocr-service
-
-# Option B: Local development
-cd ocr-service
-pip install -r requirements.txt --break-system-packages
-python ocr_service.py
+# Container only (from the repo root)
+make ocr
 ```
 
 ### Verify Installation

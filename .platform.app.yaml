@@ -47,11 +47,15 @@ hooks:
         set -x -e
         export COMPOSER_NO_PROGRESS=1
 
+        # TRUST DEPENDENCY: this pipes Symfony/Upsun's configurator script into
+        # bash on every build. It is the vendor's documented standard, so we
+        # keep it, but anyone who controls get.symfony.com controls our build.
         curl -fs https://get.symfony.com/cloud/configurator | bash
         # php-ext-install blackfire X.Y.Z
 
         NODE_VERSION=22 COMPOSER_FLAGS="--no-progress" symfony-build
-        npm install
+        # Lockfile-exact install; .npmrc sets ignore-scripts=true.
+        npm ci
         npm run build
 
     deploy: |

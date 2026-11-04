@@ -1,5 +1,13 @@
 # Quick Reference Card - OCR Integration
 
+> **Container-only.** This service runs only in its container (`make ocr`, i.e.
+> `docker compose --profile ocr up -d --build ocr-service` from the repo root).
+> It is not published to the host: the app reaches it at
+> `http://ocr-service:5005` on the compose network. Do not `pip install` its
+> requirements on your machine. Where examples below say `localhost:5005`, run
+> them inside the network, e.g.
+> `docker compose exec ocr-service python -c "import urllib.request;print(urllib.request.urlopen('http://localhost:5005/health').read())"`.
+
 ## 🚀 Setup Commands
 
 ### Initial Setup
@@ -35,21 +43,10 @@ docker-compose restart ocr-service
 docker-compose stop ocr-service
 ```
 
-### Local Development (No Docker)
+### Local Development
 ```bash
-# Install system dependencies (Ubuntu/Debian)
-sudo apt-get install -y tesseract-ocr tesseract-ocr-eng \
-    libtesseract-dev libgl1-mesa-glx libglib2.0-0 \
-    poppler-utils ghostscript
-
-# Install Python packages
-cd ocr-service
-pip install -r requirements.txt --break-system-packages
-
-# Run service
-python ocr_service.py
-
-# Service will be available at http://localhost:5005
+# Host installs are not supported; run it in its container:
+make ocr
 ```
 
 ## 🧪 Testing Commands

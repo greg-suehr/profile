@@ -1,5 +1,13 @@
 # Katzen OCR Integration Setup Guide
 
+> **Container-only.** This service runs only in its container (`make ocr`, i.e.
+> `docker compose --profile ocr up -d --build ocr-service` from the repo root).
+> It is not published to the host: the app reaches it at
+> `http://ocr-service:5005` on the compose network. Do not `pip install` its
+> requirements on your machine. Where examples below say `localhost:5005`, run
+> them inside the network, e.g.
+> `docker compose exec ocr-service python -c "import urllib.request;print(urllib.request.urlopen('http://localhost:5005/health').read())"`.
+
 Complete step-by-step instructions for adding OCR receipt/invoice scanning to Katzen.
 
 ## Overview
@@ -139,11 +147,9 @@ OCR_SERVICE_URL=http://localhost:5005
 
 #### Option A: Docker Compose (Recommended)
 
-Update your `docker-compose.yml` to include the OCR service (see provided `docker-compose.yml`).
-
-Then run:
+The service is defined in the repo-root `compose.yaml` (profile `ocr`). Run:
 ```bash
-docker-compose up -d --build ocr-service
+make ocr
 ```
 
 Test the service:
@@ -152,27 +158,6 @@ curl http://localhost:5005/health
 # Should return: {"status":"healthy","engine":"tesseract5"}
 ```
 
-#### Option B: Local Development (without Docker)
-
-Install system dependencies (Ubuntu/Debian):
-```bash
-sudo apt-get update
-sudo apt-get install -y tesseract-ocr tesseract-ocr-eng libtesseract-dev \
-    libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender-dev \
-    poppler-utils ghostscript
-```
-
-Install Python dependencies:
-```bash
-cd ocr-service
-pip install -r requirements.txt --break-system-packages
-```
-
-Run the service:
-```bash
-python ocr_service.py
-# Service runs on http://localhost:5005
-```
 
 ### 6. Create ReceiptImportService (Stub)
 

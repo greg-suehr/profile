@@ -1,5 +1,5 @@
 # Python OCR Service Dependencies
-# Install with: pip install -r requirements.txt --break-system-packages
+# Installed only inside the OCR container image (see Dockerfile). Never pip-install on the host.
 
 # Web Framework
 fastapi==0.109.0

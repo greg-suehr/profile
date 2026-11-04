@@ -1,28 +1,41 @@
 
+# Every published port is bound to 127.0.0.1 so nothing is reachable from the
+# LAN. Only `web` (nginx) publishes ports for the app, Mailpit and Postgres,
+# because the services behind it are on the internal, no-internet network.
+# Images are pinned by digest; bump tag + digest together
+# (`docker buildx imagetools inspect <image>:<tag>`).
+
 services:
-###> doctrine/doctrine-bundle ###
-  database:
+  web:
     ports:
-      - "30000:5432"
-###< doctrine/doctrine-bundle ###
+      - "127.0.0.1:8000:8000"    # app
+      - "127.0.0.1:8025:8025"    # Mailpit UI
+      - "127.0.0.1:30000:5432"   # Postgres for host GUI tools
+
+  php:
+    environment:
+      MAILER_DSN: "smtp://mailer:1025"
 
 ###> symfony/mailer ###
   mailer:
-    image: axllent/mailpit
-    ports:
-      - "1025"
-      - "8025"
+    image: axllent/mailpit:v1.33.0@sha256:9b3a463be15354c0f0eba91697d80e3e0d8a5623ef0e627cacc836bc17fd5231
+    networks: [internal]
     environment:
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
 ###< symfony/mailer ###
 
 ###> blackfireio/blackfire-symfony-meta ###
+  # Optional (`docker compose --profile blackfire up -d blackfire`). The agent
+  # needs the internet to upload profiles, so it sits on `edge`; anything on
+  # `internal` that can reach it can send data to Blackfire's servers.
   blackfire:
-    image: blackfire/blackfire:2
+    profiles: [blackfire]
+    image: blackfire/blackfire:2@sha256:0b2db21545065f6573491594b2c9c63fc9324285aef4c2ca44b74ac5ce200a82
+    networks: [internal, edge]
     # uncomment to store Blackfire credentials in a local .env.local file
     #env_file: .env.local
     environment:
       BLACKFIRE_LOG_LEVEL: 4
-    ports: ["8307"]
+    ports: ["127.0.0.1::8307"]
 ###< blackfireio/blackfire-symfony-meta ###
