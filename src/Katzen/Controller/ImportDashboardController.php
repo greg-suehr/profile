@@ -36,6 +36,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Import Dashboard Controller
@@ -47,7 +48,8 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
  * - Multi-entity import wizard (Upload > Plan > Validate > Execute)
  * - Progress tracking endpoints
  */
-#[Route('/import', name: 'import_')]
+#[Route('/import', name: 'import_', condition: "request.getHost() matches '%katzen_match%'")]
+#[IsGranted('ROLE_USER')]
 final class ImportDashboardController extends AbstractController
 {
   public function __construct(

@@ -5,8 +5,10 @@ use App\Katzen\Service\Cook\RecipeImportService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(condition: "request.getHost() matches '%katzen_match%'")]
+#[IsGranted('ROLE_USER')]
 class RecipeImportController
 {
     private RecipeImportService $importService;

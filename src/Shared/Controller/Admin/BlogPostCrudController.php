@@ -15,7 +15,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_ADMIN')]
 class BlogPostCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string

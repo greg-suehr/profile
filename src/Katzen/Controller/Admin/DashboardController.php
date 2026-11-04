@@ -12,13 +12,23 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route(condition: "request.getHost() matches '%getkatzen_marketing_match%'")]
-#[AdminDashboard(routePath: '/katzen/admin', routeName: 'katzen_admin')]
+#[AdminDashboard(
+    routePath: '/katzen/admin',
+    routeName: 'katzen_admin',
+    routeOptions: ['condition' => "request.getHost() matches '%getkatzen_marketing_match%'"],
+    allowedControllers: [
+        ItemCrudController::class,
+        StockTargetCrudController::class,
+        UnitCrudController::class,
+        RecipientCrudController::class,
+        RecipientEventCrudController::class,
+    ],
+)]
+#[IsGranted('ROLE_ADMIN')]
 class DashboardController extends AbstractDashboardController
 {
-    #[Route('/katzen/admin', name:'katzen_admin')]
     public function index(): Response
     {
       $routeBuilder = $this->container->get(AdminUrlGenerator::class);

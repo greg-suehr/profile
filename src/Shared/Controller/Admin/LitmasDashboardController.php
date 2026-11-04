@@ -10,12 +10,20 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route(condition: "request.getHost() matches '%litmas_match%'")]
+#[AdminDashboard(
+    routePath: '/litmas/admin',
+    routeName: 'litmas_admin',
+    routeOptions: ['condition' => "request.getHost() matches '%litmas_match%'"],
+    allowedControllers: [
+        RsvpLogCrudController::class,
+        CmsPageCrudController::class,
+    ],
+)]
+#[IsGranted('ROLE_ADMIN')]
 class LitmasDashboardController extends AbstractDashboardController
 {
-    #[Route('/litmas/admin', name:'litmas_admin')]
     public function index(): Response
     {
       $routeBuilder = $this->container->get(AdminUrlGenerator::class);

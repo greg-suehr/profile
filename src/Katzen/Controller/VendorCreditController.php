@@ -8,8 +8,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/credits/vendor', name: 'vendor_credit_', condition: "request.getHost() matches '%katzen_match%'")]
+#[IsGranted('ROLE_USER')]
 final class VendorCreditController extends AbstractController
 {
   #[Route('/', name: 'index')]

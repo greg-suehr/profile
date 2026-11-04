@@ -21,9 +21,21 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(condition: "request.getHost() matches '%gregishere_match%'")]
-#[AdminDashboard(routePath: '/profiler', routeName: 'profiler_admin')]
+#[AdminDashboard(
+    routePath: '/profiler',
+    routeName: 'profiler_admin',
+    routeOptions: ['condition' => "request.getHost() matches '%gregishere_match%'"],
+    allowedControllers: [
+        Admin\SiteCrudController::class,
+        Admin\CategoryCrudController::class,
+        Admin\ContentCrudController::class,
+        Admin\PageCrudController::class,
+    ],
+)]
+#[IsGranted('ROLE_ADMIN')]
 class ProfilerDashboardController extends AbstractDashboardController
 {
     public function __construct(

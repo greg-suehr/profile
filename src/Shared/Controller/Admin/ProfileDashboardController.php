@@ -17,12 +17,28 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route(condition: "request.getHost() matches '%gregishere_match%'")]
+#[AdminDashboard(
+    routePath: '/greg/admin',
+    routeName: 'greg_admin',
+    routeOptions: ['condition' => "request.getHost() matches '%gregishere_match%'"],
+    allowedControllers: [
+        BlogPostCrudController::class,
+        ProfileDocumentCrudController::class,
+        ProfileReadingListItemCrudController::class,
+        ProfileInfluenceCrudController::class,
+        PoemCrudController::class,
+        PlayCrudController::class,
+        EssayCrudController::class,
+        AlbumCrudController::class,
+        SongCrudController::class,
+        UserCrudController::class,
+    ],
+)]
+#[IsGranted('ROLE_ADMIN')]
 class ProfileDashboardController extends AbstractDashboardController
 {
-    #[Route('/greg/admin', name:'greg_admin')]
     public function index(): Response
     {
       $routeBuilder = $this->container->get(AdminUrlGenerator::class);

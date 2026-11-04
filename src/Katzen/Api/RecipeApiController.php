@@ -7,7 +7,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[Route(condition: "request.getHost() matches '%katzen_match%'")]
+#[IsGranted('ROLE_USER')]
 final class RecipeApiController extends AbstractController
 {
     #[Route('/api/recipes/search', name: 'api_recipes_search', methods: ['GET'])]

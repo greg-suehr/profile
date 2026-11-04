@@ -31,24 +31,6 @@ class AuthenticationExceptionSubscriber implements EventSubscriberInterface
         $exception = $event->getThrowable();
         $request = $event->getRequest();
         
-        if ($exception instanceof \TypeError) {
-            $message = $exception->getMessage();
-            
-            // Check if the error is related to KatzenUser being null
-            if (str_contains($message, 'KatzenUser') && 
-                str_contains($message, 'null given')) {
-                
-                $targetPath = $request->getUri();
-                
-                $loginUrl = $this->urlGenerator->generate('katzen_login', [
-                    '_target_path' => $targetPath
-                ]);
-                
-                $response = new RedirectResponse($loginUrl);
-                $event->setResponse($response);
-            }
-        }
-        
         // Handle explicit authentication exceptions
         if ($exception instanceof AuthenticationException || 
             $exception instanceof AccessDeniedHttpException) {
