@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#cdd7e5">
+  <title>404 — Seer Techne</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'><rect width='8' height='8' fill='%23c4d0e0'/><circle cx='4' cy='4' r='1.4' fill='%23444444'/></svg>">
+  <style>
+    /* Palette matches the Seer Techne home page: blue-gray ground, white and #444 figure. */
+    :root {
+      --ground-a: #d3dce8;
+      --ground-b: #c4d0e0;
+      --ink: #444444;
+      --deep: #2b2b2b;
+      --mid: #aaaaaa;
+      --white: #ffffff;
+      --hairline: rgba(68, 68, 68, 0.22);
+      --slow: cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+    html, body { margin: 0; padding: 0; min-height: 100%; background: var(--ground-b); }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(-90deg, var(--ground-a) 15%, var(--ground-b) 100%);
+      color: var(--ink); font-family: Georgia, serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    main { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .piece {
+      width: 100%; max-width: 800px; margin: 0 auto;
+      padding: 2rem 2rem 1.75rem; box-sizing: border-box;
+    }
+    a { color: var(--deep); text-decoration: none; }
+    a:focus-visible { outline: 2px solid var(--deep); outline-offset: 4px; }
+
+    .mark {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 18px; letter-spacing: .3em; text-transform: uppercase; color: var(--deep);
+    }
+    .mark a { color: inherit; }
+    .mark a:hover { text-decoration: underline; text-underline-offset: 6px; }
+    .mark .code { letter-spacing: .25em; }
+
+    .plate { margin: 1.5rem 0 0; display: flex; justify-content: center; }
+    .plate svg {
+      width: min(46vmin, 360px); height: auto; display: block;
+      opacity: 0; animation: arrive 1.6s var(--slow) .1s forwards;
+    }
+    .figure { transform-origin: 2.5px -2.165px; animation: turn 240s linear infinite; }
+    .pf-a { fill: var(--white); stroke: var(--white); }
+    .pf-b { fill: var(--mid);   stroke: var(--mid); }
+    .pf-c { fill: var(--ink);   stroke: var(--ink); }
+    .figure polygon { stroke-width: .03; stroke-linejoin: round; }
+
+    .reveal {
+      margin: 1.75rem 0 0; text-align: right;
+      font-size: clamp(1.375rem, 3.4vw, 1.875rem); letter-spacing: .06em; line-height: 1.3;
+      color: var(--deep);
+      opacity: 0; animation: arrive 1.4s var(--slow) .8s forwards;
+    }
+    .rule { height: 1px; width: 100%; margin-top: 1.5rem; background: var(--hairline); }
+
+    .foot {
+      margin-top: 1.25rem; display: flex; justify-content: space-between;
+      align-items: center; gap: 1rem 2rem; flex-wrap: wrap;
+      opacity: 0; animation: arrive 1.2s var(--slow) 1.1s forwards;
+    }
+    .explain { margin: 0; font-size: 17px; line-height: 1.5; color: var(--ink); }
+    .return {
+      display: inline-block; padding: .8rem 1.6rem;
+      background: var(--ink); color: var(--white);
+      font-size: 16px; letter-spacing: .12em; text-transform: uppercase;
+      transition: background .4s var(--slow);
+    }
+    .return:hover, .return:focus-visible { background: var(--deep); color: var(--white); }
+
+    @keyframes arrive { to { opacity: 1; } }
+    @keyframes turn { to { transform: rotate(360deg); } }
+
+    @media (max-width: 560px) {
+      .reveal { text-align: left; }
+      .foot { flex-direction: column; align-items: stretch; text-align: left; }
+      .return { text-align: center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .plate svg, .reveal, .foot { animation: none; opacity: 1; }
+      .figure { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="piece">
+      <div class="mark"><a href="/">Seer Techne</a><span class="code">404</span></div>
+
+      <div class="plate">
+        <svg viewBox="-2.3 -6.9 9.6 9.6" role="img" aria-label="A Penrose triangle: an impossible figure.">
+          <g class="figure">
+            <polygon class="pf-a" points="-0.50,-0.87 0.00,-1.73 0.50,-0.87 0.00,-0.00"/>
+            <polygon class="pf-c" points="1.00,-0.00 1.50,-0.87 0.50,-0.87 0.00,-0.00"/>
+            <polygon class="pf-a" points="0.00,-1.73 0.50,-2.60 1.00,-1.73 0.50,-0.87"/>
+            <polygon class="pf-c" points="1.50,-0.87 2.00,-1.73 1.00,-1.73 0.50,-0.87"/>
+            <polygon class="pf-a" points="0.50,-2.60 1.00,-3.46 1.50,-2.60 1.00,-1.73"/>
+            <polygon class="pf-c" points="2.00,-1.73 2.50,-2.60 1.50,-2.60 1.00,-1.73"/>
+            <polygon class="pf-a" points="1.00,-3.46 1.50,-4.33 2.00,-3.46 1.50,-2.60"/>
+            <polygon class="pf-c" points="2.50,-2.60 3.00,-3.46 2.00,-3.46 1.50,-2.60"/>
+            <polygon class="pf-a" points="1.50,-4.33 2.00,-5.20 2.50,-4.33 2.00,-3.46"/>
+            <polygon class="pf-b" points="3.00,-5.20 3.50,-4.33 2.50,-4.33 2.00,-5.20"/>
+            <polygon class="pf-a" points="2.00,-3.46 2.50,-4.33 3.00,-3.46 2.50,-2.60"/>
+            <polygon class="pf-b" points="3.50,-4.33 4.00,-3.46 3.00,-3.46 2.50,-4.33"/>
+            <polygon class="pf-a" points="2.50,-2.60 3.00,-3.46 3.50,-2.60 3.00,-1.73"/>
+            <polygon class="pf-b" points="4.00,-3.46 4.50,-2.60 3.50,-2.60 3.00,-3.46"/>
+            <polygon class="pf-a" points="3.00,-1.73 3.50,-2.60 4.00,-1.73 3.50,-0.87"/>
+            <polygon class="pf-b" points="4.50,-2.60 5.00,-1.73 4.00,-1.73 3.50,-2.60"/>
+            <polygon class="pf-a" points="3.50,-0.87 4.00,-1.73 4.50,-0.87 4.00,-0.00"/>
+            <polygon class="pf-b" points="5.00,-1.73 5.50,-0.87 4.50,-0.87 4.00,-1.73"/>
+            <polygon class="pf-b" points="5.50,-0.87 6.00,-0.00 5.00,-0.00 4.50,-0.87"/>
+            <polygon class="pf-c" points="5.50,0.87 6.00,-0.00 5.00,-0.00 4.50,0.87"/>
+            <polygon class="pf-b" points="4.50,-0.87 5.00,-0.00 4.00,-0.00 3.50,-0.87"/>
+            <polygon class="pf-c" points="4.50,0.87 5.00,-0.00 4.00,-0.00 3.50,0.87"/>
+            <polygon class="pf-b" points="3.50,-0.87 4.00,-0.00 3.00,-0.00 2.50,-0.87"/>
+            <polygon class="pf-c" points="3.50,0.87 4.00,-0.00 3.00,-0.00 2.50,0.87"/>
+            <polygon class="pf-b" points="2.50,-0.87 3.00,-0.00 2.00,-0.00 1.50,-0.87"/>
+            <polygon class="pf-c" points="2.50,0.87 3.00,-0.00 2.00,-0.00 1.50,0.87"/>
+            <polygon class="pf-a" points="0.00,-0.00 0.50,-0.87 1.00,-0.00 0.50,0.87"/>
+            <polygon class="pf-b" points="1.50,-0.87 2.00,-0.00 1.00,-0.00 0.50,-0.87"/>
+            <polygon class="pf-c" points="1.50,0.87 2.00,-0.00 1.00,-0.00 0.50,0.87"/>
+            <polygon class="pf-a" points="-1.00,-0.00 -0.50,-0.87 0.00,-0.00 -0.50,0.87"/>
+            <polygon class="pf-c" points="0.50,0.87 1.00,-0.00 0.00,-0.00 -0.50,0.87"/>
+          </g>
+        </svg>
+      </div>
+
+      <p class="reveal">this path cannot be constructed.</p>
+      <div class="rule"></div>
+      <div class="foot">
+        <p class="explain">That page doesn't exist, or it has moved.</p>
+        <a class="return" href="/">Return to Seer Techne</a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

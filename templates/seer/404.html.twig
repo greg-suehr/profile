@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Page not found · Seer Design</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark: #0a0a0a;
+      --light: #f8f7f4;
+      --accent: #c4a77d;
+      --soft: rgba(248, 247, 244, .78);
+      --hairline: rgba(248, 247, 244, .16);
+      --display: 'Instrument Serif', Georgia, serif;
+      --body: 'DM Sans', system-ui, sans-serif;
+      --smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--dark); }
+    body {
+      font-family: var(--body);
+      color: var(--light);
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+    .page {
+      min-height: 100vh; max-width: 960px; margin: 0 auto;
+      padding: 2rem 1.5rem 1.75rem;
+      display: flex; flex-direction: column;
+    }
+
+    .top { display: flex; justify-content: space-between; align-items: baseline; }
+    .mark { font-family: var(--display); font-size: 1.625rem; letter-spacing: .04em; }
+    .mark:hover { color: var(--accent); }
+    .code { font-size: 1rem; font-weight: 500; letter-spacing: .3em; color: var(--accent); }
+
+    .stage {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      padding: 2.5rem 0;
+    }
+    .stage > * { opacity: 0; transform: translateY(16px); animation: rise .8s var(--smooth) forwards; }
+    .stage > :nth-child(2) { animation-delay: .1s; }
+    .stage > :nth-child(3) { animation-delay: .2s; }
+    .stage > :nth-child(4) { animation-delay: .3s; }
+
+    .eye { width: min(240px, 56vw); height: auto; margin-bottom: 2rem; overflow: visible; }
+    .eye .lids { transform-box: fill-box; transform-origin: 50% 50%; animation: blink 6s infinite; }
+    .eye .iris { transition: transform .35s var(--smooth); }
+    .eye.idle .iris { animation: scan 9s ease-in-out infinite; }
+
+    h1 {
+      font-family: var(--display); font-weight: 400;
+      font-size: clamp(2.25rem, 6.5vw, 4rem); line-height: 1.08; letter-spacing: -.01em;
+    }
+    h1 span { display: block; }
+    h1 span + span { color: var(--accent); }
+    .lede { margin-top: 1.25rem; font-size: 1.125rem; color: var(--soft); }
+
+    .cta {
+      display: inline-flex; align-items: center; gap: .75rem; margin-top: 2rem;
+      padding: 1rem 2.1rem; border-radius: 999px;
+      background: var(--light); color: var(--dark);
+      font-weight: 500; font-size: 1.0625rem;
+      transition: transform .3s var(--smooth), background .3s;
+    }
+    .cta svg { width: 18px; height: 18px; transition: transform .3s var(--smooth); }
+    .cta:hover, .cta:focus-visible { transform: translateY(-2px); background: var(--accent); }
+    .cta:hover svg { transform: translateX(4px); }
+
+    footer { border-top: 1px solid var(--hairline); padding-top: 1.25rem; }
+    .links { display: flex; justify-content: center; gap: .5rem 2.25rem; list-style: none; flex-wrap: wrap; }
+    .links a { font-size: .8125rem; letter-spacing: .2em; text-transform: uppercase; color: var(--soft); }
+    .links a:hover, .links a:focus-visible { color: var(--accent); }
+
+    @keyframes rise { to { opacity: 1; transform: none; } }
+    @keyframes blink {
+      0%, 46%, 50%, 100% { transform: scaleY(1); }
+      48% { transform: scaleY(.06); }
+    }
+    @keyframes scan {
+      0%, 100% { transform: translate(0, 0); }
+      20%      { transform: translate(-30px, -4px); }
+      40%      { transform: translate(-30px, 6px); }
+      60%      { transform: translate(30px, 6px); }
+      80%      { transform: translate(30px, -4px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .stage > * { animation: none; opacity: 1; transform: none; }
+      .eye .lids, .eye.idle .iris { animation: none; }
+      .cta, .cta svg { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="top">
+      <a class="mark" href="/">Seer Design</a>
+      <span class="code">404</span>
+    </div>
+
+    <main class="stage">
+      <svg class="eye idle" viewBox="0 0 200 100" aria-hidden="true">
+        <defs>
+          <clipPath id="almond"><path d="M8 50 Q100 -12 192 50 Q100 112 8 50 Z"/></clipPath>
+        </defs>
+        <g class="lids">
+          <g clip-path="url(#almond)">
+            <g class="iris">
+              <circle cx="100" cy="50" r="26" fill="none" stroke="#c4a77d" stroke-width="2"/>
+              <circle cx="100" cy="50" r="11" fill="#c4a77d"/>
+              <circle cx="106" cy="44" r="3" fill="#0a0a0a"/>
+            </g>
+          </g>
+          <path d="M8 50 Q100 -12 192 50 Q100 112 8 50 Z" fill="none" stroke="#f8f7f4" stroke-width="2" stroke-linejoin="round"/>
+        </g>
+      </svg>
+      <h1><span>We see a lot coming.</span><span>This page wasn't one of them.</span></h1>
+      <p class="lede">That page doesn't exist, or it has moved.</p>
+      <a class="cta" href="/">
+        Back to Seer
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </main>
+
+    <footer>
+      <ul class="links">
+        <li><a href="/about">About</a></li>
+        <li><a href="/work">Work</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      var eye = document.querySelector('.eye');
+      var iris = eye && eye.querySelector('.iris');
+      if (!iris || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var idleTimer;
+      window.addEventListener('pointermove', function (e) {
+        var r = eye.getBoundingClientRect();
+        var dx = e.clientX - (r.left + r.width / 2);
+        var dy = e.clientY - (r.top + r.height / 2);
+        var d = Math.hypot(dx, dy) || 1;
+        var k = Math.min(1, d / 300);
+        eye.classList.remove('idle');
+        iris.style.transform = 'translate(' + (dx / d * 32 * k).toFixed(1) + 'px,' + (dy / d * 10 * k).toFixed(1) + 'px)';
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(function () { iris.style.transform = ''; eye.classList.add('idle'); }, 4000);
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>
