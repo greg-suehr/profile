@@ -148,6 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-CSRF-Token': '{{ csrf_token('stock_set_location_pref') }}',
                     },
                     body: JSON.stringify({ dashboard, mode, location_ids: locationIds })
                 });

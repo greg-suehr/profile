@@ -250,9 +250,14 @@ final class ImportDashboardController extends AbstractController
   /**
    * Rollback an import batch
    */
-  #[Route('/batch/{id}/rollback', name: 'batch_rollback', methods: ['POST'])]
-  public function batchRollback(int $id): Response
+  #[Route('/batch/{id}/rollback', name: 'batch_rollback', requirements: ['id' => '\d+'], methods: ['POST'])]
+  public function batchRollback(int $id, Request $request): Response
   {
+    if (!$this->isCsrfTokenValid('import_batch_rollback', $request->request->get('_token'))) {
+      $this->addFlash('danger', 'Invalid CSRF token. Please try again.');
+      return $this->redirectToRoute('import_batch_show', ['id' => $id]);
+    }
+
     $batch = $this->batchRepo->find($id);
       
     if (!$batch) {
@@ -333,9 +338,14 @@ final class ImportDashboardController extends AbstractController
   /**
    * Clone an existing mapping
    */
-  #[Route('/mapping/{id}/clone', name: 'mapping_clone', methods: ['POST'])]
-  public function mappingClone(int $id): Response
+  #[Route('/mapping/{id}/clone', name: 'mapping_clone', requirements: ['id' => '\d+'], methods: ['POST'])]
+  public function mappingClone(int $id, Request $request): Response
   {
+    if (!$this->isCsrfTokenValid('import_mapping_clone', $request->request->get('_token'))) {
+      $this->addFlash('danger', 'Invalid CSRF token. Please try again.');
+      return $this->redirectToRoute('import_mapping_show', ['id' => $id]);
+    }
+
     $original = $this->mappingRepo->find($id);
       
     if (!$original) {
@@ -1178,6 +1188,7 @@ final class ImportDashboardController extends AbstractController
           ->setIcon('bi-copy')
           ->setVariant('outline-secondary')
           ->setRoute('import_mapping_clone')
+          ->asPost('import_mapping_clone')
       )
       ->setSearchPlaceholder('Search mappings by name...')
       ->setEmptyState('No import mappings configured yet.')
@@ -1206,6 +1217,7 @@ final class ImportDashboardController extends AbstractController
               ->setIcon('bi-arrow-counterclockwise')
               ->setVariant('outline-danger')
               ->setRoute('import_batch_rollback', ['id' => $batch->getId()])
+              ->asPost('import_batch_rollback')
               ->setConfirmMessage('Are you sure? This will delete all data from this import.')
           )
       )
@@ -1271,6 +1283,7 @@ final class ImportDashboardController extends AbstractController
               ->setIcon('bi-copy')
               ->setVariant('outline-secondary')
               ->setRoute('import_mapping_clone', ['id' => $mapping->getId()])
+              ->asPost('import_mapping_clone')
           )
       )
       ->addSection(

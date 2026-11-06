@@ -30,6 +30,11 @@ final class VendorCreditController extends AbstractController
   #[Route('/{id}/apply', name: 'apply', methods: ['POST'])]
   public function apply(VendorCredit $credit, Request $request): Response
   {
+    if (!$this->isCsrfTokenValid('vendor_credit_apply_' . $credit->getId(), $request->request->get('_token'))) {
+      $this->addFlash('danger', 'Invalid CSRF token. Please try again.');
+      return $this->redirectToRoute('costing_dashboard');
+    }
+
     return $this->redirectToRoute('costing_dashboard');
   }    
 }

@@ -168,6 +168,20 @@
           <td class="text-end">
             <div class="btn-group btn-group-sm" role="group">
               {% for action in table.quickActions %}
+              {% if action.method == 'POST' and action.route %}
+              <form method="post" action="{{ path(action.route, action.routeParams|merge({id: row.id})) }}" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token(action.csrfTokenId) }}">
+                <button
+                  type="submit"
+                  class="btn btn-sm btn-{{ action.variant }} table-quick-action"
+                  data-action="{{ action.name }}"
+                  {% if action.confirmMessage %}data-confirm="{{ action.confirmMessage }}"{% endif %}
+                  title="{{ action.label }}"
+                  >
+                  {% if action.icon %}<i class="{{ action.icon }}"></i>{% endif %}
+                </button>
+              </form>
+              {% else %}
               <a
                 href="{{ action.route ? path(action.route, action.routeParams|merge({id: row.id})) : '#' }}"
                 class="btn btn-{{ action.variant }} table-quick-action"
@@ -177,6 +191,7 @@
                 >
                 {% if action.icon %}<i class="{{ action.icon }}"></i>{% endif %}
               </a>
+              {% endif %}
               {% endfor %}
             </div>
           </td>

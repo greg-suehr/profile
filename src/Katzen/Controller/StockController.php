@@ -399,6 +399,10 @@ final class StockController extends AbstractController
   #[Route('/api/stock/location-preference', name: 'stock_set_location_pref', methods: ['POST'])]
   public function setLocationPreference(Request $request): Response
   {
+    if (!$this->isCsrfTokenValid('stock_set_location_pref', $request->headers->get('X-CSRF-Token'))) {
+      return $this->json(['ok' => false, 'error' => 'Invalid CSRF token'], 403);
+    }
+
     $data = json_decode($request->getContent(), true);
     
     $dashboard = $data['dashboard'] ?? null;

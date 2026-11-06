@@ -326,22 +326,34 @@ final class VendorInvoiceController extends AbstractController
   }    
 
   #[Route('/approve/{id}', name: 'approve', methods: ['POST'])]
-  public function approve(VendorInvoice $invoice): Response
+  public function approve(VendorInvoice $invoice, Request $request): Response
   {
+    if ($denied = $this->rejectInvalidCsrf($request, 'vendor_invoice_approve_' . $invoice->getId())) {
+      return $denied;
+    }
+
     return $this->redirectToRoute('vendor_invoice_index');
   }
 
   #[Route('/pay/{id}', name: 'pay', methods: ['POST'])]
-  public function pay(VendorInvoice $invoice): Response
+  public function pay(VendorInvoice $invoice, Request $request): Response
   {
+    if ($denied = $this->rejectInvalidCsrf($request, 'vendor_invoice_pay_' . $invoice->getId())) {
+      return $denied;
+    }
+
     return $this->redirectToRoute('vendor_invoice_index');
   }
 
   #[Route('/void/{id}', name: 'void', methods: ['POST'])]
-  public function void(VendorInvoice $invoice): Response
+  public function void(VendorInvoice $invoice, Request $request): Response
   {
+    if ($denied = $this->rejectInvalidCsrf($request, 'vendor_invoice_void_' . $invoice->getId())) {
+      return $denied;
+    }
+
     return $this->redirectToRoute('vendor_invoice_index');
-  }    
+  }
     
   #[Route('/reconcile/{id}', name: 'reconcile')]
   public function reconcile(VendorInvoice $invoice): Response
@@ -352,8 +364,12 @@ final class VendorInvoiceController extends AbstractController
   #[Route('/match-receipts/{id}', name: 'match_receipts', methods: ['POST'])]
   public function matchReceipts(VendorInvoice $invoice, Request $request): Response
   {
+    if ($denied = $this->rejectInvalidCsrf($request, 'vendor_invoice_match_receipts_' . $invoice->getId())) {
+      return $denied;
+    }
+
     return $this->redirectToRoute('vendor_invoice_index');
-  }    
+  }
 
   #[Route('/variance/{id}', name: 'variance')]
   public function viewVariances(VendorInvoice $invoice): Response
@@ -364,6 +380,24 @@ final class VendorInvoiceController extends AbstractController
   #[Route('/variance/approve/{id}', name: 'approve_variance', methods: ['POST'])]
   public function approveVariance(VendorInvoice $invoice, Request $request): Response
   {
+    // Token ID matches the existing form in vendor_invoice/reconcile.html.twig.
+    if ($denied = $this->rejectInvalidCsrf($request, 'approve_variance')) {
+      return $denied;
+    }
+
+    return $this->redirectToRoute('vendor_invoice_index');
+  }
+
+  /**
+   * Returns a redirect when the request's _token is invalid for $tokenId, or null when it's valid.
+   */
+  private function rejectInvalidCsrf(Request $request, string $tokenId): ?Response
+  {
+    if ($this->isCsrfTokenValid($tokenId, $request->request->get('_token'))) {
+      return null;
+    }
+
+    $this->addFlash('danger', 'Invalid CSRF token. Please try again.');
     return $this->redirectToRoute('vendor_invoice_index');
   }
   

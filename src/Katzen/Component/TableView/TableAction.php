@@ -14,6 +14,7 @@ class TableAction
     private string $variant;  
     private ?string $icon = null;
     private string $httpMethod = 'GET';
+    private ?string $csrfTokenId = null;
     private ?string $route = null;
     private array $routeParams = [];
     private ?string $confirmMessage = null;
@@ -101,15 +102,26 @@ class TableAction
         $this->requiresSelection = $required;
         return $this;
     }
-    
+
+    /**
+     * Render this row action as a POST form carrying a CSRF token for $csrfTokenId.
+     */
+    public function asPost(string $csrfTokenId): self
+    {
+        $this->httpMethod = 'POST';
+        $this->csrfTokenId = $csrfTokenId;
+        return $this;
+    }
+
     public function toArray(): array
     {
         return [
             'name' => $this->name,
             'label' => $this->label,
-            'variant' => $this->variant,            
+            'variant' => $this->variant,
             'icon' => $this->icon,
             'method' => $this->httpMethod,
+            'csrfTokenId' => $this->csrfTokenId,
             'route' => $this->route,
             'routeParams' => $this->routeParams,
             'confirmMessage' => $this->confirmMessage,
