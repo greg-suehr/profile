@@ -17,6 +17,9 @@ class KatzenWaitlist
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
+    #[ORM\Column(length: 32, nullable: true)]
+    private ?string $source = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $session_id = null;
 
@@ -69,6 +72,18 @@ class KatzenWaitlist
     public function setEmail(string $email): static
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(?string $source): static
+    {
+        $this->source = $source;
 
         return $this;
     }

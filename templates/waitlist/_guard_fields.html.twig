@@ -1,0 +1,11 @@
+<style>.{{ guard.decoy_class }}{position:absolute!important;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}</style>
+<div class="{{ guard.decoy_class }}" aria-hidden="true" inert>
+  {% set canary %}<label>Visit reference <input type="text" name="{{ guard.canary_field }}" value="{{ guard.canary_value }}" tabindex="-1" autocomplete="off"></label>{% endset %}
+  {% set trap %}<label>Your website <input type="text" name="{{ guard.trap_field }}" value="" tabindex="-1" autocomplete="off"></label>{% endset %}
+  {% if guard.canary_first %}{{ canary }}{{ trap }}{% else %}{{ trap }}{{ canary }}{% endif %}
+</div>
+
+<input type="hidden" name="_ref" value="">
+<input type="hidden" name="_utm" value="">
+
+<div class="waitlist-turnstile" data-sitekey="{{ guard.turnstile_site_key }}" data-action="waitlist"></div>

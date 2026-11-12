@@ -1,0 +1,97 @@
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+<script>
+window.WaitlistGuard = window.WaitlistGuard || (function () {
+  const ATTRIBUTION_KEY = 'waitlist_attribution';
+  const TOKEN_TIMEOUT_MS = 20000;
+  const widgets = new WeakMap();
+
+  try {
+    if (!sessionStorage.getItem(ATTRIBUTION_KEY)) {
+      const utm = new URLSearchParams(location.search).get('utm_campaign') || '';
+      let ref = '';
+      if (document.referrer) {
+        const host = new URL(document.referrer).host;
+        if (host !== location.host) ref = host;
+      }
+      if (utm || ref) sessionStorage.setItem(ATTRIBUTION_KEY, JSON.stringify({ ref, utm }));
+    }
+  } catch (e) { /* storage blocked: attribution is optional */ }
+
+  function attribution() {
+    try { return JSON.parse(sessionStorage.getItem(ATTRIBUTION_KEY) || '{}') || {}; } catch (e) { return {}; }
+  }
+
+  function whenTurnstile(callback, triesLeft = 100) {
+    if (window.turnstile) return callback(true);
+    if (triesLeft <= 0) return callback(false);
+    setTimeout(() => whenTurnstile(callback, triesLeft - 1), 100);
+  }
+
+  function settle(state, value) {
+    state.token = value;
+    if (value) state.waiters.splice(0).forEach(w => w.resolve(value));
+  }
+
+  function prepare(form) {
+    if (widgets.has(form)) return widgets.get(form);
+    const state = { id: null, token: '', waiters: [], failed: false };
+    widgets.set(form, state);
+
+    const box = form.querySelector('.waitlist-turnstile');
+    whenTurnstile(loaded => {
+      if (!loaded || !box) {
+        state.failed = true;
+        state.waiters.splice(0).forEach(w => w.reject(new Error('turnstile-unavailable')));
+        return;
+      }
+      state.id = window.turnstile.render(box, {
+        sitekey: box.dataset.sitekey,
+        action: box.dataset.action,
+        appearance: 'interaction-only',
+        callback: token => settle(state, token),
+        'expired-callback': () => settle(state, ''),
+        'error-callback': () => settle(state, ''),
+      });
+    });
+    return state;
+  }
+
+  function ready(form) {
+    const state = prepare(form);
+    if (state.token) return Promise.resolve(state.token);
+    if (state.failed) return Promise.reject(new Error('turnstile-unavailable'));
+    return new Promise((resolve, reject) => {
+      const waiter = { resolve, reject };
+      state.waiters.push(waiter);
+      setTimeout(() => {
+        const i = state.waiters.indexOf(waiter);
+        if (i !== -1) { state.waiters.splice(i, 1); reject(new Error('turnstile-timeout')); }
+      }, TOKEN_TIMEOUT_MS);
+    });
+  }
+
+  function reset(form) {
+    const state = widgets.get(form);
+    if (state && state.id !== null && window.turnstile) {
+      state.token = '';
+      window.turnstile.reset(state.id);
+    }
+  }
+
+  function decorate(form) {
+    const a = attribution();
+    const ref = form.querySelector('input[name="_ref"]');
+    const utm = form.querySelector('input[name="_utm"]');
+    if (ref) ref.value = a.ref || '';
+    if (utm) utm.value = a.utm || '';
+  }
+
+  function failureMessage(error) {
+    return error && String(error.message).startsWith('turnstile-')
+      ? "We couldn't confirm you're human yet. Please wait a moment and try again (or disable any blocker for challenges.cloudflare.com)."
+      : 'Network error. Please try again.';
+  }
+
+  return { prepare, ready, reset, decorate, failureMessage };
+})();
+</script>

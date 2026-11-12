@@ -3,6 +3,7 @@
 namespace App\Shared\Controller;
 
 use App\Katzen\Entity\KatzenWaitlist;
+use App\Shared\Waitlist\WaitlistSubmissionHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,6 +14,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route(name: 'katzen_', condition: "request.getHost() matches '%getkatzen_marketing_match%'")]
 final class KatzenDemoController extends AbstractController
 {
+  private const SESSION_ENTRY_ID = 'waitlist_entry_id';
+
   #[Route('/__debug/host', name: 'debug_host')]
   public function debugHost(Request $request): Response
   {
@@ -27,38 +30,20 @@ final class KatzenDemoController extends AbstractController
   }
   
   #[Route('/waitlist/submit', name: 'waitlist_submit', methods: ['POST'])]
-  public function waitlistSubmit(Request $request, EntityManagerInterface $entityManager): JsonResponse
+  public function waitlistSubmit(Request $request, WaitlistSubmissionHandler $handler): JsonResponse
   {
-    $submittedToken = $request->request->get('_token');
-    if (!$this->isCsrfTokenValid('waitlist', $submittedToken)) {
-      return new JsonResponse([
-        'success' => false,
-        'message' => 'Invalid security token. Please refresh and try again.'
-      ], 400);
-    }
-    
-    $email = $request->request->get('email');
-    
-    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-      return new JsonResponse([
-        'success' => false,
-        'message' => 'Please enter a valid email address.'
-      ], 400);
+    $outcome = $handler->handle($request, WaitlistSubmissionHandler::SOURCE_GETKATZEN);
+
+    if (!$outcome->looksSuccessful()) {
+      return new JsonResponse(['success' => false, 'message' => $outcome->error], $outcome->httpStatus);
     }
 
-    $waitlist = new KatzenWaitlist();
-    $waitlist->setEmail($email);
-    $waitlist->setCreatedAt(new \DateTimeImmutable());
-    $waitlist->setStatus('pending');
-    $waitlist->setSessionId($request->getSession()->getId());
-    
-    $entityManager->persist($waitlist);
-    $entityManager->flush();
+    if ($outcome->entry) {
+      $session = $request->getSession();
+      $session->set(self::SESSION_ENTRY_ID, $outcome->entry->getId());
+      $session->set('waitlist_email', $outcome->entry->getEmail());
+    }
 
-    $session = $request->getSession();
-    $session->set('waitlist_email', $email);
-    $session->set('waitlist_timestamp', time());
-    
     // TODO: Send confirmation email
     // $this->sendWaitlistConfirmation($email);
 
@@ -76,7 +61,7 @@ final class KatzenDemoController extends AbstractController
     $session = $request->getSession();
     $email = $session->get('waitlist_email');
 
-    if (!$email) {
+    if (!$email || !$session->has(self::SESSION_ENTRY_ID)) {
       $this->addFlash('warning', 'Please join our waitlist first.');
       return $this->redirectToRoute('katzen_demo');
     }
@@ -110,31 +95,27 @@ final class KatzenDemoController extends AbstractController
       throw $this->createAccessDeniedException('Invalid CSRF token');
     }
 
-    $session = $request->getSession();
-    $email = $session->get('waitlist_email', $email);
-    
-    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $entryId = $request->getSession()->get(self::SESSION_ENTRY_ID);
+    $waitlist = \is_int($entryId) ? $entityManager->find(KatzenWaitlist::class, $entryId) : null;
+
+    if (!$waitlist) {
       if ($request->isXmlHttpRequest()) {
         return new JsonResponse([
           'success' => false,
-          'message' => 'Please enter a valid email address.'
+          'message' => 'Session expired. Please join the waitlist again.'
         ], 400);
       }
       $this->addFlash('error', 'Session expired. Please join the waitlist again.');
       return $this->redirectToRoute('katzen_demo');
     }
 
-    $waitlistRepo = $entityManager->getRepository(KatzenWaitlist::class);
-    $waitlist = $waitlistRepo->findOneBy(['email' => $email]);
-    
-    if ($waitlist) {
-      $waitlist->setBusinessName($request->request->get('business_name'));
-      $waitlist->setBusinessType($request->request->get('business_type'));
-      $waitlist->setBiggestChallenge($request->request->get('biggest_challenge'));
-      $waitlist->setQuestionnaireCompletedAt(new \DateTimeImmutable());
-      
-      $entityManager->flush();
-    }
+    $input = $request->request->all();
+    $waitlist->setBusinessName(self::text($input, 'business_name', 255));
+    $waitlist->setBusinessType(self::text($input, 'business_type', 255));
+    $waitlist->setBiggestChallenge(self::text($input, 'biggest_challenge', 5000));
+    $waitlist->setQuestionnaireCompletedAt(new \DateTimeImmutable());
+
+    $entityManager->flush();
 
     $message = 'Got it! Our team will review the information you provided and reach out within 3-5 business days.';
 
@@ -147,5 +128,15 @@ final class KatzenDemoController extends AbstractController
     
     $this->addFlash('success', $message);
     return $this->redirectToRoute('katzen_demo');
-  }  
+  }
+
+  private static function text(array $input, string $key, int $max): ?string
+  {
+    $value = $input[$key] ?? null;
+    if (!\is_string($value) || '' === trim($value)) {
+      return null;
+    }
+
+    return mb_substr(trim($value), 0, $max);
+  }
 }

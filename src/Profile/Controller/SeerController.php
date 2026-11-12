@@ -2,9 +2,9 @@
 
 namespace App\Profile\Controller;
 
-use App\Katzen\Entity\KatzenWaitlist; # TODO: replace after UnifiedWaitlist project
-use Doctrine\ORM\EntityManagerInterface;
+use App\Shared\Waitlist\WaitlistSubmissionHandler; # writes to katzen_waitlist; TODO: replace after UnifiedWaitlist project
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,36 +38,13 @@ final class SeerController extends AbstractController
 
 
   #[Route('/contact/submit', name: 'seer_waitlist_submit', methods: ['POST'])]
-  public function waitlistSubmit(Request $request, EntityManagerInterface $entityManager): JsonResponse
+  public function waitlistSubmit(Request $request, WaitlistSubmissionHandler $handler): JsonResponse
   {
-    $submittedToken = $request->request->get('_token');
-    if (!$this->isCsrfTokenValid('waitlist', $submittedToken)) {
-      return new JsonResponse([
-        'success' => false,
-        'message' => 'Invalid security token. Please refresh and try again.'
-      ], 400);
+    $outcome = $handler->handle($request, WaitlistSubmissionHandler::SOURCE_GREGISHERE);
+
+    if (!$outcome->looksSuccessful()) {
+      return new JsonResponse(['success' => false, 'message' => $outcome->error], $outcome->httpStatus);
     }
-    $email = $request->request->get('email');
-
-    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-      return new JsonResponse([
-	'success' => false,
-        'message' => 'Please enter a valid email address.'
-      ], 400);
-    }
-
-    $waitlist = new KatzenWaitlist();
-    $waitlist->setEmail($email);
-    $waitlist->setCreatedAt(new \DateTimeImmutable());
-    $waitlist->setStatus('pending');
-    $waitlist->setSessionId($request->getSession()->getId());
-
-    $session = $request->getSession();
-    $session->set('waitlist_email', $email);
-    $session->set('waitlist_timestamp', time());
-    
-    $entityManager->persist($waitlist);
-    $entityManager->flush();
 
     return new JsonResponse([
       'success' => true,

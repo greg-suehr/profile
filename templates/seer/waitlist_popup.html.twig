@@ -1,3 +1,4 @@
+{% set guard = waitlist_guard() %}
 <div id="waitlist-overlay" class="waitlist-overlay" style="display: none;">
   <div class="waitlist-overlay-backdrop"></div>
   <div class="waitlist-popup">
@@ -16,7 +17,7 @@
           <input 
             type="email" 
             id="waitlist-email" 
-            name="email" 
+            name="{{ guard.email_field }}" 
             class="waitlist-input" 
             placeholder="your@email.com"
             required
@@ -25,6 +26,7 @@
         </div>
         
         <input type="hidden" name="_token" value="{{ csrf_token('waitlist') }}">
+        {% include 'waitlist/_guard_fields.html.twig' with { guard: guard } %}
         
         <button type="submit" class="btn-primary waitlist-submit">
           Let's Do This
@@ -47,6 +49,7 @@
   </div>
 </div>
 
+{% include 'waitlist/_guard_script.html.twig' %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const overlay = document.getElementById('waitlist-overlay');
@@ -63,6 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         overlay.style.display = 'flex';
         document.body.style.overflow = 'hidden';
+        WaitlistGuard.prepare(form);
       });
     }
   });
@@ -83,31 +87,37 @@ document.addEventListener('DOMContentLoaded', function() {
   
   form.addEventListener('submit', function(e) {
     e.preventDefault();
-    
-    const formData = new FormData(form);
-    
-    fetch(form.action, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        showQuestionnairePrompt(data.questionnaire_url, data.questionnaire_mode || 'redirect');
-      } else {
-        errorText.textContent = data.message || 'Something went wrong. Please try again.';
+
+    const submitButton = form.querySelector('[type="submit"]');
+    submitButton.disabled = true;
+    WaitlistGuard.decorate(form);
+
+    WaitlistGuard.ready(form)
+      .then(() => fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      }))
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showQuestionnairePrompt(data.questionnaire_url, data.questionnaire_mode || 'redirect');
+        } else {
+          WaitlistGuard.reset(form);
+          errorText.textContent = data.message || 'Something went wrong. Please try again.';
+          errorMsg.style.display = 'block';
+          successMsg.style.display = 'none';
+        }
+      })
+      .catch(error => {
+        WaitlistGuard.reset(form);
+        errorText.textContent = WaitlistGuard.failureMessage(error);
         errorMsg.style.display = 'block';
         successMsg.style.display = 'none';
-      }
-    })
-    .catch(error => {
-      errorText.textContent = 'Network error. Please try again.';
-      errorMsg.style.display = 'block';
-      successMsg.style.display = 'none';
-    });
+      })
+      .finally(() => { submitButton.disabled = false; });
   });
   
   function showQuestionnairePrompt(questionnaireUrl, mode) {
