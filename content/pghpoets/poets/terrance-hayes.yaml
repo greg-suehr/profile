@@ -1,0 +1,60 @@
+name: Terrance Hayes
+sort_name: Hayes, Terrance
+born: { date: "1971-11-18", place: "Columbia, South Carolina" }
+summary: >
+  Poet, winner of the 2010 National Book Award for _Lighthead_, who studied
+  and taught in Pittsburgh for about two decades.
+
+ties:
+  - kind: studied
+    when: "to 1997"
+    text: M.F.A., University of Pittsburgh writing program, 1997.
+    sources: [wiki, berkeley]
+  - kind: taught
+    when: "2001–2013"
+    text: Professor of creative writing at Carnegie Mellon University.
+    sources: [wiki]
+  - kind: taught
+    when: "from 2013"
+    text: >
+      Joined the University of Pittsburgh English department, where he
+      cofounded the Center for African American Poetry and Poetics with Yona
+      Harvey and Dawn Lundy Martin.
+    sources: [wiki]
+  - kind: published
+    when: "2006"
+    text: Carnegie Mellon University Press reissued his first book, _Muscular Music_.
+    sources: [wiki]
+  - kind: edited
+    when: "from 2023"
+    text: >
+      Named an editor of the Pitt Poetry Series with Nancy Krygowski and
+      Jeffrey McDaniel, after serving as an interim editor in 2022.
+    sources: [wiki]
+  - kind: lived
+    when: "about two decades"
+    text: Lived in Pittsburgh for about twenty years before moving to New York.
+    sources: [wiki]
+
+inclusion:
+  status: core
+  note: >
+    Hayes was born and raised in South Carolina and now teaches at New York
+    University. His Pittsburgh years cover his graduate study, two faculty
+    appointments and most of his published books.
+
+notes: >
+
+sources:
+  wiki:
+    title: "Terrance Hayes"
+    publisher: Wikipedia
+    url: https://en.wikipedia.org/wiki/Terrance_Hayes
+    accessed: "2026-11-11"
+  berkeley:
+    title: "Terrance Hayes"
+    publisher: Arts Research Center, University of California, Berkeley
+    url: https://arts.berkeley.edu/people/terrance-hayes
+    accessed: "2026-11-11"
+
+entry: { by: "greg", created: "2026-11-11", updated: "2026-11-11" }

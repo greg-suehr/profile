@@ -1,0 +1,41 @@
+name: Toi Derricotte
+sort_name: Derricotte, Toi
+born: { date: "1941-04-12", place: "Hamtramck, Michigan" }
+summary: >
+  Poet and memoirist, cofounder of Cave Canem, and professor emerita at the
+  University of Pittsburgh.
+
+ties:
+  - kind: published
+    when: "1989–2019"
+    text: >
+      The University of Pittsburgh Press published four of her collections:
+      _Captivity_ (1989), _Tender_ (1997), _The Undertaker's Daughter_ (2011)
+      and _I: New & Selected Poems_ (2019).
+    sources: [poetsorg, wiki]
+  - kind: taught
+    when: "from 1991"
+    text: >
+      Joined the University of Pittsburgh as an associate professor in 1991,
+      now a professor emerita of English.
+    sources: [wiki, poetsorg]
+
+inclusion:
+  status: core
+  note: >
+    Derricotte came to Pittsburgh at mid-career, from Detroit by way of New
+    Jersey. She cofounded Cave Canem with Cornelius Eady in 1996, while teaching here.
+
+sources:
+  poetsorg:
+    title: "Toi Derricotte"
+    publisher: Academy of American Poets (Poets.org)
+    url: https://poets.org/poet/toi-derricotte
+    accessed: "2026-11-11"
+  wiki:
+    title: "Toi Derricotte"
+    publisher: Wikipedia
+    url: https://en.wikipedia.org/wiki/Toi_Derricotte
+    accessed: "2026-11-11" 
+
+entry: { by: "greg", created: "2026-11-11", updated: "2026-11-11" }

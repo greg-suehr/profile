@@ -1,0 +1,35 @@
+name: Gertrude Stein
+sort_name: Stein, Gertrude
+born: { date: "1874-02-03", place: "Allegheny, Pennsylvania" }
+died: { date: "1946-07-27", place: "Neuilly-sur-Seine, France" }
+summary: >
+  Modernist poet, novelist and playwright, born in Allegheny City. Her family
+  left when she was about six months old.
+
+ties:
+  - kind: born
+    when: "1874"
+    text: >
+      Born in a house on Beech Avenue in what is now Allegheny West. Her father
+      and uncle ran a branch of the family clothing business downtown.
+    sources: [sebak2016]
+
+inclusion:
+  status: edge
+  note: >
+    Stein's only tie is her birth. She left as an infant and never saw the place again.
+
+notes: >
+  After leaving Pittsburgh the family spent a few months in Baltimore, then
+  lived in Vienna and Paris before settling in Oakland, California.
+
+sources:
+  sebak2016:
+    author: Rick Sebak
+    title: "Gertrude Stein: Firmly Born in Allegheny"
+    publisher: _Pittsburgh Magazine_
+    date: "April 2016"
+    url: https://www.pittsburghmagazine.com/gertrude-stein-firmly-born-in-allegheny/
+    accessed: "2026-11-11"
+
+entry: { by: "greg", created: "2026-11-11", updated: "2026-11-11" }

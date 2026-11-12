@@ -1,15 +1,3 @@
-{#
-  Host-aware 404 page.
-
-  Symfony renders this in prod (APP_DEBUG=0) for any 404, including paths
-  that fail a route's host condition. Each primary domain's page lives with
-  that site's other templates; anything else gets error404_default.
-
-  The site pages are self-contained (inline CSS, no base template / Encore
-  tags) so a 404 still renders if the asset build is broken.
-
-  Preview in dev:  http://<site>.local:8000/_error/404
-#}
 {%- set host = (app.request ? app.request.host : '')|lower -%}
 {%- set host = host starts with 'www.' ? host[4:] : host -%}
 {%- set site = host|split('.')|first -%}
@@ -20,6 +8,7 @@
     'gregishere': 'seer/404.html.twig',
     'gregsuehr':  'professional/404.html.twig',
     'seertechne': 'seertechne/404.html.twig',
+    'pghpoets':   'pghpoets/404.html.twig',
 } -%}
 
 {{- include(pages[site] ?? 'bundles/TwigBundle/Exception/error404_default.html.twig') -}}

@@ -1,0 +1,30 @@
+{% extends 'pghpoets/base.html.twig' %}
+
+{% block title %}Poets &middot; Pittsburgh Poets{% endblock %}
+
+{% block body %}
+<h1>Poets</h1>
+
+<p>{{ poets|length }} entries, sorted by surname. The ties column lists the kinds
+of connection each entry documents; see the <a href="{{ path('pghpoets_criteria') }}">criteria</a>
+for what each kind means.</p>
+
+<div class="scroll">
+<table>
+  <tr>
+    <th>Poet</th>
+    <th>Life</th>
+    <th>Ties to Pittsburgh</th>
+    <th>Status</th>
+  </tr>
+{% for poet in poets %}
+  <tr>
+    <td><a href="{{ path('pghpoets_poet', {slug: poet.slug}) }}">{{ poet.name }}</a></td>
+    <td>{{ poet.born.date|default('?')|slice(0, 4) }}&ndash;{{ poet.died is defined ? poet.died.date|slice(0, 4) : '' }}</td>
+    <td>{% for k in poet.kinds %}{{ kinds[k] }}{{ not loop.last ? ', ' }}{% endfor %}</td>
+    <td>{{ inclusion[poet.inclusion.status] }}</td>
+  </tr>
+{% endfor %}
+</table>
+</div>
+{% endblock %}

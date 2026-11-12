@@ -1,0 +1,54 @@
+name: Jack Gilbert
+sort_name: Gilbert, Jack
+born: { date: "1925-02-18", place: "Pittsburgh, Pennsylvania" }
+died: { date: "2012-11-13", place: "Berkeley, California" }
+summary: >
+  Lyric poet, raised in East Liberty. His first book, _Views of Jeopardy_
+  (1962), won the Yale Younger Poets Prize.
+
+ties:
+  - kind: born
+    when: "1925"
+    text: Born in Pittsburgh.
+    sources: [wiki, bergfelt]
+  - kind: raised
+    when: "childhood"
+    text: Raised in East Liberty and attended Peabody High School.
+    sources: [wiki, bergfelt]
+  - kind: worked
+    when: "n.d."
+    text: Worked as a door-to-door salesman, an exterminator and a steelworker.
+    sources: [bergfelt]
+  - kind: studied
+    when: "to 1954"
+    text: Studied at the University of Pittsburgh.
+    sources: [wiki]
+
+inclusion:
+  status: core
+  note: >
+    Gilbert was born, raised, schooled and employed in Pittsburgh. He later lived in
+    San Francisco, Europe and New England, but he returned to Pittsburgh as a
+    subject. A selection of his Pittsburgh poems appeared as _Tough Heaven:
+    Poems of Pittsburgh_ (Pond Road Press, 2006).
+
+disputes:
+  - text: >
+      Wikipedia says he left Peabody without a diploma, was admitted to Pitt
+      through a clerical error and graduated in 1954.
+    sources: [wiki]
+
+sources:
+  wiki:
+    title: "Jack Gilbert"
+    publisher: Wikipedia
+    url: https://en.wikipedia.org/wiki/Jack_Gilbert
+    accessed: "2026-11-11"
+  bergfelt:
+    author: Ted Bergfelt, Jr.
+    title: "Jack Gilbert"
+    publisher: Pittsburgh Writers Research Guides (quotes Wikipedia)
+    url: https://sites.google.com/view/pghwritersresearchguides/jack-gilbert
+    accessed: "2026-11-11"
+
+entry: { by: "greg", created: "2026-11-11", updated: "2026-11-11" }

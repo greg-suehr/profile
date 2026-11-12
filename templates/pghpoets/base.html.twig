@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Pittsburgh Poets{% endblock %}</title>
+<meta name="description" content="{% block description %}A catalog of poets who lived or worked in Pittsburgh, with the sources for every claim.{% endblock %}">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'><rect width='8' height='8' fill='%23ffffff'/><text x='1' y='7' font-family='serif' font-size='8' fill='%23000000'>P</text></svg>">
+{#
+  Web 1.0 on purpose: no Encore, no JavaScript, no web fonts.
+  The only CSS is the little that browsers of the period got from attributes.
+#}
+<style>
+  body { background: #ffffff; color: #000000; font-family: "Times New Roman", Times, serif; font-size: 18px; line-height: 1.4; margin: 8px 16px; max-width: 46em; }
+  a:link { color: #0000ee; }
+  a:visited { color: #551a8b; }
+  a:active { color: #ee0000; }
+  hr { border: 0; border-top: 1px solid #808080; }
+  table { border-collapse: collapse; }
+  th, td { border: 1px solid #808080; padding: 3px 6px; text-align: left; vertical-align: top; }
+  th { background: #e0e0e0; }
+  small, .small { font-size: 15px; }
+  sup a { text-decoration: none; }
+  .scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<p><b><a href="{{ path('pghpoets_home') }}">Pittsburgh Poets</a></b> &middot;
+<a href="{{ path('pghpoets_poets') }}">Poets</a> |
+<a href="{{ path('pghpoets_criteria') }}">Criteria</a> |
+<a href="{{ path('pghpoets_about') }}">About</a></p>
+<hr>
+
+{% block body %}{% endblock %}
+
+<hr>
+<address><small>
+pghpoets.com &middot; A catalog of poets who lived or worked in Pittsburgh.
+{% block colophon %}{% endblock %}
+</small></address>
+
+</body>
+</html>

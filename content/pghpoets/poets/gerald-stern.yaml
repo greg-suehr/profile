@@ -1,0 +1,56 @@
+name: Gerald Stern
+sort_name: Stern, Gerald
+born: { date: "1925-02-22", place: "Pittsburgh, Pennsylvania" }
+died: { date: "2022-10-27", place: "New York City" }
+summary: >
+  Poet and teacher, born and raised in Pittsburgh. Winner of the 1998 National
+  Book Award for _This Time: New and Selected Poems_.
+
+ties:
+  - kind: born
+    when: "1925"
+    text: Born in Pittsburgh to parents who owned clothing stores.
+    sources: [wiki]
+  - kind: raised
+    when: "to 1942"
+    text: Graduated from Taylor Allderdice High School in 1942.
+    sources: [wiki]
+  - kind: studied
+    when: "to 1947"
+    text: B.A., University of Pittsburgh, 1947.
+    sources: [wiki]
+  - kind: taught
+    when: "1979"
+    text: Taught briefly at the University of Pittsburgh before leaving for the Iowa Writers' Workshop.
+    sources: [wiki]
+
+inclusion:
+  status: core
+  note: >
+    Stern grew up here and studied at Pitt. Most of his career happened
+    elsewhere: Temple, Iowa, New Jersey, where he was the first state poet
+    laureate. He returned to teach at Pitt briefly in 1979.
+
+notes: >
+  The University of Pittsburgh's Special Collections holds his papers,
+  including correspondence with Jack Gilbert.
+
+disputes:
+  - text: >
+      Wikipedia says Stern and Jack Gilbert were classmates at Pitt, but also
+       gives Stern's graduation as 1947 and Gilbert's as 1954.
+    sources: [wiki, wiki_gilbert]
+
+sources:
+  wiki:
+    title: "Gerald Stern"
+    publisher: Wikipedia
+    url: https://en.wikipedia.org/wiki/Gerald_Stern
+    accessed: "2026-11-11"
+  wiki_gilbert:
+    title: "Jack Gilbert"
+    publisher: Wikipedia
+    url: https://en.wikipedia.org/wiki/Jack_Gilbert
+    accessed: "2026-11-11"
+
+entry: { by: "greg", created: "2026-11-11", updated: "2026-11-12" }

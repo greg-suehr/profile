@@ -1,0 +1,40 @@
+{% extends 'pghpoets/base.html.twig' %}
+
+{% block title %}About &middot; Pittsburgh Poets{% endblock %}
+
+{# DRAFT: Greg, rewrite in your own words. #}
+
+{% block body %}
+<h1>About this site</h1>
+
+<h2>Schools are made, not found</h2>
+
+<p>Literary history is full of schools: the New York School, the Black Mountain
+poets, the Confessionals. It is tempting to think of them as natural kinds,
+groups that existed and waited to be discovered. This site starts from the
+opposite view. A school is crafted by its most ardent students. Someone decides
+which poets belong, which ties count, and which differences to ignore. The
+school is the result of that work.</p>
+
+<p>That makes a "Pittsburgh poet" a claim, not a fact. So this site does not
+just list names. For each poet it records the specific ties to the city, each
+with a date and a source, and it says why the entry is here. A reader who
+disagrees with an inclusion can see exactly where the line was drawn.</p>
+
+<h2>What the catalog is for</h2>
+
+<ul>
+  <li>To gather what is known about poets who lived or worked in Pittsburgh.</li>
+  <li>To cite a source for every claim.</li>
+  <li>To keep the edge cases visible. A poet who was born here and left as an
+      infant teaches more about the category than one who never left.</li>
+</ul>
+
+<h2>How it is made</h2>
+
+<p>Each entry is a plain text file. Entries are signed and dated. When the
+<a href="{{ path('pghpoets_criteria') }}">inclusion criteria</a> change, the
+change is logged on that page.</p>
+
+<p>Corrections and additions are welcome.</p>
+{% endblock %}

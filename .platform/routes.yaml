@@ -31,3 +31,11 @@
 "https://ishere.net/":
     type: upstream
     upstream: "app:http"
+
+"https://www.pghpoets.com/":
+  type: redirect
+  to: "https://pghpoets.com/"
+
+"https://pghpoets.com/":
+  type: upstream
+  upstream: "app:http"

@@ -15,6 +15,8 @@ parameters:
     seertechne_match: '#^(seertechne\.com|seertechne\.local)$#'
     samson_hosts: 'ishere.net|ishere.local'
     samson_match: '#^(ishere\.net|ishere\.local)$#'
+    pghpoets_hosts: 'pghpoets.com|pghpoets.local'
+    pghpoets_match: '#^(pghpoets\.com|pghpoets\.local)$#'
 
     seertechne_puzzle_order: '%env(SEERTECHNE_PUZZLE_ORDER)%'
     seertechne_puzzle_reward: '%env(SEERTECHNE_PUZZLE_REWARD)%'

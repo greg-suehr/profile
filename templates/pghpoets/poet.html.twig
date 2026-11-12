@@ -1,0 +1,69 @@
+{% extends 'pghpoets/base.html.twig' %}
+
+{% block title %}{{ poet.name }} &middot; Pittsburgh Poets{% endblock %}
+{% block description %}{{ poet.summary }}{% endblock %}
+
+{% block body %}
+{# Number the sources in the order they are listed in the YAML file. #}
+{% set num = {} %}
+{% for key, s in poet.sources %}{% set num = num|merge({(key): loop.index}) %}{% endfor %}
+<p><small><a href="{{ path('pghpoets_poets') }}">Poets</a> &gt; {{ poet.name }}</small></p>
+
+<h1>{{ poet.name }}</h1>
+
+<p>
+<b>Born:</b> {{ poet.born.date|default('unknown') }}{% if poet.born.place is defined %}, {{ poet.born.place }}{% endif %}<br>
+{% if poet.died is defined %}<b>Died:</b> {{ poet.died.date }}{% if poet.died.place is defined %}, {{ poet.died.place }}{% endif %}<br>{% endif %}
+<b>Status:</b> {{ inclusion[poet.inclusion.status] }}
+</p>
+
+<p>{{ poet.summary|pgh_inline }}</p>
+
+<h2>Ties to Pittsburgh</h2>
+
+<table>
+  <tr><th>When</th><th>Kind</th><th>What</th></tr>
+{% for tie in poet.ties %}
+  <tr>
+    <td>{{ tie.when }}</td>
+    <td>{{ kinds[tie.kind] }}</td>
+    <td>{{ tie.text|pgh_inline }}{% for key in tie.sources %}<sup>[<a href="#src-{{ key }}">{{ num[key] }}</a>]</sup>{% endfor %}</td>
+  </tr>
+{% endfor %}
+</table>
+
+<h2>Why this entry is here</h2>
+
+{{ poet.inclusion.note|pgh_prose }}
+
+{% if poet.notes is defined %}
+<h2>Notes</h2>
+{{ poet.notes|pgh_prose }}
+{% endif %}
+
+{% if poet.disputes is defined and poet.disputes is not empty %}
+<h2>Where the sources disagree</h2>
+<ul>
+{% for d in poet.disputes %}
+  <li>{{ d.text|pgh_inline }}{% for key in d.sources %}<sup>[<a href="#src-{{ key }}">{{ num[key] }}</a>]</sup>{% endfor %}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+<h2>Sources</h2>
+
+<ol>
+{% for key, s in poet.sources %}
+  <li id="src-{{ key }}">
+    {% if s.author is defined %}{{ s.author }}. {% endif %}
+    {% if s.url is defined %}<a href="{{ s.url }}">{{ s.title }}</a>{% else %}{{ s.title }}{% endif %}.
+    {% if s.publisher is defined %}{{ s.publisher|pgh_inline }}{% endif %}{% if s.date is defined %}, {{ s.date }}{% endif %}.
+    {% if s.accessed is defined %}<small>Accessed {{ s.accessed }}.</small>{% endif %}
+  </li>
+{% endfor %}
+</ol>
+{% endblock %}
+
+{% block colophon %}
+<br>Entry: {{ poet.entry.by }}. Created {{ poet.entry.created }}{% if poet.entry.updated != poet.entry.created %}, revised {{ poet.entry.updated }}{% endif %}.
+{% endblock %}

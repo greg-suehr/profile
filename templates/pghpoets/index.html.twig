@@ -1,0 +1,37 @@
+{% extends 'pghpoets/base.html.twig' %}
+
+{% block body %}
+<h1>Pittsburgh Poets</h1>
+
+<p>A catalog of poets who were born, lived, studied, worked or published in
+Pittsburgh. Every tie to the city is stated with a date and a source.</p>
+
+<p>There is no "Pittsburgh school" waiting to be found. A school is made by the
+people who study it. This catalog is one such making, and it shows its work.
+<a href="{{ path('pghpoets_about') }}">Read more about that idea</a>, or see
+<a href="{{ path('pghpoets_criteria') }}">who gets included and why</a>.</p>
+
+<h2>The Catalog</h2>
+
+<ul>
+{% for poet in poets %}
+  <li><a href="{{ path('pghpoets_poet', {slug: poet.slug}) }}">{{ poet.name }}</a>
+    ({{ poet.born.date|default('?')|slice(0, 4) }}&ndash;{{ poet.died is defined ? poet.died.date|slice(0, 4) : '' }})</li>
+{% else %}
+  <li>No entries yet.</li>
+{% endfor %}
+</ul>
+
+<p><a href="{{ path('pghpoets_poets') }}">See the full table</a>, with each poet's ties to the city.</p>
+
+<h2>What's New</h2>
+
+<dl>
+{% for item in news %}
+  <dt><b>{{ item.date }}</b></dt>
+  <dd>{{ item.text|pgh_inline }}</dd>
+{% else %}
+  <dt>Nothing yet.</dt>
+{% endfor %}
+</dl>
+{% endblock %}

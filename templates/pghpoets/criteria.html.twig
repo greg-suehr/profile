@@ -1,0 +1,54 @@
+{% extends 'pghpoets/base.html.twig' %}
+
+{% block title %}Criteria &middot; Pittsburgh Poets{% endblock %}
+
+{# DRAFT: Greg, these criteria are a starting point. Log every change below. #}
+
+{% block body %}
+<h1>Inclusion criteria</h1>
+
+<p><b>Version 0.1</b>, 12 November 2026.</p>
+
+<p>A poet is included when at least one documented tie connects them to
+Pittsburgh. "Pittsburgh" means the city within its present limits, which
+include places that were separate when the poet was there, such as Allegheny
+City (annexed in 1907). Every tie must cite a source.</p>
+
+<h2>Kinds of tie</h2>
+
+<table>
+  <tr><th>Kind</th><th>Meaning</th></tr>
+  <tr><td>{{ kinds.born }}</td><td>Born in the city.</td></tr>
+  <tr><td>{{ kinds.raised }}</td><td>Spent some or all of childhood here.</td></tr>
+  <tr><td>{{ kinds.studied }}</td><td>Enrolled at a school or university here.</td></tr>
+  <tr><td>{{ kinds.lived }}</td><td>Lived here as an adult.</td></tr>
+  <tr><td>{{ kinds.worked }}</td><td>Held a job here, in any field.</td></tr>
+  <tr><td>{{ kinds.taught }}</td><td>Taught at a school or university here.</td></tr>
+  <tr><td>{{ kinds.published }}</td><td>Published a book with a Pittsburgh press.</td></tr>
+  <tr><td>{{ kinds.edited }}</td><td>Edited a Pittsburgh press, series or journal.</td></tr>
+</table>
+
+<h2>Status</h2>
+
+<dl>
+  <dt><b>{{ inclusion.core }}</b></dt>
+  <dd>The ties are substantial: years of residence, study or work.</dd>
+  <dt><b>{{ inclusion.edge }}</b></dt>
+  <dd>The ties are real but slight, such as birth followed by an early move.
+      These entries stay in the catalog because they test the category.</dd>
+</dl>
+
+<h2>Not yet decided</h2>
+
+<ul>
+  <li>Whether the metro area counts, or only the city.</li>
+  <li>Whether a visiting reading or a short residency counts as a tie.</li>
+  <li>Whether to include writers known mainly for other genres who also wrote poems.</li>
+</ul>
+
+<h2>Change log</h2>
+
+<ul>
+  <li><b>0.1</b> (12 November 2026): First draft.</li>
+</ul>
+{% endblock %}

@@ -1,0 +1,47 @@
+name: Robinson Jeffers
+sort_name: Jeffers, Robinson
+born: { date: "1887-01-10", place: "Allegheny, Pennsylvania (now part of Pittsburgh)" }
+died: { date: "1962-01-20", place: "Carmel, California" }
+summary: >
+  Poet of the California coast, born in Allegheny, where his father taught at
+  Western Theological Seminary.
+
+ties:
+  - kind: born
+    when: "1887"
+    text: >
+      Born in Allegheny. His father, the Rev. William Hamilton Jeffers, was a
+      professor at Western Theological Seminary in Pittsburgh.
+    sources: [poetsorg, rja]
+  - kind: studied
+    when: "1902–1903"
+    text: >
+      After schooling in Europe, enrolled at the Western University of
+      Pennsylvania (now the University of Pittsburgh) for one academic year.
+    sources: [rja]
+
+inclusion:
+  status: edge
+  note: >
+    Jeffers was born here and spent a year at the university at fifteen, then
+    left for California.
+
+notes: >
+  Much of his schooling took place in Germany and Switzerland between 1898 and
+  1902. In May 1903 his father retired and moved the family to Southern
+  California, where Jeffers entered Occidental College.
+
+sources:
+  poetsorg:
+    title: "Robinson Jeffers"
+    publisher: Academy of American Poets (Poets.org)
+    url: https://poets.org/poet/robinson-jeffers
+    accessed: "2026-11-12"
+  rja:
+    author: Robert Kafka
+    title: "Biography"
+    publisher: Robinson Jeffers Association (first printed in _California History_ 87, no. 2, 2010)
+    url: https://robinsonjeffersassociation.org/who-was-robinson-jeffers/biography/
+    accessed: "2026-11-12"
+
+entry: { by: "Unsigned draft, not yet reviewed", created: "2026-11-12", updated: "2026-11-12" }
