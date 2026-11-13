@@ -53,7 +53,14 @@ hooks:
         curl -fs https://get.symfony.com/cloud/configurator | bash
         # php-ext-install blackfire X.Y.Z
 
-        NODE_VERSION=22 COMPOSER_FLAGS="--no-progress" symfony-build
+        NODE_VERSION=24 COMPOSER_FLAGS="--no-progress" symfony-build
+
+        # symfony-build's nvm Node lives in a subshell, set NVM_DIR there
+        unset NPM_CONFIG_PREFIX
+        export NVM_DIR="${PLATFORM_APP_DIR}/.nvm"
+        set +x && . "${NVM_DIR}/nvm.sh" && nvm use 24 && set -x
+        node --version
+
         # Lockfile-exact install; .npmrc sets ignore-scripts=true.
         npm ci
         npm run build
