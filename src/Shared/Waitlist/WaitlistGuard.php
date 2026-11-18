@@ -40,34 +40,35 @@ final class WaitlistGuard
     {
         $seed = $request->hasSession() ? $request->getSession()->get(self::SESSION_KEY) : null;
         if (!\is_string($seed) || '' === $seed) {
-            return WaitlistVerdict::silent('no_seed');
+            return WaitlistVerdict::silent('no_seed', self::scalar($request->request, self::PHANTOM_FIELD));
         }
 
         $input = $request->request;
         $fields = $this->fields($seed, $this->now());
+        $email = self::scalar($input, $fields->emailField) ?? self::scalar($input, self::PHANTOM_FIELD);
 
         if ($input->has(self::PHANTOM_FIELD)) {
-            return WaitlistVerdict::silent('phantom_field');
+            return WaitlistVerdict::silent('phantom_field', $email);
         }
 
         if ('' !== (self::scalar($input, $fields->trapField) ?? 'missing')) {
-            return WaitlistVerdict::silent('trap_disturbed');
+            return WaitlistVerdict::silent('trap_disturbed', $email);
         }
 
         $renderedAt = $this->renderedAt($seed, self::scalar($input, $fields->canaryField));
         if (null === $renderedAt) {
-            return WaitlistVerdict::silent('canary_tampered');
+            return WaitlistVerdict::silent('canary_tampered', $email);
         }
 
         $age = $this->now() - $renderedAt;
         if ($age < self::MIN_SECONDS_TO_SUBMIT) {
-            return WaitlistVerdict::silent('too_fast');
+            return WaitlistVerdict::silent('too_fast', $email);
         }
         if ($age > self::MAX_FORM_AGE_SECONDS) {
             return WaitlistVerdict::expired();
         }
 
-        return WaitlistVerdict::pass(self::scalar($input, $fields->emailField));
+        return WaitlistVerdict::pass($email);
     }
 
     private function fields(string $seed, int $renderedAt): WaitlistFormFields

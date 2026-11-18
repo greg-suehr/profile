@@ -19,9 +19,9 @@ final class WaitlistVerdict
         return new self(true, false, null, $email);
     }
 
-    public static function silent(string $reason): self
+    public static function silent(string $reason, ?string $email = null): self
     {
-        return new self(false, true, $reason, null);
+        return new self(false, true, $reason, $email);
     }
 
     public static function expired(): self
